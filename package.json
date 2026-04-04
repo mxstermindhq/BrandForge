@@ -1,0 +1,13 @@
+{
+  "name": "mxstermind-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Localhost preview server for the mxstermind SaaS branding wedge demo.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1"
+  }
+}

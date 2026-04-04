@@ -1,0 +1,36 @@
+{
+  "platform": {
+    "focus": "saas-branding",
+    "heroTitle": "mxstermind",
+    "heroCopy": "A hybrid execution platform for SaaS branding where AI explores fast, humans refine taste, and maker-checker quality gates stop generic work before client review."
+  },
+  "profiles": [],
+  "services": [],
+  "requests": [],
+  "projects": [],
+  "leaderboard": [],
+  "humanChats": [],
+  "aiChats": [],
+  "agentRuns": [],
+  "settings": {
+    "newBids": true,
+    "aiUpdates": true,
+    "weeklyDigest": false,
+    "marketingEmails": false,
+    "defaultModel": "mxAI Turbo",
+    "autoRunAgent": false,
+    "aiInBids": true,
+    "twoFactor": true,
+    "loginAlerts": true
+  },
+  "activeChat": {
+    "title": "Chat",
+    "type": "human",
+    "messages": []
+  },
+  "research": {
+    "topic": "",
+    "hasResults": false,
+    "mode": "Quick"
+  }
+}

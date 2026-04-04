@@ -1,0 +1,1191 @@
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { getEnv } = require('./src/server/env');
+const { createStateRepository } = require('./src/server/state-repository');
+const { createPlatformRepository } = require('./src/server/platform-repository');
+const { getUserFromAccessToken, ensureProfileForUser } = require('./src/server/auth-service');
+const { completeMxAgentChat, hasConfiguredLlm, resolveLlmCredentials } = require('./src/server/ai-chat');
+const { generateOpenAiImage, resolveOpenAiImageKey } = require('./src/server/ai-image');
+
+const env = getEnv();
+const host = '127.0.0.1';
+const port = env.port;
+const root = __dirname;
+
+const mimeTypes = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.ico': 'image/x-icon',
+};
+
+let repository;
+let platformRepository;
+let storageMode = 'local';
+const presenceByUserId = new Map();
+const typingByChatId = new Map();
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function touchPresence(userId) {
+  if (!userId) return;
+  presenceByUserId.set(String(userId), Date.now());
+}
+
+function setTyping(chatId, userId, isTyping) {
+  const cId = String(chatId || '');
+  const uId = String(userId || '');
+  if (!cId || !uId) return;
+  const chatMap = typingByChatId.get(cId) || new Map();
+  if (isTyping) {
+    chatMap.set(uId, Date.now() + 8000);
+  } else {
+    chatMap.delete(uId);
+  }
+  if (chatMap.size) typingByChatId.set(cId, chatMap);
+  else typingByChatId.delete(cId);
+}
+
+const PRESENCE_ONLINE_MS = 45000;
+
+function countOnlineUsers(now = Date.now()) {
+  let n = 0;
+  for (const ts of presenceByUserId.values()) {
+    if (now - ts < PRESENCE_ONLINE_MS) n += 1;
+  }
+  return n;
+}
+
+function buildPresenceSnapshot(chat) {
+  const snapshot = {};
+  const participants = chat?.participants || [];
+  const chatMap = typingByChatId.get(String(chat?.id || '')) || new Map();
+  const now = Date.now();
+  for (const participant of participants) {
+    const uId = String(participant.userId || '');
+    if (!uId) continue;
+    const lastSeenMs = presenceByUserId.get(uId) || 0;
+    const typingUntil = chatMap.get(uId) || 0;
+    if (typingUntil && typingUntil < now) chatMap.delete(uId);
+    snapshot[uId] = {
+      online: now - lastSeenMs < PRESENCE_ONLINE_MS,
+      lastSeenAt: lastSeenMs ? new Date(lastSeenMs).toISOString() : null,
+      isTyping: typingUntil > now,
+    };
+  }
+  if (chatMap.size) typingByChatId.set(String(chat?.id || ''), chatMap);
+  return snapshot;
+}
+
+function getBearerToken(req) {
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) return '';
+  return header.slice('Bearer '.length).trim();
+}
+
+function resolveRequestPath(urlPath) {
+  if (urlPath === '/' || urlPath === '/index.html') {
+    return path.join(root, 'mxstermind.html');
+  }
+
+  const normalized = path
+    .normalize(decodeURIComponent(urlPath))
+    .replace(/^([/\\])+/, '')
+    .replace(/^(\.\.[/\\])+/, '');
+
+  return path.join(root, normalized);
+}
+
+function sendJson(res, status, payload) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+  });
+  res.end(JSON.stringify(payload));
+}
+
+function sendText(res, status, message) {
+  res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.end(message);
+}
+
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 1_000_000) {
+        reject(new Error('Payload too large'));
+      }
+    });
+    req.on('end', () => {
+      if (!body) {
+        resolve({});
+        return;
+      }
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        reject(new Error('Invalid JSON body'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+function createId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function daysUntil(dateValue) {
+  if (!dateValue) return 0;
+  const today = new Date();
+  const target = new Date(dateValue);
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.max(Math.ceil((target - today) / 86400000), 0);
+}
+
+async function readState() {
+  return repository.read();
+}
+
+async function writeState(state) {
+  return repository.write(state);
+}
+
+async function getOptionalUser(req) {
+  const token = getBearerToken(req);
+  if (!token) return null;
+  try {
+    const user = await getUserFromAccessToken(token);
+    if (user) touchPresence(user.id);
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+async function requireUser(req, res) {
+  const user = await getOptionalUser(req);
+  if (user) {
+    touchPresence(user.id);
+    return user;
+  }
+  sendJson(res, 401, { error: 'Authentication required' });
+  return null;
+}
+
+async function routeApi(req, res, pathname) {
+  const method = req.method || 'GET';
+
+  if (pathname === '/api/auth/config' && method === 'GET') {
+    sendJson(res, 200, {
+      enabled: Boolean(env.supabaseUrl && env.supabaseAnonKey && env.supabaseServiceRoleKey),
+      url: env.supabaseUrl || '',
+      anonKey: env.supabaseAnonKey || '',
+    });
+    return true;
+  }
+
+  if (pathname === '/api/auth/me' && method === 'GET') {
+    if (!env.supabaseUrl || !env.supabaseAnonKey || !env.supabaseServiceRoleKey) {
+      sendJson(res, 200, { enabled: false, user: null, profile: null, settings: null });
+      return true;
+    }
+
+    const token = getBearerToken(req);
+    if (!token) {
+      sendJson(res, 200, { enabled: true, user: null, profile: null, settings: null });
+      return true;
+    }
+
+    try {
+      const user = await getUserFromAccessToken(token);
+      if (!user) {
+        sendJson(res, 200, { enabled: true, user: null, profile: null, settings: null });
+        return true;
+      }
+
+      touchPresence(user.id);
+      const bootstrapped = await ensureProfileForUser(user);
+      sendJson(res, 200, {
+        enabled: true,
+        user: {
+          id: user.id,
+          email: user.email || '',
+        },
+        profile: bootstrapped ? bootstrapped.profile : null,
+        settings: bootstrapped ? bootstrapped.settings : null,
+      });
+    } catch (error) {
+      sendJson(res, 401, { error: 'Invalid or expired session' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/bootstrap' && method === 'GET') {
+    const user = await getOptionalUser(req);
+    if (user) {
+      await ensureProfileForUser(user).catch(() => null);
+    }
+    const state = await platformRepository.getBootstrap(user);
+    const registeredProfiles = Array.isArray(state.profiles) ? state.profiles.length : 0;
+    const onlineNow = countOnlineUsers();
+    sendJson(res, 200, {
+      ...state,
+      storageMode,
+      platform: {
+        ...(state.platform || {}),
+        registeredProfiles,
+        onlineNow,
+      },
+    });
+    return true;
+  }
+
+  if (pathname === '/api/marketplace-stats' && method === 'GET') {
+    const marketplaceStats = await platformRepository.getMarketplaceStats();
+    sendJson(res, 200, { marketplaceStats });
+    return true;
+  }
+
+  if (pathname === '/api/settings' && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const settings = await platformRepository.updateSettings(user.id, payload);
+    sendJson(res, 200, { settings });
+    return true;
+  }
+
+  if (pathname === '/api/profile' && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const profile = await platformRepository.updateProfile(user.id, payload);
+      sendJson(res, 200, { profile });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/profile/avatar' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.dataUrl) {
+      sendJson(res, 400, { error: 'dataUrl is required (base64 data URL)' });
+      return true;
+    }
+    try {
+      const result = await platformRepository.uploadProfileAvatar(user.id, payload.dataUrl);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Upload failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/reviews' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const result = await platformRepository.createProjectReview(user.id, payload);
+      sendJson(res, 201, result);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Review failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/requests' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.title || !payload.desc || !payload.budget) {
+      sendJson(res, 400, { error: 'title, desc, and budget are required' });
+      return true;
+    }
+    const request = await platformRepository.createProjectRequest(user, payload);
+    sendJson(res, 201, { request });
+    return true;
+  }
+
+  const requestIdOnlyMatch = pathname.match(/^\/api\/requests\/([^/]+)$/);
+  if (requestIdOnlyMatch && (method === 'PUT' || method === 'PATCH')) {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const requestId = requestIdOnlyMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const request = await platformRepository.updateProjectRequest(user, requestId, payload);
+      sendJson(res, 200, { request });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  if (requestIdOnlyMatch && method === 'DELETE') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const requestId = requestIdOnlyMatch[1];
+    try {
+      const result = await platformRepository.deleteProjectRequest(user, requestId);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Delete failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/services' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.title || !payload.price || !payload.category) {
+      sendJson(res, 400, { error: 'title, price, and category are required' });
+      return true;
+    }
+    const service = await platformRepository.createServicePackage(user, payload);
+    sendJson(res, 201, { service });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/services/') && pathname.endsWith('/cover') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = pathname.slice('/api/services/'.length, -'/cover'.length);
+    if (!serviceId || serviceId.includes('/')) {
+      sendJson(res, 400, { error: 'Service id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.dataUrl) {
+      sendJson(res, 400, { error: 'dataUrl is required (base64 data URL)' });
+      return true;
+    }
+    try {
+      const service = await platformRepository.uploadServiceCover(user.id, serviceId, payload.dataUrl);
+      sendJson(res, 200, { service });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Upload failed' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/services/') && (method === 'PUT' || method === 'PATCH')) {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = pathname.slice('/api/services/'.length).split('/')[0];
+    if (!serviceId) {
+      sendJson(res, 400, { error: 'Service id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    try {
+      const service = await platformRepository.updateServicePackage(user, serviceId, payload);
+      sendJson(res, 200, { service });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/services/') && method === 'DELETE') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = pathname.slice('/api/services/'.length).split('/')[0];
+    if (!serviceId) {
+      sendJson(res, 400, { error: 'Service id is required' });
+      return true;
+    }
+    try {
+      const result = await platformRepository.deleteServicePackage(user, serviceId);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Delete failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/bids' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.requestId || !payload.price || !payload.proposal) {
+      sendJson(res, 400, { error: 'requestId, price, and proposal are required' });
+      return true;
+    }
+    const bid = await platformRepository.createBid(user, payload);
+    sendJson(res, 201, { bid });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/requests/') && pathname.endsWith('/bids') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const requestId = pathname.slice('/api/requests/'.length, -'/bids'.length);
+    if (!requestId) {
+      sendJson(res, 400, { error: 'Request id is required' });
+      return true;
+    }
+    const payload = await platformRepository.listRequestBids(user.id, requestId);
+    sendJson(res, 200, payload);
+    return true;
+  }
+
+  if (pathname.startsWith('/api/requests/') && pathname.endsWith('/matches') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const requestId = pathname.slice('/api/requests/'.length, -'/matches'.length);
+    if (!requestId) {
+      sendJson(res, 400, { error: 'Request id is required' });
+      return true;
+    }
+    try {
+      const payload = await platformRepository.matchSpecialistsForRequest(user.id, requestId);
+      sendJson(res, 200, payload);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not load matches' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/bids/') && pathname.endsWith('/accept') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const bidId = pathname.slice('/api/bids/'.length, -'/accept'.length);
+    if (!bidId) {
+      sendJson(res, 400, { error: 'Bid id is required' });
+      return true;
+    }
+    const project = await platformRepository.acceptBid(user.id, bidId);
+    sendJson(res, 200, { project });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/bids/') && pathname.endsWith('/reject') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const bidId = pathname.slice('/api/bids/'.length, -'/reject'.length);
+    if (!bidId) {
+      sendJson(res, 400, { error: 'Bid id is required' });
+      return true;
+    }
+    try {
+      const bid = await platformRepository.rejectBid(user.id, bidId);
+      sendJson(res, 200, { bid });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not reject bid' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/agent-runs' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.description || !payload.model) {
+      sendJson(res, 400, { error: 'description and model are required' });
+      return true;
+    }
+    const run = await platformRepository.createAgentRun(user, payload);
+    sendJson(res, 201, { run });
+    return true;
+  }
+
+  const agentRunPatch = pathname.match(/^\/api\/agent-runs\/([^/]+)$/);
+  if (agentRunPatch && method === 'PATCH') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const runId = agentRunPatch[1];
+    const payload = await parseBody(req);
+    try {
+      const run = await platformRepository.patchAgentRun(user.id, runId, payload);
+      sendJson(res, 200, { run });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/ai/chat' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const mode = String(payload.mode || 'general');
+    const messages = payload.messages;
+    try {
+      const reply = await completeMxAgentChat({
+        env,
+        model: env.aiModel || undefined,
+        mode,
+        messages,
+      });
+      await platformRepository.incrementMxAgentChatUsage(user.id);
+      sendJson(res, 200, { reply, source: 'ai', mode });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'AI request failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/ai/image' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const prompt = payload.prompt;
+    if (!prompt || !String(prompt).trim()) {
+      sendJson(res, 400, { error: 'prompt is required' });
+      return true;
+    }
+    const imgKey = resolveOpenAiImageKey(env);
+    if (!imgKey) {
+      sendJson(res, 400, {
+        error:
+          'Image generation needs AI_IMAGE_KEY (OpenAI) or an OpenAI-style AI_API_KEY — not Anthropic keys.',
+      });
+      return true;
+    }
+    try {
+      const out = await generateOpenAiImage({
+        apiKey: imgKey,
+        prompt: String(prompt),
+        size: payload.size,
+      });
+      await platformRepository.incrementMxAgentChatUsage(user.id);
+      sendJson(res, 200, { ...out, source: 'openai' });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Image generation failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/chat/start' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const activeChat = await platformRepository.createConversation(user, payload);
+    sendJson(res, 200, { activeChat });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/chat') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/chat'.length);
+    if (!projectId) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    payload.projectId = projectId;
+    const activeChat = await platformRepository.createConversation(user, payload);
+    sendJson(res, 200, { activeChat });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chat/') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const conversationId = pathname.slice('/api/chat/'.length);
+    if (!conversationId) {
+      sendJson(res, 400, { error: 'Conversation id is required' });
+      return true;
+    }
+    const activeChat = await platformRepository.getConversation(user.id, conversationId);
+    sendJson(res, 200, { activeChat });
+    return true;
+  }
+
+  if (pathname === '/api/chat/files' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const conversationId = String(payload.conversationId || '').trim();
+    if (!conversationId) {
+      sendJson(res, 400, { error: 'conversationId is required' });
+      return true;
+    }
+    if (!payload.dataUrl) {
+      sendJson(res, 400, { error: 'dataUrl is required' });
+      return true;
+    }
+    try {
+      const uploaded = await platformRepository.uploadLegacyChatFile(
+        user.id,
+        conversationId,
+        payload.dataUrl,
+        payload.fileName || null,
+      );
+      const activeChat = await platformRepository.addMessage(user.id, {
+        conversationId,
+        text: String(payload.caption || '').trim(),
+        fileUrl: uploaded.fileUrl,
+        fileName: uploaded.fileName,
+        fileSize: uploaded.fileSize,
+        contentType: uploaded.contentType,
+        mime: uploaded.mime,
+      });
+      sendJson(res, 201, { activeChat, uploaded });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Upload failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/chat/messages' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.text && !payload.fileUrl) {
+      sendJson(res, 400, { error: 'text or file is required' });
+      return true;
+    }
+    const activeChat = await platformRepository.addMessage(user, payload);
+    sendJson(res, 201, { activeChat });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chat/') && /\/leave\/?$/.test(pathname) && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    const conversationId = pathname
+      .slice('/api/chat/'.length)
+      .replace(/\/leave\/?$/, '');
+    if (conversationId) {
+      await platformRepository.leaveConversation(user.id, conversationId).catch(() => null);
+    }
+    sendJson(res, 200, { success: true });
+    return true;
+  }
+
+  if (pathname === '/api/chat/legacy/clear' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    const result = await platformRepository.clearLegacyChats(user.id).catch(() => ({ cleared: 0 }));
+    sendJson(res, 200, { success: true, cleared: result.cleared || 0 });
+    return true;
+  }
+
+  if (pathname === '/api/research' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    if (!payload.topic) {
+      sendJson(res, 400, { error: 'topic is required' });
+      return true;
+    }
+    const created = await platformRepository.createResearchRun(user, payload);
+    const rid = created.id;
+    let research;
+
+    if (hasConfiguredLlm(env)) {
+      try {
+        const depth = String(payload.mode || 'Quick').trim();
+        const reply = await completeMxAgentChat({
+          env,
+          model: env.aiModel || undefined,
+          mode: 'research',
+          messages: [
+            {
+              role: 'user',
+              content: `Research depth: ${depth}\n\nTopic:\n${String(payload.topic).trim()}\n\nFollow the system structure. Be concrete; flag gaps where fresh data is needed.`,
+            },
+          ],
+        });
+        research = await platformRepository.updateResearchRunWithAi(user.id, rid, reply);
+        await platformRepository.incrementMxAgentChatUsage(user.id);
+      } catch (error) {
+        await platformRepository.updateResearchRunFailed(user.id, rid, error.message);
+        research = await platformRepository.getResearchRun(user.id, rid);
+      }
+    } else {
+      research = await platformRepository.getResearchRun(user.id, rid);
+    }
+
+    sendJson(res, 201, {
+      research,
+      aiEnabled: hasConfiguredLlm(env),
+    });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/research/') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const researchId = pathname.slice('/api/research/'.length);
+    if (!researchId) {
+      sendJson(res, 400, { error: 'Research id is required' });
+      return true;
+    }
+    const research = await platformRepository.getResearchRun(user.id, researchId);
+    sendJson(res, 200, { research });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/research/') && pathname.endsWith('/artifacts') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const researchId = pathname.slice('/api/research/'.length, -'/artifacts'.length);
+    if (!researchId) {
+      sendJson(res, 400, { error: 'Research id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.type || !payload.title || !payload.content) {
+      sendJson(res, 400, { error: 'type, title, and content are required' });
+      return true;
+    }
+    const artifact = await platformRepository.createResearchArtifact(user.id, researchId, payload);
+    sendJson(res, 201, { artifact });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/review-eligibility') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/review-eligibility'.length);
+    if (!projectId || projectId.includes('/')) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    try {
+      const eligibility = await platformRepository.getProjectReviewEligibility(user.id, projectId);
+      sendJson(res, 200, eligibility);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/milestones') && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/milestones'.length);
+    if (!projectId || projectId.includes('/')) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!Array.isArray(payload.milestones)) {
+      sendJson(res, 400, { error: 'milestones array is required' });
+      return true;
+    }
+    try {
+      const project = await platformRepository.setProjectMilestones(user.id, projectId, payload.milestones);
+      sendJson(res, 200, { project });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length);
+    if (!projectId || projectId.includes('/')) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const project = await platformRepository.getProject(user.id, projectId);
+    sendJson(res, 200, { project });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/status') && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/status'.length);
+    if (!projectId) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.status) {
+      sendJson(res, 400, { error: 'status is required' });
+      return true;
+    }
+    const project = await platformRepository.updateProjectStatus(user.id, projectId, payload.status, payload.note);
+    sendJson(res, 200, { project });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/agent-runs') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/agent-runs'.length);
+    if (!projectId) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.description || !payload.model) {
+      sendJson(res, 400, { error: 'description and model are required' });
+      return true;
+    }
+    const run = await platformRepository.createProjectAgentRun(user.id, projectId, payload);
+    sendJson(res, 201, { run });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/deliverables') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/deliverables'.length);
+    if (!projectId) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.type || !payload.content) {
+      sendJson(res, 400, { error: 'type and content are required' });
+      return true;
+    }
+    const deliverable = await platformRepository.createDeliverable(user.id, projectId, payload);
+    sendJson(res, 201, { deliverable });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/projects/') && pathname.endsWith('/analytics') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const projectId = pathname.slice('/api/projects/'.length, -'/analytics'.length);
+    if (!projectId) {
+      sendJson(res, 400, { error: 'Project id is required' });
+      return true;
+    }
+    const analytics = await platformRepository.getProjectAnalytics(user.id, projectId);
+    sendJson(res, 200, { analytics });
+    return true;
+  }
+
+  if (pathname === '/api/analytics/dashboard' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const dashboard = await platformRepository.getDashboardAnalytics(user.id);
+    sendJson(res, 200, { dashboard });
+    return true;
+  }
+
+  // Unified Chat System
+  if (pathname === '/api/chats' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chats = await platformRepository.getUnifiedChats(user.id);
+    sendJson(res, 200, { chats });
+    return true;
+  }
+
+  if (pathname === '/api/chats' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const chat = await platformRepository.createUnifiedChat(user.id, payload);
+    sendJson(res, 201, { chat });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chats/') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chatId = pathname.slice('/api/chats/'.length);
+    if (!chatId) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    const chat = await platformRepository.getUnifiedChat(user.id, chatId);
+    sendJson(res, 200, { chat, presence: buildPresenceSnapshot(chat) });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chats/') && /\/leave\/?$/.test(pathname) && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    const chatId = pathname
+      .slice('/api/chats/'.length)
+      .replace(/\/leave\/?$/, '');
+    if (chatId) {
+      await platformRepository.leaveUnifiedChat(user.id, chatId).catch(() => null);
+    }
+    sendJson(res, 200, { success: true });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chats/') && pathname.endsWith('/typing') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    const chatId = pathname.slice('/api/chats/'.length, -'/typing'.length);
+    if (!chatId) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    setTyping(chatId, user.id, Boolean(payload.isTyping));
+    sendJson(res, 200, { success: true });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chats/') && pathname.endsWith('/files') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chatId = pathname.slice('/api/chats/'.length, -'/files'.length);
+    if (!chatId) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.dataUrl) {
+      sendJson(res, 400, { error: 'dataUrl is required (base64 data URL)' });
+      return true;
+    }
+    try {
+      const uploaded = await platformRepository.uploadUnifiedChatFile(
+        user.id,
+        chatId,
+        payload.dataUrl,
+        payload.fileName || null,
+      );
+      const message = await platformRepository.addUnifiedMessage(user.id, chatId, {
+        content: payload.caption || '',
+        fileUrl: uploaded.fileUrl,
+        fileName: uploaded.fileName,
+        fileSize: uploaded.fileSize,
+        contentType: uploaded.contentType,
+        mime: uploaded.mime,
+        chatTitle: payload.chatTitle,
+      });
+      sendJson(res, 201, { message, uploaded });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Upload failed' });
+    }
+    return true;
+  }
+
+  if (pathname.startsWith('/api/chats/') && pathname.endsWith('/messages') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chatId = pathname.slice('/api/chats/'.length, -'/messages'.length);
+    if (!chatId) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    const message = await platformRepository.addUnifiedMessage(user.id, chatId, payload);
+    sendJson(res, 201, { message });
+    return true;
+  }
+
+  // Notifications
+  if (pathname === '/api/notifications/read-all' && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      await platformRepository.markAllNotificationsRead(user.id);
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/notifications' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const notifications = await platformRepository.getNotifications(user.id);
+    sendJson(res, 200, { notifications });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/notifications/') && pathname.endsWith('/read') && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const notificationId = pathname.slice('/api/notifications/'.length, -'/read'.length);
+    if (!notificationId) {
+      sendJson(res, 400, { error: 'Notification id is required' });
+      return true;
+    }
+    await platformRepository.markNotificationRead(user.id, notificationId);
+    sendJson(res, 200, { success: true });
+    return true;
+  }
+
+  // Portfolio System
+  if (pathname === '/api/portfolios' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const portfolios = await platformRepository.getPortfolios(user.id);
+    sendJson(res, 200, { portfolios });
+    return true;
+  }
+
+  if (pathname === '/api/portfolios' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const portfolio = await platformRepository.createPortfolio(user.id, payload);
+    sendJson(res, 201, { portfolio });
+    return true;
+  }
+
+  if (pathname.startsWith('/api/portfolios/') && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const portfolioId = pathname.slice('/api/portfolios/'.length);
+    if (!portfolioId) {
+      sendJson(res, 400, { error: 'Portfolio id is required' });
+      return true;
+    }
+    const portfolio = await platformRepository.getPortfolio(user.id, portfolioId);
+    sendJson(res, 200, { portfolio });
+    return true;
+  }
+
+  // Public Profile
+  if (pathname.startsWith('/api/profiles/') && pathname.endsWith('/public') && method === 'GET') {
+    const username = pathname.slice('/api/profiles/'.length, -'/public'.length);
+    if (!username) {
+      sendJson(res, 400, { error: 'Username is required' });
+      return true;
+    }
+    const profile = await platformRepository.getPublicProfile(username);
+    sendJson(res, 200, { profile });
+    return true;
+  }
+
+  // AI Models
+  if (pathname === '/api/ai-models' && method === 'GET') {
+    const models = await platformRepository.getAIModels();
+    sendJson(res, 200, { models });
+    return true;
+  }
+
+  if (pathname === '/api/ai/status' && method === 'GET') {
+    const creds = resolveLlmCredentials(env);
+    sendJson(res, 200, {
+      chat: {
+        configured: hasConfiguredLlm(env),
+        providerId: creds.kind === 'none' ? null : creds.providerId,
+      },
+      image: { configured: Boolean(resolveOpenAiImageKey(env)) },
+    });
+    return true;
+  }
+
+  return false;
+}
+
+async function createServer() {
+  const created = await createStateRepository();
+  repository = created.repository;
+  storageMode = created.mode;
+  platformRepository = await createPlatformRepository(repository);
+
+  const server = http.createServer(async (req, res) => {
+    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+
+    if (requestUrl.pathname.startsWith('/api/')) {
+      try {
+        const handled = await routeApi(req, res, requestUrl.pathname);
+        if (!handled) sendJson(res, 404, { error: 'Not found' });
+      } catch (error) {
+        console.error('[API ERROR]', req.method, requestUrl.pathname, error.message, error.details || '', error.hint || '');
+        sendJson(res, 500, { error: error.message || 'Internal server error', details: error.details, hint: error.hint });
+      }
+      return;
+    }
+
+    const filePath = resolveRequestPath(requestUrl.pathname);
+
+    if (!filePath.startsWith(root)) {
+      sendText(res, 403, 'Forbidden');
+      return;
+    }
+
+    fs.readFile(filePath, (error, content) => {
+      if (error) {
+        const status = error.code === 'ENOENT' ? 404 : 500;
+        sendText(res, status, status === 404 ? 'Not found' : 'Internal server error');
+        return;
+      }
+
+      const ext = path.extname(filePath).toLowerCase();
+      res.writeHead(200, {
+        'Content-Type': mimeTypes[ext] || 'application/octet-stream',
+        'Cache-Control': 'no-store',
+      });
+      res.end(content);
+    });
+  });
+
+  server.listen(port, host, () => {
+    console.log(`mxstermind full-stack preview running at http://${host}:${port} (${storageMode})`);
+  });
+}
+
+createServer().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
