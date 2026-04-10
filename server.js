@@ -65,6 +65,14 @@ function countOnlineUsers(now = Date.now()) {
   return n;
 }
 
+function listOnlineUserIds(now = Date.now()) {
+  const out = [];
+  for (const [userId, ts] of presenceByUserId.entries()) {
+    if (now - ts < PRESENCE_ONLINE_MS) out.push(userId);
+  }
+  return out;
+}
+
 function buildPresenceSnapshot(chat) {
   const snapshot = {};
   const participants = chat?.participants || [];
@@ -185,6 +193,18 @@ async function requireUser(req, res) {
   return null;
 }
 
+function verifyCronSecret(req, body, cronSecret) {
+  const secret = String(cronSecret || '').trim();
+  if (!secret) return false;
+  const auth = String(req.headers.authorization || '');
+  if (auth === `Bearer ${secret}`) return true;
+  if (body && typeof body === 'object') {
+    if (body.secret === secret) return true;
+    if (body.CRON_SECRET === secret) return true;
+  }
+  return false;
+}
+
 async function routeApi(req, res, pathname) {
   const method = req.method || 'GET';
 
@@ -218,17 +238,88 @@ async function routeApi(req, res, pathname) {
 
       touchPresence(user.id);
       const bootstrapped = await ensureProfileForUser(user);
+      const profileRow = bootstrapped ? bootstrapped.profile : null;
+      const pendingOnboarding = Boolean(
+        !profileRow || !profileRow.onboarding_completed_at,
+      );
+      const profileOut = profileRow
+        ? {
+            id: profileRow.id,
+            full_name: profileRow.full_name ?? null,
+            username: profileRow.username ?? null,
+            avatar_url: profileRow.avatar_url ?? null,
+            headline: profileRow.headline ?? null,
+            onboarding_completed_at: profileRow.onboarding_completed_at ?? null,
+          }
+        : null;
       sendJson(res, 200, {
         enabled: true,
         user: {
           id: user.id,
           email: user.email || '',
         },
-        profile: bootstrapped ? bootstrapped.profile : null,
+        profile: profileOut,
         settings: bootstrapped ? bootstrapped.settings : null,
+        pendingOnboarding,
       });
     } catch (error) {
       sendJson(res, 401, { error: 'Invalid or expired session' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/profiles/username-available' && method === 'GET') {
+    const user = await getOptionalUser(req);
+    try {
+      const q = new URL(req.url || '/', 'http://127.0.0.1').searchParams.get('username') || '';
+      const result = await platformRepository.checkUsernameAvailable(q, user?.id ?? null);
+      sendJson(res, 200, result);
+    } catch {
+      sendJson(res, 200, { available: false, reason: 'invalid' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/onboarding/complete' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    let payload;
+    try {
+      payload = await parseBody(req);
+    } catch {
+      sendJson(res, 400, { error: 'Invalid JSON body' });
+      return true;
+    }
+    const rawUser = String(payload.username || '')
+      .trim()
+      .replace(/^@+/, '')
+      .toLowerCase();
+    const headline = String(payload.headline || '').trim();
+    if (!/^[a-z0-9][a-z0-9_-]{0,30}$/.test(rawUser) || rawUser.length < 2) {
+      sendJson(res, 400, { error: 'Invalid username' });
+      return true;
+    }
+    if (!headline || headline.length > 200) {
+      sendJson(res, 400, { error: 'Professional title is required' });
+      return true;
+    }
+    try {
+      const avail = await platformRepository.checkUsernameAvailable(rawUser, user.id);
+      if (!avail.available) {
+        sendJson(res, 400, {
+          error: avail.reason === 'taken' ? 'Username taken' : 'Invalid username',
+        });
+        return true;
+      }
+      const profile = await platformRepository.updateProfile(user.id, {
+        username: rawUser,
+        headline,
+        onboarding_completed_at: new Date().toISOString(),
+      });
+      sendJson(res, 200, { ok: true, profile });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not save profile' });
     }
     return true;
   }
@@ -241,8 +332,10 @@ async function routeApi(req, res, pathname) {
     const state = await platformRepository.getBootstrap(user);
     const registeredProfiles = Array.isArray(state.profiles) ? state.profiles.length : 0;
     const onlineNow = countOnlineUsers();
+    const onlineUserIds = listOnlineUserIds();
     sendJson(res, 200, {
       ...state,
+      onlineUserIds,
       storageMode,
       platform: {
         ...(state.platform || {}),
@@ -256,6 +349,179 @@ async function routeApi(req, res, pathname) {
   if (pathname === '/api/marketplace-stats' && method === 'GET') {
     const marketplaceStats = await platformRepository.getMarketplaceStats();
     sendJson(res, 200, { marketplaceStats });
+    return true;
+  }
+
+  if (pathname === '/api/home/stats' && method === 'GET') {
+    try {
+      const stats = await platformRepository.getHomeStats();
+      sendJson(res, 200, stats);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Could not load home stats' });
+    }
+    return true;
+  }
+
+  const leaderboardTypeMatch = pathname.match(/^\/api\/leaderboard\/(rating|honor|conquest|streak)$/);
+  if (leaderboardTypeMatch && method === 'GET') {
+    const type = leaderboardTypeMatch[1];
+    const u = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
+    const limitRaw = u.searchParams.get('limit');
+    const limit = limitRaw == null || limitRaw === '' ? 0 : Number(limitRaw);
+    const rs = platformRepository.ratingService;
+    const { entries, season } = rs
+      ? await rs.getLeaderboard(type, limit)
+      : { entries: [], season: null };
+    sendJson(res, 200, {
+      type,
+      entries,
+      onlineUserIds: listOnlineUserIds(),
+      season: season
+        ? {
+            name: season.name,
+            slug: season.slug,
+            ends_at: season.ends_at,
+            competitive_starts_at: season.competitive_starts_at,
+            prize_pool_usd: season.prize_pool_usd,
+            payout_structure: season.payout_structure,
+            competitive_mode: season.competitive_mode,
+            tier_floors: season.tier_floors,
+          }
+        : null,
+    });
+    return true;
+  }
+
+  if (pathname === '/api/season/current' && method === 'GET') {
+    const season = platformRepository.ratingService
+      ? await platformRepository.ratingService.getCurrentSeason()
+      : null;
+    sendJson(res, 200, { season });
+    return true;
+  }
+
+  if (pathname === '/api/privileges/catalog' && method === 'GET') {
+    const rows = platformRepository.currencyService
+      ? await platformRepository.currencyService.getPrivilegeCatalog()
+      : [];
+    sendJson(res, 200, { privileges: rows });
+    return true;
+  }
+
+  const userCurrencyMatch = pathname.match(/^\/api\/users\/([^/]+)\/currency$/);
+  if (userCurrencyMatch && method === 'GET') {
+    const id = decodeURIComponent(userCurrencyMatch[1]);
+    const cur = platformRepository.currencyService
+      ? await platformRepository.currencyService.getUserCurrency(id)
+      : null;
+    const honor = cur?.honor_points ?? 0;
+    const conq = cur?.conquest_points ?? 0;
+    sendJson(res, 200, {
+      honor_points: honor,
+      conquest_points: conq,
+      total_honor_earned: cur?.total_honor_earned ?? 0,
+      total_conquest_earned: cur?.total_conquest_earned ?? 0,
+      neonScore: honor + conq * 10,
+    });
+    return true;
+  }
+
+  const userRatingMatch = pathname.match(/^\/api\/users\/([^/]+)\/rating$/);
+  if (userRatingMatch && method === 'GET') {
+    const id = decodeURIComponent(userRatingMatch[1]);
+    const row = platformRepository.ratingService
+      ? await platformRepository.ratingService.getUserRating(id)
+      : null;
+    sendJson(res, 200, { rating: row });
+    return true;
+  }
+
+  const userLedgerMatch = pathname.match(/^\/api\/users\/([^/]+)\/ledger$/);
+  if (userLedgerMatch && method === 'GET') {
+    const id = decodeURIComponent(userLedgerMatch[1]);
+    const u = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
+    const currency = u.searchParams.get('currency') || undefined;
+    const limit = Number(u.searchParams.get('limit')) || 50;
+    const offset = Number(u.searchParams.get('offset')) || 0;
+    const out = platformRepository.currencyService
+      ? await platformRepository.currencyService.getUserLedger(id, currency, limit, offset)
+      : { rows: [], total: 0 };
+    sendJson(res, 200, out);
+    return true;
+  }
+
+  const userPrivilegesMatch = pathname.match(/^\/api\/users\/([^/]+)\/privileges$/);
+  if (userPrivilegesMatch && method === 'GET') {
+    const id = decodeURIComponent(userPrivilegesMatch[1]);
+    const rows = platformRepository.currencyService
+      ? await platformRepository.currencyService.getUserPrivileges(id)
+      : [];
+    sendJson(res, 200, { privileges: rows });
+    return true;
+  }
+
+  if (pathname === '/api/privileges/purchase' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    let body = {};
+    try {
+      body = await parseBody(req);
+    } catch {
+      sendJson(res, 400, { error: 'Invalid JSON body' });
+      return true;
+    }
+    const slug = String(body.privilegeSlug || '').trim();
+    if (!slug) {
+      sendJson(res, 400, { error: 'privilegeSlug is required' });
+      return true;
+    }
+    if (!platformRepository.currencyService) {
+      sendJson(res, 503, { error: 'Currency service unavailable' });
+      return true;
+    }
+    try {
+      const result = await platformRepository.currencyService.spendCurrency(user.id, slug);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Purchase failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/cron/decay-honor' && method === 'POST') {
+    let body = {};
+    try {
+      body = await parseBody(req);
+    } catch {
+      body = {};
+    }
+    if (!verifyCronSecret(req, body, env.cronSecret)) {
+      sendJson(res, 401, { error: 'Unauthorized' });
+      return true;
+    }
+    const n = platformRepository.currencyService
+      ? await platformRepository.currencyService.applyWeeklyHonorDecay()
+      : 0;
+    sendJson(res, 200, { affected: n });
+    return true;
+  }
+
+  if (pathname === '/api/cron/decay-rp' && method === 'POST') {
+    let body = {};
+    try {
+      body = await parseBody(req);
+    } catch {
+      body = {};
+    }
+    if (!verifyCronSecret(req, body, env.cronSecret)) {
+      sendJson(res, 401, { error: 'Unauthorized' });
+      return true;
+    }
+    const n = platformRepository.ratingService
+      ? await platformRepository.ratingService.applyWeeklyRPDecay()
+      : 0;
+    sendJson(res, 200, { affected: n });
     return true;
   }
 
@@ -330,6 +596,22 @@ async function routeApi(req, res, pathname) {
   }
 
   const requestIdOnlyMatch = pathname.match(/^\/api\/requests\/([^/]+)$/);
+  if (requestIdOnlyMatch && method === 'GET') {
+    const user = await getOptionalUser(req);
+    const viewerId = user?.id ?? null;
+    try {
+      const request = await platformRepository.getProjectRequestById(requestIdOnlyMatch[1], viewerId);
+      if (!request) {
+        sendJson(res, 404, { error: 'Not found' });
+        return true;
+      }
+      sendJson(res, 200, { request });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load request' });
+    }
+    return true;
+  }
+
   if (requestIdOnlyMatch && (method === 'PUT' || method === 'PATCH')) {
     const user = await requireUser(req, res);
     if (!user) return true;
@@ -370,6 +652,69 @@ async function routeApi(req, res, pathname) {
     }
     const service = await platformRepository.createServicePackage(user, payload);
     sendJson(res, 201, { service });
+    return true;
+  }
+
+  const serviceBidPostMatch = pathname.match(/^\/api\/services\/([^/]+)\/bid\/?$/);
+  if (serviceBidPostMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = serviceBidPostMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.submitServicePackageBid(user, serviceId, payload);
+      sendJson(res, 201, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Bid failed' });
+    }
+    return true;
+  }
+
+  const serviceAcceptDealMatch = pathname.match(/^\/api\/services\/([^/]+)\/accept-deal\/?$/);
+  if (serviceAcceptDealMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = serviceAcceptDealMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.acceptServicePackageDeal(user, serviceId, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not accept deal' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/deals/counter-offer' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.submitDealCounterOffer(user, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not send counter offer' });
+    }
+    return true;
+  }
+
+  const serviceIdOnlyGetMatch = pathname.match(/^\/api\/services\/([^/]+)$/);
+  if (serviceIdOnlyGetMatch && method === 'GET') {
+    const user = await getOptionalUser(req);
+    const viewerId = user?.id ?? null;
+    try {
+      const service = await platformRepository.getServiceById(serviceIdOnlyGetMatch[1], viewerId);
+      if (!service) {
+        sendJson(res, 404, { error: 'Not found' });
+        return true;
+      }
+      sendJson(res, 200, { service });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load service' });
+    }
     return true;
   }
 
@@ -666,6 +1011,44 @@ async function routeApi(req, res, pathname) {
         mime: uploaded.mime,
       });
       sendJson(res, 201, { activeChat, uploaded });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Upload failed' });
+    }
+    return true;
+  }
+
+  const chatIdFilesMatch = pathname.match(/^\/api\/chat\/([^/]+)\/files\/?$/);
+  if (chatIdFilesMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chatId = chatIdFilesMatch[1];
+    if (!chatId || chatId.includes('..')) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    const payload = await parseBody(req);
+    if (!payload.dataUrl) {
+      sendJson(res, 400, { error: 'dataUrl is required (base64 data URL)' });
+      return true;
+    }
+    try {
+      const uploaded = await platformRepository.uploadUnifiedChatFile(
+        user.id,
+        chatId,
+        payload.dataUrl,
+        payload.fileName || null,
+      );
+      const message = await platformRepository.addUnifiedMessage(user.id, chatId, {
+        content: payload.caption || '',
+        fileUrl: uploaded.fileUrl,
+        fileName: uploaded.fileName,
+        fileSize: uploaded.fileSize,
+        contentType: uploaded.contentType,
+        mime: uploaded.mime,
+        chatTitle: payload.chatTitle,
+      });
+      sendJson(res, 201, { message, uploaded });
     } catch (error) {
       sendJson(res, 400, { error: error.message || 'Upload failed' });
     }
@@ -1029,6 +1412,124 @@ async function routeApi(req, res, pathname) {
     const payload = await parseBody(req);
     const message = await platformRepository.addUnifiedMessage(user.id, chatId, payload);
     sendJson(res, 201, { message });
+    return true;
+  }
+
+  if (pathname === '/api/nowpayments/ipn' && method === 'POST') {
+    await new Promise((resolve, reject) => {
+      req.on('data', () => {});
+      req.on('end', resolve);
+      req.on('error', reject);
+    });
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
+  const contractDraftMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/draft\/?$/);
+  if (contractDraftMatch && method === 'PATCH') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractDraftMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.patchContractDraft(user, contractId, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Update failed' });
+    }
+    return true;
+  }
+
+  const contractSendMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/send\/?$/);
+  if (contractSendMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractSendMatch[1];
+    try {
+      const out = await platformRepository.sendContractForSignatures(user, contractId);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Send failed' });
+    }
+    return true;
+  }
+
+  const contractSignMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/sign\/?$/);
+  if (contractSignMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractSignMatch[1];
+    try {
+      const out = await platformRepository.signContract(user, contractId);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Sign failed' });
+    }
+    return true;
+  }
+
+  const contractRevisionMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/revision\/?$/);
+  if (contractRevisionMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractRevisionMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.requestContractRevision(user, contractId, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Request failed' });
+    }
+    return true;
+  }
+
+  const contractCancelMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/cancel\/?$/);
+  if (contractCancelMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractCancelMatch[1];
+    try {
+      const out = await platformRepository.cancelContract(user, contractId);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Cancel failed' });
+    }
+    return true;
+  }
+
+  const contractCryptoMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/crypto-intent\/?$/);
+  if (contractCryptoMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractCryptoMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.createContractCryptoIntent(user, contractId, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Payment start failed' });
+    }
+    return true;
+  }
+
+  const contractIdOnlyMatch = pathname.match(/^\/api\/contracts\/([^/]+)\/?$/);
+  if (contractIdOnlyMatch && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const contractId = contractIdOnlyMatch[1];
+    try {
+      const out = await platformRepository.getContractForUser(user.id, contractId);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Not found' });
+    }
     return true;
   }
 

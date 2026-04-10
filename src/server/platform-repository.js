@@ -1,6 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const { getEnv } = require('./env');
 const { sendNotificationEmailForRow } = require('./notify-email');
+const { createNowpaymentsInvoice, extractInvoiceCheckoutUrl } = require('./nowpayments');
+const { createCurrencyService } = require('./currency-service');
+const { createRatingService } = require('./rating-service');
 
 function mimeIsImage(mime) {
   return String(mime || '').toLowerCase().startsWith('image/');
@@ -160,6 +163,7 @@ function mapProfile(row) {
     id: row.id,
     n: name,
     username: row.username || null,
+    createdAt: row.created_at || null,
     avatarUrl: row.avatar_url || null,
     bio: row.bio || '',
     r: row.headline || '',
@@ -179,6 +183,8 @@ function mapProfile(row) {
 
 function mapService(row) {
   const ownerName = row.owner?.full_name || row.owner?.username || 'Mxstermind User';
+  const ownerUsernameRaw = row.owner?.username != null ? String(row.owner.username).trim() : '';
+  const ownerUsername = ownerUsernameRaw.replace(/^@+/, '') || null;
   const category = row.category || 'Design';
   const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
   const coverUrl = meta.coverUrl || meta.cover_image_url || null;
@@ -191,6 +197,8 @@ function mapService(row) {
     title: row.title,
     description: row.description || '',
     sel: ownerName,
+    ownerUsername,
+    ownerReputation: row.owner?.reputation != null ? Number(row.owner.reputation) : null,
     sc: hashColor(ownerName),
     price: Number(row.base_price),
     rating: meta.rating || 'New',
@@ -199,6 +207,22 @@ function mapService(row) {
     deliveryMode: row.delivery_mode,
     deliveryDays: row.delivery_days,
     isRealUser: true,
+    createdAt: row.created_at || null,
+  };
+}
+
+/** Full service row for `/services/:id` and `/bid/service` (adds owner fields the web client expects). */
+function mapServiceForDetail(row, ownerRow) {
+  const base = mapService({ ...row, owner: ownerRow });
+  return {
+    ...base,
+    ownerUsername: ownerRow?.username || null,
+    ownerAvatar: ownerRow?.avatar_url || null,
+    topMember: Boolean(ownerRow?.top_member),
+    createdAt: row.created_at || null,
+    ownerReputation: ownerRow?.reputation != null ? Number(ownerRow.reputation) : null,
+    ownerDealWins: null,
+    ownerDealLosses: null,
   };
 }
 
@@ -220,6 +244,7 @@ function mapRequest(row, bidCount, viewerId) {
     isUserCreated: Boolean(viewerId && String(row.owner_id) === String(viewerId)),
     canBid: Boolean(row.status !== 'closed' && row.status !== 'awarded'),
     isRealUser: true,
+    createdAt: row.created_at || null,
   };
 }
 
@@ -231,6 +256,20 @@ function formatConversationDate(dateValue) {
   if (date.toDateString() === today.toDateString()) return 'Today';
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/** True if latest message is newer than lastReadAt and not from the viewer (snake_case sender_id). */
+function latestMessageUnreadForUser(latestMessage, lastReadAtIso, viewerUserId) {
+  if (!latestMessage || !viewerUserId) return false;
+  const created = latestMessage.created_at;
+  if (!created) return false;
+  const t = new Date(created).getTime();
+  if (!Number.isFinite(t)) return false;
+  const lr = lastReadAtIso ? new Date(lastReadAtIso).getTime() : 0;
+  if (t <= lr) return false;
+  const sid = latestMessage.sender_id;
+  if (sid && String(sid) === String(viewerUserId)) return false;
+  return true;
 }
 
 function mapConversation(row, latestMessage) {
@@ -364,6 +403,9 @@ async function createPlatformRepository(previewRepository) {
     })
     : null;
 
+  const currencyService = client ? createCurrencyService(client) : null;
+  const ratingService = client ? createRatingService(client) : null;
+
   async function notifyInsert(row) {
     if (!client) return;
     try {
@@ -474,7 +516,9 @@ async function createPlatformRepository(previewRepository) {
       client.from('service_packages').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(12),
       client.from('project_requests').select('*').order('created_at', { ascending: false }).limit(12),
       client.from('bids').select('request_id'),
-      userId ? client.from('conversation_participants').select('conversation_id').eq('user_id', userId) : Promise.resolve({ data: [] }),
+      userId
+        ? client.from('conversation_participants').select('conversation_id, last_read_at').eq('user_id', userId)
+        : Promise.resolve({ data: [] }),
       client.from('agent_runs').select('*').order('created_at', { ascending: false }).limit(12),
       userId
         ? client.from('projects').select('*').or(`client_id.eq.${userId},owner_id.eq.${userId}`).order('updated_at', { ascending: false }).limit(12)
@@ -523,6 +567,9 @@ async function createPlatformRepository(previewRepository) {
       owner: projectProfileMap.get(project.owner_id) || null,
     }));
 
+    const legacyLastReadByConv = new Map(
+      (participantResult.data || []).map((r) => [r.conversation_id, r.last_read_at]),
+    );
     const conversationIds = [...new Set((participantResult.data || []).map((row) => row.conversation_id))];
     let liveHumanChats = [];
     let liveAiChats = [];
@@ -537,7 +584,16 @@ async function createPlatformRepository(previewRepository) {
           latestByConversation.set(message.conversation_id, message);
         }
       }
-      const mappedConversations = (conversations || []).map((row) => mapConversation(row, latestByConversation.get(row.id)));
+      const mappedConversations = (conversations || []).map((row) => {
+        const latest = latestByConversation.get(row.id);
+        const base = mapConversation(row, latest);
+        const lastRead = legacyLastReadByConv.get(row.id);
+        return {
+          ...base,
+          lastMessageAt: latest?.created_at || row.updated_at || row.created_at,
+          hasUnread: latestMessageUnreadForUser(latest, lastRead, userId),
+        };
+      });
       liveHumanChats = mappedConversations.filter((item) => item.type === 'human');
       liveAiChats = mappedConversations.filter((item) => item.type === 'ai');
     }
@@ -547,10 +603,13 @@ async function createPlatformRepository(previewRepository) {
       try {
         const { data: unifiedParticipants } = await client
           .from('unified_chat_participants')
-          .select('chat_id')
+          .select('chat_id, last_read_at')
           .eq('user_id', userId)
           .neq('is_deleted', true);
 
+        const unifiedReadByChat = new Map(
+          (unifiedParticipants || []).map((p) => [p.chat_id, p.last_read_at]),
+        );
         const unifiedChatIds = (unifiedParticipants || []).map((p) => p.chat_id);
         if (unifiedChatIds.length) {
           const { data: unifiedChats } = await client
@@ -571,8 +630,26 @@ async function createPlatformRepository(previewRepository) {
             if (!latestUnifiedMsg.has(msg.chat_id)) latestUnifiedMsg.set(msg.chat_id, msg);
           }
 
+          const { data: otherPeers } = await client
+            .from('unified_chat_participants')
+            .select('chat_id, user_id')
+            .in('chat_id', unifiedChatIds)
+            .neq('user_id', userId)
+            .neq('is_deleted', true);
+          const peerUserByChat = new Map();
+          for (const pr of otherPeers || []) {
+            if (!peerUserByChat.has(pr.chat_id)) peerUserByChat.set(pr.chat_id, pr.user_id);
+          }
+          const peerIds = [...new Set([...peerUserByChat.values()].filter(Boolean))];
+          const { data: peerProfiles } = peerIds.length
+            ? await client.from('profiles').select('id, username, avatar_url, full_name').in('id', peerIds)
+            : { data: [] };
+          const peerProfById = new Map((peerProfiles || []).map((p) => [p.id, p]));
+
           for (const uc of unifiedChats || []) {
             const latest = latestUnifiedMsg.get(uc.id);
+            const peerId = peerUserByChat.get(uc.id);
+            const peerP = peerId ? peerProfById.get(peerId) : null;
             liveHumanChats.push({
               id: uc.id,
               t: uc.title,
@@ -584,6 +661,9 @@ async function createPlatformRepository(previewRepository) {
               type: 'human',
               isUnified: true,
               metadata: uc.metadata,
+              hasUnread: latestMessageUnreadForUser(latest, unifiedReadByChat.get(uc.id), userId),
+              peerAvatarUrl: peerP?.avatar_url || null,
+              peerUsername: peerP?.username || null,
             });
           }
         }
@@ -593,6 +673,76 @@ async function createPlatformRepository(previewRepository) {
     }
 
     const marketplaceStats = await fetchMarketplaceStats();
+
+    let leaderboardRows = liveProfiles.map((p) => ({
+      id: p.id,
+      n: p.n,
+      r: p.r,
+      c: p.c,
+      t: 'Human',
+      e: '$0',
+      j: p.jobs || 0,
+      rt: p.rating || 5,
+      tier: 'Challenger',
+      usdt: 0,
+      role: p.role,
+      avatarUrl: p.avatarUrl || null,
+      username: p.username || null,
+      bio: p.bio || '',
+      sk: p.sk || [],
+      likes: p.likes || 0,
+      seasonRating: 0,
+      platformPoints: 0,
+      dealWins: 0,
+      dealLosses: 0,
+      chatCount: 0,
+      projectConversions: 0,
+      conversionRate: 0,
+    }));
+
+    if (ratingService) {
+      try {
+        const { entries } = await ratingService.getLeaderboard('rating', 500);
+        const byId = new Map(entries.map((e) => [e.userId, e]));
+        leaderboardRows = liveProfiles.map((p) => {
+          const e = byId.get(p.id);
+          const tierTitle = e?.currentTier
+            ? String(e.currentTier).replace(/^\w/, (c) => c.toUpperCase())
+            : 'Challenger';
+          return {
+            id: p.id,
+            n: p.n,
+            r: p.r,
+            c: p.c,
+            t: 'Human',
+            e: '$0',
+            j: p.jobs || 0,
+            rt: p.rating || 5,
+            tier: tierTitle,
+            usdt: 0,
+            role: p.role,
+            avatarUrl: p.avatarUrl || null,
+            username: p.username || null,
+            bio: p.bio || '',
+            sk: p.sk || [],
+            likes: p.likes || 0,
+            seasonRating: e?.currentRp ?? 0,
+            platformPoints: e?.neonScore ?? 0,
+            dealWins: e?.dealWins ?? 0,
+            dealLosses: e?.dealLosses ?? 0,
+            honorPoints: e?.honor ?? 0,
+            conquestPoints: e?.conquest ?? 0,
+            winStreak: e?.winStreak ?? 0,
+            currentTier: e?.currentTier ?? 'challenger',
+            chatCount: 0,
+            projectConversions: 0,
+            conversionRate: 0,
+          };
+        });
+      } catch (e) {
+        console.warn('[bootstrap] leaderboard merge:', e.message);
+      }
+    }
 
     // Only return real Supabase data — no seed/preview merging
     return {
@@ -609,24 +759,7 @@ async function createPlatformRepository(previewRepository) {
       agentRuns: liveAgentRuns,
       projects: liveProjects,
       marketplaceStats,
-      leaderboard: liveProfiles.map((p) => ({
-        id: p.id,
-        n: p.n,
-        r: p.r,
-        c: p.c,
-        t: 'Human',
-        e: '$0',
-        j: p.jobs || 0,
-        rt: p.rating || 5,
-        tier: 'Challenger',
-        usdt: 0,
-        role: p.role,
-        avatarUrl: p.avatarUrl || null,
-        username: p.username || null,
-        bio: p.bio || '',
-        sk: p.sk || [],
-        likes: p.likes || 0,
-      })),
+      leaderboard: leaderboardRows,
     };
   }
 
@@ -644,6 +777,9 @@ async function createPlatformRepository(previewRepository) {
     if (payload.company_name !== undefined) nextProfile.company_name = payload.company_name || null;
     if (payload.bio !== undefined) nextProfile.bio = payload.bio || null;
     if (payload.avatar_url !== undefined) nextProfile.avatar_url = payload.avatar_url || null;
+    if (payload.onboarding_completed_at !== undefined) {
+      nextProfile.onboarding_completed_at = payload.onboarding_completed_at || null;
+    }
     if (payload.availability != null) {
       const a = String(payload.availability);
       if (!['available', 'busy', 'unavailable'].includes(a)) throw new Error('Invalid availability');
@@ -660,9 +796,36 @@ async function createPlatformRepository(previewRepository) {
       .update(nextProfile)
       .eq('id', userId)
       .select('*')
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!data) {
+      throw new Error(
+        'No profile row to update. Sign out and sign in again so a profile can be created, or check API logs for insert errors.',
+      );
+    }
     return data;
+  }
+
+  function normalizePublicUsername(raw) {
+    return String(raw || '')
+      .trim()
+      .replace(/^@+/, '')
+      .toLowerCase();
+  }
+
+  function isValidPublicUsername(u) {
+    return /^[a-z0-9][a-z0-9_-]{0,30}$/.test(u) && u.length >= 2;
+  }
+
+  async function checkUsernameAvailable(username, excludeUserId) {
+    if (!client) return { available: false, reason: 'invalid' };
+    const u = normalizePublicUsername(username);
+    if (!isValidPublicUsername(u)) return { available: false, reason: 'invalid' };
+    const { data, error } = await client.from('profiles').select('id').eq('username', u).maybeSingle();
+    if (error) return { available: false, reason: 'invalid' };
+    if (!data) return { available: true };
+    if (excludeUserId && String(data.id) === String(excludeUserId)) return { available: true };
+    return { available: false, reason: 'taken' };
   }
 
   async function uploadProfileAvatar(userId, dataUrl) {
@@ -754,6 +917,37 @@ async function createPlatformRepository(previewRepository) {
     return flattenSettings(data);
   }
 
+  async function getServiceById(serviceId, viewerUserId) {
+    if (!client) return null;
+    const id = String(serviceId || '').trim();
+    if (!id) return null;
+    const { data: row, error } = await client.from('service_packages').select('*').eq('id', id).maybeSingle();
+    if (error || !row) return null;
+    const published = row.status === 'published';
+    const isOwner = viewerUserId && String(row.owner_id) === String(viewerUserId);
+    if (!published && !isOwner) return null;
+    const { data: ownerRow } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url, reputation, top_member, vouches')
+      .eq('id', row.owner_id)
+      .maybeSingle();
+    return mapServiceForDetail(row, ownerRow);
+  }
+
+  async function getProjectRequestById(requestId, viewerUserId) {
+    if (!client) return null;
+    const id = String(requestId || '').trim();
+    if (!id) return null;
+    const { data: row, error } = await client.from('project_requests').select('*').eq('id', id).maybeSingle();
+    if (error || !row) return null;
+    const { count, error: bidErr } = await client
+      .from('bids')
+      .select('id', { count: 'exact', head: true })
+      .eq('request_id', id);
+    const bidCount = bidErr ? 0 : count || 0;
+    return mapRequest(row, bidCount, viewerUserId || null);
+  }
+
   async function createServicePackage(user, payload) {
     if (!client) throw new Error('Supabase is not configured');
     const title = String(payload.title || '').trim();
@@ -788,6 +982,16 @@ async function createPlatformRepository(previewRepository) {
       .select('*')
       .single();
     if (error) throw error;
+    try {
+      if (currencyService) {
+        await currencyService.awardHonor(user.id, 50, 'listing_published', 'service_packages', data.id);
+      }
+      if (ratingService) {
+        await ratingService.processActivity(user.id, 'listing_published');
+      }
+    } catch (e) {
+      console.warn('[honor] listing_published hook:', e.message);
+    }
     return mapService({
       ...data,
       owner: {
@@ -1018,6 +1222,16 @@ async function createPlatformRepository(previewRepository) {
         related_type: 'request',
       });
     }
+    try {
+      if (currencyService) {
+        await currencyService.awardHonor(user.id, 25, 'bid_placed', 'bids', data.id);
+      }
+      if (ratingService) {
+        await ratingService.processActivity(user.id, 'bid_placed');
+      }
+    } catch (e) {
+      console.warn('[honor] bid_placed hook:', e.message);
+    }
     return data;
   }
 
@@ -1095,6 +1309,79 @@ async function createPlatformRepository(previewRepository) {
     return getConversation(user.id, conversation.id);
   }
 
+  /** Map one unified_messages row (camelCase from getUnifiedChat) to web ChatStream message shape. */
+  function mapUnifiedMessageRowToStream(msg, viewerId, profileByUserId) {
+    const meta = msg.metadata && typeof msg.metadata === 'object' ? msg.metadata : {};
+    const embed = meta.embed && typeof meta.embed === 'object' ? meta.embed : null;
+    const rawCt = String(msg.contentType || '').toLowerCase();
+    let contentType = 'text';
+    if (embed || rawCt === 'embed') contentType = 'embed';
+    else if (rawCt === 'image') contentType = 'image';
+    else if (rawCt === 'file') contentType = 'file';
+    else if (rawCt === 'voice') contentType = 'text';
+    else if (msg.fileUrl) contentType = mimeIsImage(meta.mime) ? 'image' : 'file';
+
+    let role = 'peer';
+    if (msg.senderType === 'user' && String(msg.senderId) === String(viewerId)) role = 'user';
+    else if (msg.senderType === 'system') role = 'system';
+    else if (msg.senderType === 'ai') role = 'ai';
+
+    const sid = msg.senderId != null ? String(msg.senderId) : '';
+    const prof = profileByUserId.get(sid);
+    const out = {
+      id: msg.id,
+      role,
+      text: msg.content,
+      contentType,
+      fileUrl: msg.fileUrl || null,
+      fileName: msg.fileName || null,
+      fileSize: msg.fileSize != null ? msg.fileSize : null,
+      createdAt: msg.createdAt,
+      senderId: msg.senderId,
+      senderUsername: prof?.username ?? null,
+      senderName: prof?.full_name || prof?.username || null,
+      senderAvatarUrl: prof?.avatar_url ?? null,
+    };
+    if (contentType === 'embed' && embed) out.embed = embed;
+    return out;
+  }
+
+  function buildActiveChatFromUnified(unified, viewerId) {
+    const profileByUserId = new Map();
+    for (const p of unified.participants || []) {
+      const pr = p.profile;
+      if (!pr) continue;
+      profileByUserId.set(String(p.userId), pr);
+    }
+    const messages = (unified.messages || []).map((m) =>
+      mapUnifiedMessageRowToStream(m, viewerId, profileByUserId),
+    );
+    const meta = unified.metadata && typeof unified.metadata === 'object' ? unified.metadata : {};
+    const contextType = meta.serviceId ? 'service_package' : meta.requestId ? 'request' : null;
+    const contextId = meta.serviceId || meta.requestId || null;
+    const dealKind = meta.serviceId ? 'service' : meta.requestId ? 'request' : null;
+    const dealListingOwnerId = meta.listingOwnerId || meta.serviceOwnerId || meta.requestOwnerId || null;
+    return {
+      id: unified.id,
+      title: unified.title || 'Deal room',
+      type: unified.type === 'ai' ? 'ai' : 'human',
+      transport: 'unified',
+      contextType,
+      contextId,
+      metadata: meta,
+      messages,
+      messageWindow: {
+        hasMoreOlder: false,
+        oldestId: messages[0]?.id ?? null,
+        newestId: messages.length ? messages[messages.length - 1]?.id : null,
+        limit: messages.length,
+      },
+      dealKind,
+      dealListingOwnerId,
+      pins: [],
+    };
+  }
+
   async function getConversation(currentUserId, conversationId) {
     if (!client) throw new Error('Supabase is not configured');
     const { data: participant } = await client
@@ -1103,21 +1390,33 @@ async function createPlatformRepository(previewRepository) {
       .eq('conversation_id', conversationId)
       .eq('user_id', currentUserId)
       .maybeSingle();
-    if (!participant) throw new Error('Conversation not found');
+    if (participant) {
+      const [{ data: conversation, error: conversationError }, { data: messages, error: messagesError }] =
+        await Promise.all([
+          client.from('conversations').select('*').eq('id', conversationId).single(),
+          client
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true }),
+        ]);
+      if (conversationError) throw conversationError;
+      if (messagesError) throw messagesError;
 
-    const [{ data: conversation, error: conversationError }, { data: messages, error: messagesError }] = await Promise.all([
-      client.from('conversations').select('*').eq('id', conversationId).single(),
-      client.from('messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
-    ]);
-    if (conversationError) throw conversationError;
-    if (messagesError) throw messagesError;
+      return {
+        id: conversation.id,
+        title: conversation.subject || 'Conversation',
+        type: conversation.context_type === 'direct' ? 'human' : 'ai',
+        messages: (messages || []).map((message) => mapMessage(message, currentUserId)),
+      };
+    }
 
-    return {
-      id: conversation.id,
-      title: conversation.subject || 'Conversation',
-      type: conversation.context_type === 'direct' ? 'human' : 'ai',
-      messages: (messages || []).map((message) => mapMessage(message, currentUserId)),
-    };
+    try {
+      const unified = await getUnifiedChat(currentUserId, conversationId);
+      return buildActiveChatFromUnified(unified, currentUserId);
+    } catch {
+      throw new Error('Conversation not found');
+    }
   }
 
   async function addMessage(user, payload) {
@@ -1131,7 +1430,14 @@ async function createPlatformRepository(previewRepository) {
       .eq('conversation_id', conversationId)
       .eq('user_id', user.id)
       .maybeSingle();
-    if (!participant) throw new Error('Conversation not found');
+    if (!participant) {
+      const text = String(payload.text || '').trim();
+      const fileUrl = payload.fileUrl || null;
+      if (!text && !fileUrl) throw new Error('text or file is required');
+      if (fileUrl) throw new Error('Use the attachment control to upload files in this deal room');
+      await addUnifiedMessage(user.id, conversationId, { content: text });
+      return getConversation(user.id, conversationId);
+    }
 
     const text = String(payload.text || '').trim();
     const fileUrl = payload.fileUrl || null;
@@ -1151,8 +1457,15 @@ async function createPlatformRepository(previewRepository) {
             contentType || (String(mime || '').toLowerCase().startsWith('image/') ? 'image' : 'file'),
         }
       : {};
+    const legacyAttachType =
+      meta.contentType ||
+      (fileUrl ? (mimeIsImage(mime) ? 'image' : 'file') : null);
     const body =
-      text || (fileName ? `Attachment: ${fileName}` : 'Attachment');
+      text ||
+      (legacyAttachType === 'image' ?
+        ''
+      : fileName ? `Attachment: ${fileName}`
+      : 'Attachment');
     await client.from('messages').insert({
       conversation_id: conversationId,
       sender_id: user.id,
@@ -1701,6 +2014,15 @@ async function createPlatformRepository(previewRepository) {
       .select('*')
       .single();
     if (updateError) throw updateError;
+
+    try {
+      if (prev === 'disputed' && newStatus === 'cancelled' && ratingService) {
+        if (project.client_id) await ratingService.processLoss(project.client_id, 'dispute_lost');
+        if (project.owner_id) await ratingService.processLoss(project.owner_id, 'dispute_lost');
+      }
+    } catch (e) {
+      console.warn('[rating] dispute_lost hook:', e.message);
+    }
 
     if (newStatus === 'completed' && prev !== 'completed' && project.owner_id) {
       const { data: sp } = await client.from('profiles').select('completed_projects_count').eq('id', project.owner_id).maybeSingle();
@@ -2566,7 +2888,7 @@ async function createPlatformRepository(previewRepository) {
     if (!url) throw new Error('Could not get public URL for file');
     return {
       fileUrl: url,
-      fileName: String(originalName || safe).slice(0, 240),
+      fileName: String(originalName || baseName).slice(0, 240),
       fileSize: buffer.length,
       contentType,
       mime,
@@ -2593,12 +2915,40 @@ async function createPlatformRepository(previewRepository) {
     const fileName = payload.fileName || payload.file_name || null;
     const fileSize = payload.fileSize != null ? Number(payload.fileSize) : payload.file_size != null ? Number(payload.file_size) : null;
     const mime = payload.mime || null;
+    const embedObj = payload.embed && typeof payload.embed === 'object' ? payload.embed : null;
+    const explicitEmbed =
+      payload.contentType === 'embed' ||
+      payload.content_type === 'embed' ||
+      Boolean(embedObj);
     let contentType = 'text';
-    if (payload.contentType === 'image' || payload.content_type === 'image') contentType = 'image';
+    if (explicitEmbed && embedObj) contentType = 'embed';
+    else if (payload.contentType === 'image' || payload.content_type === 'image') contentType = 'image';
     else if (payload.contentType === 'file' || payload.content_type === 'file') contentType = 'file';
     else if (fileUrl) contentType = mimeIsImage(mime) ? 'image' : 'file';
-    if (!textRaw && !fileUrl) throw new Error('Message text or file is required');
-    const displayContent = textRaw || (fileName ? `Attachment: ${fileName}` : 'Attachment');
+    if (!textRaw && !fileUrl && !(contentType === 'embed' && embedObj)) {
+      throw new Error('Message text or file is required');
+    }
+    let displayContent = textRaw
+      ? textRaw
+      : contentType === 'image' && fileUrl
+        ? ''
+        : fileName
+          ? `Attachment: ${fileName}`
+          : fileUrl
+            ? 'Attachment'
+            : '';
+    if (contentType === 'embed' && embedObj && !textRaw) {
+      const et = String(embedObj.type || '');
+      if (et === 'service_bid') displayContent = 'Buyer offer';
+      else if (et === 'bid_proposal') displayContent = 'Bid on request';
+      else if (et === 'deal_counter_offer') displayContent = 'Counter offer';
+      else if (et === 'deal_phase') displayContent = 'Deal update';
+      else if (et === 'contract_card') displayContent = 'Contract';
+      else displayContent = 'Deal update';
+    }
+    const rowMetadata =
+      payload.metadata && typeof payload.metadata === 'object' ? { ...payload.metadata } : {};
+    if (contentType === 'embed' && embedObj) rowMetadata.embed = embedObj;
 
     const { data: message, error: messageError } = await client
       .from('unified_messages')
@@ -2611,7 +2961,7 @@ async function createPlatformRepository(previewRepository) {
         file_url: fileUrl,
         file_name: fileName,
         file_size: Number.isFinite(fileSize) ? fileSize : null,
-        metadata: payload.metadata || {},
+        metadata: rowMetadata,
       })
       .select('*')
       .single();
@@ -2619,6 +2969,27 @@ async function createPlatformRepository(previewRepository) {
     if (messageError) {
       console.error('[addUnifiedMessage] insert error:', messageError.message, messageError.details);
       throw new Error(messageError.message);
+    }
+
+    try {
+      const isUserMsg = (payload.senderType || 'user') === 'user';
+      if (currencyService && ratingService && isUserMsg) {
+        const { data: contractHit } = await client
+          .from('project_contracts')
+          .select('id')
+          .eq('unified_chat_id', chatId)
+          .limit(1)
+          .maybeSingle();
+        const { data: chatDeal } = await client.from('unified_chats').select('metadata').eq('id', chatId).maybeSingle();
+        const dm = chatDeal?.metadata && typeof chatDeal.metadata === 'object' ? chatDeal.metadata : {};
+        const isDealRoom = Boolean(contractHit?.id) || dm.chatType === 'deal' || dm.dealRoom === true;
+        if (isDealRoom) {
+          await currencyService.awardHonor(userId, 10, 'message_sent', 'unified_chats', chatId);
+          await ratingService.processActivity(userId, 'message_sent');
+        }
+      }
+    } catch (e) {
+      console.warn('[honor] message_sent hook:', e.message);
     }
 
     // Sender has read up to this message.
@@ -2636,7 +3007,7 @@ async function createPlatformRepository(previewRepository) {
       .eq('id', chatId);
 
     // Create notifications for other participants
-    if (payload.senderType === 'user') {
+    if ((payload.senderType || 'user') === 'user') {
       const { data: otherParticipants } = await client
         .from('unified_chat_participants')
         .select('user_id')
@@ -2646,8 +3017,22 @@ async function createPlatformRepository(previewRepository) {
 
       if (otherParticipants && otherParticipants.length > 0) {
         const snippet = fileUrl
-          ? (fileName ? `Sent a file: ${fileName}` : 'Sent an attachment')
-          : String(displayContent || '').slice(0, 160);
+          ? contentType === 'image'
+            ? 'Sent an image'
+            : fileName
+              ? `Sent a file: ${fileName}`
+              : 'Sent an attachment'
+          : contentType === 'embed'
+            ? (() => {
+                const et = String(embedObj?.type || '');
+                if (et === 'service_bid') return 'Sent a buyer offer';
+                if (et === 'bid_proposal') return 'Sent a bid on your request';
+                if (et === 'deal_counter_offer') return 'Sent a counter offer';
+                if (et === 'contract_card') return 'Sent a contract update';
+                if (et === 'deal_phase') return 'Deal status update';
+                return 'Sent a deal update';
+              })()
+            : String(displayContent || '').slice(0, 160);
         const notifications = otherParticipants.map((p) => ({
           user_id: p.user_id,
           type: 'message',
@@ -2676,6 +3061,474 @@ async function createPlatformRepository(previewRepository) {
       metadata: message.metadata,
       createdAt: message.created_at
     };
+  }
+
+  async function submitServicePackageBid(user, serviceId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const sid = String(serviceId || '').trim();
+    const proposal = String(body?.proposal || '').trim();
+    const price = Number(String(body?.price || '').replace(/[^0-9.]/g, ''));
+    const deliveryDays = body?.deliveryDays != null ? Number(body.deliveryDays) : null;
+    if (!sid) throw new Error('Service id is required');
+    if (!proposal) throw new Error('proposal is required');
+    if (!Number.isFinite(price) || price <= 0) throw new Error('Valid price is required');
+
+    const { data: row, error } = await client.from('service_packages').select('*').eq('id', sid).maybeSingle();
+    if (error) throw error;
+    if (!row) throw new Error('Service not found');
+    if (row.status !== 'published') throw new Error('Service is not available for bids');
+    if (String(row.owner_id) === String(user.id)) throw new Error('You cannot bid on your own service');
+
+    const { data: bidderProf } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+    const { data: ownerProf } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .eq('id', row.owner_id)
+      .maybeSingle();
+
+    const preview = proposal.length > 240 ? `${proposal.slice(0, 237)}...` : proposal;
+    const chat = await createUnifiedChat(user.id, {
+      type: 'human',
+      title: `Offer · ${row.title}`,
+      subtitle: `$${price.toLocaleString()} · ${ownerProf?.username || 'seller'}`,
+      metadata: {
+        serviceId: sid,
+        serviceTitle: row.title,
+        chatType: 'service_bid',
+        listingOwnerId: String(row.owner_id),
+      },
+    });
+
+    const embed = {
+      type: 'service_bid',
+      proposer: {
+        id: String(user.id),
+        username: bidderProf?.username || null,
+        fullName: bidderProf?.full_name || null,
+        avatarUrl: bidderProf?.avatar_url || null,
+      },
+      counterparty: {
+        id: String(row.owner_id),
+        username: ownerProf?.username || null,
+        fullName: ownerProf?.full_name || null,
+        avatarUrl: ownerProf?.avatar_url || null,
+      },
+      price,
+      deliveryDays: Number.isFinite(deliveryDays) && deliveryDays > 0 ? Math.round(deliveryDays) : null,
+      proposalText: proposal,
+      proposalPreview: preview,
+      serviceTitle: row.title,
+      serviceId: sid,
+      conversationId: chat.id,
+    };
+
+    await addUnifiedMessage(user.id, chat.id, {
+      contentType: 'embed',
+      content: preview || 'Buyer offer',
+      embed,
+    });
+
+    return { conversationId: chat.id };
+  }
+
+  async function assertUnifiedChatAccess(userId, chatId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const cid = String(chatId || '').trim();
+    if (!cid) throw new Error('conversationId is required');
+    const { data: participant } = await client
+      .from('unified_chat_participants')
+      .select('user_id')
+      .eq('chat_id', cid)
+      .eq('user_id', userId)
+      .neq('is_deleted', true)
+      .maybeSingle();
+    if (!participant) throw new Error('Chat not found or access denied');
+    return cid;
+  }
+
+  function profileSnapFromRow(row) {
+    if (!row) return { id: '', username: null, fullName: null, avatarUrl: null };
+    return {
+      id: String(row.id),
+      username: row.username || null,
+      fullName: row.full_name || null,
+      avatarUrl: row.avatar_url || null,
+    };
+  }
+
+  /**
+   * Lock a service deal: seller accepts buyer's offer, or buyer accepts seller's counter (same thread).
+   * counterProposerId = profile id of whoever proposed the terms being accepted (embed proposer).
+   * Creates project + draft contract + deal_phase / contract_card embeds. Idempotent per thread + service.
+   */
+  async function acceptServicePackageDeal(user, serviceId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const sid = String(serviceId || '').trim();
+    const chatId = String(body?.conversationId || '').trim();
+    const offerProposerId = String(body?.counterProposerId || '').trim();
+    const agreedPrice = Number(body?.agreedPrice);
+    const deliveryRaw = body?.deliveryDays != null ? Number(body.deliveryDays) : null;
+    const deliveryDays = Number.isFinite(deliveryRaw) && deliveryRaw > 0 ? Math.round(deliveryRaw) : null;
+
+    if (!sid) throw new Error('Service id is required');
+    if (!chatId) throw new Error('conversationId is required');
+    if (!offerProposerId) throw new Error('counterProposerId is required');
+    if (!Number.isFinite(agreedPrice) || agreedPrice <= 0) throw new Error('Valid agreedPrice is required');
+    if (String(offerProposerId) === String(user.id)) throw new Error('You cannot accept your own offer');
+
+    await assertUnifiedChatAccess(user.id, chatId);
+
+    const { data: svc, error: svcErr } = await client.from('service_packages').select('*').eq('id', sid).maybeSingle();
+    if (svcErr) throw svcErr;
+    if (!svc) throw new Error('Service not found');
+
+    const sellerId = String(svc.owner_id);
+    let clientId;
+    let providerId;
+    if (String(user.id) === sellerId) {
+      clientId = offerProposerId;
+      providerId = sellerId;
+      if (String(clientId) === String(providerId)) throw new Error('Invalid parties');
+    } else if (String(offerProposerId) === sellerId) {
+      clientId = String(user.id);
+      providerId = sellerId;
+    } else {
+      throw new Error('Only the buyer or listing owner can accept these terms');
+    }
+
+    const { data: partRowsPre } = await client
+      .from('unified_chat_participants')
+      .select('user_id')
+      .eq('chat_id', chatId)
+      .neq('is_deleted', true);
+    const chatMembers = new Set((partRowsPre || []).map((p) => String(p.user_id)));
+    if (!chatMembers.has(String(clientId)) || !chatMembers.has(String(providerId))) {
+      throw new Error('Both parties must be members of this deal thread');
+    }
+
+    const { data: proposerPart } = await client
+      .from('unified_chat_participants')
+      .select('user_id')
+      .eq('chat_id', chatId)
+      .eq('user_id', offerProposerId)
+      .neq('is_deleted', true)
+      .maybeSingle();
+    if (!proposerPart) throw new Error('The offer proposer is not in this deal thread');
+
+    const { data: accepterPart } = await client
+      .from('unified_chat_participants')
+      .select('user_id')
+      .eq('chat_id', chatId)
+      .eq('user_id', user.id)
+      .neq('is_deleted', true)
+      .maybeSingle();
+    if (!accepterPart) throw new Error('You are not in this deal thread');
+
+    const { data: chatRow } = await client.from('unified_chats').select('metadata').eq('id', chatId).maybeSingle();
+    const cmeta = chatRow?.metadata && typeof chatRow.metadata === 'object' ? chatRow.metadata : {};
+    if (String(cmeta.serviceId || '') !== sid) {
+      throw new Error('This thread is not linked to this service listing');
+    }
+
+    const { data: existingProjects } = await client
+      .from('projects')
+      .select('id, metadata')
+      .eq('client_id', clientId)
+      .eq('owner_id', providerId);
+    const existing = (existingProjects || []).find((p) => {
+      const m = p.metadata && typeof p.metadata === 'object' ? p.metadata : {};
+      return String(m.unifiedChatId || '') === chatId && String(m.serviceId || '') === sid;
+    });
+
+    if (existing) {
+      const { data: contract } = await client
+        .from('project_contracts')
+        .select('id')
+        .eq('project_id', existing.id)
+        .eq('unified_chat_id', chatId)
+        .maybeSingle();
+      return {
+        alreadyLinked: true,
+        projectId: existing.id,
+        contract: contract?.id ? { id: contract.id } : null,
+      };
+    }
+
+    const projTitle = String(svc.title || 'Service engagement').trim() || 'Service engagement';
+    const deliveryMode = 'white_glove';
+    const { data: project, error: projectError } = await client
+      .from('projects')
+      .insert({
+        request_id: null,
+        accepted_bid_id: null,
+        client_id: clientId,
+        owner_id: providerId,
+        title: projTitle,
+        status: 'active',
+        delivery_mode: deliveryMode,
+        metadata: {
+          source: 'service_package',
+          serviceId: sid,
+          unifiedChatId: chatId,
+          acceptedPrice: agreedPrice,
+          deliveryDays,
+        },
+      })
+      .select('*')
+      .single();
+    if (projectError) throw projectError;
+
+    const termsLines = [
+      `Engagement for “${projTitle}”.`,
+      `Agreed price: $${agreedPrice.toLocaleString()} USD.`,
+      deliveryDays ? `Target delivery: ${deliveryDays} days from contract start.` : null,
+      '',
+      'Review the draft contract below, send for signatures, then fund escrow when ready.',
+    ].filter(Boolean);
+    const contractBody = termsLines.join('\n');
+
+    const { data: contractRow, error: contractError } = await client
+      .from('project_contracts')
+      .insert({
+        project_id: project.id,
+        unified_chat_id: chatId,
+        client_id: clientId,
+        provider_id: providerId,
+        created_by: user.id,
+        status: 'draft',
+        title: `Engagement · ${projTitle}`,
+        body: contractBody,
+        amount_usd: agreedPrice,
+        metadata: { serviceId: sid, unifiedChatId: chatId },
+      })
+      .select('id')
+      .single();
+    if (contractError) throw contractError;
+
+    const [{ data: clientProf }, { data: providerProf }] = await Promise.all([
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', clientId).maybeSingle(),
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', providerId).maybeSingle(),
+    ]);
+
+    const dealWinEmbed = {
+      type: 'deal_phase',
+      phase: 'deal_win',
+      tone: 'success',
+      title: 'Offer accepted',
+      subtitle: 'A contract draft was added to this thread — review and send when ready.',
+      contractId: contractRow.id,
+    };
+
+    const preview = contractBody.length > 240 ? `${contractBody.slice(0, 237)}...` : contractBody;
+    const contractCardEmbed = {
+      type: 'contract_card',
+      contractId: contractRow.id,
+      status: 'draft',
+      title: `Engagement · ${projTitle}`,
+      bodyPreview: preview,
+      amountUsd: agreedPrice,
+      clientId,
+      providerId,
+      client: profileSnapFromRow(clientProf),
+      provider: profileSnapFromRow(providerProf),
+    };
+
+    await addUnifiedMessage(user.id, chatId, {
+      contentType: 'embed',
+      content: 'Deal locked — offer accepted.',
+      embed: dealWinEmbed,
+    });
+    await addUnifiedMessage(user.id, chatId, {
+      contentType: 'embed',
+      content: 'Contract draft',
+      embed: contractCardEmbed,
+    });
+
+    const notifyUserId = String(user.id) === String(clientId) ? providerId : clientId;
+    await notifyInsert({
+      user_id: notifyUserId,
+      type: 'bid_outcome',
+      title: 'Deal terms accepted',
+      message: `Terms were accepted on “${projTitle}”. Open the chat for the contract.`,
+      related_id: chatId,
+      related_type: 'chat',
+    });
+
+    await recordWorkflowEvent({
+      projectId: project.id,
+      eventType: 'bid_accepted',
+      actorId: user.id,
+      actorType: 'user',
+      details: { serviceId: sid, unifiedChatId: chatId, contractId: contractRow.id, agreedPrice },
+    });
+
+    return {
+      alreadyLinked: false,
+      project: mapProject(await attachProjectProfiles(client, project)),
+      contract: { id: contractRow.id },
+    };
+  }
+
+  /**
+   * Post a deal_counter_offer embed: service_offer (listing thread) or request_bid (client counters specialist bid).
+   */
+  async function submitDealCounterOffer(user, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const basis = String(body?.basis || '').trim();
+    const chatId = String(body?.conversationId || '').trim();
+    const proposal = String(body?.proposal || '').trim();
+    const price = Number(String(body?.price ?? '').replace(/[^0-9.]/g, ''));
+    const deliveryRaw = body?.deliveryDays != null ? Number(body.deliveryDays) : null;
+    const deliveryDays = Number.isFinite(deliveryRaw) && deliveryRaw > 0 ? Math.round(deliveryRaw) : null;
+
+    if (!chatId) throw new Error('conversationId is required');
+    if (!proposal) throw new Error('proposal is required');
+    if (!Number.isFinite(price) || price <= 0) throw new Error('Valid price is required');
+
+    await assertUnifiedChatAccess(user.id, chatId);
+
+    const preview = proposal.length > 240 ? `${proposal.slice(0, 237)}...` : proposal;
+
+    if (basis === 'service_offer') {
+      const serviceId = String(body?.serviceId || '').trim();
+      const counterTo = String(body?.counterToProposerId || '').trim();
+      if (!serviceId) throw new Error('serviceId is required');
+      if (!counterTo) throw new Error('counterToProposerId is required');
+      if (String(counterTo) === String(user.id)) throw new Error('counterToProposerId must be the other party');
+
+      const { data: svc, error: svcErr } = await client.from('service_packages').select('*').eq('id', serviceId).maybeSingle();
+      if (svcErr) throw svcErr;
+      if (!svc) throw new Error('Service not found');
+
+      const { data: chatRow } = await client.from('unified_chats').select('metadata').eq('id', chatId).maybeSingle();
+      const cmeta = chatRow?.metadata && typeof chatRow.metadata === 'object' ? chatRow.metadata : {};
+      if (String(cmeta.serviceId || '') !== serviceId) {
+        throw new Error('This thread is not linked to this service listing');
+      }
+
+      const { data: partRows } = await client
+        .from('unified_chat_participants')
+        .select('user_id')
+        .eq('chat_id', chatId)
+        .neq('is_deleted', true);
+      const uidSet = new Set((partRows || []).map((p) => String(p.user_id)));
+      if (!uidSet.has(String(user.id)) || !uidSet.has(String(counterTo))) {
+        throw new Error('You and the counterparty must both be in this deal thread');
+      }
+
+      const [{ data: proposerProf }, { data: counterProf }] = await Promise.all([
+        client.from('profiles').select('id, full_name, username, avatar_url').eq('id', user.id).maybeSingle(),
+        client.from('profiles').select('id, full_name, username, avatar_url').eq('id', counterTo).maybeSingle(),
+      ]);
+
+      const embed = {
+        type: 'deal_counter_offer',
+        basis: 'service_offer',
+        label: 'Counter offer',
+        proposer: profileSnapFromRow(proposerProf),
+        counterparty: profileSnapFromRow(counterProf),
+        price,
+        deliveryDays,
+        proposalText: proposal,
+        proposalPreview: preview,
+        serviceTitle: svc.title,
+        serviceId,
+        conversationId: chatId,
+      };
+
+      await addUnifiedMessage(user.id, chatId, {
+        contentType: 'embed',
+        content: preview || 'Counter offer',
+        embed,
+      });
+
+      await notifyInsert({
+        user_id: counterTo,
+        type: 'message',
+        title: 'Counter offer',
+        message: `New counter terms on “${svc.title || 'a service'}”. Open the chat to respond.`,
+        related_id: chatId,
+        related_type: 'chat',
+      });
+
+      return { ok: true };
+    }
+
+    if (basis === 'request_bid') {
+      const bidId = String(body?.counterToBidId || '').trim();
+      if (!bidId) throw new Error('counterToBidId is required');
+
+      const { data: bid, error: bidErr } = await client.from('bids').select('*').eq('id', bidId).maybeSingle();
+      if (bidErr) throw bidErr;
+      if (!bid) throw new Error('Bid not found');
+
+      const { data: request, error: reqErr } = await client
+        .from('project_requests')
+        .select('*')
+        .eq('id', bid.request_id)
+        .maybeSingle();
+      if (reqErr) throw reqErr;
+      if (!request) throw new Error('Request not found');
+      if (String(request.owner_id) !== String(user.id)) {
+        throw new Error('Only the request owner can send this counter');
+      }
+      const bidderId = String(bid.bidder_id || '');
+      if (!bidderId) throw new Error('Bid has no bidder');
+
+      const { data: partRows } = await client
+        .from('unified_chat_participants')
+        .select('user_id')
+        .eq('chat_id', chatId)
+        .neq('is_deleted', true);
+      const uidSet = new Set((partRows || []).map((p) => String(p.user_id)));
+      if (!uidSet.has(String(user.id)) || !uidSet.has(String(bidderId))) {
+        throw new Error('You and the bidder must both be in this deal thread');
+      }
+
+      const [{ data: proposerProf }, { data: counterProf }] = await Promise.all([
+        client.from('profiles').select('id, full_name, username, avatar_url').eq('id', user.id).maybeSingle(),
+        client.from('profiles').select('id, full_name, username, avatar_url').eq('id', bidderId).maybeSingle(),
+      ]);
+
+      const embed = {
+        type: 'deal_counter_offer',
+        basis: 'request_bid',
+        label: 'Client counter',
+        proposer: profileSnapFromRow(proposerProf),
+        counterparty: profileSnapFromRow(counterProf),
+        price,
+        deliveryDays,
+        proposalText: proposal,
+        proposalPreview: preview,
+        requestTitle: request.title,
+        requestId: request.id,
+        bidId,
+        conversationId: chatId,
+      };
+
+      await addUnifiedMessage(user.id, chatId, {
+        contentType: 'embed',
+        content: preview || 'Counter offer',
+        embed,
+      });
+
+      await notifyInsert({
+        user_id: bidderId,
+        type: 'message',
+        title: 'Counter on your bid',
+        message: `The client sent new terms on “${request.title || 'a request'}”. Open the chat.`,
+        related_id: chatId,
+        related_type: 'chat',
+      });
+
+      return { ok: true };
+    }
+
+    throw new Error('Unsupported counter basis');
   }
 
   async function leaveUnifiedChat(userId, chatId) {
@@ -2725,6 +3578,340 @@ async function createPlatformRepository(previewRepository) {
       .in('conversation_id', ids);
 
     return { cleared: ids.length };
+  }
+
+  // ——— Project contracts (deal room) ———
+
+  async function assertContractParty(userId, row) {
+    if (!row) throw new Error('Contract not found');
+    const uid = String(userId);
+    if (String(row.client_id) !== uid && String(row.provider_id) !== uid) {
+      throw new Error('Not authorized for this contract');
+    }
+  }
+
+  function mapContractRow(row, clientProf, providerProf) {
+    return {
+      id: row.id,
+      status: row.status,
+      title: row.title,
+      body: row.body,
+      amountUsd: row.amount_usd != null ? Number(row.amount_usd) : null,
+      fundReference: row.fund_reference || null,
+      clientSignedAt: row.client_signed_at || null,
+      providerSignedAt: row.provider_signed_at || null,
+      client: profileSnapFromRow(clientProf),
+      provider: profileSnapFromRow(providerProf),
+      revisionNote: row.revision_note || null,
+      payoutAddress: row.payout_address || null,
+    };
+  }
+
+  async function loadContractRow(contractId) {
+    const id = String(contractId || '').trim();
+    if (!id) throw new Error('Contract id is required');
+    const { data: row, error } = await client.from('project_contracts').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return row;
+  }
+
+  async function getContractForUser(userId, contractId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(userId, row);
+    const [{ data: cp }, { data: pp }] = await Promise.all([
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', row.client_id).maybeSingle(),
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', row.provider_id).maybeSingle(),
+    ]);
+    return { contract: mapContractRow(row, cp, pp) };
+  }
+
+  async function patchContractDraft(user, contractId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(user.id, row);
+    const st = String(row.status);
+    if (!['draft', 'revision_requested'].includes(st)) {
+      throw new Error('Contract cannot be edited in this status');
+    }
+    const title = body.title != null ? String(body.title).trim() : row.title;
+    const txtBody = body.body != null ? String(body.body) : row.body;
+    const amountUsd = body.amountUsd != null ? Number(body.amountUsd) : Number(row.amount_usd);
+    if (!title) throw new Error('Title is required');
+    if (!Number.isFinite(amountUsd) || amountUsd < 0) throw new Error('Valid amountUsd is required');
+    const patch = {
+      title,
+      body: txtBody,
+      amount_usd: amountUsd,
+      updated_at: new Date().toISOString(),
+    };
+    if (st === 'revision_requested') {
+      patch.status = 'draft';
+      patch.revision_note = null;
+      patch.revision_requested_by = null;
+    }
+    const { error: uerr } = await client.from('project_contracts').update(patch).eq('id', row.id);
+    if (uerr) throw uerr;
+    return getContractForUser(user.id, row.id);
+  }
+
+  function contractNotifyChatId(row) {
+    return row.unified_chat_id || row.legacy_conversation_id || null;
+  }
+
+  async function sendContractForSignatures(user, contractId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(user.id, row);
+    const st = String(row.status);
+    if (!['draft', 'revision_requested'].includes(st)) {
+      throw new Error('Only a draft can be sent for signatures');
+    }
+    const { error } = await client
+      .from('project_contracts')
+      .update({
+        status: 'sent',
+        client_signed_at: null,
+        provider_signed_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', row.id);
+    if (error) throw error;
+    const other = String(row.client_id) === String(user.id) ? row.provider_id : row.client_id;
+    const nid = contractNotifyChatId(row);
+    if (nid) {
+      await notifyInsert({
+        user_id: other,
+        type: 'message',
+        title: 'Contract ready to sign',
+        message: 'Review and approve the contract terms in your deal room.',
+        related_id: nid,
+        related_type: 'chat',
+      });
+    }
+    return getContractForUser(user.id, row.id);
+  }
+
+  async function signContract(user, contractId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(user.id, row);
+    if (String(row.status) !== 'sent') {
+      throw new Error('Contract is not waiting for your signature');
+    }
+    const uid = String(user.id);
+    const isClient = String(row.client_id) === uid;
+    const patch = { updated_at: new Date().toISOString() };
+    if (isClient) {
+      if (row.client_signed_at) throw new Error('You already signed this contract');
+      patch.client_signed_at = new Date().toISOString();
+    } else {
+      if (row.provider_signed_at) throw new Error('You already signed this contract');
+      patch.provider_signed_at = new Date().toISOString();
+    }
+    const { data: mid, error } = await client
+      .from('project_contracts')
+      .update(patch)
+      .eq('id', row.id)
+      .select('*')
+      .single();
+    if (error) throw error;
+    const clientSigned = mid.client_signed_at != null;
+    const providerSigned = mid.provider_signed_at != null;
+    let nextStatus = 'sent';
+    if (clientSigned && providerSigned) {
+      nextStatus = 'fully_accepted';
+    }
+    if (nextStatus !== String(mid.status)) {
+      const { error: e2 } = await client
+        .from('project_contracts')
+        .update({ status: nextStatus, updated_at: new Date().toISOString() })
+        .eq('id', row.id);
+      if (e2) throw e2;
+    }
+    const other = isClient ? row.provider_id : row.client_id;
+    const nid = contractNotifyChatId(row);
+    if (nid) {
+      await notifyInsert({
+        user_id: other,
+        type: 'message',
+        title: nextStatus === 'fully_accepted' ? 'Contract fully signed' : 'Contract signed',
+        message:
+          nextStatus === 'fully_accepted'
+            ? 'Both parties have signed. The client can proceed to payment when ready.'
+            : 'The other party signed. Your signature is still needed to complete the contract.',
+        related_id: nid,
+        related_type: 'chat',
+      });
+    }
+    try {
+      if (nextStatus === 'fully_accepted' && String(row.status) !== 'fully_accepted') {
+        const dealVal = Number(row.amount_usd) || 0;
+        if (currencyService) {
+          await currencyService.awardConquest(row.provider_id, 250, 'deal_signed', 'project_contracts', row.id, {
+            deal_value: dealVal,
+            buyer_id: row.client_id,
+          });
+          await currencyService.awardConquest(row.client_id, 250, 'deal_signed', 'project_contracts', row.id, {
+            deal_value: dealVal,
+            seller_id: row.provider_id,
+          });
+        }
+        if (ratingService) {
+          await ratingService.processDealWin(row.provider_id, dealVal, null, false);
+          await ratingService.processDealWin(row.client_id, dealVal, null, false);
+        }
+      }
+    } catch (e) {
+      console.warn('[conquest] deal_signed hook:', e.message);
+    }
+    return getContractForUser(user.id, row.id);
+  }
+
+  async function requestContractRevision(user, contractId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const noteRaw =
+      body && typeof body === 'object' && body.note !== undefined ? body.note : body;
+    const note = noteRaw != null ? String(noteRaw) : '';
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(user.id, row);
+    if (String(row.status) !== 'sent') {
+      throw new Error('You can only request edits while the contract is out for signature');
+    }
+    const { error } = await client
+      .from('project_contracts')
+      .update({
+        status: 'revision_requested',
+        revision_note: note.trim() || 'Edits requested',
+        revision_requested_by: user.id,
+        client_signed_at: null,
+        provider_signed_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', row.id);
+    if (error) throw error;
+    const other = String(row.client_id) === String(user.id) ? row.provider_id : row.client_id;
+    const nid = contractNotifyChatId(row);
+    if (nid) {
+      await notifyInsert({
+        user_id: other,
+        type: 'message',
+        title: 'Contract edits requested',
+        message: (note.trim() || 'Please update the contract draft.').slice(0, 240),
+        related_id: nid,
+        related_type: 'chat',
+      });
+    }
+    return getContractForUser(user.id, row.id);
+  }
+
+  async function cancelContract(user, contractId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    await assertContractParty(user.id, row);
+    const st = String(row.status);
+    if (['funds_held', 'released', 'cancelled', 'awaiting_funds'].includes(st)) {
+      throw new Error('Contract cannot be cancelled in this state');
+    }
+    const { error } = await client
+      .from('project_contracts')
+      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+      .eq('id', row.id);
+    if (error) throw error;
+    try {
+      if (ratingService) {
+        await ratingService.processLoss(user.id, 'deal_cancelled');
+      }
+    } catch (e) {
+      console.warn('[rating] deal_cancelled hook:', e.message);
+    }
+    return getContractForUser(user.id, row.id);
+  }
+
+  async function createContractCryptoIntent(user, contractId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const row = await loadContractRow(contractId);
+    if (!row) throw new Error('Contract not found');
+    if (String(row.client_id) !== String(user.id)) {
+      throw new Error('Only the client can start checkout');
+    }
+    if (String(row.status) !== 'fully_accepted') {
+      throw new Error('Both parties must sign before payment');
+    }
+    const payout = String(body?.payoutAddress || '').trim();
+    if (!payout) throw new Error('Payout address is required');
+    const apiKey = String(env.nowpaymentsApiKey || '').trim();
+    if (!apiKey) {
+      throw new Error('Crypto checkout is not configured (set NOWPAYMENTS_API_KEY on the server)');
+    }
+    const amountUsd = Number(row.amount_usd);
+    if (!Number.isFinite(amountUsd) || amountUsd <= 0) throw new Error('Invalid contract amount');
+    const reference = `CT-${String(row.id).replace(/-/g, '').slice(0, 16)}`;
+    const expiresAt = new Date(Date.now() + 48 * 3600 * 1000).toISOString();
+    const web = env.publicWebOrigin || 'http://localhost:3001';
+    const apiOrigin = env.apiPublicOrigin || `http://127.0.0.1:${env.port || 3000}`;
+    const chatPath = row.unified_chat_id ? `/chat/${row.unified_chat_id}` : '/chat';
+    const successUrl = `${web}${chatPath}?contractPaid=${encodeURIComponent(row.id)}`;
+    const cancelUrl = `${web}${chatPath}`;
+    let checkoutLink = null;
+    let npId = null;
+    try {
+      const inv = await createNowpaymentsInvoice({
+        apiKey,
+        sandbox: Boolean(env.nowpaymentsSandbox),
+        priceAmount: amountUsd,
+        priceCurrency: 'usd',
+        ipnCallbackUrl: `${apiOrigin}/api/nowpayments/ipn`,
+        orderId: reference,
+        orderDescription: row.title || 'Contract escrow',
+        successUrl,
+        cancelUrl,
+      });
+      checkoutLink = extractInvoiceCheckoutUrl(inv);
+      npId = inv && inv.id != null ? String(inv.id) : null;
+    } catch (e) {
+      throw new Error(e.message || 'Could not create payment invoice');
+    }
+    if (!checkoutLink) throw new Error('Payment provider did not return a checkout URL');
+    const { error: upErr } = await client
+      .from('project_contracts')
+      .update({
+        payout_address: payout,
+        fund_reference: reference,
+        status: 'awaiting_funds',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', row.id);
+    if (upErr) throw upErr;
+    const { error: insErr } = await client.from('contract_payment_intents').insert({
+      contract_id: row.id,
+      payer_id: user.id,
+      reference,
+      amount_usd: amountUsd,
+      quote_snapshot: { provider: 'nowpayments' },
+      status: 'pending',
+      expires_at: expiresAt,
+      nowpayments_invoice_id: npId,
+    });
+    if (insErr) throw insErr;
+    const nid = contractNotifyChatId(row);
+    if (nid && row.provider_id) {
+      await notifyInsert({
+        user_id: row.provider_id,
+        type: 'message',
+        title: 'Client started payment',
+        message: `Escrow checkout opened (ref ${reference}).`,
+        related_id: nid,
+        related_type: 'chat',
+      });
+    }
+    return { checkoutLink, reference };
   }
 
   // Notifications
@@ -2832,6 +4019,17 @@ async function createPlatformRepository(previewRepository) {
       related_id: inserted.id,
       related_type: 'review',
     });
+
+    try {
+      if (currencyService) {
+        await currencyService.awardConquest(revieweeId, 100, 'review_received', 'project_reviews', inserted.id, {
+          rating: Math.round(rating),
+          reviewer_id: userId,
+        });
+      }
+    } catch (e) {
+      console.warn('[conquest] review_received hook:', e.message);
+    }
 
     return { id: inserted.id };
   }
@@ -2975,14 +4173,87 @@ async function createPlatformRepository(previewRepository) {
         body: r.body,
         createdAt: r.created_at,
         reviewerName: p?.full_name || p?.username || 'Member',
+        reviewerUsername: p?.username || null,
         reviewerAvatar: p?.avatar_url || null,
       };
     });
+
+    let publicServices = [];
+    let openRequests = [];
+    let recentContracts = [];
+    let currencySnapshot = null;
+    let ratingSnapshot = null;
+    try {
+      const [{ data: svcRows }, { data: reqRows }, { data: ctrRows }, { data: uc }, { data: ur }] =
+        await Promise.all([
+          client
+            .from('service_packages')
+            .select('id, title, category, base_price, slug, status')
+            .eq('owner_id', data.id)
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .limit(6),
+          client
+            .from('project_requests')
+            .select('id, title, budget_min, budget_max, due_date, status')
+            .eq('owner_id', data.id)
+            .eq('status', 'open')
+            .order('created_at', { ascending: false })
+            .limit(50),
+          client
+            .from('project_contracts')
+            .select('id, title, status, updated_at, client_signed_at, provider_signed_at')
+            .or(`client_id.eq.${data.id},provider_id.eq.${data.id}`)
+            .in('status', ['fully_accepted', 'funds_held', 'released', 'awaiting_funds'])
+            .order('updated_at', { ascending: false })
+            .limit(5),
+          client.from('user_currencies').select('*').eq('user_id', data.id).maybeSingle(),
+          client.from('user_ratings').select('*').eq('user_id', data.id).maybeSingle(),
+        ]);
+      publicServices = svcRows || [];
+      openRequests = reqRows || [];
+      recentContracts = ctrRows || [];
+      const reqIds = (openRequests || []).map((r) => r.id).filter(Boolean);
+      const bidCountByReq = new Map();
+      if (reqIds.length) {
+        const { data: bidRows } = await client.from('bids').select('request_id').in('request_id', reqIds);
+        for (const b of bidRows || []) {
+          const k = b.request_id;
+          bidCountByReq.set(k, (bidCountByReq.get(k) || 0) + 1);
+        }
+      }
+      for (const r of openRequests) {
+        r.proposalCount = bidCountByReq.get(r.id) || 0;
+      }
+      if (uc) {
+        currencySnapshot = {
+          honor_points: Number(uc.honor_points) || 0,
+          conquest_points: Number(uc.conquest_points) || 0,
+          neonScore: (Number(uc.honor_points) || 0) + (Number(uc.conquest_points) || 0) * 10,
+        };
+      }
+      if (ur) {
+        const w = Number(ur.deal_wins) || 0;
+        const l = Number(ur.deal_losses) || 0;
+        ratingSnapshot = {
+          ...ur,
+          neonScore: currencySnapshot?.neonScore ?? 0,
+          winRate: w + l > 0 ? Math.round((w / (w + l)) * 1000) / 10 : 0,
+        };
+      }
+    } catch (e) {
+      console.warn('[public profile] extras:', e.message);
+    }
 
     return {
       ...data,
       portfolios: portfolios || [],
       reviews,
+      publicServices,
+      openRequests,
+      recentContracts,
+      currencySnapshot,
+      ratingSnapshot,
     };
   }
 
@@ -3009,10 +4280,88 @@ async function createPlatformRepository(previewRepository) {
     return DEFAULT_AI_MODELS;
   }
 
+  /** Public dashboard tiles for the home hub (no auth). */
+  async function getHomeStats() {
+    if (!client) {
+      const base = await readPreview();
+      const profiles = base.profiles || [];
+      const humanChats = base.humanChats || [];
+      const projects = base.projects || [];
+      const services = base.services || [];
+      const requests = base.requests || [];
+      return {
+        totals: {
+          members: profiles.length,
+          chats: humanChats.length,
+          deals: projects.length,
+          onlineMembers: 0,
+          bids: 0,
+          servicesListed: services.length,
+          openRequests: requests.filter((r) => String(r?.status || '') === 'open').length,
+        },
+        latest: null,
+      };
+    }
+
+    const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    try {
+      const marketplaceStats = await fetchMarketplaceStats();
+      const [membersRes, convRes, dealsRes, onlineRes] = await Promise.all([
+        client.from('profiles').select('id', { count: 'exact', head: true }),
+        client.from('conversations').select('id', { count: 'exact', head: true }),
+        client
+          .from('projects')
+          .select('id', { count: 'exact', head: true })
+          .in('status', ['active', 'review', 'delivered']),
+        client.from('profiles').select('id', { count: 'exact', head: true }).gte('last_activity_at', fifteenMinAgo),
+      ]);
+
+      let unifiedCount = 0;
+      const u = await client.from('unified_chats').select('id', { count: 'exact', head: true });
+      if (!u.error) unifiedCount = u.count || 0;
+
+      const chats = (convRes.count || 0) + unifiedCount;
+      const onlineCount = onlineRes.error ? 0 : onlineRes.count || 0;
+
+      return {
+        totals: {
+          members: membersRes.count ?? 0,
+          chats,
+          deals: dealsRes.count ?? 0,
+          onlineMembers: onlineCount,
+          bids: marketplaceStats?.bidsTotal ?? 0,
+          servicesListed: marketplaceStats?.servicesPublished ?? 0,
+          openRequests: marketplaceStats?.requestsOpen ?? 0,
+        },
+        latest: null,
+      };
+    } catch (e) {
+      console.warn('[home/stats]', e.message);
+      return {
+        totals: {
+          members: 0,
+          chats: 0,
+          deals: 0,
+          onlineMembers: 0,
+        },
+        latest: null,
+      };
+    }
+  }
+
   return {
+    currencyService,
+    ratingService,
     getBootstrap,
     getMarketplaceStats: fetchMarketplaceStats,
+    getHomeStats,
     updateProfile,
+    checkUsernameAvailable,
+    getServiceById,
+    submitServicePackageBid,
+    acceptServicePackageDeal,
+    submitDealCounterOffer,
+    getProjectRequestById,
     updateSettings,
     createServicePackage,
     updateServicePackage,
@@ -3056,6 +4405,13 @@ async function createPlatformRepository(previewRepository) {
     setUnifiedTyping,
     leaveConversation,
     clearLegacyChats,
+    getContractForUser,
+    patchContractDraft,
+    sendContractForSignatures,
+    signContract,
+    requestContractRevision,
+    cancelContract,
+    createContractCryptoIntent,
     // Notifications
     getNotifications,
     markNotificationRead,

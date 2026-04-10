@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0a0a0b"/>
+  <defs>
+    <radialGradient id="grad" cx="30%" cy="50%">
+      <stop offset="0%" stop-color="#4f8ef7"/>
+      <stop offset="100%" stop-color="#0a0a0b"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)" opacity="0.15"/>
+  <text x="80" y="280" font-family="system-ui, sans-serif" font-size="72"
+        font-weight="800" fill="#4f8ef7">&#9733;</text>
+  <text x="160" y="280" font-family="system-ui, sans-serif" font-size="72"
+        font-weight="800" fill="#e8e8ed">BrandForge</text>
+  <text x="80" y="340" font-family="system-ui, sans-serif" font-size="28"
+        font-weight="400" fill="#9a9aaa">The Professional OS for the AI Era</text>
+</svg>

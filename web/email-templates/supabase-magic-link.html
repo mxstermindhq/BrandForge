@@ -1,0 +1,95 @@
+<!--
+  Supabase → Authentication → Email Templates → "Magic link"
+
+  Subject (set in the Subject field above the body):
+    Your sign-in link — BrandForge
+
+  Body: paste everything below this comment (from <!DOCTYPE through </html>).
+  Variables use Go template syntax — keep {{ .ConfirmationURL }} exactly as-is.
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="supported-color-schemes" content="dark" />
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <title>Sign in</title>
+  <style type="text/css">
+    :root { color-scheme: dark; supported-color-schemes: dark; }
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+  </style>
+</head>
+<body style="margin:0;padding:0;width:100%;background-color:#0e0e0e;">
+  <!-- Preheader (inbox preview line; hidden in client) -->
+  <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
+    One tap to finish signing in — link expires soon.
+  </div>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#0e0e0e;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:520px;background-color:#111113;border:1px solid #2a2a30;border-radius:16px;overflow:hidden;">
+          <!-- Accent bar -->
+          <tr>
+            <td style="height:4px;background:linear-gradient(90deg,#4f8ef7,#7b9fd4,#1a4db8);background-color:#4f8ef7;"></td>
+          </tr>
+          <tr>
+            <td style="padding:36px 32px 28px 32px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+              <p style="margin:0 0 8px 0;font-size:11px;font-weight:700;letter-spacing:0.35em;text-transform:uppercase;color:#7b9fd4;">
+                BrandForge
+              </p>
+              <h1 style="margin:0 0 12px 0;font-size:26px;font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:#e8e8ed;">
+                Magic link
+              </h1>
+              <p style="margin:0 0 28px 0;font-size:15px;line-height:1.55;color:#9a9aaa;">
+                Follow this link to sign in to your account. If you didn’t request this, you can ignore this email.
+              </p>
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px 0;">
+                <tr>
+                  <td align="center" style="border-radius:12px;background:linear-gradient(135deg,#4f8ef7 0%,#1a4db8 100%);background-color:#4f8ef7;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 32px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;color:#ffffff;border-radius:12px;">
+                      Log in
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 12px 0;font-size:12px;line-height:1.5;color:#938ea1;">
+                Button not working? Copy and paste this URL into your browser:
+              </p>
+              <p style="margin:0 0 24px 0;font-size:11px;line-height:1.5;word-break:break-all;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;color:#4f8ef7;">
+                {{ .ConfirmationURL }}
+              </p>
+              <p style="margin:0;font-size:12px;line-height:1.5;color:#484555;">
+                This link expires shortly for your security. You’ll stay signed in on the device you use to open it.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px 28px 32px;border-top:1px solid #2a2a2a;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+              <p style="margin:0;font-size:11px;line-height:1.5;color:#484555;">
+                Sent to <span style="color:#938ea1;">{{ .Email }}</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:24px 0 0 0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;color:#484555;">
+          © BrandForge · Architect your reality
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\"",
+    "dev": "next dev -p 3001",
+    "dev:clean": "npm run clean && next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "generate:public-assets": "node ./scripts/generate-public-assets.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.102.1",
+    "@tanstack/react-virtual": "^3.13.23",
+    "geist": "^1.7.0",
+    "lucide-react": "^1.7.0",
+    "next": "14.2.35",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "concurrently": "^9.2.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
+    "postcss": "^8",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

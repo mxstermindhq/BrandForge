@@ -1,0 +1,625 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────
+   BRANDFORGE DESIGN TOKENS
+   Single dark theme. All surfaces are grey.
+   Primary = electric blue. Severity palette included.
+   Body font: Inter (Next 14 has no Geist in next/font/google; Inter is the substitute).
+───────────────────────────────────────── */
+html {
+  /* Surfaces — Claude-grey family */
+  --color-background: #0a0a0b;
+  --color-surface: #0a0a0b;
+  --color-surface-dim: #0a0a0b;
+  --color-surface-bright: #2a2a2e;
+  --color-surface-container: #141416;
+  --color-surface-container-lowest: #080809;
+  --color-surface-container-low: #111113;
+  --color-surface-container-high: #1e1e21;
+  --color-surface-container-highest: #26262a;
+  --color-surface-variant: #26262a;
+
+  /* Text */
+  --color-on-background: #e8e8ed;
+  --color-on-surface: #e8e8ed;
+  --color-on-surface-variant: #9a9aaa;
+  --color-outline: #3a3a42;
+  --color-outline-variant: #2a2a30;
+
+  /* Primary — Electric Blue */
+  --color-surface-tint: #4f8ef7;
+  --color-primary: #4f8ef7;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1a4db8;
+  --color-on-primary-container: #dce8ff;
+  --color-primary-fixed: #dce8ff;
+  --color-primary-fixed-dim: #a8c4f8;
+  --color-on-primary-fixed: #001640;
+  --color-on-primary-fixed-variant: #1a4db8;
+
+  /* Secondary — Slate Blue (muted) */
+  --color-secondary: #7b9fd4;
+  --color-on-secondary: #0a1a30;
+  --color-secondary-container: #1e3360;
+  --color-on-secondary-container: #c0d4f5;
+  --color-secondary-fixed: #c0d4f5;
+  --color-secondary-fixed-dim: #7b9fd4;
+  --color-on-secondary-fixed: #071020;
+  --color-on-secondary-fixed-variant: #1e3360;
+
+  /* Tertiary — same as secondary for cohesion */
+  --color-tertiary: #7b9fd4;
+  --color-on-tertiary: #0a1a30;
+  --color-tertiary-container: #1e3360;
+  --color-on-tertiary-container: #c0d4f5;
+  --color-tertiary-fixed: #c0d4f5;
+  --color-tertiary-fixed-dim: #7b9fd4;
+  --color-on-tertiary-fixed: #071020;
+  --color-on-tertiary-fixed-variant: #1e3360;
+
+  /* ─── Severity palette ─────────────────── */
+
+  /* Critical — Red */
+  --color-critical: #f87171;
+  --color-critical-container: #3f0f0f;
+  --color-on-critical: #ffffff;
+  --color-on-critical-container: #fecaca;
+
+  /* High — Orange */
+  --color-high: #fb923c;
+  --color-high-container: #3d1a06;
+  --color-on-high: #ffffff;
+  --color-on-high-container: #fed7aa;
+
+  /* Medium — Amber */
+  --color-medium: #fbbf24;
+  --color-medium-container: #3a2600;
+  --color-on-medium: #1a1000;
+  --color-on-medium-container: #fef3c7;
+
+  /* Low — Green */
+  --color-low: #4ade80;
+  --color-low-container: #0a2d15;
+  --color-on-low: #021208;
+  --color-on-low-container: #bbf7d0;
+
+  /* Error (keep for form validation) */
+  --color-error: #f87171;
+  --color-on-error: #3f0f0f;
+  --color-error-container: #5c1414;
+  --color-on-error-container: #fecaca;
+
+  /* Inverse */
+  --color-inverse-surface: #e8e8ed;
+  --color-inverse-on-surface: #1a1a1e;
+  --color-inverse-primary: #1a4db8;
+
+  /* Shadows */
+  --shadow-ambient: 0 0 32px rgba(79, 142, 247, 0.06);
+  --shadow-glow: 0 0 24px rgba(79, 142, 247, 0.25);
+  --shadow-fab: 0 0 48px rgba(79, 142, 247, 0.35);
+  --scrollbar-thumb: rgba(79, 142, 247, 0.3);
+  --muted-overlay: 38, 38, 42;
+
+  /* Legacy shorthand aliases — keep these so existing components don't break */
+  --background: var(--color-background);
+  --foreground: var(--color-on-surface);
+  --muted: var(--color-on-surface-variant);
+  --accent: #a8c4f8;
+  --accent2: #7b9fd4;
+  --card: var(--color-surface-container-low);
+  --sidebar: var(--color-surface-container);
+  --border: rgba(58, 58, 66, 0.6);
+
+  /* Competitive tiers (leaderboard + public profile) */
+  --tier-challenger: #6b7280;
+  --tier-rival: #cd7f32;
+  --tier-duelist: #94a3b8;
+  --tier-gladiator: #f59e0b;
+  --tier-undisputed: #a78bfa;
+
+  --rank-gold: #f59e0b;
+  --rank-silver: #94a3b8;
+  --rank-bronze: #cd7f32;
+}
+
+@keyframes bf-tier-undisputed-row {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-undisputed) 55%, transparent),
+      0 0 20px color-mix(in srgb, var(--tier-undisputed) 15%, transparent);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-secondary) 50%, var(--tier-undisputed)),
+      0 0 28px color-mix(in srgb, var(--color-secondary) 12%, transparent);
+  }
+}
+
+@keyframes bf-tier-undisputed-pill {
+  0%,
+  100% {
+    border-color: color-mix(in srgb, var(--tier-undisputed) 80%, var(--color-secondary));
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--color-secondary) 40%, var(--tier-undisputed));
+  }
+}
+
+.bf-undisputed-row {
+  animation: bf-tier-undisputed-row 3s ease-in-out infinite;
+}
+
+.bf-undisputed-pill {
+  animation: bf-tier-undisputed-pill 3s ease-in-out infinite;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply font-body text-on-surface bg-background antialiased;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+
+  h1,
+  .h1 {
+    font-family: var(--font-headline);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  h2,
+  .h2 {
+    font-family: var(--font-headline);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  h3,
+  .h3 {
+    font-family: var(--font-headline);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-headline);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .font-display {
+    font-family: var(--font-headline);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  code,
+  pre,
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  /*
+   * Form controls: without color-scheme + explicit fg/bg, many browsers paint white fields
+   * and dark or low-contrast placeholder text. Tailwind utilities on a field still override these.
+   */
+  textarea,
+  select,
+  input:where(
+      :not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"], [type="image"], [type="hidden"])
+    ) {
+    background-color: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+    caret-color: var(--color-primary);
+  }
+
+  textarea::placeholder,
+  input::placeholder {
+    color: color-mix(in srgb, var(--color-on-surface-variant) 72%, transparent);
+    opacity: 1;
+  }
+
+  textarea:disabled,
+  select:disabled,
+  input:where(
+      :not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"], [type="hidden"]):disabled
+    ) {
+    color: color-mix(in srgb, var(--color-on-surface) 55%, transparent);
+    cursor: not-allowed;
+  }
+
+  /* WebKit autofill — avoid flashing white/yellow wells */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-on-surface);
+    box-shadow: 0 0 0 1000px var(--color-surface-container-high) inset;
+    transition: background-color 99999s ease-out 0s;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.bg-sidebar {
+  background: var(--sidebar);
+}
+
+.border-border {
+  border-color: var(--border);
+}
+
+.bg-card {
+  background: var(--card);
+}
+
+.bg-muted\/30 {
+  background: rgba(var(--muted-overlay), 0.45);
+}
+
+.bg-muted\/60 {
+  background: rgba(var(--muted-overlay), 0.65);
+}
+
+.bg-muted\/80 {
+  background: rgba(var(--muted-overlay), 0.85);
+}
+
+.hover\:bg-muted\/30:hover {
+  background: rgba(var(--muted-overlay), 0.45);
+}
+
+.hover\:bg-muted\/60:hover {
+  background: rgba(var(--muted-overlay), 0.65);
+}
+
+.hover\:bg-muted\/80:hover {
+  background: rgba(var(--muted-overlay), 0.85);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 142, 247, 0.5);
+}
+
+/* Focus ring — blue glow */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(79, 142, 247, 0.25);
+  color: var(--color-on-surface);
+}
+
+@layer components {
+  /* ── Severity badges ──────────────────── */
+  .badge-critical {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-headline;
+    background: var(--color-critical-container);
+    color: var(--color-on-critical-container);
+    border: 1px solid color-mix(in srgb, var(--color-critical) 30%, transparent);
+  }
+
+  .badge-high {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-headline;
+    background: var(--color-high-container);
+    color: var(--color-on-high-container);
+    border: 1px solid color-mix(in srgb, var(--color-high) 30%, transparent);
+  }
+
+  .badge-medium {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-headline;
+    background: var(--color-medium-container);
+    color: var(--color-on-medium-container);
+    border: 1px solid color-mix(in srgb, var(--color-medium) 30%, transparent);
+  }
+
+  .badge-low {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-headline;
+    background: var(--color-low-container);
+    color: var(--color-on-low-container);
+    border: 1px solid color-mix(in srgb, var(--color-low) 30%, transparent);
+  }
+
+  /* ── Alert/callout variants ───────────── */
+  .alert-critical {
+    background: var(--color-critical-container);
+    border-left: 3px solid var(--color-critical);
+    color: var(--color-on-critical-container);
+    @apply rounded-md p-3 text-sm;
+  }
+
+  .alert-high {
+    background: var(--color-high-container);
+    border-left: 3px solid var(--color-high);
+    color: var(--color-on-high-container);
+    @apply rounded-md p-3 text-sm;
+  }
+
+  .alert-medium {
+    background: var(--color-medium-container);
+    border-left: 3px solid var(--color-medium);
+    color: var(--color-on-medium-container);
+    @apply rounded-md p-3 text-sm;
+  }
+
+  .alert-low {
+    background: var(--color-low-container);
+    border-left: 3px solid var(--color-low);
+    color: var(--color-on-low-container);
+    @apply rounded-md p-3 text-sm;
+  }
+
+  /* ── Surface card (updated) ──────────── */
+  .surface-card {
+    background: var(--color-surface-container-low);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 60%, transparent);
+    @apply rounded-xl;
+  }
+
+  /* ── Input base ──────────────────────── */
+  .input-base {
+    background: var(--color-surface-container-high);
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface);
+    @apply rounded-md px-3 py-2 text-sm transition-colors duration-150 outline-none placeholder:text-on-surface-variant focus:border-primary;
+    caret-color: var(--color-primary);
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  .input-base:focus-visible {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-headline font-600 text-[13px] px-4 py-2 rounded-md
+      transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(0.92);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 bg-surface-container-high text-on-surface font-headline font-500 text-[13px] px-4 py-2 rounded-md border border-outline-variant
+      hover:bg-surface-container-highest transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center text-on-surface-variant font-body text-[13px] px-3 py-1.5 rounded-md
+      hover:bg-surface-container-high hover:text-on-surface transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center text-critical font-headline font-500 text-[13px] px-4 py-2 rounded-md bg-transparent
+      hover:bg-critical-container transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    border: 1px solid color-mix(in srgb, var(--color-critical) 40%, transparent);
+  }
+}
+
+@layer utilities {
+  .page-root {
+    @apply min-h-screen bg-background;
+  }
+
+  .page-content {
+    @apply max-w-[960px] mx-auto px-8 py-10;
+  }
+
+  .page-content-sm {
+    @apply max-w-[720px] mx-auto px-8 py-10;
+  }
+
+  .divider {
+    @apply border-t my-6;
+    border-color: color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
+  }
+
+  .divider-sm {
+    @apply border-t my-4;
+    border-color: color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
+  }
+}
+
+@layer components {
+  .section-label {
+    @apply text-[11px] font-headline font-600 tracking-[0.08em] uppercase text-on-surface-variant mb-3;
+  }
+
+  .page-title {
+    @apply text-[28px] font-headline font-700 tracking-[-0.03em] leading-[1.1] text-on-surface;
+  }
+
+  .page-subtitle {
+    @apply text-[14px] font-body text-on-surface-variant leading-[1.6] mt-1.5;
+  }
+
+  .stat-block {
+    @apply flex flex-col items-end gap-0.5;
+  }
+
+  .stat-number {
+    @apply text-[22px] font-headline font-700 tracking-[-0.03em] text-on-surface leading-none;
+  }
+
+  .stat-label {
+    @apply text-[10px] font-body tracking-[0.05em] uppercase text-on-surface-variant;
+  }
+
+  .data-table {
+    @apply w-full border-collapse;
+  }
+
+  .data-table thead tr {
+    @apply border-b;
+    border-color: color-mix(in srgb, var(--color-outline-variant) 60%, transparent);
+  }
+
+  .data-table th {
+    @apply text-[10px] font-headline font-600 tracking-[0.08em] uppercase text-on-surface-variant py-3 px-4 text-left;
+  }
+
+  .data-table tbody tr {
+    @apply border-b transition-colors duration-100;
+    border-color: color-mix(in srgb, var(--color-outline-variant) 30%, transparent);
+  }
+
+  .data-table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-surface-container-high) 50%, transparent);
+  }
+
+  .data-table td {
+    @apply text-[13px] font-body text-on-surface py-3.5 px-4;
+  }
+
+  .data-table tbody tr:last-child {
+    @apply border-b-0;
+  }
+
+  .pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em];
+  }
+
+  .pill-default {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em] bg-surface-container-high text-on-surface-variant border;
+    border-color: color-mix(in srgb, var(--color-outline-variant) 60%, transparent);
+  }
+
+  .pill-primary {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em] text-primary border;
+    background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+
+  .pill-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em] bg-low-container text-on-low-container border;
+    border-color: color-mix(in srgb, var(--color-low) 20%, transparent);
+  }
+
+  .pill-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em] bg-medium-container text-on-medium-container border;
+    border-color: color-mix(in srgb, var(--color-medium) 20%, transparent);
+  }
+
+  .pill-danger {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-headline font-600 tracking-[0.04em] bg-critical-container text-on-critical-container border;
+    border-color: color-mix(in srgb, var(--color-critical) 20%, transparent);
+  }
+
+  .input {
+    @apply w-full bg-surface-container-high border border-outline-variant text-on-surface text-[13px] font-body rounded-md px-3 py-2.5 outline-none transition-colors duration-150;
+    caret-color: var(--color-primary);
+  }
+
+  .input::placeholder {
+    color: color-mix(in srgb, var(--color-on-surface-variant) 50%, transparent);
+  }
+
+  .input:focus {
+    border-color: color-mix(in srgb, var(--color-primary) 60%, var(--color-outline-variant));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+
+  .input-label {
+    @apply block text-[11px] font-headline font-600 tracking-[0.06em] uppercase text-on-surface-variant mb-1.5;
+  }
+
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-20 text-center gap-3;
+  }
+
+  .empty-state-icon {
+    @apply text-[32px] leading-none;
+    color: color-mix(in srgb, var(--color-on-surface-variant) 30%, transparent);
+  }
+
+  .empty-state-title {
+    @apply text-[15px] font-headline font-600 text-on-surface;
+  }
+
+  .empty-state-body {
+    @apply text-[13px] font-body text-on-surface-variant max-w-[300px] leading-[1.6];
+  }
+}
+
+/* Human chat — subtle “thinking” shimmer (Claude-like, minimal). */
+@keyframes mx-typing-orb {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-secondary) 0%, transparent);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 20px 2px color-mix(in srgb, var(--color-secondary) 35%, transparent);
+  }
+}
+
+.mx-typing-orb {
+  animation: mx-typing-orb 1.35s ease-in-out infinite;
+}

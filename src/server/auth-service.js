@@ -21,6 +21,17 @@ async function getUserFromAccessToken(accessToken) {
   return data.user || null;
 }
 
+/** DB `profiles_role_check` allows only these (see supabase/migrations/profiles_role_member_moderator.sql). */
+const ALLOWED_PROFILE_ROLES = new Set(['member', 'affiliate', 'moderator', 'admin', 'enterprise']);
+const LEGACY_PROFILE_ROLES = { client: 'member', specialist: 'member' };
+
+function normalizeProfileRoleForInsert(raw) {
+  const r = String(raw || 'member').trim().toLowerCase();
+  if (LEGACY_PROFILE_ROLES[r]) return LEGACY_PROFILE_ROLES[r];
+  if (ALLOWED_PROFILE_ROLES.has(r)) return r;
+  return 'member';
+}
+
 async function ensureProfileForUser(user) {
   const client = getServiceClient();
   if (!client || !user) return null;
@@ -31,7 +42,7 @@ async function ensureProfileForUser(user) {
     user.email?.split('@')[0] ||
     'Mxstermind User';
 
-  const userRole = user.user_metadata?.role || 'specialist';
+  const userRole = normalizeProfileRoleForInsert(user.user_metadata?.role);
 
   const baseProfile = {
     id: user.id,

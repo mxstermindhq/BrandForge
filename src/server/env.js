@@ -50,6 +50,14 @@ function getEnv() {
     xaiApiKey: process.env.XAI_API_KEY || '',
     geminiApiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '',
     port: Number(process.env.PORT || 3000),
+    /** Public browser origin (success/cancel URLs for hosted checkout). */
+    publicWebOrigin: String(process.env.PUBLIC_WEB_ORIGIN || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001').replace(/\/+$/, ''),
+    /** Base URL for API (IPN callbacks). */
+    apiPublicOrigin: String(process.env.API_PUBLIC_ORIGIN || `http://127.0.0.1:${process.env.PORT || 3000}`).replace(/\/+$/, ''),
+    nowpaymentsApiKey: process.env.NOWPAYMENTS_API_KEY || '',
+    nowpaymentsSandbox: process.env.NOWPAYMENTS_SANDBOX === '1' || process.env.NOWPAYMENTS_SANDBOX === 'true',
+    /** Optional: protect POST /api/cron/decay-* (Bearer or JSON body.secret). Set in host env, not committed. */
+    cronSecret: process.env.CRON_SECRET || '',
   };
 }
 

@@ -5,9 +5,13 @@
   "description": "Localhost preview server for the mxstermind SaaS branding wedge demo.",
   "scripts": {
     "dev": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev:all": "concurrently -n api,web -c blue,green \"npm run dev\" \"npm run dev --prefix web\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }

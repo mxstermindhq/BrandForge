@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <title>404 — BrandForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:           #0a0a0b;
+      --surface:      #141416;
+      --border:       #2a2a30;
+      --text:         #e8e8ed;
+      --muted:        #9a9aaa;
+      --accent:       #4f8ef7;
+      --accent-glow:  rgba(79, 142, 247, 0.3);
+      --theme-color:  #0a0a0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0.1px;
+    }
+    main {
+      max-width: 420px;
+      width: 100%;
+      padding: 32px 28px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(165deg, var(--surface), rgba(255, 255, 255, 0.02));
+      box-shadow: 0 26px 62px rgba(0, 0, 0, 0.48);
+    }
+    .mark {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #7eb6ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+    }
+    h1 {
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      margin: 0 0 8px;
+    }
+    p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin: 0 0 22px;
+    }
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #7eb6ff);
+      text-decoration: none;
+      box-shadow: 0 8px 20px var(--accent-glow);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    a:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(79, 142, 247, 0.45); }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true">404</div>
+    <h1>Page not found</h1>
+    <p>This URL doesn’t match anything on the server. If you used a bookmark, the page may have moved.</p>
+    <p><a href="/">Back to BrandForge</a></p>
+  </main>
+</body>
+</html>

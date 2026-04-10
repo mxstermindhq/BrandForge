@@ -1,100 +1,95 @@
-# mxstermind
+# ★ BrandForge
 
-> **The professional OS for the AI era** — human mastery amplified by AI, not replaced by it.
+**The professional OS for the AI era.**
 
-mxstermind collapses Upwork + LinkedIn + Claude + Midjourney + Notion into one surface. Every user gets a single identity, wallet, and reputation that grows with every project. Humans lead. AI accelerates. Outcomes are guaranteed.
+One identity, marketplace, and workspace — where specialists list services,
+buyers post briefs, and deals close in a single thread.
+
+[![Status](https://img.shields.io/badge/status-beta-blue?style=flat-square)](https://brandforge.gg)
+[![Stack](https://img.shields.io/badge/stack-Next.js%20%2B%20Supabase%20%2B%20Cloudflare-black?style=flat-square)](https://brandforge.gg)
+[![License](https://img.shields.io/badge/license-private-grey?style=flat-square)](#)
 
 ---
 
-## Core Concept
+## What it is
 
-**Outcome Squads** — a verified human expert + mx Agent delivering a defined result at a fixed price. Not gig work. Not a chatbot. A co-delivery model no other platform offers.
+BrandForge collapses tools like Upwork, LinkedIn, and Notion into one surface.
+Specialists list services. Buyers post briefs. Negotiations, contracts,
+and payments live in one deal room thread — not scattered across email,
+DMs, and ad-hoc invoices.
+
+**North-star metric:** steps and time from "interested" to "money committed under clear terms."
 
 ---
 
-## Quick Start
+## Core features
 
-```powershell
-cd c:\Users\user\Desktop\TheOne
+- **Marketplace** — services and request briefs, weekly rotating board
+- **Deal rooms** — one chat thread per deal: offers, counters, contracts, escrow
+- **Honor & Conquest** — dual season economy for activity and deal wins
+- **Rating & Tiers** — Challenger → Rival → Duelist → Gladiator → Undisputed
+- **Leaderboard** — season rankings with 24,500 USDT prize ladder (if funded)
+- **Plans** — Free, Starter, Architect, Scale
+
+---
+
+## Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 14 (App Router), Tailwind CSS |
+| Backend | Node.js (`server.js`), Supabase |
+| Database | PostgreSQL via Supabase |
+| Auth | Supabase Auth (magic link + OAuth) |
+| Payments | Stripe + NOWPayments (crypto) — configured on API host |
+| Hosting | Cloudflare Pages + DNS (web); Node API elsewhere |
+| Email | Resend |
+
+---
+
+## Local development
+
+```bash
+git clone https://github.com/your-org/brandforge.git
+cd brandforge
+
 npm install
-npm run dev
-```
+cd web && npm install && cd ..
 
-Open **http://127.0.0.1:3000**. Override port with `PORT` in `.env`.
+cp .env.example .env
+# Fill repo-root `.env` for the Node API.
+# Copy `web/.env.example` to `web/.env.local` for Next (Supabase + API URL).
 
----
-
-## Environment
-
-Create `.env` in repo root (never commit):
-
-| Variable | Purpose |
-|----------|---------|
-| `SUPABASE_URL` | Project URL |
-| `SUPABASE_ANON_KEY` | Public anon key (browser) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only — never expose to clients |
-| `SUPABASE_STATE_KEY` | Optional key for `platform_state` row |
-| `AI_API_KEY` | Legacy: one key for chat if you do not use named keys below |
-| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `MISTRAL_API_KEY`, `TOGETHER_API_KEY`, `XAI_API_KEY`, `GEMINI_API_KEY` (or `GOOGLE_AI_API_KEY`) | Per-provider keys for mx Agent / Deep Research — see `.env.example` |
-| `AI_PROVIDER` | `anthropic` \| `openai` \| `groq` \| `openrouter` \| `mistral` \| `together` \| `xai` \| `gemini` — required when multiple keys are set |
-| `AI_MODEL` | Optional model id override per provider |
-| `AI_OPENAI_BASE_URL` | Optional custom base for OpenAI-compatible `openai` mode (default official API) |
-| `OPENROUTER_HTTP_REFERER` | Optional site URL header for OpenRouter |
-| `AI_IMAGE_KEY` | OpenAI key for DALL·E 3; else `OPENAI_API_KEY` or non-Anthropic `AI_API_KEY` |
-| `RESEND_API_KEY` | Transactional email |
-| `EMAIL_FROM` | From line for Resend (e.g. `Name <onboarding@resend.dev>`) |
-| `STRIPE_SECRET_KEY` | Payment processing |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signature verification |
-| `PORT` | HTTP port (default `3000`) |
-
----
-
-## Documentation
-
-- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — Architecture, APIs, database schema, build order
-- [docs/ROADMAP.md](docs/ROADMAP.md) — Phase plan to $10B, feature priority, release gates
-
----
-
-## Repo Layout
-
-| Path | Role |
-|------|------|
-| `mxstermind.html` | Page shell, layout, modals |
-| `production-layer.js` | Client state, rendering, routing (`#page`), API calls |
-| `auth-client.js` | Supabase Auth |
-| `server.js` | HTTP static + `/api/*` routing |
-| `src/server/platform-repository.js` | Supabase data access, notifications, uploads |
-| `src/server/auth-service.js` | JWT validation, ensure profile |
-| `src/server/notify-email.js` | Optional Resend send after notification insert |
-| `src/server/env.js` | Environment loading |
-| `src/server/state-repository.js` | Local/platform state file |
-| `supabase/schema.sql` | Table definitions |
-
----
-
-## Platform Layers
-
-```
-Layer 1 — Identity & Network    (LinkedIn replacement)
-Layer 2 — Marketplace           (Upwork + Toptal replacement)
-Layer 3 — AI Intelligence       (Claude + Perplexity replacement)
-Layer 4 — AI Creation Suite     (Midjourney + Runway replacement)
-Layer 5 — Workspace             (Notion + Slack replacement)
-Layer 6 — Economy               (Wallet, USDT, leaderboard rewards)
+npm run dev:all
+# API → http://127.0.0.1:3000 (default)
+# Web → http://localhost:3001
 ```
 
 ---
 
-## North Star Metric
+## Environment variables
 
-**GMV** — gross value transacted between humans on platform.
-Every feature ships only if it moves GMV or enables a future feature that does.
+- **Repo root** `.env.example` — keys read by `src/server/env.js` for `server.js`.
+- **`web/.env.example`** — `NEXT_PUBLIC_*` for the Next app.
 
-Revenue target: $10B ARR via 100K clients × $10K avg annual spend × 10% commission + subscriptions + AI credits.
+Never commit `.env` or `web/.env.local`.
+
+---
+
+## Deployment
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for Cloudflare Pages (web) and separate Node API hosting.
+
+---
+
+## Docs
+
+- [docs/BRAND_GUIDE.md](docs/BRAND_GUIDE.md) — colors, type, assets
+- [docs/BLUEPRINT.md](docs/BLUEPRINT.md) — product and engineering blueprint
+- `.env.example` — API environment variables
 
 ---
 
 ## License
 
-Private project (`package.json`).
+Private. All rights reserved. © 2026 BrandForge.
