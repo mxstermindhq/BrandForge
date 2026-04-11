@@ -1,0 +1,13 @@
+# BrandForge Node API — deploy this service from the repo root (not `web/`).
+# https://docs.railway.com/reference/config-as-code
+
+[build]
+buildCommand = "npm ci"
+# Only trigger API redeploys when backend-related paths change (same repo as Cloudflare `web/`).
+watchPatterns = ["server.js", "package.json", "package-lock.json", "src/server/**"]
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/api/health"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

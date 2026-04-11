@@ -9,7 +9,33 @@ const { completeMxAgentChat, hasConfiguredLlm, resolveLlmCredentials } = require
 const { generateOpenAiImage, resolveOpenAiImageKey } = require('./src/server/ai-image');
 
 const env = getEnv();
-const host = '127.0.0.1';
+
+/** PaaS sends traffic from outside the container — must bind 0.0.0.0 (not loopback). */
+function listenHost() {
+  if (process.env.HOST || process.env.LISTEN_HOST) {
+    return process.env.HOST || process.env.LISTEN_HOST;
+  }
+  // Railway/Render/Fly set PORT; use public bind whenever the platform assigned a port.
+  if (String(process.env.PORT || '').trim() !== '') {
+    return '0.0.0.0';
+  }
+  // Railway docs: RAILWAY_PUBLIC_DOMAIN, RAILWAY_SERVICE_ID, etc. (not RAILWAY_ENVIRONMENT).
+  const onPaaS = Boolean(
+    process.env.RAILWAY_PUBLIC_DOMAIN ||
+      process.env.RAILWAY_PRIVATE_DOMAIN ||
+      process.env.RAILWAY_SERVICE_ID ||
+      process.env.RAILWAY_PROJECT_ID ||
+      process.env.RAILWAY_ENVIRONMENT_NAME ||
+      process.env.RAILWAY_ENVIRONMENT ||
+      process.env.RENDER ||
+      process.env.FLY_APP_NAME ||
+      process.env.K_SERVICE,
+  );
+  if (process.env.NODE_ENV === 'production' || onPaaS) return '0.0.0.0';
+  return '127.0.0.1';
+}
+
+const host = listenHost();
 const port = env.port;
 const root = __dirname;
 
@@ -207,6 +233,11 @@ function verifyCronSecret(req, body, cronSecret) {
 
 async function routeApi(req, res, pathname) {
   const method = req.method || 'GET';
+
+  if (pathname === '/api/health' && method === 'GET') {
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
 
   if (pathname === '/api/auth/config' && method === 'GET') {
     sendJson(res, 200, {
@@ -1682,7 +1713,9 @@ async function createServer() {
   });
 
   server.listen(port, host, () => {
-    console.log(`mxstermind full-stack preview running at http://${host}:${port} (${storageMode})`);
+    console.log(
+      `mxstermind full-stack preview running at http://${host}:${port} (${storageMode}) [PORT=${port}]`,
+    );
   });
 }
 
