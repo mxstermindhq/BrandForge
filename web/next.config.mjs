@@ -1,8 +1,42 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** Read `wrangler.jsonc` `vars` so `next build` inlines them when CI only sets Worker runtime env (common on Cloudflare Git builds). */
+function readWranglerJsoncVars(wranglerPath) {
+  try {
+    const raw = fs.readFileSync(wranglerPath, "utf8");
+    const withoutFullLineComments = raw
+      .split("\n")
+      .filter((line) => !/^\s*\/\//.test(line))
+      .join("\n");
+    const parsed = JSON.parse(withoutFullLineComments);
+    return parsed.vars && typeof parsed.vars === "object" ? parsed.vars : {};
+  } catch {
+    return {};
+  }
+}
+
+const wranglerVars = readWranglerJsoncVars(path.join(__dirname, "wrangler.jsonc"));
+
+/**
+ * Prefer real `process.env` (e.g. Cloudflare **build** vars, `.env.local`). Fall back to `wrangler.jsonc` in production builds
+ * so `NEXT_PUBLIC_*` reach the client bundle. In `next dev`, do not fall back API proxy URLs to wrangler (keep localhost default).
+ */
+function envResolved(key) {
+  const p = process.env[key];
+  if (p != null && String(p).trim() !== "") return String(p).trim();
+  const skipWranglerInDev =
+    process.env.NODE_ENV === "development" &&
+    (key === "NEXT_PUBLIC_API_URL" || key === "API_PROXY_DESTINATION");
+  if (skipWranglerInDev) return "";
+  const w = wranglerVars[key];
+  if (w != null && String(w).trim() !== "") return String(w).trim();
+  return "";
+}
 
 /**
  * API proxy (rewrites — used heavily by `next dev`):
@@ -11,7 +45,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * - Rewrites below still help local dev and SSR paths that hit the Node server directly.
  */
 function hasRemotePublicApiUrl() {
-  const raw = String(process.env.NEXT_PUBLIC_API_URL || "")
+  const raw = String(envResolved("NEXT_PUBLIC_API_URL") || "")
     .trim()
     .replace(/\/+$/, "");
   if (!raw) return false;
@@ -24,7 +58,7 @@ function hasRemotePublicApiUrl() {
 }
 
 const backendBase = String(
-  process.env.API_PROXY_DESTINATION || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3000",
+  envResolved("API_PROXY_DESTINATION") || envResolved("NEXT_PUBLIC_API_URL") || "http://127.0.0.1:3000",
 ).replace(/\/+$/, "");
 
 const apiRewriteRules = [{ source: "/api/:path*", destination: `${backendBase}/api/:path*` }];
@@ -37,6 +71,13 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_APP_URL: envResolved("NEXT_PUBLIC_APP_URL"),
+    NEXT_PUBLIC_API_URL: envResolved("NEXT_PUBLIC_API_URL"),
+    NEXT_PUBLIC_SUPABASE_URL: envResolved("NEXT_PUBLIC_SUPABASE_URL"),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: envResolved("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    API_PROXY_DESTINATION: envResolved("API_PROXY_DESTINATION"),
+  },
   async redirects() {
     return [
       { source: "/messages", destination: "/chat", permanent: true },
@@ -48,7 +89,7 @@ const nextConfig = {
   async rewrites() {
     const proxyOn =
       process.env.NEXT_PUBLIC_USE_API_PROXY === "1" ||
-      Boolean(String(process.env.API_PROXY_DESTINATION || "").trim()) ||
+      Boolean(String(envResolved("API_PROXY_DESTINATION") || "").trim()) ||
       hasRemotePublicApiUrl();
     if (proxyOn) return apiRewriteRules;
     if (process.env.NODE_ENV === "development" && process.env.DISABLE_DEV_API_REWRITE !== "1") {

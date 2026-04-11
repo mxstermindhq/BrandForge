@@ -926,11 +926,19 @@ async function createPlatformRepository(previewRepository) {
     const published = row.status === 'published';
     const isOwner = viewerUserId && String(row.owner_id) === String(viewerUserId);
     if (!published && !isOwner) return null;
-    const { data: ownerRow } = await client
+    let r = await client
       .from('profiles')
       .select('id, full_name, username, avatar_url, reputation, top_member, vouches')
       .eq('id', row.owner_id)
       .maybeSingle();
+    if (r.error && String(r.error.message || '').includes('top_member')) {
+      r = await client
+        .from('profiles')
+        .select('id, full_name, username, avatar_url, reputation, vouches')
+        .eq('id', row.owner_id)
+        .maybeSingle();
+    }
+    const ownerRow = !r.error ? r.data ?? null : null;
     return mapServiceForDetail(row, ownerRow);
   }
 
@@ -3961,11 +3969,23 @@ async function createPlatformRepository(previewRepository) {
     const { data: prof } = await client.from('profiles').select('completed_projects_count').eq('id', revieweeId).maybeSingle();
     const completed = Number(prof?.completed_projects_count || 0);
     const top = avg != null && avg >= 4.8 && completed >= 3;
-    await client.from('profiles').update({
-      rating_avg: avg,
-      rating_count: cnt,
-      top_member: top,
-    }).eq('id', revieweeId);
+    const { error: upErr } = await client
+      .from('profiles')
+      .update({
+        rating_avg: avg,
+        rating_count: cnt,
+        top_member: top,
+      })
+      .eq('id', revieweeId);
+    if (upErr && String(upErr.message || '').includes('top_member')) {
+      await client
+        .from('profiles')
+        .update({
+          rating_avg: avg,
+          rating_count: cnt,
+        })
+        .eq('id', revieweeId);
+    }
   }
 
   async function createProjectReview(userId, payload) {

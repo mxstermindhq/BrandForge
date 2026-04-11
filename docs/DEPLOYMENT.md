@@ -11,11 +11,19 @@
 - **Sanity check the API directly on Railway:** `GET https://brandforge-production-e488.up.railway.app/api/health` → `{"ok":true}` (or your service’s public domain + `/api/health`).
 - **Sanity check through the frontend:** `GET https://brandforge.mxstermind-com.workers.dev/api/health` should match, once proxy vars and deploy are correct.
 
-**Auth:** the Worker bundle also needs **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** at **build** time (plus `wrangler.jsonc` `vars` if you deploy with Wrangler from your machine). Without them, login shows “Auth not configured”.
+**Auth:** `next build` must see **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**. On Cloudflare, variables attached only to the **Worker runtime** are **not** visible during the Git **build** step, so the client bundle can end up empty and login shows “Auth not configured”. Add the same keys under **Build** environment variables **or** rely on **`web/wrangler.jsonc` → `vars`**, which **`web/next.config.mjs`** reads at build time and inlines into the bundle.
 
 **Email / magic-link redirects:** set **`NEXT_PUBLIC_APP_URL`** to your **Worker origin** (no trailing slash), same as the public site — e.g. `https://brandforge.mxstermind-com.workers.dev`. That value is used for `emailRedirectTo` / OAuth `redirectTo` so Supabase does not fall back to **Site URL** `http://localhost:3000`. In **Supabase → Authentication → URL configuration**, set **Site URL** to that production origin and add **`https://…/auth/callback`** (and local dev URLs if needed) under **Redirect allow list**.
 
 Replace the example hosts with your own Worker and Railway URLs if they differ.
+
+## Quick push / deploy
+
+| Goal | Command |
+|------|---------|
+| **Frontend + backend together** | `git push origin main` — one push updates the repo for both |
+| **Frontend only** | From repo root: `npm run cf:deploy` |
+| **Backend only** | Railway dashboard → your service → **Deployments** → **Redeploy** on the latest deploy; or from repo root with [Railway CLI](https://docs.railway.app/develop/cli) linked to the project: `railway redeploy`. |
 
 ## Frontend (Cloudflare Workers + Git — OpenNext)
 

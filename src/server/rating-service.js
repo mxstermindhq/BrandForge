@@ -225,13 +225,23 @@ function createRatingService(client) {
       const pageSize = 1000;
       let from = 0;
       const all = [];
+      const selectFull = 'id, username, full_name, avatar_url, is_verified, top_member';
+      const selectNoTop = 'id, username, full_name, avatar_url, is_verified';
+      let useTopMember = true;
       for (;;) {
+        const sel = useTopMember ? selectFull : selectNoTop;
         const { data, error } = await client
           .from('profiles')
-          .select('id, username, full_name, avatar_url, is_verified, top_member')
+          .select(sel)
           .order('created_at', { ascending: false })
           .range(from, from + pageSize - 1);
         if (error) {
+          if (useTopMember && String(error.message || '').includes('top_member')) {
+            useTopMember = false;
+            from = 0;
+            all.length = 0;
+            continue;
+          }
           console.warn('[rating] getLeaderboard profiles:', error.message);
           return [];
         }
@@ -301,7 +311,7 @@ function createRatingService(client) {
           displayName: p.full_name || p.username || 'Member',
           avatarUrl: p.avatar_url || null,
           isVerified: Boolean(p.is_verified),
-          topMember: Boolean(p.top_member),
+          topMember: Boolean(p.top_member ?? false),
           currentRp: Number(ur.current_rp) || 0,
           peakRp: Number(ur.peak_rp_season) || 0,
           currentTier: ur.current_tier || 'challenger',
