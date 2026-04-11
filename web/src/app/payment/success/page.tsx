@@ -6,12 +6,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function PaymentSuccessPage({
+export default async function PaymentSuccessPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const sid = typeof searchParams.session_id === "string" ? searchParams.session_id : null;
+  const sp = await searchParams;
+  const sid = typeof sp.session_id === "string" ? sp.session_id : null;
 
   return (
     <div className="bg-background text-on-surface flex min-h-screen flex-col items-center justify-center px-6 py-16">

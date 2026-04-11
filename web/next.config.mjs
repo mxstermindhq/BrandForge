@@ -5,12 +5,10 @@ import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * API proxy:
- * - Rewrites are baked in at `next build`. Cloudflare **Secrets** are often runtime-only — if API_PROXY_DESTINATION is
- *   secret-only, the build sees it empty and `/api/*` becomes 404. Setting NEXT_PUBLIC_API_URL to your real HTTPS API
- *   (plaintext build var) also enables rewrites and supplies the proxy target.
- * - Optional: API_PROXY_DESTINATION (same URL) when you want the rewrite target separate from the public URL.
- * - Local dev: rewrites stay on (forward to Node on :3000) unless DISABLE_DEV_API_REWRITE=1.
+ * API proxy (rewrites — used heavily by `next dev`):
+ * - On Cloudflare Workers, **`src/middleware.ts`** proxies `/api/*` to the Node API; OpenNext often does not honor external
+ *   rewrites here. Keep `API_PROXY_DESTINATION` / `NEXT_PUBLIC_API_URL` in `wrangler.jsonc` `vars` (and build env).
+ * - Rewrites below still help local dev and SSR paths that hit the Node server directly.
  */
 function hasRemotePublicApiUrl() {
   const raw = String(process.env.NEXT_PUBLIC_API_URL || "")

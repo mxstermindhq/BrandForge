@@ -5,9 +5,10 @@ import { fetchServiceForMetadata } from "@/lib/metadata-api";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const service = await fetchServiceForMetadata(params.id);
+  const { id } = await params;
+  const service = await fetchServiceForMetadata(id);
   const title = service?.title || "Service";
   const price = service?.price != null ? Number(service.price) : null;
   const descRaw = (service?.description || "").trim() || "Professional service on BrandForge.";
@@ -17,10 +18,11 @@ export async function generateMetadata({
   return {
     title,
     description: `${title} — ${priceBit}${descSlice}`,
-    openGraph: { url: `https://brandforge.gg/services/${params.id}` },
+    openGraph: { url: `https://brandforge.gg/services/${id}` },
   };
 }
 
-export default function ServiceDetailPage({ params }: { params: { id: string } }) {
-  return <ServiceDetailClient id={params.id} />;
+export default async function ServiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <ServiceDetailClient id={id} />;
 }

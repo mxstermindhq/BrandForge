@@ -7,9 +7,10 @@ import { fetchRequestForMetadata, requestBudgetSnippet } from "@/lib/metadata-ap
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const req = await fetchRequestForMetadata(params.id);
+  const { id } = await params;
+  const req = await fetchRequestForMetadata(id);
   const title = req?.title || "Request";
   const budget = requestBudgetSnippet(req);
   const budgetBit =
@@ -17,14 +18,15 @@ export async function generateMetadata({
   return {
     title,
     description: `${title} — ${budgetBit}Open brief on BrandForge.`,
-    openGraph: { url: `https://brandforge.gg/requests/${params.id}` },
+    openGraph: { url: `https://brandforge.gg/requests/${id}` },
   };
 }
 
-export default function RequestDetailPage({ params }: { params: { id: string } }) {
+export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <Suspense fallback={<PageRouteLoading title="Loading request" variant="inline" />}>
-      <RequestDetailClient id={params.id} />
+      <RequestDetailClient id={id} />
     </Suspense>
   );
 }

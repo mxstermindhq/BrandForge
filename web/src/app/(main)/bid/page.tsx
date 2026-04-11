@@ -15,13 +15,14 @@ function firstParam(v: string | string[] | undefined): string | undefined {
 }
 
 /** Legacy `/bid?request=` / `/bid?service=` → dedicated routes. */
-export default function BidHubPage({
+export default async function BidHubPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const req = firstParam(searchParams.request)?.trim();
-  const svc = firstParam(searchParams.service)?.trim();
+  const sp = await searchParams;
+  const req = firstParam(sp.request)?.trim();
+  const svc = firstParam(sp.service)?.trim();
   if (req) redirect(`/bid/request?id=${encodeURIComponent(req)}`);
   if (svc) redirect(`/bid/service?id=${encodeURIComponent(svc)}`);
 

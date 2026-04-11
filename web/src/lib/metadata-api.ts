@@ -5,7 +5,9 @@
 const DEFAULT_API = "http://127.0.0.1:3000";
 
 export function metadataApiBase(): string {
-  return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API).replace(/\/+$/, "");
+  const raw =
+    process.env.API_PROXY_DESTINATION || process.env.NEXT_PUBLIC_API_URL || DEFAULT_API;
+  return String(raw).replace(/\/+$/, "");
 }
 
 export type PublicProfileMeta = {

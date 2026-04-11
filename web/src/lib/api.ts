@@ -1,3 +1,12 @@
+function isLoopbackApiUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
+  } catch {
+    return true;
+  }
+}
+
 function apiBase(): string {
   if (process.env.NEXT_PUBLIC_USE_API_PROXY === "1") return "";
   // Dev + default rewrites in next.config.mjs: browser hits same-origin /api → Next forwards to Node.
@@ -8,8 +17,12 @@ function apiBase(): string {
   ) {
     return "";
   }
-  const b = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3000";
-  return b.replace(/\/$/, "");
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
+  // Production: never call the viewer's loopback — use same-origin /api (rewrites + API_PROXY_DESTINATION on the host).
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "production" && isLoopbackApiUrl(raw)) {
+    return "";
+  }
+  return raw;
 }
 
 /** Public origin of the Node API (OAuth redirect URI, direct fetches). Not used for JSON client when USE_API_PROXY=1. */

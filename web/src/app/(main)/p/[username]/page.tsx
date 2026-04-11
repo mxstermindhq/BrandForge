@@ -15,9 +15,10 @@ function decodeUsername(seg: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  const username = decodeUsername(params.username);
+  const { username: raw } = await params;
+  const username = decodeUsername(raw);
   const profile = await fetchPublicProfileForMetadata(username);
   const display = profile?.full_name || profile?.username || username;
   const bio = profile?.bio?.trim() || "Professional services and deal rooms.";
@@ -34,6 +35,7 @@ export async function generateMetadata({
   };
 }
 
-export default function PublicProfilePage({ params }: { params: { username: string } }) {
-  return <PublicProfileClient username={decodeUsername(params.username)} />;
+export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username: raw } = await params;
+  return <PublicProfileClient username={decodeUsername(raw)} />;
 }
