@@ -1,17 +1,21 @@
-git remote set-url origin https://github.com/mxstermindhq/BrandForge.git
-git push origin main
-
-
-web
-    npm run cf:build 
-
-
-
 # BrandForge deployment
+
+## Production layout (two hosts)
+
+| Role | Where it runs | Example URL |
+|------|----------------|-------------|
+| **Frontend** | Cloudflare **Workers** (OpenNext / Next.js in **`web/`**) | `https://brandforge.mxstermind-com.workers.dev` |
+| **API** | **Railway** (Node **`server.js`** at **repo root**, not `web/`) | `https://brandforge-production-e488.up.railway.app` |
+
+- Users only need the **Worker** URL in the browser. The app calls **`/api/*` on that same origin**; **`web/src/middleware.ts`** proxies those requests to the Railway API base (`NEXT_PUBLIC_API_URL` / `API_PROXY_DESTINATION` in `wrangler.jsonc`).
+- **Sanity check the API directly on Railway:** `GET https://brandforge-production-e488.up.railway.app/api/health` → `{"ok":true}` (or your service’s public domain + `/api/health`).
+- **Sanity check through the frontend:** `GET https://brandforge.mxstermind-com.workers.dev/api/health` should match, once proxy vars and deploy are correct.
+
+Replace the example hosts with your own Worker and Railway URLs if they differ.
 
 ## Frontend (Cloudflare Workers + Git — OpenNext)
 
-The Next.js app is in **`web/`**. The Node API is **`server.js` at the repository root** (see below) and is **not** deployed with the Worker.
+The Next.js app is in **`web/`**. The Node API is **`server.js` at the repository root** (Railway — see **§ Node API**) and is **not** deployed with the Worker.
 
 Use **Workers** (not Pages) and connect your **GitHub or GitLab** repo in the dashboard. Follow these steps for a **new** Worker after you have deleted an old one.
 
