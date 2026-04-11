@@ -449,9 +449,10 @@ function LoginFormInner() {
           ) : null}
 
           <p className="text-on-surface-variant/80 mt-8 text-center text-[11px] leading-relaxed">
-            In Supabase → Authentication → URL configuration, add redirect{" "}
-            <code className="text-on-surface-variant">http://localhost:3001/auth/callback</code> (and your production
-            URL).
+            Supabase → Authentication → URL configuration: set <strong>Site URL</strong> to your live app (e.g. Workers
+            URL), add <code className="text-on-surface-variant">…/auth/callback</code> under <strong>Redirect URLs</strong>
+            , and set <code className="text-on-surface-variant">NEXT_PUBLIC_APP_URL</code> to the same origin on
+            Cloudflare build so email links are not sent to localhost.
           </p>
         </div>
       </div>

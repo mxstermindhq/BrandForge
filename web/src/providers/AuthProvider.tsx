@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { authCallbackAbsoluteUrl } from "@/lib/auth-public-url";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 
 type AuthCtx = {
@@ -29,11 +30,6 @@ type AuthCtx = {
 };
 
 const Ctx = createContext<AuthCtx | null>(null);
-
-function authCallbackUrl(): string {
-  if (typeof window === "undefined") return "";
-  return `${window.location.origin}/auth/callback`;
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -67,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : "Auth is not configured. Add NEXT_PUBLIC_SUPABASE_* to web/.env.local.",
       );
     }
-    const redirectTo = authCallbackUrl();
+    const redirectTo = authCallbackAbsoluteUrl();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
@@ -82,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: email.trim(),
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: authCallbackUrl(),
+        emailRedirectTo: authCallbackAbsoluteUrl(),
       },
     });
     if (error) throw error;
@@ -103,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: authCallbackUrl(),
+        emailRedirectTo: authCallbackAbsoluteUrl(),
       },
     });
     if (error) throw error;

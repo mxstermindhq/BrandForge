@@ -13,6 +13,8 @@
 
 **Auth:** the Worker bundle also needs **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** at **build** time (plus `wrangler.jsonc` `vars` if you deploy with Wrangler from your machine). Without them, login shows “Auth not configured”.
 
+**Email / magic-link redirects:** set **`NEXT_PUBLIC_APP_URL`** to your **Worker origin** (no trailing slash), same as the public site — e.g. `https://brandforge.mxstermind-com.workers.dev`. That value is used for `emailRedirectTo` / OAuth `redirectTo` so Supabase does not fall back to **Site URL** `http://localhost:3000`. In **Supabase → Authentication → URL configuration**, set **Site URL** to that production origin and add **`https://…/auth/callback`** (and local dev URLs if needed) under **Redirect allow list**.
+
 Replace the example hosts with your own Worker and Railway URLs if they differ.
 
 ## Frontend (Cloudflare Workers + Git — OpenNext)
