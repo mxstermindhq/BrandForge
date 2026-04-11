@@ -60,7 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     const supabase = getSupabaseBrowser();
-    if (!supabase) throw new Error("Auth is not configured. Add NEXT_PUBLIC_SUPABASE_* to web/.env.local.");
+    if (!supabase) {
+      throw new Error(
+        process.env.NODE_ENV === "production"
+          ? "Auth is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in the Worker build env and web/wrangler.jsonc vars, then redeploy."
+          : "Auth is not configured. Add NEXT_PUBLIC_SUPABASE_* to web/.env.local.",
+      );
+    }
     const redirectTo = authCallbackUrl();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",

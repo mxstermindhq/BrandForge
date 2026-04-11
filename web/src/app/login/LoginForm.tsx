@@ -205,10 +205,21 @@ function LoginFormInner() {
       <div className="bg-background text-on-surface flex min-h-screen items-center justify-center p-6">
         <div className="border-outline-variant/20 bg-surface-container-low max-w-md rounded-xl border p-8">
           <h1 className="font-headline text-xl font-bold">Auth not configured</h1>
-          <p className="text-on-surface-variant mt-2 text-sm">
-            Add <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-            <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
-            <code className="text-xs">web/.env.local</code>, then restart Next.
+          <p className="text-on-surface-variant mt-2 text-sm leading-relaxed">
+            {process.env.NODE_ENV === "production" ? (
+              <>
+                Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+                <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in your Cloudflare Worker{" "}
+                <strong>build</strong> environment (Git deploy) and in <code className="text-xs">web/wrangler.jsonc</code>{" "}
+                → <code className="text-xs">vars</code>, then redeploy. Values come from Supabase → Project Settings → API.
+              </>
+            ) : (
+              <>
+                Add <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+                <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
+                <code className="text-xs">web/.env.local</code>, then restart Next.
+              </>
+            )}
           </p>
           <Link href="/" className="text-primary mt-6 inline-block text-sm font-semibold">
             ← Back home

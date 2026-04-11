@@ -11,6 +11,8 @@
 - **Sanity check the API directly on Railway:** `GET https://brandforge-production-e488.up.railway.app/api/health` → `{"ok":true}` (or your service’s public domain + `/api/health`).
 - **Sanity check through the frontend:** `GET https://brandforge.mxstermind-com.workers.dev/api/health` should match, once proxy vars and deploy are correct.
 
+**Auth:** the Worker bundle also needs **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** at **build** time (plus `wrangler.jsonc` `vars` if you deploy with Wrangler from your machine). Without them, login shows “Auth not configured”.
+
 Replace the example hosts with your own Worker and Railway URLs if they differ.
 
 ## Frontend (Cloudflare Workers + Git — OpenNext)
@@ -67,7 +69,9 @@ Under **Build** variables (and, for server-side metadata fetches, **Worker** env
 
 **Cloudflare “Secret” vs build / 404 on `/api/*`:** External **`rewrites()` in `next.config.mjs` are not reliable on OpenNext Workers**. This repo uses **`web/src/middleware.ts`** to **`fetch`** each `/api/*` request to **`API_PROXY_DESTINATION` or `NEXT_PUBLIC_API_URL`**. Those must be set in **`web/wrangler.jsonc` → `vars`** (and match your Git build env) so both the middleware bundle and the Worker runtime see the Railway origin. Plaintext **`NEXT_PUBLIC_API_URL`** at build time is still required for client-inlined values. Avoid relying on Secrets-only for the proxy URL unless your pipeline injects them into the Worker **`vars`** equivalent.
 
-Also set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` as needed. See `web/.env.example`.
+**Supabase (required for login / OAuth):** set **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** in the same places as the API URL — Cloudflare **build** variables, **`web/wrangler.jsonc` → `vars`**, and (for local) **`web/.env.local`**. Copy **Project URL** and **anon public** key from Supabase → **Project Settings → API**. Redeploy after changing them (they are inlined at `next build`).
+
+See `web/.env.example`.
 
 ### 5. Common mistake (wrong install size)
 
