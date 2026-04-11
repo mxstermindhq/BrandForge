@@ -4,16 +4,18 @@
 
 | Role | Where it runs | Example URL |
 |------|----------------|-------------|
-| **Frontend** | Cloudflare **Workers** (OpenNext / Next.js in **`web/`**) | `https://brandforge.mxstermind-com.workers.dev` |
+| **Frontend** | Cloudflare **Workers** (OpenNext / Next.js in **`web/`**) | `https://brandforge.gg` |
 | **API** | **Railway** (Node **`server.js`** at **repo root**, not `web/`) | `https://brandforge-production-e488.up.railway.app` |
 
 - Users only need the **Worker** URL in the browser. The app calls **`/api/*` on that same origin**; **`web/src/middleware.ts`** proxies those requests to the Railway API base (`NEXT_PUBLIC_API_URL` / `API_PROXY_DESTINATION` in `wrangler.jsonc`).
 - **Sanity check the API directly on Railway:** `GET https://brandforge-production-e488.up.railway.app/api/health` → `{"ok":true}` (or your service’s public domain + `/api/health`).
-- **Sanity check through the frontend:** `GET https://brandforge.mxstermind-com.workers.dev/api/health` should match, once proxy vars and deploy are correct.
+- **Sanity check through the frontend:** `GET https://brandforge.gg/api/health` should match, once proxy vars and deploy are correct.
 
 **Auth:** `next build` must see **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**. On Cloudflare, variables attached only to the **Worker runtime** are **not** visible during the Git **build** step, so the client bundle can end up empty and login shows “Auth not configured”. Add the same keys under **Build** environment variables **or** rely on **`web/wrangler.jsonc` → `vars`**, which **`web/next.config.mjs`** reads at build time and inlines into the bundle.
 
-**Email / magic-link redirects:** set **`NEXT_PUBLIC_APP_URL`** to your **Worker origin** (no trailing slash), same as the public site — e.g. `https://brandforge.mxstermind-com.workers.dev`. That value is used for `emailRedirectTo` / OAuth `redirectTo` so Supabase does not fall back to **Site URL** `http://localhost:3000`. In **Supabase → Authentication → URL configuration**, set **Site URL** to that production origin and add **`https://…/auth/callback`** (and local dev URLs if needed) under **Redirect allow list**.
+**Custom domain:** In Cloudflare → **Workers & Pages** → your Worker → **Domains & Routes**, attach **`brandforge.gg`** / **`www.brandforge.gg`** (or CNAME to the Worker). **`NEXT_PUBLIC_APP_URL`** in **`web/wrangler.jsonc`** must match the canonical public origin (no trailing slash), e.g. **`https://brandforge.gg`**.
+
+**Email / magic-link redirects:** that same **`NEXT_PUBLIC_APP_URL`** is used for `emailRedirectTo` / OAuth `redirectTo`. In **Supabase → Authentication → URL configuration**, set **Site URL** to **`https://brandforge.gg`** and add **`https://brandforge.gg/auth/callback`** (and local dev URLs if needed) under **Redirect allow list**.
 
 Replace the example hosts with your own Worker and Railway URLs if they differ.
 
@@ -148,7 +150,7 @@ The repo includes **`railway.toml`** at the **root**: build runs **`npm ci`**, s
    | `SUPABASE_URL` | |
    | `SUPABASE_ANON_KEY` | |
    | `SUPABASE_SERVICE_ROLE_KEY` | Server-only; never put in `web/.env.local` |
-   | `PUBLIC_WEB_ORIGIN` | Live Next URL (no trailing slash), e.g. `https://brandforge.mxstermind-com.workers.dev` |
+   | `PUBLIC_WEB_ORIGIN` | Live site URL (no trailing slash), e.g. `https://brandforge.gg` |
    | `API_PUBLIC_ORIGIN` | This API’s public `https://…` base (see below) |
 
    After the first deploy, **Networking** → public domain → set **`API_PUBLIC_ORIGIN`** to that exact origin (e.g. `https://your-service.up.railway.app`, no trailing slash). Used for webhooks / absolute API URLs in responses.

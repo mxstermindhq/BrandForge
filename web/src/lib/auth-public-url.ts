@@ -1,6 +1,6 @@
 /**
  * Public site origin for Supabase OAuth and email magic links (`redirectTo` / `emailRedirectTo`).
- * In production, set NEXT_PUBLIC_APP_URL to your Worker URL so links are not replaced by Supabase
+ * In production, set NEXT_PUBLIC_APP_URL to your public site origin (e.g. https://brandforge.gg) so links are not replaced by Supabase
  * “Site URL” (often still http://localhost:3000).
  */
 export function publicSiteOrigin(): string {
