@@ -8,7 +8,10 @@ Product UI: **App Router**, Tailwind, Supabase Auth in the browser. Calls the **
 
 | Doc | Contents |
 |-----|----------|
-| **[../docs/BLUEPRINT.md](../docs/BLUEPRINT.md)** | Full product blueprint: business, design, dev, marketing, roadmap |
+| **[../docs/HANDBOOK.md](../docs/HANDBOOK.md)** | **How we operate** — prod topology, repo map, local dev, deploy summary, pitfalls |
+| **[../docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md)** | Cloudflare Worker + Railway detail |
+| **[../docs/BLUEPRINT.md](../docs/BLUEPRINT.md)** | Product blueprint, roadmap, deep API notes |
+| **[../docs/README.md](../docs/README.md)** | Index of all `/docs` |
 
 **Quick start (full stack):** from repo root, `npm run dev:all` — API **:3000**, Next **:3001**. See **[../README.md](../README.md)**.
 

@@ -33,10 +33,11 @@ async function main() {
   }
   if (buf16 && buf32) {
     const ico = await pngToIco([buf16, buf32]);
-    writeFileSync(join(publicDir, "favicon.ico"), ico);
+    // Next.js serves `src/app/favicon.ico` at `/favicon.ico`; do not also write `public/favicon.ico` (route conflict).
+    writeFileSync(join(root, "src/app/favicon.ico"), ico);
   }
 
-  console.log("Wrote og-image.png, favicon set, and site.webmanifest targets under public/");
+  console.log("Wrote og-image.png, PNG favicons under public/, and src/app/favicon.ico");
 }
 
 main().catch((e) => {

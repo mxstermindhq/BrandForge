@@ -3,6 +3,10 @@ export type NavItem = {
   href: string;
   /** Google Material Symbols ligature name */
   materialIcon: string;
+  /** Optional badge count for items like inbox */
+  badge?: number;
+  /** For merged items, show AI indicator */
+  isAI?: boolean;
 };
 
 export type NavSection = {
@@ -10,24 +14,27 @@ export type NavSection = {
   items: NavItem[];
 };
 
+/** Main navigation sections */
 export const NAV: NavSection[] = [
   {
     section: null,
     items: [
-      { label: "Home", href: "/", materialIcon: "home" },
-      { label: "Chat", href: "/chat", materialIcon: "chat_bubble" },
-      { label: "Services", href: "/services", materialIcon: "layers" },
-      { label: "Requests", href: "/requests", materialIcon: "sync_alt" },
-      { label: "Leaderboard", href: "/leaderboard", materialIcon: "leaderboard" },
-      { label: "Store", href: "/store", materialIcon: "shopping_bag" },
+      { label: "Chat", href: "/chat", materialIcon: "chat_bubble", isAI: true },
+      { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },
+      { label: "Leaderboard", href: "/leaderboard", materialIcon: "emoji_events" },
     ],
   },
   {
-    section: "Artificial Intelligence",
+    section: "AI & Agents",
     items: [
-      { label: "Agents", href: "/ai/agents", materialIcon: "smart_toy" },
-      { label: "AI Chat", href: "/ai/chat", materialIcon: "auto_awesome" },
-      { label: "Studio", href: "/studio", materialIcon: "architecture" },
+      { label: "Agents", href: "/agents", materialIcon: "smart_toy" },
+      { label: "Squads", href: "/squads", materialIcon: "groups" },
+      { label: "AI Tools", href: "/ai", materialIcon: "auto_awesome" },
     ],
   },
+];
+
+/** Footer icons - smaller icons at bottom of sidebar */
+export const NAV_FOOTER: NavItem[] = [
+  { label: "Settings", href: "/settings", materialIcon: "settings" },
 ];

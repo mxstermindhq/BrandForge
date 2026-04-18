@@ -71,8 +71,12 @@ export async function apiGetJson<T = unknown>(
 ): Promise<T> {
   const { ok, data, status } = await apiFetch<T>(path, { method: "GET", accessToken });
   if (!ok) {
-    const err = (data as { error?: string })?.error || `HTTP ${status}`;
-    throw new Error(err);
+    const errorData = data as { error?: string; message?: string };
+    const errMsg = errorData?.error || errorData?.message || `HTTP ${status}`;
+    const error = new Error(errMsg);
+    (error as any).status = status;
+    (error as any).data = data;
+    throw error;
   }
   return data;
 }
@@ -89,8 +93,12 @@ export async function apiMutateJson<T = unknown>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!ok) {
-    const err = (data as { error?: string })?.error || `HTTP ${status}`;
-    throw new Error(err);
+    const errorData = data as { error?: string; message?: string };
+    const errMsg = errorData?.error || errorData?.message || `HTTP ${status}`;
+    const error = new Error(errMsg);
+    (error as any).status = status;
+    (error as any).data = data;
+    throw error;
   }
   return data;
 }

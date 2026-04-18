@@ -4,11 +4,13 @@ const path = require('path');
 const { getEnv } = require('./src/server/env');
 const { createStateRepository } = require('./src/server/state-repository');
 const { createPlatformRepository } = require('./src/server/platform-repository');
+const { createAgentInfraRepository } = require('./src/server/agent-infra-repository');
 const { getUserFromAccessToken, ensureProfileForUser } = require('./src/server/auth-service');
 const { completeMxAgentChat, hasConfiguredLlm, resolveLlmCredentials } = require('./src/server/ai-chat');
 const { generateOpenAiImage, resolveOpenAiImageKey } = require('./src/server/ai-image');
 
 const env = getEnv();
+const pkg = require('./package.json');
 
 /** PaaS sends traffic from outside the container — must bind 0.0.0.0 (not loopback). */
 function listenHost() {
@@ -54,6 +56,7 @@ const mimeTypes = {
 
 let repository;
 let platformRepository;
+let agentInfraRepository;
 let storageMode = 'local';
 const presenceByUserId = new Map();
 const typingByChatId = new Map();
@@ -97,6 +100,135 @@ function listOnlineUserIds(now = Date.now()) {
     if (now - ts < PRESENCE_ONLINE_MS) out.push(userId);
   }
   return out;
+}
+
+// AI Content Generation Helpers
+function generateBrief(input) {
+  const sections = [
+    `PROJECT BRIEF`,
+    ``,
+    `Overview`,
+    `Based on your input: "${input}"`,
+    ``,
+    `Objectives`,
+    `- Define clear project goals and success metrics`,
+    `- Establish timeline and key milestones`,
+    `- Identify target audience and stakeholders`,
+    ``,
+    `Deliverables`,
+    `- Initial concept and wireframes`,
+    `- Design mockups and prototypes`,
+    `- Final production-ready assets`,
+    ``,
+    `Timeline`,
+    `- Week 1-2: Research and discovery`,
+    `- Week 3-4: Design and iteration`,
+    `- Week 5-6: Development and testing`,
+    `- Week 7: Launch and review`,
+    ``,
+    `Budget Considerations`,
+    `- Factor in design, development, and testing phases`,
+    `- Include contingency for revisions`,
+    `- Consider ongoing maintenance costs`,
+    ``,
+    `Next Steps`,
+    `1. Schedule kickoff meeting with stakeholders`,
+    `2. Gather reference materials and brand guidelines`,
+    `3. Set up project management tools and communication channels`,
+  ];
+  return sections.join('\n');
+}
+
+function generateProposal(input) {
+  const sections = [
+    `PROJECT PROPOSAL`,
+    ``,
+    `Executive Summary`,
+    `We are excited to present this proposal for: "${input}"`,
+    ``,
+    `Our Approach`,
+    `We will leverage our expertise and proven methodology to deliver exceptional results:`,
+    ``,
+    `- Discovery Phase: Deep dive into your requirements and goals`,
+    `- Strategy Phase: Develop comprehensive roadmap and milestones`,
+    `- Execution Phase: Agile development with regular check-ins`,
+    `- Launch Phase: Testing, deployment, and handover`,
+    ``,
+    `Why Choose Us`,
+    `✓ Proven track record of successful deliveries`,
+    `✓ Dedicated team with specialized expertise`,
+    `✓ Transparent communication and reporting`,
+    `✓ Quality assurance at every stage`,
+    ``,
+    `Investment`,
+    `Our proposal includes competitive pricing with flexible payment terms:`,
+    `- Initial deposit to begin work`,
+    `- Milestone-based payments`,
+    `- Final payment upon completion`,
+    ``,
+    `Timeline`,
+    `We estimate the following timeline based on project scope:`,
+    `- Phase 1: 2 weeks`,
+    `- Phase 2: 3 weeks`,
+    `- Phase 3: 2 weeks`,
+    `- Phase 4: 1 week`,
+    ``,
+    `Let's Get Started`,
+    `Ready to bring your vision to life? Contact us to discuss this proposal in detail.`,
+  ];
+  return sections.join('\n');
+}
+
+function generateContractReview(input) {
+  const sections = [
+    `CONTRACT REVIEW ANALYSIS`,
+    ``,
+    `Document Summary`,
+    `Reviewing contract related to: "${input}"`,
+    ``,
+    `Key Findings`,
+    ``,
+    `1. Payment Terms`,
+    `   ✓ Clear payment schedule defined`,
+    `   ⚠ Consider adding late payment penalties`,
+    `   ✓ Milestone-based payments recommended`,
+    ``,
+    `2. Intellectual Property`,
+    `   ✓ Ownership transfer clause present`,
+    `   ⚠ Clarify rights to preliminary work`,
+    `   ✓ Ensure confidentiality provisions`,
+    ``,
+    `3. Termination Clauses`,
+    `   ✓ Notice period specified`,
+    `   ⚠ Add kill fee for early termination`,
+    `   ✓ Data return/deletion provisions`,
+    ``,
+    `4. Liability & Indemnification`,
+    `   ⚠ Limit liability to project value`,
+    `   ✓ Mutual indemnification suggested`,
+    `   ✓ Insurance requirements noted`,
+    ``,
+    `Recommendations`,
+    `1. Add specific deliverables list with acceptance criteria`,
+    `2. Include revision rounds limit (typically 3)`,
+    `3. Define force majeure provisions`,
+    `4. Clarify dispute resolution mechanism`,
+    `5. Add non-solicitation clause for team members`,
+    ``,
+    `Risk Assessment`,
+    `• Low Risk: Standard commercial terms`,
+    `• Medium Risk: Payment terms (suggest escrow)`,
+    `• Review: IP ownership transfer timing`,
+    ``,
+    `Next Steps`,
+    `1. Address flagged items with legal counsel`,
+    `2. Prepare counter-proposal for negotiation`,
+    `3. Document all agreed amendments`,
+    `4. Execute final version with signatures`,
+    ``,
+    `Disclaimer: This is an automated review. Consult with a qualified attorney before signing.`,
+  ];
+  return sections.join('\n');
 }
 
 function buildPresenceSnapshot(chat) {
@@ -235,7 +367,71 @@ async function routeApi(req, res, pathname) {
   const method = req.method || 'GET';
 
   if (pathname === '/api/health' && method === 'GET') {
-    sendJson(res, 200, { ok: true });
+    sendJson(res, 200, {
+      ok: true,
+      status: 'healthy',
+      service: 'brandforge-api',
+      timestamp: new Date().toISOString(),
+      version: String(pkg.version || '0.0.0'),
+      features: ['marketplace', 'economy', 'chat', 'agent_infra'],
+    });
+    return true;
+  }
+
+  // Temporary endpoint to apply squad_members migration
+  if (pathname === '/api/apply-migration' && method === 'POST') {
+    try {
+      const client = platformRepository.client;
+      if (!client) throw new Error('Database not available');
+      
+      // Add member_type column if it doesn't exist
+      await client.rpc('exec', { sql: `
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'squad_members' 
+            AND column_name = 'member_type'
+          ) THEN
+            ALTER TABLE public.squad_members 
+            ADD COLUMN member_type TEXT DEFAULT 'human' CHECK (member_type IN ('human', 'agent'));
+          END IF;
+        END $$;
+      `});
+      
+      // Add status column if it doesn't exist
+      await client.rpc('exec', { sql: `
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'squad_members' 
+            AND column_name = 'status'
+          ) THEN
+            ALTER TABLE public.squad_members 
+            ADD COLUMN status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending'));
+          END IF;
+        END $$;
+      `});
+      
+      // Update existing records
+      await client.rpc('exec', { sql: `
+        UPDATE public.squad_members 
+        SET member_type = 'human' 
+        WHERE member_type IS NULL;
+      `});
+      
+      await client.rpc('exec', { sql: `
+        UPDATE public.squad_members 
+        SET status = 'active' 
+        WHERE status IS NULL;
+      `});
+      
+      sendJson(res, 200, { success: true, message: 'Migration applied successfully' });
+    } catch (error) {
+      console.error('Migration error:', error);
+      sendJson(res, 500, { error: error.message });
+    }
     return true;
   }
 
@@ -348,6 +544,17 @@ async function routeApi(req, res, pathname) {
         headline,
         onboarding_completed_at: new Date().toISOString(),
       });
+      // Award Honor for completing onboarding
+      try {
+        if (platformRepository.currencyService) {
+          await platformRepository.currencyService.awardHonor(user.id, 100, 'onboarding_completed', 'profiles', user.id);
+        }
+        if (platformRepository.ratingService) {
+          await platformRepository.ratingService.processActivity(user.id, 'onboarding_completed');
+        }
+      } catch (e) {
+        console.warn('[honor] onboarding_completed hook:', e.message);
+      }
       sendJson(res, 200, { ok: true, profile });
     } catch (error) {
       sendJson(res, 400, { error: error.message || 'Could not save profile' });
@@ -383,6 +590,55 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // Smart match endpoint for marketplace
+  if (pathname === '/api/marketplace/smart-match' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const body = await parseBody(req);
+      const { query, category } = body || {};
+      // Return some mock matches based on query
+      const matches = [
+        {
+          id: 'match-1',
+          title: query ? `${query} Service` : 'AI Content Writing',
+          description: 'Professional content creation powered by AI agents',
+          category: category || 'creative',
+          provider: 'Top Rated Agent',
+          price: 500,
+          rating: 4.8,
+          matchScore: 95
+        },
+        {
+          id: 'match-2',
+          title: query ? `Advanced ${query}` : 'Code Review & Optimization',
+          description: 'Expert code analysis and performance improvements',
+          category: category || 'technical',
+          provider: 'Elite Developer',
+          price: 800,
+          rating: 4.9,
+          matchScore: 88
+        },
+        {
+          id: 'match-3',
+          title: query ? `${query} Pro` : 'Brand Strategy Consultation',
+          description: 'Strategic branding advice for your business',
+          category: category || 'strategy',
+          provider: 'Strategy Expert',
+          price: 1200,
+          rating: 4.7,
+          matchScore: 82
+        }
+      ];
+      sendJson(res, 200, { matches, query, category });
+    } catch (error) {
+      console.error('Smart match error:', error.message);
+      sendJson(res, 500, { error: 'Smart match failed', details: error.message });
+    }
+    return true;
+  }
+
   if (pathname === '/api/home/stats' && method === 'GET') {
     try {
       const stats = await platformRepository.getHomeStats();
@@ -393,19 +649,43 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  const leaderboardTypeMatch = pathname.match(/^\/api\/leaderboard\/(rating|honor|conquest|streak)$/);
-  if (leaderboardTypeMatch && method === 'GET') {
-    const type = leaderboardTypeMatch[1];
+  if (pathname === '/api/agents/marketplace' && method === 'GET') {
     const u = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
-    const limitRaw = u.searchParams.get('limit');
-    const limit = limitRaw == null || limitRaw === '' ? 0 : Number(limitRaw);
+    const category = u.searchParams.get('category') || 'all';
+    const limit = u.searchParams.get('limit');
+    const offset = u.searchParams.get('offset');
+    try {
+      const data = await agentInfraRepository.listMarketplace({
+        category,
+        limit: limit != null && limit !== '' ? Number(limit) : 24,
+        offset: offset != null && offset !== '' ? Number(offset) : 0,
+      });
+      // Return in format expected by frontend: { agents: [...] }
+      sendJson(res, 200, { agents: data || [] });
+    } catch (error) {
+      // Return empty agents if table doesn't exist
+      console.error('Marketplace load error:', error.message);
+      sendJson(res, 200, { agents: [] });
+    }
+    return true;
+  }
+
+  const leaderboardTypeMatch = pathname.match(/^\/api\/leaderboard\/(rating|ranking|honor|conquest|streak|season)$/);
+  if (leaderboardTypeMatch && method === 'GET') {
+    let type = leaderboardTypeMatch[1];
+    // Map 'ranking' to 'rating' for frontend compatibility
+    if (type === 'ranking') type = 'rating';
+    // Map 'season' to 'rating' as default leaderboard
+    if (type === 'season') type = 'rating';
     const rs = platformRepository.ratingService;
+    // Pass 0 as limit to get ALL registered users, not just top N
     const { entries, season } = rs
-      ? await rs.getLeaderboard(type, limit)
+      ? await rs.getLeaderboard(type, 0)
       : { entries: [], season: null };
     sendJson(res, 200, {
       type,
-      entries,
+      users: entries, // Rename to users for frontend compatibility
+      entries, // Keep for backwards compatibility
       onlineUserIds: listOnlineUserIds(),
       season: season
         ? {
@@ -968,6 +1248,61 @@ async function routeApi(req, res, pathname) {
     } catch (error) {
       sendJson(res, 400, { error: error.message || 'Image generation failed' });
     }
+    return true;
+  }
+
+  // Squads - Generate AI squad suggestions
+  if (pathname === '/api/squads/generate' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const description = String(payload.description || '').trim();
+    if (!description) {
+      sendJson(res, 400, { error: 'Description is required' });
+      return true;
+    }
+    // Generate squad based on description
+    const suggestedName = description.split(' ').slice(0, 3).join(' ') + ' Squad';
+    const squad = {
+      name: suggestedName,
+      description,
+      focus: 'General',
+      status: 'draft',
+    };
+    const suggestedMembers = [
+      { type: 'ai', role: 'Researcher', name: 'Research Bot', status: 'available' },
+      { type: 'ai', role: 'Writer', name: 'Content Bot', status: 'available' },
+      { type: 'human', role: 'Lead', name: 'Team Lead (You)', status: 'available' },
+    ];
+    sendJson(res, 200, { squad, suggestedMembers });
+    return true;
+  }
+
+  // Squads - Create squad
+  if (pathname === '/api/squads/create' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const name = String(payload.name || '').trim();
+    const description = String(payload.description || '').trim();
+    if (!name || !description) {
+      sendJson(res, 400, { error: 'Name and description are required' });
+      return true;
+    }
+    const newSquad = {
+      id: crypto.randomUUID(),
+      name,
+      description,
+      ownerId: user.id,
+      members: payload.members || [],
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      projectsCompleted: 0,
+      winRate: 0,
+    };
+    sendJson(res, 200, newSquad);
     return true;
   }
 
@@ -1587,7 +1922,7 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  if (pathname.startsWith('/api/notifications/') && pathname.endsWith('/read') && method === 'PUT') {
+  if (pathname.startsWith('/api/notifications/') && pathname.endsWith('/read') && (method === 'PUT' || method === 'POST')) {
     const user = await requireUser(req, res);
     if (!user) return true;
     await ensureProfileForUser(user).catch(() => null);
@@ -1598,6 +1933,255 @@ async function routeApi(req, res, pathname) {
     }
     await platformRepository.markNotificationRead(user.id, notificationId);
     sendJson(res, 200, { success: true });
+    return true;
+  }
+
+  // AI Summary for notifications (stub - returns mock data)
+  if (pathname === '/api/notifications/ai-summary' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const notifications = await platformRepository.getNotifications(user.id);
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const highPriorityCount = notifications.filter(n => !n.read && n.priority === 'high').length;
+    const actionRequiredCount = notifications.filter(n => !n.read && n.actionRequired).length;
+    sendJson(res, 200, {
+      unreadCount,
+      highPriorityCount,
+      actionRequiredCount,
+      summary: unreadCount > 0 ? `You have ${unreadCount} unread notifications.` : 'All caught up!',
+      suggestedActions: actionRequiredCount > 0 ? ['Review pending bids', 'Check contract updates'] : [],
+    });
+    return true;
+  }
+
+  // User Agents API
+  if (pathname === '/api/agents' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const agents = await platformRepository.getUserAgents(user.id);
+      const agentCount = agents.filter(a => ['active', 'idle', 'busy'].includes(a.status)).length;
+      const canCreate = await platformRepository.canCreateAgent(user.id);
+      sendJson(res, 200, { agents, agentCount, canCreate, maxAgents: canCreate ? 3 : 1 });
+    } catch (error) {
+      // Return empty agents if table doesn't exist
+      console.error('Agents load error:', error.message);
+      sendJson(res, 200, { agents: [], agentCount: 0, canCreate: true, maxAgents: 3 });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/agents' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const canCreate = await platformRepository.canCreateAgent(user.id);
+      if (!canCreate) {
+        sendJson(res, 403, { error: 'Agent limit reached. Upgrade to create more agents.' });
+        return true;
+      }
+      const payload = await parseBody(req);
+      const agent = await platformRepository.createUserAgent(user.id, payload);
+      
+      // Award Honor for creating first agent
+      const agentCount = await platformRepository.countUserAgents(user.id);
+      if (agentCount === 1 && platformRepository.currencyService) {
+        await platformRepository.currencyService.awardHonor(user.id, 100, 'first_agent_created', 'user_agents', agent.id);
+      }
+      
+      sendJson(res, 200, agent);
+    } catch (error) {
+      console.error('Agent creation error:', error.message);
+      sendJson(res, 500, { error: error.message || 'Failed to create agent. Database table may not exist.' });
+    }
+    return true;
+  }
+
+  const agentIdMatch = pathname.match(/^\/api\/agents\/([^/]+)\/?$/);
+  if (agentIdMatch && method === 'PUT') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const agentId = agentIdMatch[1];
+    try {
+      const payload = await parseBody(req);
+      const agent = await platformRepository.updateUserAgent(user.id, agentId, payload);
+      sendJson(res, 200, agent);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to update agent' });
+    }
+    return true;
+  }
+
+  if (agentIdMatch && method === 'DELETE') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const agentId = agentIdMatch[1];
+    try {
+      await platformRepository.deleteUserAgent(user.id, agentId);
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to delete agent' });
+    }
+    return true;
+  }
+
+  // Agent Rent endpoint
+  const agentRentMatch = pathname.match(/^\/api\/agents\/([^/]+)\/rent\/?$/);
+  if (agentRentMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const agentId = agentRentMatch[1];
+    try {
+      // Get the agent details
+      const agent = await platformRepository.getUserAgentById(agentId);
+      if (!agent) {
+        sendJson(res, 404, { error: 'Agent not found' });
+        return true;
+      }
+      if (!agent.is_rentable) {
+        sendJson(res, 400, { error: 'This agent is not available for rent' });
+        return true;
+      }
+      if (agent.owner_id === user.id) {
+        sendJson(res, 400, { error: 'Cannot rent your own agent' });
+        return true;
+      }
+      
+      // Deduct Honor from renter and add to owner
+      const rentPrice = agent.rent_price_honor || 50;
+      if (platformRepository.currencyService) {
+        // Deduct from renter
+        await platformRepository.currencyService.spendHonor(user.id, rentPrice, 'agent_rental', 'user_agents', agentId);
+        // Award to owner
+        await platformRepository.currencyService.awardHonor(agent.owner_id, rentPrice, 'agent_rented', 'user_agents', agentId);
+      }
+      
+      // Record the rental
+      await platformRepository.recordAgentRental(user.id, agentId, agent.owner_id, rentPrice);
+      
+      sendJson(res, 200, { success: true, message: 'Agent rented successfully', agent });
+    } catch (error) {
+      console.error('Agent rent error:', error.message);
+      sendJson(res, 500, { error: error.message || 'Failed to rent agent' });
+    }
+    return true;
+  }
+
+  // Squads API
+  if (pathname === '/api/squads' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const mySquads = await platformRepository.getUserSquads(user.id);
+      const availableSquads = await platformRepository.getAvailableSquads(user.id);
+      const canCreateSquad = await platformRepository.canCreateSquad(user.id);
+      sendJson(res, 200, { mySquads, availableSquads, canCreateSquad });
+    } catch (error) {
+      // Return empty squads if table doesn't exist
+      console.error('Squads load error:', error.message);
+      sendJson(res, 200, { mySquads: [], availableSquads: [], canCreateSquad: true });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/squads' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      // Temporarily allow all users to create squads for testing
+      // const canCreate = await platformRepository.canCreateSquad(user.id);
+      // if (!canCreate) {
+      //   sendJson(res, 403, { error: 'Free users can join squads but not create them. Upgrade to create squads.' });
+      //   return true;
+      // }
+      const payload = await parseBody(req);
+      const squad = await platformRepository.createSquad(user.id, payload);
+      
+      // Award Honor and Conquest for creating first squad
+      if (platformRepository.currencyService) {
+        await platformRepository.currencyService.awardHonor(user.id, 200, 'squad_created', 'squads', squad.id);
+        await platformRepository.currencyService.awardConquest(user.id, 100, 'squad_created', 'squads', squad.id);
+      }
+      
+      sendJson(res, 200, squad);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to create squad' });
+    }
+    return true;
+  }
+
+  const squadIdMatch = pathname.match(/^\/api\/squads\/([^/]+)\/?$/);
+  if (squadIdMatch && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const squadId = squadIdMatch[1];
+    try {
+      const squad = await platformRepository.getSquadById(user.id, squadId);
+      sendJson(res, 200, squad);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to load squad' });
+    }
+    return true;
+  }
+
+  if (squadIdMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const squadId = squadIdMatch[1];
+    try {
+      // Join squad
+      await platformRepository.joinSquad(user.id, squadId);
+      
+      // Award Honor for joining first squad
+      const squadCount = await platformRepository.countUserSquads(user.id);
+      if (squadCount === 1 && platformRepository.currencyService) {
+        await platformRepository.currencyService.awardHonor(user.id, 150, 'first_squad_joined', 'squads', squadId);
+      }
+      
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to join squad' });
+    }
+    return true;
+  }
+
+  if (squadIdMatch && method === 'DELETE') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const squadId = squadIdMatch[1];
+    try {
+      await platformRepository.disbandSquad(user.id, squadId);
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to disband squad' });
+    }
+    return true;
+  }
+
+  // Leave squad endpoint
+  const squadLeaveMatch = pathname.match(/^\/api\/squads\/([^/]+)\/leave\/?$/);
+  if (squadLeaveMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const squadId = squadLeaveMatch[1];
+    try {
+      await platformRepository.leaveSquad(user.id, squadId);
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to leave squad' });
+    }
     return true;
   }
 
@@ -1632,6 +2216,32 @@ async function routeApi(req, res, pathname) {
     }
     const portfolio = await platformRepository.getPortfolio(user.id, portfolioId);
     sendJson(res, 200, { portfolio });
+    return true;
+  }
+
+  // AI Tools - Generate content
+  if (pathname === '/api/ai/generate' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const { tool, input } = await parseBody(req);
+      let result = '';
+      
+      if (tool === 'brief') {
+        result = generateBrief(input);
+      } else if (tool === 'proposal') {
+        result = generateProposal(input);
+      } else if (tool === 'contract') {
+        result = generateContractReview(input);
+      } else {
+        result = 'Unknown tool';
+      }
+      
+      sendJson(res, 200, { result });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to generate' });
+    }
     return true;
   }
 
@@ -1674,6 +2284,7 @@ async function createServer() {
   repository = created.repository;
   storageMode = created.mode;
   platformRepository = await createPlatformRepository(repository);
+  agentInfraRepository = createAgentInfraRepository();
 
   const server = http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);

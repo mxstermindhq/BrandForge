@@ -455,3 +455,6 @@ create index if not exists ai_models_active_idx
 
 -- Realtime: instant unified chat delivery (Dashboard → Database → Publications):
 -- alter publication supabase_realtime add table public.unified_messages;
+
+-- Agent infrastructure (agency templates, deployments, execution runs — distinct from public.agent_runs):
+-- Full DDL, RLS, function, and seed: migrations/20260413_agent_infrastructure.sql

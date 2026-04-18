@@ -1,0 +1,19 @@
+# BrandForge Robots.txt
+# https://brandforge.gg
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://brandforge.gg/sitemap.xml
+
+# Disallow private/user-specific pages
+Disallow: /settings
+Disallow: /chat/
+Disallow: /bid/
+Disallow: /services/new
+Disallow: /requests/new
+Disallow: /api/
+
+# Crawl delay for bots
+Crawl-delay: 1

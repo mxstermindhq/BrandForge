@@ -1099,6 +1099,19 @@ async function createPlatformRepository(previewRepository) {
       .select('*')
       .single();
     if (error) throw error;
+    
+    // Award Honor for posting a request
+    try {
+      if (currencyService) {
+        await currencyService.awardHonor(user.id, 50, 'request_posted', 'project_requests', data.id);
+      }
+      if (ratingService) {
+        await ratingService.processActivity(user.id, 'request_posted');
+      }
+    } catch (e) {
+      console.warn('[honor] request_posted hook:', e.message);
+    }
+    
     return mapRequest(data, 0, user.id);
   }
 
@@ -4449,7 +4462,344 @@ async function createPlatformRepository(previewRepository) {
     getPublicProfile,
     // AI Models
     getAIModels,
+    // User Agents
+    getUserAgents,
+    getUserAgentById,
+    createUserAgent,
+    updateUserAgent,
+    deleteUserAgent,
+    countUserAgents,
+    canCreateAgent,
+    // Squads
+    getUserSquads,
+    getAvailableSquads,
+    getSquadById,
+    createSquad,
+    joinSquad,
+    leaveSquad,
+    disbandSquad,
+    countUserSquads,
+    canCreateSquad,
   };
+
+  // User Agents functions
+  async function getUserAgents(userId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { data, error } = await client
+      .from('user_agents')
+      .select('*')
+      .eq('owner_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function getUserAgentById(agentId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { data, error } = await client
+      .from('user_agents')
+      .select('*')
+      .eq('id', agentId)
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function createUserAgent(userId, payload) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { data, error } = await client
+      .from('user_agents')
+      .insert({
+        owner_id: userId,
+        name: String(payload.name || '').trim(),
+        description: String(payload.description || '').trim(),
+        icon: String(payload.icon || 'smart_toy'),
+        category: String(payload.category || 'general'),
+        capabilities: Array.isArray(payload.capabilities) ? payload.capabilities : [],
+        config_json: payload.config || {},
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateUserAgent(userId, agentId, payload) {
+    if (!client) throw new Error('Supabase is not configured');
+    const updates = {
+      updated_at: new Date().toISOString(),
+    };
+    if (payload.name !== undefined) updates.name = String(payload.name || '').trim();
+    if (payload.description !== undefined) updates.description = String(payload.description || '').trim();
+    if (payload.icon !== undefined) updates.icon = String(payload.icon || 'smart_toy');
+    if (payload.status !== undefined) updates.status = payload.status;
+    if (payload.config !== undefined) updates.config_json = payload.config;
+    const { data, error } = await client
+      .from('user_agents')
+      .update(updates)
+      .eq('id', agentId)
+      .eq('owner_id', userId)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function deleteUserAgent(userId, agentId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { error } = await client
+      .from('user_agents')
+      .update({ status: 'archived', updated_at: new Date().toISOString() })
+      .eq('id', agentId)
+      .eq('owner_id', userId);
+    if (error) throw error;
+    return { ok: true };
+  }
+
+  async function countUserAgents(userId) {
+    if (!client) return 0;
+    const { data, error } = await client.rpc('count_user_agents', { user_uuid: userId });
+    if (error) {
+      // Fallback if RPC not available
+      const { count } = await client
+        .from('user_agents')
+        .select('*', { count: 'exact', head: true })
+        .eq('owner_id', userId)
+        .in('status', ['active', 'idle', 'busy']);
+      return count || 0;
+    }
+    return data || 0;
+  }
+
+  async function canCreateAgent(userId) {
+    const count = await countUserAgents(userId);
+    // Check user's plan tier
+    const { data: settings } = await client
+      .from('user_settings')
+      .select('settings')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const planTier = settings?.settings?.plan_tier || 'free';
+    const maxAgents = planTier === 'free' ? 1 : 3;
+    return count < maxAgents;
+  }
+
+  // Squads functions
+  async function getUserSquads(userId) {
+    if (!client) throw new Error('Supabase is not configured');
+    // Get squads where user is a member
+    const { data: memberships, error: memError } = await client
+      .from('squad_members')
+      .select('squad_id')
+      .eq('member_id', userId)
+      .eq('status', 'active');
+    if (memError) throw memError;
+    if (!memberships || memberships.length === 0) return [];
+    
+    const squadIds = memberships.map(m => m.squad_id);
+    const { data: squads, error } = await client
+      .from('squads')
+      .select('*, squad_members(*)')
+      .in('id', squadIds)
+      .eq('status', 'active');
+    if (error) throw error;
+    return squads || [];
+  }
+
+  async function getAvailableSquads(userId) {
+    if (!client) throw new Error('Supabase is not configured');
+    // Get active squads user is not a member of
+    const { data: myMemberships } = await client
+      .from('squad_members')
+      .select('squad_id')
+      .eq('member_id', userId)
+      .eq('status', 'active');
+    const excludeIds = (myMemberships || []).map(m => m.squad_id);
+    
+    // Get all active squads
+    let query = client
+      .from('squads')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+    if (excludeIds.length > 0) {
+      query = query.not('id', 'in', `(${excludeIds.join(',')})`);
+    }
+    const { data: squads, error } = await query;
+    if (error) throw error;
+    
+    // Get member counts for each squad
+    const squadsWithCounts = await Promise.all(
+      (squads || []).map(async (squad) => {
+        const { count } = await client
+          .from('squad_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('squad_id', squad.id)
+          .eq('status', 'active');
+        
+        return {
+          ...squad,
+          member_count: count || 0
+        };
+      })
+    );
+    
+    return squadsWithCounts;
+  }
+
+  async function getSquadById(userId, squadId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { data: squad, error } = await client
+      .from('squads')
+      .select('*, squad_members(*, member:profiles(id, username, avatar_url))')
+      .eq('id', squadId)
+      .single();
+    if (error) throw error;
+    
+    // Check if user is a member
+    const { data: membership } = await client
+      .from('squad_members')
+      .select('*')
+      .eq('squad_id', squadId)
+      .eq('member_id', userId)
+      .maybeSingle();
+    
+    return { ...squad, isMember: !!membership, isOwner: squad.owner_id === userId };
+  }
+
+  async function createSquad(userId, payload) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { data: squad, error } = await client
+      .from('squads')
+      .insert({
+        name: String(payload.name || '').trim(),
+        description: String(payload.description || '').trim(),
+        icon: String(payload.icon || 'groups'),
+        owner_id: userId,
+        max_members: payload.maxMembers || 5,
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+    
+    // Add owner as first member
+    await client.from('squad_members').insert({
+      squad_id: squad.id,
+      member_type: 'human',
+      member_id: userId,
+      role: 'Leader',
+      status: 'active',
+    });
+    
+    return squad;
+  }
+
+  async function joinSquad(userId, squadId) {
+    if (!client) throw new Error('Supabase is not configured');
+    // Check if squad exists and is active
+    const { data: squad, error: squadError } = await client
+      .from('squads')
+      .select('*')
+      .eq('id', squadId)
+      .eq('status', 'active')
+      .single();
+    if (squadError || !squad) throw new Error('Squad not found or inactive');
+    
+    // Check member count
+    const { count } = await client
+      .from('squad_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('squad_id', squadId)
+      .eq('status', 'active');
+    if (count >= squad.max_members) throw new Error('Squad is full');
+    
+    // Check if already a member
+    const { data: existing } = await client
+      .from('squad_members')
+      .select('*')
+      .eq('squad_id', squadId)
+      .eq('member_id', userId)
+      .maybeSingle();
+    if (existing) {
+      if (existing.status === 'active') throw new Error('Already a member');
+      // Reactivate
+      const { error } = await client
+        .from('squad_members')
+        .update({ status: 'active' })
+        .eq('id', existing.id);
+      if (error) throw error;
+      return { success: true };
+    }
+    
+    // Add as new member
+    const { error } = await client.from('squad_members').insert({
+      squad_id: squadId,
+      member_type: 'human',
+      member_id: userId,
+      role: 'Member',
+      status: 'active',
+    });
+    if (error) throw error;
+    return { success: true };
+  }
+
+  async function leaveSquad(userId, squadId) {
+    if (!client) throw new Error('Supabase is not configured');
+    const { error } = await client
+      .from('squad_members')
+      .update({ status: 'inactive' })
+      .eq('squad_id', squadId)
+      .eq('member_id', userId);
+    if (error) throw error;
+    return { success: true };
+  }
+
+  async function disbandSquad(userId, squadId) {
+    if (!client) throw new Error('Supabase is not configured');
+    // Verify ownership
+    const { data: squad } = await client
+      .from('squads')
+      .select('owner_id')
+      .eq('id', squadId)
+      .single();
+    if (!squad || squad.owner_id !== userId) throw new Error('Only owner can disband');
+    
+    const { error } = await client
+      .from('squads')
+      .update({ status: 'disbanded' })
+      .eq('id', squadId)
+      .eq('owner_id', userId);
+    if (error) throw error;
+    return { success: true };
+  }
+
+  async function countUserSquads(userId) {
+    if (!client) return 0;
+    const { data, error } = await client.rpc('count_user_squads', { user_uuid: userId });
+    if (error) {
+      // Fallback
+      const { data: memberships } = await client
+        .from('squad_members')
+        .select('squad_id')
+        .eq('member_id', userId)
+        .eq('status', 'active');
+      return memberships?.length || 0;
+    }
+    return data || 0;
+  }
+
+  async function canCreateSquad(userId) {
+    if (!client) return false;
+    // Check user's plan tier
+    const { data: settings } = await client
+      .from('user_settings')
+      .select('settings')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const planTier = settings?.settings?.plan_tier || 'free';
+    // Free users cannot create squads
+    return planTier !== 'free';
+  }
 }
 
 module.exports = {

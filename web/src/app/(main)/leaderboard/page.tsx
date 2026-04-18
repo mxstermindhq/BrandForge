@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { LeaderboardClient } from "./_components/LeaderboardClient";
+import { WoWRankingSystem } from "@/components/leaderboard/WoWRankingSystem";
 
 export const metadata: Metadata = {
-  title: "Leaderboard",
+  title: "Arena Rankings | BrandForge",
   description:
-    "Season 1 rankings. Top specialists by Neon Score, " +
-    "Honor, Conquest, and win streaks. 24,500 USDT prize ladder.",
+    "World of BrandForge competitive rankings. Rise from Challenger to Undisputed. " +
+    "Earn Honor, Conquest, and RP through successful deals. Seasonal prize pools.",
   openGraph: { url: "https://brandforge.gg/leaderboard" },
 };
 
 export default function LeaderboardPage() {
-  return <LeaderboardClient />;
+  return (
+    <div className="page-root">
+      <div className="page-content">
+        <WoWRankingSystem />
+      </div>
+    </div>
+  );
 }

@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Menu } from "lucide-react";
-import Link from "next/link";
 import { PlansFloatingButton } from "@/components/layout/PlansFloatingButton";
 import { EngagerGrowthBanner } from "@/components/layout/EngagerGrowthBanner";
 import { ProfileSetupBanner } from "@/components/layout/ProfileSetupBanner";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { OnboardingRedirect } from "@/components/layout/OnboardingRedirect";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingFlow";
 
 const DRAWER_FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -107,34 +106,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="bg-background/95 flex min-h-[56px] items-center gap-3 px-4 py-3 backdrop-blur-md md:hidden">
-          <button
-            ref={menuButtonRef}
-            type="button"
-            className="hover:bg-surface-container-low text-on-surface rounded-lg p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label="Open navigation"
-            aria-expanded={drawer}
-            aria-controls="mobile-navigation-drawer"
-            onClick={() => setDrawer(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <Link
-            href="/"
-            className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <span className="inline-flex items-center gap-1.5 font-headline text-lg font-bold tracking-tight text-on-surface">
-              <span className="text-primary text-lg leading-none">★</span>
-              <span>BrandForge</span>
-            </span>
-          </Link>
-        </header>
+        {/* App Content - Sidebar Navigation Only */}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <ProfileSetupBanner />
           <EngagerGrowthBanner />
-          <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
-            {children}
-          </main>
+          <OnboardingProvider>
+            <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+              {children}
+            </main>
+          </OnboardingProvider>
           <PlansFloatingButton />
         </div>
       </div>

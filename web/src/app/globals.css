@@ -3,125 +3,126 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────
-   BRANDFORGE DESIGN TOKENS
-   Single dark theme. All surfaces are grey.
-   Primary = electric blue. Severity palette included.
-   Body font: Inter (Next 14 has no Geist in next/font/google; Inter is the substitute).
+   WORLD OF BRANDFORGE - WARCRAFT THEME
+   Warm dark fantasy aesthetic inspired by WoW
+   Primary = Gold/Amber, Secondary = Deep Blues
+   Body font: Inter
 ───────────────────────────────────────── */
 html {
-  /* Surfaces — Claude-grey family */
-  --color-background: #0a0a0b;
-  --color-surface: #0a0a0b;
-  --color-surface-dim: #0a0a0b;
-  --color-surface-bright: #2a2a2e;
-  --color-surface-container: #141416;
-  --color-surface-container-lowest: #080809;
-  --color-surface-container-low: #111113;
-  --color-surface-container-high: #1e1e21;
-  --color-surface-container-highest: #26262a;
-  --color-surface-variant: #26262a;
+  /* Surfaces — Warm Dark Fantasy */
+  --color-background: #0d0b09;
+  --color-surface: #0d0b09;
+  --color-surface-dim: #0a0806;
+  --color-surface-bright: #1a1612;
+  --color-surface-container: #16120e;
+  --color-surface-container-lowest: #080604;
+  --color-surface-container-low: #12100c;
+  --color-surface-container-high: #1e1a16;
+  --color-surface-container-highest: #26221e;
+  --color-surface-variant: #2a2622;
 
   /* Text */
-  --color-on-background: #e8e8ed;
-  --color-on-surface: #e8e8ed;
-  --color-on-surface-variant: #9a9aaa;
-  --color-outline: #3a3a42;
-  --color-outline-variant: #2a2a30;
+  --color-on-background: #f5f0e8;
+  --color-on-surface: #f5f0e8;
+  --color-on-surface-variant: #a89b8c;
+  /* Outline/Border - warm gold tint */
+  --color-outline: rgba(212, 175, 55, 0.2);
+  --color-outline-variant: rgba(212, 175, 55, 0.1);
 
-  /* Primary — Electric Blue */
-  --color-surface-tint: #4f8ef7;
-  --color-primary: #4f8ef7;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #1a4db8;
-  --color-on-primary-container: #dce8ff;
-  --color-primary-fixed: #dce8ff;
-  --color-primary-fixed-dim: #a8c4f8;
-  --color-on-primary-fixed: #001640;
-  --color-on-primary-fixed-variant: #1a4db8;
+  /* Primary — WoW Gold/Amber */
+  --color-surface-tint: #d4af37;
+  --color-primary: #d4af37;
+  --color-on-primary: #1a1200;
+  --color-primary-container: #3d2f0f;
+  --color-on-primary-container: #f5e6bc;
+  --color-primary-fixed: #f5e6bc;
+  --color-primary-fixed-dim: #e8c97a;
+  --color-on-primary-fixed: #2a1f08;
+  --color-on-primary-fixed-variant: #5c4a1a;
 
-  /* Secondary — Slate Blue (muted) */
-  --color-secondary: #7b9fd4;
-  --color-on-secondary: #0a1a30;
-  --color-secondary-container: #1e3360;
-  --color-on-secondary-container: #c0d4f5;
-  --color-secondary-fixed: #c0d4f5;
-  --color-secondary-fixed-dim: #7b9fd4;
+  /* Secondary — Alliance Blue */
+  --color-secondary: #4a7fb5;
+  --color-on-secondary: #0a1520;
+  --color-secondary-container: #1a3a5a;
+  --color-on-secondary-container: #c5d8f0;
+  --color-secondary-fixed: #c5d8f0;
+  --color-secondary-fixed-dim: #7ba3d1;
   --color-on-secondary-fixed: #071020;
-  --color-on-secondary-fixed-variant: #1e3360;
+  --color-on-secondary-fixed-variant: #1a4a7a;
 
-  /* Tertiary — same as secondary for cohesion */
-  --color-tertiary: #7b9fd4;
-  --color-on-tertiary: #0a1a30;
-  --color-tertiary-container: #1e3360;
-  --color-on-tertiary-container: #c0d4f5;
-  --color-tertiary-fixed: #c0d4f5;
-  --color-tertiary-fixed-dim: #7b9fd4;
-  --color-on-tertiary-fixed: #071020;
-  --color-on-tertiary-fixed-variant: #1e3360;
+  /* Tertiary — Horde Red */
+  --color-tertiary: #b54a4a;
+  --color-on-tertiary: #1a0808;
+  --color-tertiary-container: #5a1a1a;
+  --color-on-tertiary-container: #f0c5c5;
+  --color-tertiary-fixed: #f0c5c5;
+  --color-tertiary-fixed-dim: #d17b7b;
+  --color-on-tertiary-fixed: #200707;
+  --color-on-tertiary-fixed-variant: #7a1a1a;
 
   /* ─── Severity palette ─────────────────── */
 
-  /* Critical — Red */
-  --color-critical: #f87171;
-  --color-critical-container: #3f0f0f;
+  /* Critical — Red (Critical Strike) */
+  --color-critical: #e85a5a;
+  --color-critical-container: #3d0f0f;
   --color-on-critical: #ffffff;
-  --color-on-critical-container: #fecaca;
+  --color-on-critical-container: #fec5c5;
 
-  /* High — Orange */
-  --color-high: #fb923c;
-  --color-high-container: #3d1a06;
+  /* High — Orange (Rare) */
+  --color-high: #ff8c42;
+  --color-high-container: #3d1f0a;
   --color-on-high: #ffffff;
-  --color-on-high-container: #fed7aa;
+  --color-on-high-container: #ffd4b8;
 
-  /* Medium — Amber */
-  --color-medium: #fbbf24;
-  --color-medium-container: #3a2600;
-  --color-on-medium: #1a1000;
-  --color-on-medium-container: #fef3c7;
+  /* Medium — Amber (Uncommon) */
+  --color-medium: #d4af37;
+  --color-medium-container: #3d2f0a;
+  --color-on-medium: #1a1200;
+  --color-on-medium-container: #f5e6bc;
 
-  /* Low — Green */
+  /* Low — Green (Common) */
   --color-low: #4ade80;
   --color-low-container: #0a2d15;
   --color-on-low: #021208;
   --color-on-low-container: #bbf7d0;
 
-  /* Error (keep for form validation) */
-  --color-error: #f87171;
-  --color-on-error: #3f0f0f;
+  /* Error (Death Knight) */
+  --color-error: #e85a5a;
+  --color-on-error: #3d0f0f;
   --color-error-container: #5c1414;
-  --color-on-error-container: #fecaca;
+  --color-on-error-container: #fec5c5;
 
   /* Inverse */
-  --color-inverse-surface: #e8e8ed;
-  --color-inverse-on-surface: #1a1a1e;
-  --color-inverse-primary: #1a4db8;
+  --color-inverse-surface: #f5f0e8;
+  --color-inverse-on-surface: #1a1612;
+  --color-inverse-primary: #5c4a1a;
 
-  /* Shadows */
-  --shadow-ambient: 0 0 32px rgba(79, 142, 247, 0.06);
-  --shadow-glow: 0 0 24px rgba(79, 142, 247, 0.25);
-  --shadow-fab: 0 0 48px rgba(79, 142, 247, 0.35);
-  --scrollbar-thumb: rgba(79, 142, 247, 0.3);
-  --muted-overlay: 38, 38, 42;
+  /* Shadows - Golden glow */
+  --shadow-ambient: 0 0 32px rgba(212, 175, 55, 0.08);
+  --shadow-glow: 0 0 24px rgba(212, 175, 55, 0.25);
+  --shadow-fab: 0 0 48px rgba(212, 175, 55, 0.35);
+  --scrollbar-thumb: rgba(212, 175, 55, 0.3);
+  --muted-overlay: 42, 38, 34;
 
-  /* Legacy shorthand aliases — keep these so existing components don't break */
+  /* Legacy shorthand aliases */
   --background: var(--color-background);
   --foreground: var(--color-on-surface);
   --muted: var(--color-on-surface-variant);
-  --accent: #a8c4f8;
-  --accent2: #7b9fd4;
+  --accent: #d4af37;
+  --accent2: #4a7fb5;
   --card: var(--color-surface-container-low);
   --sidebar: var(--color-surface-container);
-  --border: rgba(58, 58, 66, 0.6);
+  --border: rgba(212, 175, 55, 0.2);
 
-  /* Competitive tiers (leaderboard + public profile) */
-  --tier-challenger: #6b7280;
-  --tier-rival: #cd7f32;
-  --tier-duelist: #94a3b8;
-  --tier-gladiator: #f59e0b;
-  --tier-undisputed: #a78bfa;
+  /* WoW Item Quality Colors */
+  --tier-challenger: #9d9d9d;
+  --tier-rival: #1eff00;
+  --tier-duelist: #0070dd;
+  --tier-gladiator: #a335ee;
+  --tier-undisputed: #ff8000;
 
-  --rank-gold: #f59e0b;
-  --rank-silver: #94a3b8;
+  --rank-gold: #ffd700;
+  --rank-silver: #c0c0c0;
   --rank-bronze: #cd7f32;
 }
 
@@ -158,11 +159,11 @@ html {
 @layer base {
   html {
     color-scheme: dark;
-  }
+}
 
-  body {
+body {
     @apply font-body text-on-surface bg-background antialiased;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     letter-spacing: -0.01em;
   }
@@ -171,24 +172,27 @@ html {
   .h1 {
     font-family: var(--font-headline);
     font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1.05;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    font-size: 2.5rem;
   }
 
   h2,
   .h2 {
     font-family: var(--font-headline);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     line-height: 1.15;
+    font-size: 2rem;
   }
 
   h3,
   .h3 {
     font-family: var(--font-headline);
     font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    font-size: 1.5rem;
   }
 
   h4,

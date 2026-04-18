@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { NAV } from "@/config/sidebar-nav";
+import { NAV, NAV_FOOTER } from "@/config/sidebar-nav";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { SidebarToolbar } from "@/components/layout/SidebarToolbar";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -28,11 +28,18 @@ export function Sidebar({
   className?: string;
 }) {
   const pathname = usePathname();
-  const { session } = useAuth();
+  const { session, signOut } = useAuth();
   const { me } = useAuthMe();
   const { data: bootstrap } = useBootstrap();
+  const emailUsername = session?.user?.email?.split("@")[0] || "";
+  const profileUsername = me?.profile?.username || "";
+  const fullName = me?.profile?.full_name || "";
+  // Use full name if available, otherwise use username (if not too short), otherwise email username
   const label =
-    me?.profile?.username || session?.user?.email?.split("@")[0] || "Guest";
+    fullName ||
+    (profileUsername.length > 2 ? profileUsername : null) ||
+    emailUsername ||
+    "Guest";
   const email = session?.user?.email ?? null;
   const avatarUrl = me?.profile?.avatar_url ?? null;
   const userId = session?.user?.id ? String(session.user.id) : null;
@@ -73,19 +80,29 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative z-30 flex h-full min-h-0 w-[200px] min-w-[200px] shrink-0 flex-col border-r border-outline-variant/40 bg-surface-container",
+        "relative z-30 flex h-full min-h-0 w-[280px] min-w-[280px] shrink-0 flex-col border-r border-outline-variant bg-surface-container",
         className,
       )}
     >
-      <div className="shrink-0 px-3 py-4">
-        <div className="mb-6 hidden px-2 md:block">
+      {/* Logo Section - BrandForge Logo */}
+      <div className="shrink-0 px-4 py-6">
+        <div className="mb-2 hidden md:block">
           <Link
             href="/"
-            className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="flex items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary group"
             onClick={onNavigate}
           >
-            <span className="text-primary text-[16px] leading-none">★</span>
-            <span className="text-[15px] font-headline font-700 tracking-[-0.02em] text-on-surface">BrandForge</span>
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shadow-lg">
+              <img 
+                src="/brandforge-logo-full.png" 
+                alt="BrandForge" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[16px] font-headline font-700 tracking-[-0.02em] text-on-surface group-hover:text-primary transition-colors">BrandForge</span>
+              <span className="text-[11px] text-on-surface-variant/70 tracking-wide">World of BrandForge</span>
+            </div>
           </Link>
         </div>
         <div className="mb-4 flex items-center justify-between px-2 md:hidden">
@@ -94,7 +111,13 @@ export function Sidebar({
             className="flex min-w-0 items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             onClick={onNavigate}
           >
-            <span className="text-primary shrink-0 text-[16px] leading-none">★</span>
+            <div className="w-8 h-8 rounded-lg overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+              <img 
+                src="/brandforge-logo-full.png" 
+                alt="BrandForge" 
+                className="w-full h-full object-contain"
+              />
+            </div>
             <span className="truncate text-[15px] font-headline font-700 tracking-[-0.02em] text-on-surface">
               BrandForge
             </span>
@@ -151,6 +174,13 @@ export function Sidebar({
                               {item.materialIcon}
                             </span>
                             <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                            {/* AI indicator for Chat */}
+                            {item.isAI && (
+                              <span className="flex h-4 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 text-[9px] font-bold text-primary">
+                                <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
+                                AI
+                              </span>
+                            )}
                             {chatUnread > 0 ? (
                               <span
                                 className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold tabular-nums leading-none text-white shadow-sm ring-1 ring-red-900/25"
@@ -251,55 +281,16 @@ export function Sidebar({
             </div>
           ))}
         </div>
-
-        <div className="mt-auto border-t border-outline-variant/40 pt-4">
-          <nav
-            className="flex flex-col gap-1 px-1 text-[11px] font-body text-on-surface-variant"
-            aria-label="Legal and developers"
-          >
-            <Link
-              href="/policies"
-              onClick={onNavigate}
-              className="rounded-md px-2 py-1 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              policies
-            </Link>
-            <Link
-              href="/terms"
-              onClick={onNavigate}
-              className="rounded-md px-2 py-1 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              terms
-            </Link>
-            <Link
-              href="/privacy"
-              onClick={onNavigate}
-              className="rounded-md px-2 py-1 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              privacy
-            </Link>
-            <Link
-              href="/docs/api"
-              onClick={onNavigate}
-              className="rounded-md px-2 py-1 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              api
-            </Link>
-          </nav>
-        </div>
       </nav>
 
+      {/* Bottom Section - User Menu */}
       <div
-        className="mt-auto shrink-0 border-t border-outline-variant/40 px-2 pt-3"
-        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
+        className="mt-auto shrink-0 border-t border-outline-variant bg-surface-container-high/50 px-4 py-4"
+        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
       >
+                
         {session ? (
-          <>
-            <div className="mb-3 flex items-center gap-1">
-              <SidebarToolbar />
-            </div>
-            <UserMenu name={label} email={email} avatarUrl={avatarUrl} showOnlinePulse={showUserOnlinePulse} />
-          </>
+          <UserMenu name={label} email={email} avatarUrl={avatarUrl} showOnlinePulse={showUserOnlinePulse} />
         ) : (
           <Link
             href="/login"

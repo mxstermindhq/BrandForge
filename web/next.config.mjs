@@ -71,6 +71,11 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  productionBrowserSourceMaps: false,
+  experimental: {
+    optimizeCss: true,
+    scrollRestoration: true,
+  },
   env: {
     NEXT_PUBLIC_APP_URL: envResolved("NEXT_PUBLIC_APP_URL"),
     NEXT_PUBLIC_API_URL: envResolved("NEXT_PUBLIC_API_URL"),
@@ -98,29 +103,31 @@ const nextConfig = {
     return [];
   },
   async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-          { key: "X-DNS-Prefetch-Control", value: "on" },
-        ],
-      },
-      {
-        source: "/fonts/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
-        source: "/_next/static/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-    ];
+    const security = {
+      source: "/:path*",
+      headers: [
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        {
+          key: "Permissions-Policy",
+          value: "camera=(), microphone=(), geolocation=()",
+        },
+        { key: "X-DNS-Prefetch-Control", value: "on" },
+      ],
+    };
+    const fontCache = {
+      source: "/fonts/:path*",
+      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+    };
+    // Never long-cache webpack chunks in dev: stale assets → `options.factory` / ReactCurrentDispatcher crashes after HMR.
+    const nextStaticCache = {
+      source: "/_next/static/:path*",
+      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+    };
+    return process.env.NODE_ENV === "development"
+      ? [security, fontCache]
+      : [security, fontCache, nextStaticCache];
   },
   images: {
     remotePatterns: [
