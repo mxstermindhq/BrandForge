@@ -15,6 +15,7 @@ type ListingType = "all" | "services" | "requests";
 type ViewMode = "browse" | "smart-match";
 
 type ServiceRow = {
+  _type?: "service";
   id?: string;
   ownerId?: string | null;
   title?: string;
@@ -36,6 +37,7 @@ type ServiceRow = {
 };
 
 type Req = {
+  _type?: "request";
   id?: string;
   title?: string;
   status?: string;
