@@ -47,6 +47,7 @@ export function AIAssistantPanel({ chatId, dealContext, onAction }: AIAssistantP
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { accessToken } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,8 +72,7 @@ export function AIAssistantPanel({ chatId, dealContext, onAction }: AIAssistantP
     setIsLoading(true);
 
     try {
-  const { accessToken } = useAuth();
-    const response = await apiMutateJson<{
+      const response = await apiMutateJson<{
         response: string;
         actions?: AIAction[];
       }>("/api/ai/deal-assistant", "POST", {

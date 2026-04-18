@@ -61,8 +61,9 @@ export function OutcomeSquads() {
         setMySquads(data.mySquads);
         setAvailableSquads(data.availableSquads);
         setCanCreateSquad(data.canCreateSquad);
-      } catch (error: any) {
-        console.error("Failed to load squads:", error?.message || error, error?.status);
+      } catch (error: unknown) {
+        const apiError = error as { message?: string; status?: number };
+        console.error("Failed to load squads:", apiError?.message || error, apiError?.status);
       } finally {
         setIsLoading(false);
       }
@@ -77,7 +78,7 @@ export function OutcomeSquads() {
     try {
       const response = await apiMutateJson<{
         squad: Partial<Squad>;
-        suggestedMembers: any[];
+        suggestedMembers: unknown[];
       }>("/api/squads/generate", "POST", { description: createInput }, accessToken);
 
       setGeneratedSquad(response.squad);

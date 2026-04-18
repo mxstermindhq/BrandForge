@@ -312,7 +312,7 @@ export function UnifiedMarketplace() {
               </div>
             ) : (
               <ul className="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {combinedListings.items.map((item: any) => {
+                {combinedListings.items.map((item: ServiceRow | Req) => {
                   const isService = item._type === "service" || (!item._type && "price" in item);
                   
                   if (isService) {
