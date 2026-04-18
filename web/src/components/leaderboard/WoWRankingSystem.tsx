@@ -64,8 +64,9 @@ export function WoWRankingSystem() {
         setUsers(leaderboardData.users);
         setCurrentUserRank(leaderboardData.currentUser || null);
         setSeason(seasonData);
-      } catch (error: any) {
-        console.error("Failed to load leaderboard:", error?.message || error, error?.status);
+      } catch (error: unknown) {
+        const apiError = error as { message?: string; status?: number };
+        console.error("Failed to load leaderboard:", apiError?.message || error, apiError?.status);
       } finally {
         setIsLoading(false);
       }

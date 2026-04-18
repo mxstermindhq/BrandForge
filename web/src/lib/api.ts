@@ -1,3 +1,8 @@
+interface ApiError extends Error {
+  status?: number;
+  data?: unknown;
+}
+
 function isLoopbackApiUrl(url: string): boolean {
   try {
     const u = new URL(url);
@@ -73,9 +78,9 @@ export async function apiGetJson<T = unknown>(
   if (!ok) {
     const errorData = data as { error?: string; message?: string };
     const errMsg = errorData?.error || errorData?.message || `HTTP ${status}`;
-    const error = new Error(errMsg);
-    (error as any).status = status;
-    (error as any).data = data;
+    const error: ApiError = new Error(errMsg);
+    error.status = status;
+    error.data = data;
     throw error;
   }
   return data;
@@ -95,9 +100,9 @@ export async function apiMutateJson<T = unknown>(
   if (!ok) {
     const errorData = data as { error?: string; message?: string };
     const errMsg = errorData?.error || errorData?.message || `HTTP ${status}`;
-    const error = new Error(errMsg);
-    (error as any).status = status;
-    (error as any).data = data;
+    const error: ApiError = new Error(errMsg);
+    error.status = status;
+    error.data = data;
     throw error;
   }
   return data;

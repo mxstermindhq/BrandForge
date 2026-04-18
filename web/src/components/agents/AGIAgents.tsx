@@ -65,8 +65,9 @@ export function AGIAgents() {
           accessToken
         );
         setMyAgents(myData.agents?.filter(a => a.status !== 'archived') || []);
-      } catch (error: any) {
-        console.error("Failed to load agents:", error?.message || error);
+      } catch (error: unknown) {
+        const apiError = error as { message?: string };
+        console.error("Failed to load agents:", apiError?.message || error);
       } finally {
         setIsLoading(false);
       }
@@ -106,9 +107,10 @@ export function AGIAgents() {
       setNewAgentCapabilities("");
       setNewAgentRentable(false);
       setActiveTab("my-agents");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create agent:", error);
-      const errorMsg = error?.message || error?.toString?.() || "Unknown error";
+      const err = error as { message?: string; toString?: () => string };
+      const errorMsg = err?.message || err?.toString?.() || "Unknown error";
       if (errorMsg.includes("schema cache") || errorMsg.includes("table") || errorMsg.includes("user_agents")) {
         alert("Database setup required. Please run the SQL migration in Supabase to create the agents table.");
       } else {
