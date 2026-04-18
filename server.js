@@ -2289,6 +2289,25 @@ async function createServer() {
   const server = http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
 
+    // CORS headers - allow requests from brandforge.gg and Cloudflare
+    const allowedOrigins = ['https://brandforge.gg', 'https://brandforge.mxstermind-com.workers.dev', 'http://localhost:3000', 'http://localhost:3001'];
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Handle preflight OPTIONS requests
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+
     if (requestUrl.pathname.startsWith('/api/')) {
       try {
         const handled = await routeApi(req, res, requestUrl.pathname);

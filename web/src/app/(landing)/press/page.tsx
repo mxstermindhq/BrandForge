@@ -28,8 +28,8 @@ export default function PressPage() {
             <p className="text-on-surface-variant text-sm mb-4">
               Contact our press team for interviews and features.
             </p>
-            <a href="mailto:press@brandforge.ai" className="text-primary text-sm hover:underline">
-              press@brandforge.ai
+            <a href="mailto:hello@brandforge.gg" className="text-primary text-sm hover:underline">
+              hello@brandforge.gg
             </a>
           </div>
         </div>

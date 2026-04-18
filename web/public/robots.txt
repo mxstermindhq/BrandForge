@@ -1,20 +1,65 @@
 # BrandForge Robots.txt
 # https://brandforge.gg
+# Last updated: 2026-04-18
 
 User-agent: *
+
+# Allow all public pages (matching sitemap)
 Allow: /
 Allow: /login
+Allow: /product/overview
+Allow: /marketplace
+Allow: /services
+Allow: /requests
+Allow: /dashboard
+Allow: /leaderboard
+Allow: /squads
+Allow: /agents
+Allow: /ai
+Allow: /agents/marketplace
+Allow: /agents/studio
+Allow: /plans
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+Allow: /help
+Allow: /about
+Allow: /p/
 
-# Sitemap location
-Sitemap: https://brandforge.gg/sitemap.xml
-
-# Disallow private/user-specific pages
+# Disallow private/user-specific pages (not in sitemap)
 Disallow: /settings
 Disallow: /chat/
+Disallow: /chat
 Disallow: /bid/
+Disallow: /bid
 Disallow: /services/new
 Disallow: /requests/new
 Disallow: /api/
+Disallow: /api
+Disallow: /studio
+Disallow: /studio/
+Disallow: /ai/
+Disallow: /welcome
+Disallow: /auth
+Disallow: /auth/
+Disallow: /payment
+Disallow: /payment/
+Disallow: /messages
+Disallow: /messages/
+Disallow: /inbox
+Disallow: /inbox/
+Disallow: /marketing
+Disallow: /store
+Disallow: /welcome
+Disallow: /world-of-brandforge
+Disallow: /careers
+Disallow: /press
+Disallow: /status
+Disallow: /docs
+Disallow: /explore
+
+# Sitemap location
+Sitemap: https://brandforge.gg/sitemap.xml
 
 # Crawl delay for bots
 Crawl-delay: 1
