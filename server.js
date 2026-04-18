@@ -2289,13 +2289,6 @@ async function createServer() {
   const server = http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
 
-    // Redirect root path to login page
-    if (requestUrl.pathname === '/' || requestUrl.pathname === '') {
-      res.writeHead(302, { 'Location': '/login' });
-      res.end();
-      return;
-    }
-
     if (requestUrl.pathname.startsWith('/api/')) {
       try {
         const handled = await routeApi(req, res, requestUrl.pathname);
