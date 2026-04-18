@@ -37,7 +37,7 @@ const worldPreviews: Record<string, JSX.Element> = {
       </div>
       <div className="mt-3 flex items-center gap-2 text-xs text-on-surface-variant">
         <span className="material-symbols-outlined text-success text-sm">check_circle</span>
-        <span>Smart Match: 98% match found for "Web Design"</span>
+        <span>Smart Match: 98% match found for &quot;Web Design&quot;</span>
       </div>
     </div>
   ),

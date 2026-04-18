@@ -126,7 +126,7 @@ export default function ProductOverviewPage() {
             The Marketplace
           </h2>
           <p className="text-lg text-on-surface-variant text-center max-w-2xl mx-auto mb-12">
-            Two ways to transact. Whether you're offering expertise or seeking help, 
+            Two ways to transact. Whether you&apos;re offering expertise or seeking help, 
             the marketplace connects you instantly.
           </p>
           
@@ -139,7 +139,7 @@ export default function ProductOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold text-on-surface">Services</h3>
-                  <p className="text-sm text-on-surface-variant">You're the provider</p>
+                  <p className="text-sm text-on-surface-variant">You&apos;re the provider</p>
                 </div>
               </div>
               
@@ -164,7 +164,7 @@ export default function ProductOverviewPage() {
 
               <div className="mt-6 p-4 bg-tertiary/5 rounded-lg">
                 <p className="text-sm text-on-surface-variant">
-                  <span className="font-medium text-on-surface">Example:</span> Offer "Logo Design" for $500 in crypto. 
+                  <span className="font-medium text-on-surface">Example:</span> Offer &quot;Logo Design&quot; for $500 in crypto. 
                   Buyers purchase instantly, you deliver with AI assistance.
                 </p>
               </div>
@@ -178,7 +178,7 @@ export default function ProductOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold text-on-surface">Requests</h3>
-                  <p className="text-sm text-on-surface-variant">You're the buyer</p>
+                  <p className="text-sm text-on-surface-variant">You&apos;re the buyer</p>
                 </div>
               </div>
               
@@ -203,7 +203,7 @@ export default function ProductOverviewPage() {
 
               <div className="mt-6 p-4 bg-info/5 rounded-lg">
                 <p className="text-sm text-on-surface-variant">
-                  <span className="font-medium text-on-surface">Example:</span> Post "Need a website" 
+                  <span className="font-medium text-on-surface">Example:</span> Post &quot;Need a website&quot; 
                   with $2000 budget in crypto. Pros bid, you pick the best one.
                 </p>
               </div>
