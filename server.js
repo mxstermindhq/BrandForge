@@ -2289,9 +2289,9 @@ async function createServer() {
   const server = http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
 
-    // Redirect root path to Cloudflare frontend
+    // Redirect root path to login page
     if (requestUrl.pathname === '/' || requestUrl.pathname === '') {
-      res.writeHead(302, { 'Location': 'https://brandforge.mxstermind-com.workers.dev/' });
+      res.writeHead(302, { 'Location': '/login' });
       res.end();
       return;
     }
