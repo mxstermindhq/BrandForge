@@ -3,6 +3,7 @@
 
 User-agent: *
 Allow: /
+Allow: /login
 
 # Sitemap location
 Sitemap: https://brandforge.gg/sitemap.xml
