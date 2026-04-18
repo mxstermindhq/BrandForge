@@ -53,7 +53,6 @@ Disallow: /store
 Disallow: /welcome
 Disallow: /world-of-brandforge
 Disallow: /careers
-Disallow: /press
 Disallow: /status
 Disallow: /docs
 Disallow: /explore
