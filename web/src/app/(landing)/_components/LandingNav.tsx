@@ -20,7 +20,6 @@ function scrollToAndFocusEmail() {
 
 const navItems = [
   { href: "#pricing", label: "Pricing" },
-  { href: "#solution", label: "Solution" },
   { href: "#how-it-works", label: "How It Works" },
   { href: "#explore-world", label: "Explore the World" },
 ];
