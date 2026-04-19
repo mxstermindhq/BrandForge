@@ -607,6 +607,23 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // Marketplace preview for dashboard (services + requests)
+  if (pathname === '/api/marketplace/preview' && method === 'GET') {
+    try {
+      const preview = await platformRepository.readPreview?.() || {};
+      sendJson(res, 200, {
+        services: preview.services?.slice(0, 4) || [],
+        requests: preview.requests?.slice(0, 3) || [],
+      });
+    } catch (error) {
+      sendJson(res, 200, {
+        services: [],
+        requests: [],
+      });
+    }
+    return true;
+  }
+
   // Smart match endpoint for marketplace
   if (pathname === '/api/marketplace/smart-match' && method === 'POST') {
     const user = await requireUser(req, res);
