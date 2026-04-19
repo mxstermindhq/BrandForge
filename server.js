@@ -594,11 +594,17 @@ async function routeApi(req, res, pathname) {
   if (pathname === '/api/marketplace/stats' && method === 'GET') {
     try {
       const marketplaceStats = await platformRepository.getMarketplaceStats?.() || {};
+      console.log('[API /api/marketplace/stats] marketplaceStats:', marketplaceStats);
+      // Use nullish coalescing to only fallback when value is null/undefined, not when it's 0
+      const servicesCount = marketplaceStats.servicesPublished ?? 2450;
+      const requestsCount = marketplaceStats.requestsOpen ?? 180;
+      console.log('[API /api/marketplace/stats] returning:', { servicesCount, requestsCount });
       sendJson(res, 200, {
-        servicesCount: marketplaceStats.servicesPublished || 2450,
-        requestsCount: marketplaceStats.requestsOpen || 180,
+        servicesCount,
+        requestsCount,
       });
     } catch (error) {
+      console.error('[API /api/marketplace/stats] error:', error);
       sendJson(res, 200, {
         servicesCount: 2450,
         requestsCount: 180,
