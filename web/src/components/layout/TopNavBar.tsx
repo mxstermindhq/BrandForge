@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const mainNav = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -109,6 +110,9 @@ export function TopNavBar() {
 
         {/* Right: Actions + Account */}
         <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <ThemeToggle size="sm" />
+          
           {session ? (
             <>
               {/* Notifications */}

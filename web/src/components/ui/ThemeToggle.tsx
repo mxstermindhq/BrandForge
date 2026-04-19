@@ -77,13 +77,13 @@ export function ThemeToggle({ variant = "icon", size = "md" }: ThemeToggleProps)
   return (
     <button
       onClick={toggleTheme}
-      className={`${sizeClasses[size]} flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-400 hover:text-white transition-all`}
+      className={`${sizeClasses[size]} flex items-center justify-center rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface-variant hover:text-on-surface transition-all`}
       title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
     >
       {resolvedTheme === "dark" ? (
-        <Sun size={iconSizes[size]} />
+        <Sun size={iconSizes[size]} className="text-amber-500" />
       ) : (
-        <Moon size={iconSizes[size]} />
+        <Moon size={iconSizes[size]} className="text-sky-500" />
       )}
     </button>
   );
@@ -96,16 +96,16 @@ export function ThemeToggleInline() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition"
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition"
     >
       {resolvedTheme === "dark" ? (
         <>
-          <Sun size={16} />
+          <Sun size={16} className="text-amber-500" />
           <span className="text-sm hidden lg:inline">Light</span>
         </>
       ) : (
         <>
-          <Moon size={16} />
+          <Moon size={16} className="text-sky-500" />
           <span className="text-sm hidden lg:inline">Dark</span>
         </>
       )}
