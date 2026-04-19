@@ -34,7 +34,7 @@ interface Stats {
 export function MarketplacePreview() {
   const [services, setServices] = useState<Service[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
-  const [stats, setStats] = useState<Stats>({ servicesCount: 2450, requestsCount: 180 });
+  const [stats, setStats] = useState<Stats>({ servicesCount: 0, requestsCount: 0 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"services" | "requests">("services");
 
@@ -52,9 +52,10 @@ export function MarketplacePreview() {
           setStats(statsRes);
         }
       } catch {
-        // Silently fail - show empty state instead of demo data
+        // Silently fail - show empty state
         setServices([]);
         setRequests([]);
+        setStats({ servicesCount: 0, requestsCount: 0 });
       } finally {
         setLoading(false);
       }
@@ -126,7 +127,9 @@ export function MarketplacePreview() {
         >
           <Briefcase size={16} />
           Services
-          <span className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400">{services.length}</span>
+          <span className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400">
+            {loading ? "..." : stats.servicesCount.toLocaleString()}
+          </span>
           {activeTab === "services" && (
             <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />
           )}
@@ -139,7 +142,9 @@ export function MarketplacePreview() {
         >
           <Target size={16} />
           Requests
-          <span className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400">{requests.length}</span>
+          <span className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400">
+            {loading ? "..." : stats.requestsCount.toLocaleString()}
+          </span>
           {activeTab === "requests" && (
             <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />
           )}
@@ -234,9 +239,11 @@ export function MarketplacePreview() {
       <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-900/20">
         <div className="flex items-center justify-between">
           <p className="text-xs text-zinc-500">
-            {activeTab === "services" 
-              ? `Browse ${stats.servicesCount.toLocaleString()}+ services` 
-              : `Browse ${stats.requestsCount.toLocaleString()}+ open requests`}
+            {loading 
+              ? "Loading..."
+              : activeTab === "services" 
+                ? `Browse ${stats.servicesCount.toLocaleString()}+ services` 
+                : `Browse ${stats.requestsCount.toLocaleString()}+ open requests`}
           </p>
           <Link
             href={activeTab === "services" ? "/services" : "/requests"}
