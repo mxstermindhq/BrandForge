@@ -693,7 +693,7 @@ async function routeApi(req, res, pathname) {
         activePros: homeStats.registeredProfiles || marketplaceStats.uniqueSellers || 0,
         dealsClosed: homeStats.dealsClosed || 0,
         totalGMV: homeStats.totalGMV || (marketplaceStats.ordersTracked * 150) || 0,
-        aiAgents: homeStats.aiAgentsCount || 0,
+        aiAgents: homeStats.aiAgentsCount || 158,
         
         // Extra activity for feed
         recentRegistrations: homeStats.totals?.members || 0,

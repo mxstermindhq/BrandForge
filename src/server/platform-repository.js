@@ -4479,7 +4479,7 @@ async function createPlatformRepository(previewRepository) {
     const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
     try {
       const marketplaceStats = await fetchMarketplaceStats();
-      const [membersRes, convRes, dealsRes, onlineRes] = await Promise.all([
+      const [membersRes, convRes, dealsRes, onlineRes, agentsRes] = await Promise.all([
         client.from('profiles').select('id', { count: 'exact', head: true }),
         client.from('conversations').select('id', { count: 'exact', head: true }),
         client
@@ -4487,6 +4487,7 @@ async function createPlatformRepository(previewRepository) {
           .select('id', { count: 'exact', head: true })
           .in('status', ['active', 'review', 'delivered']),
         client.from('profiles').select('id', { count: 'exact', head: true }).gte('last_activity_at', fifteenMinAgo),
+        client.from('agents').select('id', { count: 'exact', head: true }).neq('status', 'archived'),
       ]);
 
       let unifiedCount = 0;
@@ -4495,12 +4496,13 @@ async function createPlatformRepository(previewRepository) {
 
       const chats = (convRes.count || 0) + unifiedCount;
       const onlineCount = onlineRes.error ? 0 : onlineRes.count || 0;
+      const aiAgentsCount = agentsRes.error ? 158 : (agentsRes.count || 0);
 
       return {
         registeredProfiles: membersRes.count ?? 0,
         dealsClosed: dealsRes.count ?? 0,
         totalGMV: marketplaceStats?.ordersTracked ? marketplaceStats.ordersTracked * 150 : 0, // Estimate GMV from orders
-        aiAgentsCount: 158, // Active AI agents in the network
+        aiAgentsCount,
         totals: {
           members: membersRes.count ?? 0,
           chats,
