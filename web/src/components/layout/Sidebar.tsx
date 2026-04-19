@@ -80,7 +80,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative z-30 flex h-full min-h-0 w-[280px] min-w-[280px] shrink-0 flex-col border-r border-outline-variant bg-surface-container",
+        "relative z-30 flex h-full min-h-0 w-[240px] min-w-[240px] shrink-0 flex-col border-r border-outline-variant bg-surface-container",
         className,
       )}
     >
