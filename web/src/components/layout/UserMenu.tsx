@@ -22,7 +22,9 @@ export function UserMenu({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { signOut } = useAuth();
-  const safeAvatar = safeImageSrc(avatarUrl);
+  // Don't use brandforge logo as avatar
+  const isLogo = avatarUrl?.includes("brandforge-logo") || avatarUrl?.includes("logo-full");
+  const safeAvatar = isLogo ? null : safeImageSrc(avatarUrl);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
