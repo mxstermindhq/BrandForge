@@ -46,7 +46,7 @@ export function DashboardQuest() {
   const [totalHonor, setTotalHonor] = useState(0);
   const [totalConquest, setTotalConquest] = useState(0);
   const [expandedQuest, setExpandedQuest] = useState<string | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   // Load completed quests from localStorage
   useEffect(() => {
