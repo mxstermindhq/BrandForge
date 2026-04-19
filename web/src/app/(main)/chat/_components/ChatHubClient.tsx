@@ -173,18 +173,13 @@ export function ChatHubClient() {
     );
   }, [threads, searchQuery]);
 
-  // Select conversation - loads chat inline
+  // Select conversation - navigate to conversation URL
   const handleSelectConversation = useCallback((id: string) => {
-    setActiveChatId(id);
-    void loadChat(id);
-  }, [loadChat]);
+    router.push(`/chat/${id}`);
+  }, [router]);
 
-  // Auto-select first conversation if none selected
-  useEffect(() => {
-    if (!activeChatId && threads.length > 0 && !bootLoading) {
-      void handleSelectConversation(threads[0].id);
-    }
-  }, [activeChatId, threads, bootLoading, handleSelectConversation]);
+  // Don't auto-select - let user choose
+  // (Removed auto-select effect to allow user to choose conversation)
 
   if (!session) {
     return (
@@ -272,112 +267,18 @@ export function ChatHubClient() {
 
       {/* MAIN CHAT AREA */}
       <div className="flex-1 flex flex-col min-w-0 bg-surface relative">
-        {activeChatId && activeChat ? (
-          <>
-            {/* Chat Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface lg:hidden">
-              {/* Mobile: Conversation Selector */}
-              <div className="flex items-center gap-2 text-sm font-medium text-on-surface">
-                <span>{activeThread?.t || activeChat.title || "Conversation"}</span>
-              </div>
-
-              {/* Share Button */}
-              <button
-                className="px-3 py-1.5 text-xs font-medium border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container transition"
-              >
-                Share
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto pb-36">
-              {loadingChat ? (
-                <div className="flex h-full items-center justify-center">
-                  <div className="relative h-8 w-8 animate-spin rounded-full border-2 border-on-surface-variant/30 border-t-on-surface" />
-                </div>
-              ) : chatErr ? (
-                <div className="flex h-full items-center justify-center px-6">
-                  <p className="text-rose-400 text-sm">{chatErr}</p>
-                </div>
-              ) : (
-                <ChatStream
-                  messages={activeChat.messages}
-                  currentUserId={userId}
-                  accessToken={accessToken}
-                  threadId={activeChatId}
-                  transport={activeChat.transport}
-                  onRefresh={() => void loadChat(activeChatId)}
-                  scrollContainerRef={scrollRef}
-                  hasMoreOlder={activeChat.messageWindow?.hasMoreOlder ?? false}
-                  loadingOlder={false}
-                  onLoadOlder={() => {}}
-                  viewerRoleBadge="GLADIATOR"
-                  viewerAvatarUrl={viewerAvatarUrl ?? null}
-                  viewerUsername={viewerUsername ?? null}
-                  dealKind={activeChat.dealKind ?? null}
-                  dealListingOwnerId={activeChat.dealListingOwnerId ?? null}
-                  canAdminDelete={false}
-                  onAdminDeleteMessage={() => {}}
-                />
-              )}
-            </div>
-
-            {/* Sticky Composer at Bottom */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pb-2 pt-8 px-4 z-50">
-              <div className="max-w-3xl mx-auto">
-                <div className="flex items-end gap-2 p-3 bg-surface-container border border-outline-variant rounded-2xl shadow-sm">
-                  <textarea
-                    ref={composerRef}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        if (text.trim() && !sending) void onSend();
-                      }
-                    }}
-                    placeholder="Type a message..."
-                    rows={1}
-                    className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 placeholder:text-on-surface-variant"
-                  />
-                  <div className="flex items-center gap-1">
-                    <button className="p-2 text-on-surface-variant hover:text-on-surface transition">
-                      <ImageIcon size={18} />
-                    </button>
-                    <button className="p-2 text-on-surface-variant hover:text-on-surface transition" title="Voice input">
-                      <Mic size={18} />
-                    </button>
-                    <button
-                      onClick={() => void onSend()}
-                      disabled={!text.trim() || sending}
-                      className="p-2 bg-inverse-surface text-on-inverse-surface rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : bootLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="relative h-10 w-10 animate-spin rounded-full border-2 border-on-surface-variant/30 border-t-on-surface" />
-            <p className="mt-4 text-sm text-on-surface-variant">Loading conversations...</p>
+        {/* Empty State - Select a conversation */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-surface-container to-surface-container-high flex items-center justify-center">
+            <MessageSquare size={32} className="text-on-surface-variant" />
           </div>
-        ) : (
-          /* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-surface-container to-surface-container-high flex items-center justify-center">
-              <MessageSquare size={32} className="text-on-surface-variant" />
-            </div>
-            <h2 className="text-xl font-semibold text-on-surface mb-2">
-              No conversations yet
-            </h2>
-            <p className="text-on-surface-variant text-sm max-w-md">
-              Messages will appear here after you receive a bid or proposal.
-            </p>
-          </div>
-        )}
+          <h2 className="text-xl font-semibold text-on-surface mb-2">
+            Select a conversation
+          </h2>
+          <p className="text-on-surface-variant text-sm max-w-md">
+            Choose a chat from the sidebar to start messaging.
+          </p>
+        </div>
       </div>
     </div>
   );
