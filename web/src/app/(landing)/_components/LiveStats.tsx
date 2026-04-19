@@ -23,7 +23,7 @@ export function LiveStats() {
   const [stats, setStats] = useState<Stat[]>([
     { label: "Active Pros", value: 2476, suffix: "+", icon: <Users size={18} />, color: "text-emerald-400" },
     { label: "Deals Closed", value: 12861, suffix: "", icon: <Briefcase size={18} />, color: "text-amber-400" },
-    { label: "Volume", value: 4.2, suffix: "M", icon: <Trophy size={18} />, color: "text-purple-400" },
+    { label: "Payments", value: 4.2, suffix: "M", icon: <Trophy size={18} />, color: "text-purple-400" },
     { label: "AI Agents", value: 158, suffix: "", icon: <Zap size={18} />, color: "text-sky-400" },
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -38,7 +38,7 @@ export function LiveStats() {
           setStats([
             { label: "Active Pros", value: data.activePros || 2476, suffix: "+", icon: <Users size={18} />, color: "text-emerald-400" },
             { label: "Deals Closed", value: data.dealsClosed || 12861, suffix: "", icon: <Briefcase size={18} />, color: "text-amber-400" },
-            { label: "Volume", value: data.totalGMV || 4.2, suffix: "M", icon: <Trophy size={18} />, color: "text-purple-400" },
+            { label: "Payments", value: data.totalGMV || 4.2, suffix: "M", icon: <Trophy size={18} />, color: "text-purple-400" },
             { label: "AI Agents", value: data.aiAgents || 158, suffix: "", icon: <Zap size={18} />, color: "text-sky-400" },
           ]);
         }
@@ -58,7 +58,7 @@ export function LiveStats() {
   }, []);
 
   const formatValue = (stat: Stat) => {
-    if (stat.label === "Volume") {
+    if (stat.label === "Payments") {
       return `$${stat.value.toFixed(1)}${stat.suffix}`;
     }
     return `${stat.value.toLocaleString()}${stat.suffix}`;
