@@ -52,57 +52,9 @@ export function MarketplacePreview() {
           setStats(statsRes);
         }
       } catch {
-        // Fallback demo data
-        setServices([
-          {
-            id: "1",
-            title: "Animated logo design",
-            price: 50,
-            deliveryDays: 1,
-            ownerUsername: "prince",
-            category: "Design",
-          },
-          {
-            id: "2",
-            title: "Full platform vibe coding",
-            price: 3000,
-            deliveryDays: 21,
-            ownerUsername: "mxstermind",
-            category: "Development",
-            isAIGenerated: true,
-          },
-          {
-            id: "3",
-            title: "Brand identity package",
-            price: 450,
-            deliveryDays: 3,
-            ownerUsername: "brandmaster",
-            category: "Branding",
-          },
-        ]);
-        setRequests([
-          {
-            id: "1",
-            title: "CRM dashboard for health company",
-            budgetMin: 2000,
-            budgetMax: 5000,
-            ownerUsername: "healthcorp",
-          },
-          {
-            id: "2",
-            title: "Mobile app UI/UX redesign",
-            budgetMin: 1500,
-            budgetMax: 3000,
-            ownerUsername: "startupxyz",
-          },
-          {
-            id: "3",
-            title: "E-commerce automation system",
-            budgetMin: 5000,
-            budgetMax: 10000,
-            ownerUsername: "retailmax",
-          },
-        ]);
+        // Silently fail - show empty state instead of demo data
+        setServices([]);
+        setRequests([]);
       } finally {
         setLoading(false);
       }

@@ -388,8 +388,8 @@ export function ChatHubClient() {
               )}
             </div>
 
-            {/* Sticky Composer - flush to bottom */}
-            <div className="fixed bottom-0 left-0 lg:left-[240px] right-0 bg-surface border-t border-outline-variant p-3 z-50">
+            {/* Sticky Composer at Bottom */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pb-2 pt-8 px-4 z-50">
               <div className="max-w-3xl mx-auto">
                 <div className="flex items-end gap-2 p-3 bg-surface-container border border-outline-variant rounded-2xl shadow-sm">
                   <textarea

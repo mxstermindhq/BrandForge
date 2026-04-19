@@ -353,7 +353,7 @@ export function AIChatbox() {
             )}
           </div>
         </div>
-        <div className="flex items-end gap-2 p-3 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm">
+        <div className="flex items-end gap-2 p-3 bg-surface-container border border-outline-variant rounded-2xl shadow-sm">
           <textarea
             ref={inputRef}
             value={input}
@@ -361,13 +361,13 @@ export function AIChatbox() {
             onKeyDown={handleKeyDown}
             placeholder="Message AI or @mention an agent..."
             rows={1}
-            className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 text-white placeholder:text-zinc-500"
+            className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 text-on-surface placeholder:text-on-surface-variant"
           />
           <div className="flex items-center gap-1">
-            <button className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition">
+            <button className="p-2 text-on-surface-variant hover:text-on-surface transition">
               <ImageIcon size={18} />
             </button>
-            <button className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition" title="Voice input">
+            <button className="p-2 text-on-surface-variant hover:text-on-surface transition" title="Voice input">
               <Mic size={18} />
             </button>
             <button
@@ -380,7 +380,7 @@ export function AIChatbox() {
           </div>
         </div>
         {/* AI Disclaimer */}
-        <p className="mt-2 text-center text-[10px] text-zinc-600">
+        <p className="mt-2 text-center text-[10px] text-on-surface-variant">
           AI can make mistakes. Please verify important information.
         </p>
       </div>

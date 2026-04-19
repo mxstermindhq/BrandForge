@@ -738,9 +738,9 @@ export function ChatThreadClient({ id }: { id: string }) {
           </div>
 
           {/* Sticky Composer at Bottom */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] to-transparent pb-2 pt-8 px-4">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface to-transparent pb-2 pt-8 px-4 z-50">
             <div className="max-w-3xl mx-auto">
-              <div className="flex items-end gap-2 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+              <div className="flex items-end gap-2 p-3 bg-surface-container border border-outline-variant rounded-2xl shadow-sm">
                 <textarea
                   ref={composerRef}
                   value={text}
@@ -756,19 +756,19 @@ export function ChatThreadClient({ id }: { id: string }) {
                   }}
                   placeholder="Type a message..."
                   rows={1}
-                  className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 placeholder:text-zinc-400"
+                  className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 placeholder:text-on-surface-variant"
                 />
                 <div className="flex items-center gap-1">
-                  <button className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+                  <button className="p-2 text-on-surface-variant hover:text-on-surface transition">
                     <Image size={18} />
                   </button>
-                  <button className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition" title="Voice input">
+                  <button className="p-2 text-on-surface-variant hover:text-on-surface transition" title="Voice input">
                     <Mic size={18} />
                   </button>
                   <button
                     onClick={onSend}
                     disabled={!text.trim() || sending}
-                    className="p-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
+                    className="p-2 bg-inverse-surface text-on-inverse-surface rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
                   >
                     <ChevronRight size={18} />
                   </button>
