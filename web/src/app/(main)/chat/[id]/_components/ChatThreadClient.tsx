@@ -11,7 +11,7 @@ import { ChatRail } from "./ChatRail";
 import { ChatPinnedBar, type ChatPin } from "./ChatPinnedBar";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import {
-  Moon, Sun, Image, Mic, ChevronRight, ChevronDown
+  Image, Mic, ChevronRight
 } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -131,7 +131,6 @@ export function ChatThreadClient({ id }: { id: string }) {
   const [sendErr, setSendErr] = useState<string | null>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
-  const [showChatHistory, setShowChatHistory] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(true);
   const { theme, setTheme } = useTheme();
@@ -651,14 +650,10 @@ export function ChatThreadClient({ id }: { id: string }) {
       <div className="flex-1 flex flex-col min-w-0 bg-surface">
         {/* Top bar */}
         <div className="relative flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface">
-          {/* Conversation Selector Dropdown */}
-          <button
-            onClick={() => setShowChatHistory(!showChatHistory)}
-            className="flex items-center gap-2 text-sm font-medium text-on-surface hover:text-on-surface-variant transition"
-          >
+          {/* Conversation Title */}
+          <div className="flex items-center gap-2 text-sm font-medium text-on-surface">
             <span>{chat.title || "Conversation"}</span>
-            <ChevronDown size={16} className={`text-on-surface-variant transition-transform ${showChatHistory ? 'rotate-180' : ''}`} />
-          </button>
+          </div>
 
           {/* Share Button */}
           <button
@@ -666,47 +661,6 @@ export function ChatThreadClient({ id }: { id: string }) {
           >
             Share
           </button>
-
-          {/* Chat History Dropdown */}
-          {showChatHistory && (
-            <div className="absolute top-full left-0 right-0 mt-1 mx-4 bg-surface border border-outline-variant rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
-              <div className="p-2">
-                <div className="text-xs text-on-surface-variant uppercase tracking-wider px-3 py-2 border-b border-outline-variant">
-                  Chat History
-                </div>
-                {msgs.length === 0 ? (
-                  <div className="px-3 py-4 text-sm text-on-surface-variant text-center">
-                    No messages yet
-                  </div>
-                ) : (
-                  <div className="space-y-1 py-1">
-                    {msgs.slice(-20).reverse().map((msg, idx) => (
-                      <button
-                        key={msg.id || idx}
-                        onClick={() => {
-                          scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-                          setShowChatHistory(false);
-                        }}
-                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-high transition"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs ${msg.senderId === userId ? 'text-amber-500' : 'text-on-surface-variant'}`}>
-                            {msg.senderId === userId ? 'You' : '@' + (msg.senderUsername || 'them')}
-                          </span>
-                          <span className="text-[10px] text-on-surface-variant">
-                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}
-                          </span>
-                        </div>
-                        <p className="text-xs text-on-surface-variant truncate mt-0.5">
-                          {msg.text?.slice(0, 50)}{(msg.text?.length || 0) > 50 ? '...' : ''}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Chat Content */}
