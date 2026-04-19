@@ -56,6 +56,54 @@ function StatCard({ label, value, hint, icon: Icon, trend, isLoading }: {
   );
 }
 
+// Season 1 countdown card
+function SeasonCountdownCard() {
+  const [countdown, setCountdown] = useState<string>("29 May");
+  
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      let targetDate = new Date(currentYear, 4, 29); // May 29
+      
+      // If 29 May has passed this year, use next year
+      if (now > targetDate) {
+        targetDate = new Date(currentYear + 1, 4, 29);
+      }
+      
+      const diff = targetDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        return "Live!";
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      return `${days}d ${hours}h`;
+    };
+    
+    setCountdown(calculateTimeLeft());
+    
+    const timer = setInterval(() => {
+      setCountdown(calculateTimeLeft());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  return (
+    <div className="group rounded-xl border border-outline-variant bg-surface-container p-4 hover:bg-surface-container-high transition-all duration-300">
+      <div className="flex items-center justify-between mb-2">
+        <Trophy size={16} className="text-on-surface-variant group-hover:text-amber-500 transition-colors"/>
+      </div>
+      <p className="text-3xl font-bold text-on-surface">{countdown}</p>
+      <p className="text-[11px] text-on-surface-variant mt-1">Season 1</p>
+      <p className="mt-1 text-[10px] text-on-surface-variant/70">Starts 29 May</p>
+    </div>
+  );
+}
+
 export function HomeHubClient() {
   const [data, setData] = useState<NetworkStats | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -158,13 +206,7 @@ export function HomeHubClient() {
           trend="up"
           isLoading={isLoading}
         />
-        <StatCard 
-          label="Season 0" 
-          value="28 May" 
-          hint="Season 1 starts" 
-          icon={Trophy}
-          isLoading={false}
-        />
+        <SeasonCountdownCard />
       </div>
 
       {err ? <p className="text-rose-400 mb-6 text-sm" role="alert">{err}</p> : null}

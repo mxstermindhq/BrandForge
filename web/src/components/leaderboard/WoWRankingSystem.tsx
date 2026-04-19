@@ -113,6 +113,50 @@ function PodiumCard({
   );
 }
 
+// Countdown to Season 1 start (29 May)
+function SeasonCountdown() {
+  const [timeLeft, setTimeLeft] = useState<string>("");
+  
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      let targetDate = new Date(currentYear, 4, 29); // May 29
+      
+      // If 29 May has passed this year, use next year
+      if (now > targetDate) {
+        targetDate = new Date(currentYear + 1, 4, 29);
+      }
+      
+      const diff = targetDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        return "Season 1 is live!";
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      if (days > 0) {
+        return `Season 1 · Starts in ${days}d ${hours}h`;
+      } else {
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return `Season 1 · Starts in ${hours}h ${minutes}m`;
+      }
+    };
+    
+    setTimeLeft(calculateTimeLeft());
+    
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  return <span>{timeLeft || "Season 1 · Starts 29 May"}</span>;
+}
+
 export function WoWRankingSystem() {
   const { accessToken } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("ranking");
@@ -183,7 +227,7 @@ export function WoWRankingSystem() {
           <div>
             <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>
-              {season?.name || "Season 0"} · Ends 28 May
+              <SeasonCountdown />
             </div>
             <h1 className="text-3xl font-bold">Leaderboard</h1>
           </div>
