@@ -693,8 +693,20 @@ async function routeApi(req, res, pathname) {
     try {
       // Get accurate real-time stats
       const onlineNow = countOnlineUsers();
-      const marketplaceStats = await platformRepository.getMarketplaceStats?.() || {};
       const homeStats = await platformRepository.getHomeStats?.() || {};
+      const marketplaceStats = await platformRepository.getMarketplaceStats?.() || {};
+      
+      console.log('[API /api/stats/network] homeStats:', { 
+        aiAgentsCount: homeStats.aiAgentsCount, 
+        totalGMV: homeStats.totalGMV,
+        registeredProfiles: homeStats.registeredProfiles,
+        dealsClosed: homeStats.dealsClosed
+      });
+      console.log('[API /api/stats/network] marketplaceStats:', { 
+        ordersTracked: marketplaceStats?.ordersTracked,
+        servicesPublished: marketplaceStats?.servicesPublished,
+        bidsTotal: marketplaceStats?.bidsTotal
+      });
       
       // Count active chats (chats with recent messages)
       const activeChats = await platformRepository.getActiveChatsCount?.() || 0;
@@ -705,7 +717,7 @@ async function routeApi(req, res, pathname) {
       // Get active deals count (open requests + active services)
       const activeDeals = (marketplaceStats.requestsOpen || 0) + (marketplaceStats.servicesPublished || 0);
       
-      sendJson(res, 200, {
+      const response = {
         // Activity stats (top section)
         activeChats,
         membersOnline: onlineNow,
@@ -715,14 +727,17 @@ async function routeApi(req, res, pathname) {
         // Network stats (bottom section)
         activePros: homeStats.registeredProfiles || marketplaceStats.uniqueSellers || 0,
         dealsClosed: homeStats.dealsClosed || 0,
-        totalGMV: homeStats.totalGMV || (marketplaceStats.ordersTracked * 150) || 0,
-        aiAgents: homeStats.aiAgentsCount || 158,
+        totalGMV: homeStats.totalGMV ?? (marketplaceStats?.ordersTracked * 150) ?? 0,
+        aiAgents: homeStats.aiAgentsCount ?? 158,
         
         // Extra activity for feed
         recentRegistrations: homeStats.totals?.members || 0,
         newListingsToday: marketplaceStats.servicesPublished || 0,
         pendingBids: marketplaceStats.bidsTotal || 0,
-      });
+      };
+      
+      console.log('[API /api/stats/network] response:', response);
+      sendJson(res, 200, response);
     } catch (error) {
       console.error('Network stats error:', error);
       // Return fallback data
