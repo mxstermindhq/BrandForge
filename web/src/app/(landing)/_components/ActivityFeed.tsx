@@ -102,9 +102,10 @@ export function ActivityFeed() {
           const deduplicated = deduplicateActivities(transformed);
           setActivities(deduplicated.slice(0, 5)); // Keep only 5 most recent
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Silently handle 404 - endpoint may not be implemented yet
-        if (error?.status !== 404) {
+        const apiError = error as { status?: number };
+        if (apiError?.status !== 404) {
           console.error("Failed to fetch activities:", error);
         }
         // Leave activities empty - will show "No recent activity" state

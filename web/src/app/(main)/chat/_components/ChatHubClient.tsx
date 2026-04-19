@@ -154,24 +154,7 @@ export function ChatHubClient() {
     }
   }, [activeChat?.messages]);
 
-  if (!session) {
-    return (
-      <div className="min-h-[calc(100dvh-4rem)] bg-surface flex items-center justify-center text-center">
-        <div>
-          <MessageSquare size={48} className="mx-auto mb-4 text-on-surface-variant" />
-          <p className="text-on-surface-variant mb-4">Sign in to open Chat</p>
-          <Link href={`/login?next=${encodeURIComponent("/chat")}`} className="px-6 py-2.5 bg-inverse-surface text-on-inverse-surface rounded-lg font-semibold inline-flex">
-            Sign in
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const viewerUsername = (bootData?.profile as { username?: string })?.username;
-  const viewerAvatarUrl = (bootData?.profile as { avatar_url?: string })?.avatar_url;
-  
-  // Get conversations list
+  // Get conversations list - moved before early return
   const threads = useMemo(() => {
     const list = (bootData?.humanChats || []) as HumanChat[];
     return list.sort((a, b) => {
@@ -180,12 +163,11 @@ export function ChatHubClient() {
       return bTime - aTime;
     });
   }, [bootData?.humanChats]);
-  
-  const activeThread = threads.find(t => t.id === activeChatId);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   // Filter threads by search
   const filteredThreads = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -206,19 +188,37 @@ export function ChatHubClient() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  
+
   // Select conversation - loads chat inline
   const handleSelectConversation = useCallback((id: string) => {
     setActiveChatId(id);
     void loadChat(id);
   }, [loadChat]);
-  
+
   // Auto-select first conversation if none selected
   useEffect(() => {
     if (!activeChatId && threads.length > 0 && !bootLoading) {
       void handleSelectConversation(threads[0].id);
     }
   }, [activeChatId, threads, bootLoading, handleSelectConversation]);
+
+  if (!session) {
+    return (
+      <div className="min-h-[calc(100dvh-4rem)] bg-surface flex items-center justify-center text-center">
+        <div>
+          <MessageSquare size={48} className="mx-auto mb-4 text-on-surface-variant" />
+          <p className="text-on-surface-variant mb-4">Sign in to open Chat</p>
+          <Link href={`/login?next=${encodeURIComponent("/chat")}`} className="px-6 py-2.5 bg-inverse-surface text-on-inverse-surface rounded-lg font-semibold inline-flex">
+            Sign in
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const viewerUsername = (bootData?.profile as { username?: string })?.username;
+  const viewerAvatarUrl = (bootData?.profile as { avatar_url?: string })?.avatar_url;
+  const activeThread = threads.find(t => t.id === activeChatId);
 
   return (
     <div className="h-[calc(100dvh-4rem)] w-full overflow-hidden bg-surface flex flex-col">

@@ -751,7 +751,7 @@ export function ChatThreadClient({ id }: { id: string }) {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      if (text.trim() && !sending) onSend(e as any);
+                      if (text.trim() && !sending) onSend(e as React.KeyboardEvent<HTMLTextAreaElement>);
                     }
                   }}
                   placeholder="Type a message..."
