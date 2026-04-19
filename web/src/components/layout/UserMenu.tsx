@@ -1,30 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { safeImageSrc } from "@/lib/image-url";
-import { OnlinePresenceDot } from "@/components/ui/OnlinePresenceDot";
+import { useTheme } from "@/providers/ThemeProvider";
+import { Sun, Moon, Bell, LogOut } from "lucide-react";
+
+interface UserMenuProps {
+  name: string;
+  email?: string | null;
+  avatarUrl?: string | null;
+  showOnlinePulse?: boolean;
+  notificationCount?: number;
+}
 
 export function UserMenu({
   name,
   email,
-  avatarUrl,
-  showOnlinePulse,
-}: {
-  name: string;
-  email?: string | null;
-  avatarUrl?: string | null;
-  /** When true, shows a welcoming “you’re active” pulse beside the avatar. */
-  showOnlinePulse?: boolean;
-}) {
+  notificationCount = 5,
+}: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { signOut } = useAuth();
-  // Don't use brandforge logo as avatar
-  const isLogo = avatarUrl?.includes("brandforge-logo") || avatarUrl?.includes("logo-full");
-  const safeAvatar = isLogo ? null : safeImageSrc(avatarUrl);
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -36,40 +34,61 @@ export function UserMenu({
 
   return (
     <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 transition-colors duration-150 hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        title={email ?? undefined}
-      >
-        <div className="relative flex h-7 w-7 shrink-0">
-          <div className="flex h-7 w-7 shrink-0 overflow-hidden rounded-full ring-1 ring-outline-variant">
-            {safeAvatar ? (
-              <Image
-                src={safeAvatar}
-                alt=""
-                width={28}
-                height={28}
-                className="h-full w-full object-cover"
-                unoptimized
-              />
+      {/* Main user bar */}
+      <div className="flex items-center justify-between gap-2">
+        {/* Username */}
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex-1 text-left truncate text-[14px] font-body font-500 text-on-surface hover:text-on-surface/80 transition-colors"
+          title={email ?? undefined}
+        >
+          {name}
+        </button>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1">
+          {/* Theme toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {resolvedTheme === "dark" ? (
+              <Sun size={18} className="text-amber-500" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center bg-surface-container-high text-[10px] font-600 text-on-surface">
-                {name.slice(0, 2).toUpperCase()}
+              <Moon size={18} className="text-sky-500" />
+            )}
+          </button>
+
+          {/* Notifications */}
+          <Link
+            href="/inbox"
+            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            title="Notifications"
+          >
+            <Bell size={18} />
+            {notificationCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                {notificationCount > 9 ? "9+" : notificationCount}
               </span>
             )}
-          </div>
-          {showOnlinePulse ? (
-            <OnlinePresenceDot active className="absolute -bottom-0.5 -right-0.5 ring-2 ring-surface-container" />
-          ) : null}
+          </Link>
+
+          {/* Logout */}
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-critical hover:bg-critical-container/30 transition-colors"
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
-        <div className="min-w-0 flex-1 text-left">
-          <p className="truncate text-[12px] font-body font-500 text-on-surface">{name}</p>
-          {email ? (
-            <p className="truncate text-[11px] font-body text-on-surface-variant">{email}</p>
-          ) : null}
-        </div>
-      </button>
+      </div>
+
+      {/* Dropdown menu */}
       {open ? (
         <div className="absolute bottom-full left-0 right-0 z-50 mb-1 rounded-xl border border-outline-variant/60 bg-surface-container-highest py-1 shadow-lg">
           <Link
