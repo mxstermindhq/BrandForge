@@ -5,13 +5,15 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/services", "/requests", "/leaderboard", "/plans", "/p/"],
+        allow: ["/", "/marketplace", "/leaderboard", "/plans", "/p/"],
         disallow: [
           "/chat",
           "/settings",
           "/studio",
           "/ai/",
+          "/services",
           "/services/new",
+          "/requests",
           "/requests/new",
           "/api/",
           "/welcome",

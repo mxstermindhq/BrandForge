@@ -14,8 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     
     // Main app pages - High priority, frequently updated
     { url: `${base}/marketplace`, lastModified: now, changeFrequency: "hourly", priority: 0.95 },
-    { url: `${base}/services`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
-    { url: `${base}/requests`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${base}/dashboard`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     
     // Feature pages
