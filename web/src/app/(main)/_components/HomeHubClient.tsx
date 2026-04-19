@@ -159,9 +159,9 @@ export function HomeHubClient() {
           isLoading={isLoading}
         />
         <StatCard 
-          label="Season 1" 
-          value="29 May" 
-          hint="Competition starts" 
+          label="Season 0" 
+          value="28 May" 
+          hint="Season 1 starts" 
           icon={Trophy}
           isLoading={false}
         />

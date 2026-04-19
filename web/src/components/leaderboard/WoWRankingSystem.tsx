@@ -183,7 +183,7 @@ export function WoWRankingSystem() {
           <div>
             <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>
-              {season?.name || "Season 3"} · Ends in 12d 4h
+              {season?.name || "Season 0"} · Ends 28 May
             </div>
             <h1 className="text-3xl font-bold">Leaderboard</h1>
           </div>
