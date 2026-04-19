@@ -8,15 +8,12 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { ChatStream, type StreamMessage } from "../[id]/_components/ChatStream";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
-import { 
-  MessageSquare, 
-  ChevronRight, 
-  Hash, 
-  Image as ImageIcon, 
-  ChevronDown, 
+import {
+  MessageSquare,
+  ChevronRight,
+  Image as ImageIcon,
   Search,
-  Mic,
-  Share
+  Mic
 } from "lucide-react";
 
 const CHAT_PAGE_SIZE = 50;
@@ -164,9 +161,7 @@ export function ChatHubClient() {
     });
   }, [bootData?.humanChats]);
 
-  const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Filter threads by search
   const filteredThreads = useMemo(() => {
@@ -177,17 +172,6 @@ export function ChatHubClient() {
       (t.s || "").toLowerCase().includes(q)
     );
   }, [threads, searchQuery]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Select conversation - loads chat inline
   const handleSelectConversation = useCallback((id: string) => {
@@ -221,115 +205,69 @@ export function ChatHubClient() {
   const activeThread = threads.find(t => t.id === activeChatId);
 
   return (
-    <div className="h-[calc(100dvh-4rem)] w-full overflow-hidden bg-surface flex flex-col">
-      {/* TOP BAR: Conversation Selector + Actions */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          {/* Conversation Selector Dropdown */}
-          <div className="relative flex-1 max-w-md" ref={dropdownRef}>
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="w-full flex items-center gap-3 px-3 py-2 bg-surface-container hover:bg-surface-container-high rounded-xl transition text-left"
-            >
-              {activeThread?.peerAvatarUrl ? (
-                <img 
-                  src={activeThread.peerAvatarUrl} 
-                  alt="" 
-                  className="h-8 w-8 shrink-0 rounded-full object-cover"
-                />
-              ) : activeThread ? (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-on-surface-variant/30 to-on-surface-variant/50 text-[11px] font-semibold text-on-inverse-surface">
-                  {initials(activeThread.t || "")}
-                </div>
-              ) : (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container-high">
-                  <MessageSquare size={14} className="text-on-surface-variant" />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-on-surface truncate text-sm">
-                  {activeThread?.t || "Select conversation"}
-                </p>
-                <p className="text-xs text-on-surface-variant truncate">
-                  {activeThread ? formatRelative(activeThread.lastMessageAt) : "Choose a chat to start"}
-                </p>
-              </div>
-              <ChevronDown size={16} className="text-on-surface-variant shrink-0" />
-            </button>
-            
-            {/* Dropdown Menu */}
-            {showDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-outline-variant rounded-xl shadow-lg z-50 max-h-[400px] flex flex-col">
-                {/* Search in dropdown */}
-                <div className="p-2 border-b border-outline-variant">
-                  <div className="relative">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={14} aria-hidden/>
-                    <input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search conversations..."
-                      className="w-full bg-surface-container border-0 rounded-lg py-2 pl-9 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-outline-variant"
-                      autoFocus
-                    />
-                  </div>
-                </div>
-                
-                {/* Thread List */}
-                <div className="flex-1 overflow-y-auto py-1">
-                  {bootLoading ? (
-                    <div className="p-4 text-center text-sm text-on-surface-variant">
-                      <div className="w-5 h-5 border-2 border-on-surface-variant/30 border-t-on-surface rounded-full animate-spin mx-auto mb-2" />
-                      Loading...
-                    </div>
-                  ) : filteredThreads.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-on-surface-variant">
-                      No conversations found
-                    </div>
-                  ) : (
-                    filteredThreads.map((t) => {
-                      const isActive = t.id === activeChatId;
-                      return (
-                        <button
-                          key={t.id}
-                          onClick={() => {
-                            void handleSelectConversation(t.id);
-                            setShowDropdown(false);
-                            setSearchQuery("");
-                          }}
-                          className={`w-full flex items-start gap-3 px-3 py-2.5 transition text-left hover:bg-surface-container-high ${
-                            isActive ? "bg-surface-container" : ""
-                          }`}
-                        >
-                          {t.peerAvatarUrl ? (
-                            <img src={t.peerAvatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
-                          ) : (
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-on-surface-variant/30 to-on-surface-variant/50 text-[11px] font-semibold text-on-inverse-surface">
-                              {initials(t.t || "")}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className={`truncate text-[13px] ${isActive ? "font-semibold text-on-surface" : "text-on-surface-variant"}`}>
-                                {t.t || "Conversation"}
-                              </p>
-                              <span className="shrink-0 text-[10px] text-on-surface-variant tabular-nums">
-                                {formatRelative(t.lastMessageAt)}
-                              </span>
-                            </div>
-                            <p className="mt-0.5 truncate text-[12px] text-on-surface-variant">
-                              {t.s || "No messages yet"}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
+    <div className="h-[calc(100dvh-4rem)] w-full overflow-hidden bg-surface flex">
+      {/* LEFT SIDEBAR: Conversations List */}
+      <div className="w-[280px] min-w-[280px] border-r border-outline-variant bg-surface-container flex flex-col hidden lg:flex">
+        {/* Sidebar Header */}
+        <div className="p-3 border-b border-outline-variant">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={14} aria-hidden/>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search conversations..."
+              className="w-full bg-surface border border-outline-variant rounded-lg py-2 pl-9 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-outline-variant"
+            />
           </div>
         </div>
         
+        {/* Thread List - Scrollable */}
+        <div className="flex-1 overflow-y-auto py-1">
+          {bootLoading ? (
+            <div className="p-4 text-center text-sm text-on-surface-variant">
+              <div className="w-5 h-5 border-2 border-on-surface-variant/30 border-t-on-surface rounded-full animate-spin mx-auto mb-2" />
+              Loading...
+            </div>
+          ) : filteredThreads.length === 0 ? (
+            <div className="p-4 text-center text-sm text-on-surface-variant">
+              No conversations found
+            </div>
+          ) : (
+            filteredThreads.map((t) => {
+              const isActive = t.id === activeChatId;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => void handleSelectConversation(t.id)}
+                  className={`w-full flex items-start gap-3 px-3 py-3 transition text-left hover:bg-surface-container-high ${
+                    isActive ? "bg-surface-container border-l-2 border-amber-500" : "border-l-2 border-transparent"
+                  }`}
+                >
+                  {t.peerAvatarUrl ? (
+                    <img src={t.peerAvatarUrl} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-on-surface-variant/30 to-on-surface-variant/50 text-[12px] font-semibold text-on-inverse-surface">
+                      {initials(t.t || "")}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`truncate text-sm ${isActive ? "font-semibold text-on-surface" : "text-on-surface"}`}>
+                        {t.t || "Conversation"}
+                      </p>
+                      <span className="shrink-0 text-[10px] text-on-surface-variant tabular-nums">
+                        {formatRelative(t.lastMessageAt)}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-[13px] text-on-surface-variant">
+                      {t.s || "No messages yet"}
+                    </p>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* MAIN CHAT AREA */}
@@ -337,15 +275,11 @@ export function ChatHubClient() {
         {activeChatId && activeChat ? (
           <>
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface">
-              {/* Conversation Selector Dropdown */}
-              <button
-                onClick={() => setShowDropdown(true)}
-                className="flex items-center gap-2 text-sm font-medium text-on-surface hover:text-on-surface-variant transition"
-              >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface lg:hidden">
+              {/* Mobile: Conversation Selector */}
+              <div className="flex items-center gap-2 text-sm font-medium text-on-surface">
                 <span>{activeThread?.t || activeChat.title || "Conversation"}</span>
-                <ChevronDown size={16} className="text-on-surface-variant" />
-              </button>
+              </div>
 
               {/* Share Button */}
               <button
