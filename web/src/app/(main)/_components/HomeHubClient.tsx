@@ -159,11 +159,11 @@ export function HomeHubClient() {
           isLoading={isLoading}
         />
         <StatCard 
-          label="Season Wins" 
-          value={formatValue(data?.seasonWins)} 
-          hint="Deals closed this season" 
+          label="Season 1" 
+          value="29 May" 
+          hint="Competition starts" 
           icon={Trophy}
-          isLoading={isLoading}
+          isLoading={false}
         />
       </div>
 
