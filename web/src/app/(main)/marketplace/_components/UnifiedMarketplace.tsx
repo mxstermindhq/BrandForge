@@ -17,6 +17,7 @@ import {
 
 type ListingType = "all" | "services" | "requests";
 type ViewMode = "browse" | "smart-match";
+type SortOption = "trending" | "newest" | "price-low" | "price-high";
 
 type ServiceRow = {
   _type?: "service";
@@ -134,27 +135,55 @@ function bandUi(band: string | undefined) {
   };
 }
 
+function sortItems<T extends ServiceRow | Req>(items: T[], sortBy: SortOption, type: "service" | "request"): T[] {
+  const sorted = [...items];
+  
+  switch (sortBy) {
+    case "newest":
+      return sorted.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+    case "price-low":
+      if (type === "service") {
+        return sorted.sort((a, b) => (Number((a as ServiceRow).price) || 0) - (Number((b as ServiceRow).price) || 0));
+      }
+      return sorted.sort((a, b) => (Number((a as Req).budgetMin) || 0) - (Number((b as Req).budgetMin) || 0));
+    case "price-high":
+      if (type === "service") {
+        return sorted.sort((a, b) => (Number((b as ServiceRow).price) || 0) - (Number((a as ServiceRow).price) || 0));
+      }
+      return sorted.sort((a, b) => (Number((b as Req).budgetMax) || 0) - (Number((a as Req).budgetMax) || 0));
+    case "trending":
+    default:
+      // Trending = by views/sales for services, by bids for requests
+      if (type === "service") {
+        return sorted.sort((a, b) => (Number((b as ServiceRow).views) || 0) - (Number((a as ServiceRow).views) || 0));
+      }
+      return sorted.sort((a, b) => (Number((b as Req).bids) || 0) - (Number((a as Req).bids) || 0));
+  }
+}
+
 export function UnifiedMarketplace() {
   const params = useSearchParams();
   const q = (params.get("q") || "").trim();
   const [listingType, setListingType] = useState<ListingType>("all");
   const [category, setCategory] = useState<CategoryId>("All");
   const [viewMode, setViewMode] = useState<ViewMode>("browse");
+  const [sortBy, setSortBy] = useState<SortOption>("trending");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const { data, err, loading } = useBootstrap();
   const { session } = useAuth();
 
   const services = useMemo(() => {
     const all = (data?.services as ServiceRow[]) ?? [];
     const filtered = all.filter((s) => matchesQuery(s, q, "service") && matchesCategory(s, category, "service"));
-    return [...filtered].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
-  }, [data?.services, q, category]);
+    return sortItems([...filtered], sortBy, "service") as ServiceRow[];
+  }, [data?.services, q, category, sortBy]);
 
   const requests = useMemo(() => {
     const all = (data?.requests as Req[]) ?? [];
     const open = all.filter((r) => r.status !== "closed" && r.status !== "awarded");
     const filtered = open.filter((r) => matchesQuery(r, q, "request") && matchesCategory(r, category, "request"));
-    return [...filtered].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
-  }, [data?.requests, q, category]);
+    return sortItems([...filtered], sortBy, "request") as Req[];
+  }, [data?.requests, q, category, sortBy]);
 
   const combinedListings = useMemo(() => {
     if (listingType === "services") return { items: services, type: "service" as const };
@@ -328,14 +357,46 @@ export function UnifiedMarketplace() {
                 })}
               </div>
 
-              <button className="flex items-center gap-2 px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm hover:border-zinc-700 transition">
-                <SlidersHorizontal size={14}/> Filters
-              </button>
-
-              <button className="flex items-center gap-2 px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm hover:border-zinc-700 transition">
-                Sort: <span className="text-amber-400">Trending</span>
-                <ChevronDown size={14}/>
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="flex items-center gap-2 px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm hover:border-zinc-700 transition"
+                >
+                  Sort: <span className="text-amber-400">
+                    {sortBy === "trending" ? "Trending" : 
+                     sortBy === "newest" ? "Newest" : 
+                     sortBy === "price-low" ? "Price: Low to High" : 
+                     "Price: High to Low"}
+                  </span>
+                  <ChevronDown size={14} className={`transition-transform ${showSortDropdown ? 'rotate-180' : ''}`}/>
+                </button>
+                
+                {showSortDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg z-50 overflow-hidden">
+                    {[
+                      { id: "trending", label: "Trending" },
+                      { id: "newest", label: "Newest" },
+                      { id: "price-low", label: "Price: Low to High" },
+                      { id: "price-high", label: "Price: High to Low" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setSortBy(opt.id as SortOption);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition ${
+                          sortBy === opt.id 
+                            ? "bg-zinc-800 text-white" 
+                            : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Category pills with counts */}
