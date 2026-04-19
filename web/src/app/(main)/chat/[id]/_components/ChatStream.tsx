@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useCallback, useEffect, useMemo, useRef, type MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, type MutableRefObject, useState } from "react";
 import { ChatMessageEmbed } from "@/components/messages/ChatEmbeds";
+import { Sparkles, MessageSquare, FileText, Send, Zap, Lightbulb } from "lucide-react";
 
 export type StreamMessage = {
   id?: string;
@@ -20,15 +21,24 @@ export type StreamMessage = {
   senderName?: string | null;
   senderAvatarUrl?: string | null;
   roleBadge?: string | null;
+  isAI?: boolean;
 };
 
+const SUGGESTED_FOLLOWUPS = [
+  { icon: Sparkles, label: "Summarize this deal", color: "text-amber-400" },
+  { icon: FileText, label: "Draft a proposal", color: "text-sky-400" },
+  { icon: Zap, label: "Check for red flags", color: "text-rose-400" },
+  { icon: Lightbulb, label: "Suggest next steps", color: "text-emerald-400" },
+];
+
 const ROLE_BADGE_CLASS: Record<string, string> = {
-  Buyer: "border-[#00E5FF]/40 bg-[#00E5FF]/12 text-[#6ef3ff]",
-  Seller: "border-[#7C5CFC]/40 bg-[#7C5CFC]/15 text-[#c4b5fd]",
-  CLIENT: "border-[#00E5FF]/40 bg-[#00E5FF]/12 text-[#6ef3ff]",
-  SPECIALIST: "border-[#7C5CFC]/40 bg-[#7C5CFC]/15 text-[#c4b5fd]",
-  ARCHITECT: "border-[#F5A623]/45 bg-[#F5A623]/12 text-[#fcd34d]",
-  GLADIATOR: "border-[#00D084]/40 bg-[#00D084]/12 text-[#7dffaa]",
+  Buyer: "border-sky-500/40 bg-sky-500/15 text-sky-300",
+  Seller: "border-violet-500/40 bg-violet-500/15 text-violet-300",
+  CLIENT: "border-sky-500/40 bg-sky-500/15 text-sky-300",
+  SPECIALIST: "border-violet-500/40 bg-violet-500/15 text-violet-300",
+  ARCHITECT: "border-amber-500/40 bg-amber-500/15 text-amber-300",
+  GLADIATOR: "border-emerald-500/40 bg-emerald-500/15 text-emerald-300",
+  AI: "border-purple-500/40 bg-purple-500/15 text-purple-300",
 };
 
 function dayKey(iso?: string): string {
@@ -80,14 +90,14 @@ function attachmentCaptionPlain(m: StreamMessage): string {
   return raw || autoLabel;
 }
 
-function RolePill({ code }: { code: string | null | undefined }) {
-  if (!code) return null;
-  const cls = ROLE_BADGE_CLASS[code] || ROLE_BADGE_CLASS.GLADIATOR;
+function RolePill({ code, isAI }: { code: string | null | undefined; isAI?: boolean }) {
+  if (!code && !isAI) return null;
+  const cls = isAI ? ROLE_BADGE_CLASS.AI : (code ? ROLE_BADGE_CLASS[code] : ROLE_BADGE_CLASS.GLADIATOR);
   return (
     <span
-      className={`rounded px-1.5 py-0 text-[10px] font-semibold uppercase leading-snug tracking-wide ${cls} border`}
+      className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase leading-snug tracking-wide ${cls} border`}
     >
-      {code}
+      {isAI ? "AI" : code}
     </span>
   );
 }
@@ -159,6 +169,8 @@ export function ChatStream({
   onAdminDeleteMessage,
   jumpToMessageId,
   onJumpToMessageConsumed,
+  onSuggestedAction,
+  isAIChat = false,
 }: {
   messages: StreamMessage[];
   currentUserId: string | null | undefined;
@@ -181,11 +193,16 @@ export function ChatStream({
   /** When set, scrolls the virtualized list so this message id is centered (deal phase rail). */
   jumpToMessageId?: string | null;
   onJumpToMessageConsumed?: () => void;
+  /** Callback when a suggested follow-up is clicked */
+  onSuggestedAction?: (action: string) => void;
+  /** Whether this is an AI chat (affects styling) */
+  isAIChat?: boolean;
 }) {
   const internalRef = useRef<HTMLDivElement>(null);
   const parentRef = scrollContainerRef ?? internalRef;
   const loadOlderCooldown = useRef(0);
   const count = messages.length;
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   const rowVirtualizer = useVirtualizer({
     count,
@@ -225,10 +242,18 @@ export function ChatStream({
     return () => cancelAnimationFrame(id);
   }, [jumpToMessageId, messages, onJumpToMessageConsumed, rowVirtualizer]);
 
+  const handleSuggestionClick = (label: string) => {
+    setShowSuggestions(false);
+    onSuggestedAction?.(label);
+  };
+
+  // Show suggested follow-ups when no messages
+  const showEmptyState = messages.length === 0 && showSuggestions;
+
   return (
     <div
       ref={parentRef}
-      className="scrollbar-thin bg-background text-on-surface min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5"
+      className="scrollbar-thin bg-surface text-on-surface min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5"
     >
       {hasMoreOlder ? (
         <div className="mb-3 flex justify-center">
@@ -239,8 +264,37 @@ export function ChatStream({
           )}
         </div>
       ) : null}
+      
+      {/* Empty State with Suggested Follow-ups */}
+      {showEmptyState && (
+        <div className="flex flex-col items-center justify-center min-h-[300px] text-on-surface-variant">
+          <div className="w-16 h-16 rounded-2xl bg-surface-container border border-outline-variant flex items-center justify-center mb-4">
+            <MessageSquare size={28} className="text-on-surface-variant/60" />
+          </div>
+          <p className="text-lg font-medium text-on-surface mb-1">Start the conversation</p>
+          <p className="text-sm text-on-surface-variant mb-6">Send a message or try a suggested action</p>
+          
+          {/* Suggested Follow-ups */}
+          <div className="w-full max-w-[600px]">
+            <p className="text-[11px] uppercase tracking-wider text-on-surface-variant/60 mb-3 text-center">Suggested follow-ups</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {SUGGESTED_FOLLOWUPS.map((followup) => (
+                <button
+                  key={followup.label}
+                  onClick={() => handleSuggestionClick(followup.label)}
+                  className="flex items-center gap-3 p-3 bg-surface-container border border-outline-variant rounded-xl text-left hover:bg-surface-container-high hover:border-outline transition group"
+                >
+                  <followup.icon size={18} className={`${followup.color} shrink-0`} />
+                  <span className="text-sm text-on-surface-variant group-hover:text-on-surface">{followup.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div
-        className="mx-auto w-full max-w-[720px]"
+        className="mx-auto w-full max-w-[900px] px-2 sm:px-4"
         style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}
       >
         {rowVirtualizer.getVirtualItems().map((vi) => {
@@ -296,6 +350,7 @@ export function ChatStream({
             : mine
               ? viewerRoleBadge || m.roleBadge || "GLADIATOR"
               : m.roleBadge;
+          const isAIMessage = m.isAI || false;
           const initial = userHandle.replace(/^@/, "").slice(0, 1).toUpperCase() || "?";
 
           /** Embed rows: attribute the chat message to whoever sent it, not embed.proposer (deal party). */
@@ -309,11 +364,11 @@ export function ChatStream({
               ref={rowVirtualizer.measureElement}
               data-index={vi.index}
               data-chat-message-id={mid || undefined}
-              className="group/msg absolute left-0 top-0 w-full max-w-[720px] pr-1"
+              className="group/msg absolute left-0 top-0 w-full px-1"
               style={{ transform: `translateY(${vi.start}px)` }}
             >
               {showDaySep ? (
-                <div className="text-on-surface-variant flex justify-center py-4 text-center text-[11px] font-semibold uppercase tracking-wide">
+                <div className="text-on-surface-variant/70 flex justify-center py-4 text-center text-[11px] font-semibold uppercase tracking-wide">
                   {daySeparatorLabel(m.createdAt)}
                 </div>
               ) : null}
@@ -323,7 +378,7 @@ export function ChatStream({
                   {showAdminDel ? (
                     <button
                       type="button"
-                      className="text-error hover:bg-surface-container-high absolute right-0 top-0 z-10 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
+                      className="text-rose-500 hover:bg-surface-container-high absolute right-0 top-0 z-10 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
                       aria-label="Delete message (admin)"
                       onClick={() => onAdminDeleteMessage?.(mid)}
                     >
@@ -340,12 +395,16 @@ export function ChatStream({
                           alt=""
                           width={40}
                           height={40}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="h-10 w-10 rounded-full object-cover ring-2 ring-outline-variant"
                           unoptimized
                         />
                       ) : (
-                        <span className="bg-surface-container-high text-on-surface-variant flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-                          {displayHandle.replace(/^@/, "").slice(0, 1).toUpperCase() || "?"}
+                        <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
+                          isAIMessage 
+                            ? "bg-purple-500/20 text-purple-300 ring-2 ring-purple-500/30" 
+                            : "bg-surface-container-high text-on-surface-variant ring-2 ring-outline-variant"
+                        }`}>
+                          {isAIMessage ? "AI" : displayHandle.replace(/^@/, "").slice(0, 1).toUpperCase() || "?"}
                         </span>
                       )
                     ) : (
@@ -357,14 +416,18 @@ export function ChatStream({
                       {displayHref ? (
                         <Link
                           href={displayHref}
-                          className="text-secondary text-[16px] font-semibold hover:underline"
+                          className={`text-[16px] font-semibold hover:underline ${
+                          mine ? "text-amber-500" : "text-on-surface"
+                        }`}
                         >
                           {displayHandle}
                         </Link>
                       ) : (
-                        <span className="text-on-surface text-[16px] font-semibold">{displayHandle}</span>
+                        <span className={`text-[16px] font-semibold ${
+                          mine ? "text-amber-500" : isAIMessage ? "text-purple-500 dark:text-purple-300" : "text-on-surface"
+                        }`}>{displayHandle}</span>
                       )}
-                      <RolePill code={buyerSellerPill(m.senderId, dealKind, dealListingOwnerId)} />
+                      <RolePill code={buyerSellerPill(m.senderId, dealKind, dealListingOwnerId)} isAI={isAIMessage} />
                       {t ? (
                         <time
                           dateTime={m.createdAt}
@@ -374,7 +437,7 @@ export function ChatStream({
                         </time>
                       ) : null}
                     </div>
-                    <div className="text-on-surface text-[15px] leading-[1.45]">
+                    <div className="text-on-surface-variant text-[15px] leading-[1.45]">
                       <ChatMessageEmbed
                         embed={m.embed!}
                         currentUserId={currentUserId}
@@ -391,7 +454,7 @@ export function ChatStream({
                   {showAdminDel ? (
                     <button
                       type="button"
-                      className="text-error hover:bg-surface-container-high absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
+                      className="text-rose-500 hover:bg-surface-container-high absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
                       aria-label="Delete message (admin)"
                       onClick={() => onAdminDeleteMessage?.(mid)}
                     >
@@ -401,19 +464,19 @@ export function ChatStream({
                     </button>
                   ) : null}
                   <div className="flex items-center justify-center gap-3 px-2">
-                    <div className="border-outline-variant/40 h-px max-w-[72px] flex-1 border-t" aria-hidden />
+                    <div className="border-outline-variant h-px max-w-[72px] flex-1 border-t" aria-hidden />
                     <span className="text-on-surface-variant max-w-[min(100%,480px)] text-center text-[12px] font-medium italic leading-snug">
                       {attachmentCaptionPlain(m)}
                     </span>
-                    <div className="border-outline-variant/40 h-px max-w-[72px] flex-1 border-t" aria-hidden />
+                    <div className="border-outline-variant h-px max-w-[72px] flex-1 border-t" aria-hidden />
                   </div>
                 </div>
               ) : (
-                <div className="relative flex gap-4 pb-1 pt-0.5">
+                <div className={`relative flex gap-4 pb-2 pt-0.5 ${mine ? "flex-row-reverse" : ""}`}>
                   {showAdminDel ? (
                     <button
                       type="button"
-                      className="text-error hover:bg-surface-container-high absolute right-0 top-0 z-10 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
+                      className="text-rose-500 hover:bg-surface-container-high absolute right-0 top-0 z-10 rounded p-1 opacity-0 transition-opacity group-hover/msg:opacity-100"
                       aria-label="Delete message (admin)"
                       onClick={() => onAdminDeleteMessage?.(mid)}
                     >
@@ -430,32 +493,44 @@ export function ChatStream({
                           alt=""
                           width={40}
                           height={40}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className={`h-10 w-10 rounded-full object-cover ring-2 ${
+                            mine ? "ring-amber-500/30" : isAIMessage ? "ring-purple-500/30" : "ring-outline-variant"
+                          }`}
                           unoptimized
                         />
                       ) : (
-                        <span className="bg-surface-container-high text-on-surface-variant flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-                          {initial}
+                        <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
+                          mine 
+                            ? "bg-amber-500/20 text-amber-300 ring-2 ring-amber-500/30" 
+                            : isAIMessage
+                              ? "bg-purple-500/20 text-purple-300 ring-2 ring-purple-500/30"
+                              : "bg-surface-container-high text-on-surface-variant ring-2 ring-outline-variant"
+                        }`}>
+                          {isAIMessage ? "AI" : initial}
                         </span>
                       )
                     ) : (
                       <span className="block h-2 w-10 shrink-0" aria-hidden />
                     )}
                   </div>
-                  <div className="min-w-0 flex-1 pt-0.5">
+                  <div className={`min-w-0 flex-1 pt-0.5 ${mine ? "items-end flex flex-col" : ""}`}>
                     {showMetaRow ? (
-                      <div className="mb-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                      <div className={`mb-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0 ${mine ? "flex-row-reverse" : ""}`}>
                         {profileHref ? (
                           <Link
                             href={profileHref}
-                            className="text-secondary text-[16px] font-semibold hover:underline"
+                            className={`text-[16px] font-semibold hover:underline ${
+                              mine ? "text-amber-500" : isAIMessage ? "text-purple-500 dark:text-purple-300" : "text-on-surface"
+                            }`}
                           >
                             {userHandle}
                           </Link>
                         ) : (
-                          <span className="text-on-surface text-[16px] font-semibold">{userHandle}</span>
+                          <span className={`text-[16px] font-semibold ${
+                            mine ? "text-amber-500" : isAIMessage ? "text-purple-500 dark:text-purple-300" : "text-on-surface"
+                          }`}>{userHandle}</span>
                         )}
-                        <RolePill code={badgeCode} />
+                        <RolePill code={badgeCode} isAI={isAIMessage} />
                         {t ? (
                           <time
                             dateTime={m.createdAt}
@@ -466,7 +541,13 @@ export function ChatStream({
                         ) : null}
                       </div>
                     ) : null}
-                    <div className="text-on-surface text-[15px] leading-[1.45]">
+                    <div className={`text-[15px] leading-[1.45] max-w-[85%] rounded-2xl px-4 py-3 ${
+                      mine 
+                        ? "bg-amber-500 text-black rounded-br-md" 
+                        : isAIMessage
+                          ? "bg-purple-500/10 border border-purple-500/20 text-on-surface rounded-bl-md"
+                          : "bg-surface-container border border-outline-variant text-on-surface rounded-bl-md"
+                    }`}>
                       {m.fileUrl && m.contentType === "image" ? (
                         <Image
                           src={m.fileUrl}
@@ -482,7 +563,9 @@ export function ChatStream({
                           href={m.fileUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-secondary mb-1 inline-flex items-center gap-1 text-sm font-semibold underline-offset-2 hover:underline"
+                          className={`mb-1 inline-flex items-center gap-1 text-sm font-semibold underline-offset-2 hover:underline ${
+                            mine ? "text-black/80" : "text-sky-400"
+                          }`}
                         >
                           <span className="material-symbols-outlined text-[18px]" aria-hidden>
                             draft

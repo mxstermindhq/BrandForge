@@ -2,16 +2,36 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { apiFetch, apiGetJson, apiMutateJson } from "@/lib/api";
-import { CHAT_PAGE_SIZE, chatHistoryUrl, mergeMessageTail } from "@/lib/chat-thread";
+import { apiGetJson, apiMutateJson, apiFetch } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
-import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { ChatStream, type StreamMessage } from "./ChatStream";
-import { ChatComposer } from "./ChatComposer";
 import { ChatRail } from "./ChatRail";
 import { ChatPinnedBar, type ChatPin } from "./ChatPinnedBar";
+import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
+import {
+  Moon, Sun, Image, Mic, ChevronRight, ChevronDown
+} from "lucide-react";
+import { useTheme } from "@/providers/ThemeProvider";
+
+const CHAT_PAGE_SIZE = 50;
+
+function chatHistoryUrl(threadId: string, opts?: { before?: string | null; limit?: number }) {
+  const params = new URLSearchParams();
+  if (opts?.before) params.set("before", opts.before);
+  if (opts?.limit) params.set("limit", String(opts.limit));
+  const qs = params.toString();
+  return `/api/chat/${encodeURIComponent(threadId)}/messages${qs ? `?${qs}` : ""}`;
+}
+
+function mergeMessageTail(existing: StreamMessage[], incoming: StreamMessage[], max: number): StreamMessage[] {
+  const ids = new Set(existing.map((m) => String(m.id)));
+  const newOnes = incoming.filter((m) => !ids.has(String(m.id)));
+  const merged = [...existing, ...newOnes];
+  if (merged.length > max) return merged.slice(merged.length - max);
+  return merged;
+}
 
 type StickyProject = { id?: string; title?: string; status?: string };
 
@@ -111,8 +131,10 @@ export function ChatThreadClient({ id }: { id: string }) {
   const [sendErr, setSendErr] = useState<string | null>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [showChatHistory, setShowChatHistory] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
-  const [railCollapsed, setRailCollapsed] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(true);
+  const { theme, setTheme } = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const hasLoadedOlderRef = useRef(false);
@@ -581,11 +603,11 @@ export function ChatThreadClient({ id }: { id: string }) {
 
   if (!session) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+      <div className="bg-surface min-h-screen mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-on-surface-variant text-sm">Sign in to open this deal room.</p>
         <Link
           href={`/login?next=${encodeURIComponent(`/chat/${id}`)}`}
-          className="bg-primary text-on-primary font-headline mt-6 inline-flex min-h-[48px] items-center rounded-xl px-6 text-sm font-bold"
+          className="bg-amber-500 text-black font-semibold mt-6 inline-flex min-h-[48px] items-center rounded-xl px-6 text-sm font-bold hover:bg-amber-400 transition-colors"
         >
           Sign in
         </Link>
@@ -594,194 +616,170 @@ export function ChatThreadClient({ id }: { id: string }) {
   }
 
   if (loading) {
-    return <PageRouteLoading title="Loading deal room" subtitle="Fetching messages." />;
-  }
-
-  if (err || !chat) {
     return (
-      <div className="text-on-surface-variant mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-error text-sm" role="alert">
-          {err || "Deal room not found."}
-        </p>
-        <Link href="/chat" className="text-secondary mt-6 inline-block text-sm font-bold hover:underline">
-          ← Chat
-        </Link>
+      <div className="bg-surface min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-on-surface-variant text-sm font-medium">Loading deal room...</p>
+          <p className="text-on-surface-variant/60 text-xs mt-1">Fetching messages</p>
+        </div>
       </div>
     );
   }
 
+  if (err || !chat) {
+    return (
+      <div className="bg-surface min-h-screen text-on-surface-variant mx-auto max-w-lg px-4 py-16 text-center">
+        <p className="text-rose-400 text-sm" role="alert">
+          {err || "Deal room not found."}
+        </p>
+        <Link href="/chat" className="text-amber-500 mt-6 inline-block text-sm font-bold hover:underline">
+          ← Back to Chat
+        </Link>
+      </div>
+    );
+  }
+  
+  const handleSuggestedAction = (action: string) => {
+    setText(action);
+    composerRef.current?.focus();
+  };
+
   return (
-    <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col lg:flex-row">
-      <div className="bg-background flex min-h-0 min-w-0 flex-1 flex-col border-outline-variant/30 lg:border-r">
-        <header className="border-outline-variant/50 bg-surface-container-low sticky top-0 z-30 shrink-0 border-b px-3 py-2 shadow-sm md:px-4">
-          <div className="mx-auto flex w-full max-w-[720px] items-center gap-2 lg:max-w-none">
-            <Link
-              href="/chat"
-              className="text-on-surface-variant hover:text-on-surface inline-flex shrink-0 items-center gap-0.5 text-[12px] font-medium"
-            >
-              <span className="material-symbols-outlined text-[18px]" aria-hidden>
-                arrow_back
-              </span>
-              <span className="hidden sm:inline">Chat</span>
-            </Link>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-on-surface truncate text-sm font-bold leading-tight tracking-tight md:text-base">
-                {chat.title || "Deal room"}
-              </h1>
-              <div className="text-on-surface-variant mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px]">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-[#00D084]" aria-hidden />
-                  <span>Active</span>
-                </span>
-                {originalHref ? (
-                  <>
-                    <span className="text-outline-variant/80" aria-hidden>
-                      ·
-                    </span>
-                    <Link href={originalHref} className="text-secondary truncate font-medium hover:underline">
-                      {listingLinkLabel(chat.contextType)}
-                    </Link>
-                  </>
-                ) : null}
+    <div className="flex h-screen w-full overflow-hidden bg-surface">
+      {/* MAIN CONTENT AREA - No sidebar */}
+      <div className="flex-1 flex flex-col min-w-0 bg-surface">
+        {/* Top bar */}
+        <div className="relative flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface">
+          {/* Conversation Selector Dropdown */}
+          <button
+            onClick={() => setShowChatHistory(!showChatHistory)}
+            className="flex items-center gap-2 text-sm font-medium text-on-surface hover:text-on-surface-variant transition"
+          >
+            <span>{chat.title || "Conversation"}</span>
+            <ChevronDown size={16} className={`text-on-surface-variant transition-transform ${showChatHistory ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Share Button */}
+          <button
+            className="px-3 py-1.5 text-xs font-medium border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container transition"
+          >
+            Share
+          </button>
+
+          {/* Chat History Dropdown */}
+          {showChatHistory && (
+            <div className="absolute top-full left-0 right-0 mt-1 mx-4 bg-surface border border-outline-variant rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+              <div className="p-2">
+                <div className="text-xs text-on-surface-variant uppercase tracking-wider px-3 py-2 border-b border-outline-variant">
+                  Chat History
+                </div>
+                {msgs.length === 0 ? (
+                  <div className="px-3 py-4 text-sm text-on-surface-variant text-center">
+                    No messages yet
+                  </div>
+                ) : (
+                  <div className="space-y-1 py-1">
+                    {msgs.slice(-20).reverse().map((msg, idx) => (
+                      <button
+                        key={msg.id || idx}
+                        onClick={() => {
+                          scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+                          setShowChatHistory(false);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-high transition"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs ${msg.senderId === userId ? 'text-amber-500' : 'text-on-surface-variant'}`}>
+                            {msg.senderId === userId ? 'You' : '@' + (msg.senderUsername || 'them')}
+                          </span>
+                          <span className="text-[10px] text-on-surface-variant">
+                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <p className="text-xs text-on-surface-variant truncate mt-0.5">
+                          {msg.text?.slice(0, 50)}{(msg.text?.length || 0) > 50 ? '...' : ''}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                className="text-on-surface-variant hover:text-on-surface rounded-lg p-2"
-                aria-expanded={headerMenuOpen}
-                aria-haspopup="true"
-                aria-label="Room actions"
-                onClick={() => setHeaderMenuOpen((o) => !o)}
-              >
-                <span className="material-symbols-outlined text-[22px]" aria-hidden>
-                  more_vert
-                </span>
-              </button>
-              {headerMenuOpen ? (
-                <div
-                  className="border-outline-variant/40 bg-surface-container-highest absolute right-0 z-40 mt-1 w-52 rounded-xl border py-1 shadow-lg"
-                  role="menu"
-                >
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="hover:bg-surface-container-low block w-full px-4 py-2.5 text-left text-sm"
-                    onClick={() => {
-                      setHeaderMenuOpen(false);
-                      const u = typeof window !== "undefined" ? window.prompt("Username or email to invite") : "";
-                      if (!u?.trim() || !accessToken) return;
-                      void (async () => {
-                        try {
-                          await apiMutateJson(`/api/chat/${encodeURIComponent(id)}/invite`, "POST", { username: u.trim() }, accessToken);
-                          setSendErr(null);
-                          await load();
-                        } catch (e) {
-                          setSendErr(e instanceof Error ? e.message : "Invite failed");
-                        }
-                      })();
-                    }}
-                  >
-                    Invite someone
+          )}
+        </div>
+
+        {/* Chat Content */}
+        <div className="flex-1 overflow-hidden flex flex-col relative">
+          {/* Messages - scrollable area */}
+          <div className="flex-1 overflow-y-auto pb-32">
+            <ChatStream
+              messages={msgs}
+              currentUserId={userId}
+              accessToken={accessToken}
+              threadId={id}
+              transport={chat.transport}
+              onRefresh={() => void refreshThread()}
+              scrollContainerRef={scrollRef}
+              hasMoreOlder={hasMoreOlder}
+              loadingOlder={loadingOlder}
+              onLoadOlder={() => void loadOlder()}
+              viewerRoleBadge={viewerRoleBadge}
+              viewerAvatarUrl={viewerAvatarUrl}
+              viewerUsername={viewerUsername}
+              dealKind={chat.dealKind ?? null}
+              dealListingOwnerId={chat.dealListingOwnerId ?? null}
+              canAdminDelete={isPlatformAdmin}
+              onAdminDeleteMessage={handleAdminDeleteMessage}
+              jumpToMessageId={jumpToMessageId}
+              onJumpToMessageConsumed={() => setJumpToMessageId(null)}
+              onSuggestedAction={handleSuggestedAction}
+            />
+          </div>
+
+          {/* Sticky Composer at Bottom */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] to-transparent pb-2 pt-8 px-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-end gap-2 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+                <textarea
+                  ref={composerRef}
+                  value={text}
+                  onChange={(e) => {
+                    setSendErr(null);
+                    setText(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (text.trim() && !sending) onSend(e as any);
+                    }
+                  }}
+                  placeholder="Type a message..."
+                  rows={1}
+                  className="flex-1 bg-transparent resize-none outline-none text-sm py-1 max-h-32 placeholder:text-zinc-400"
+                />
+                <div className="flex items-center gap-1">
+                  <button className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+                    <Image size={18} />
+                  </button>
+                  <button className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition" title="Voice input">
+                    <Mic size={18} />
                   </button>
                   <button
-                    type="button"
-                    role="menuitem"
-                    className="hover:bg-surface-container-low block w-full px-4 py-2.5 text-left text-sm"
-                    onClick={() => {
-                      setHeaderMenuOpen(false);
-                      if (!accessToken) return;
-                      if (!window.confirm("Leave this deal room? You can be re-invited later.")) return;
-                      void (async () => {
-                        try {
-                          await apiMutateJson(`/api/chat/${encodeURIComponent(id)}/leave`, "POST", {}, accessToken);
-                          window.location.href = "/chat";
-                        } catch (e) {
-                          setSendErr(e instanceof Error ? e.message : "Could not leave");
-                        }
-                      })();
-                    }}
+                    onClick={onSend}
+                    disabled={!text.trim() || sending}
+                    className="p-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
                   >
-                    Archive (leave)
-                  </button>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="hover:bg-surface-container-low text-error block w-full px-4 py-2.5 text-left text-sm"
-                    onClick={() => {
-                      setHeaderMenuOpen(false);
-                      window.alert(
-                        "For disputes, keep evidence in this thread and contact support with the deal room link. Admin escalation tools are being expanded.",
-                      );
-                    }}
-                  >
-                    Dispute help
+                    <ChevronRight size={18} />
                   </button>
                 </div>
-              ) : null}
+              </div>
             </div>
           </div>
-        </header>
-
-        {chat.membership?.historyVisibleFrom ? (
-          <div
-            className="border-outline-variant/40 bg-secondary/8 shrink-0 border-b px-4 py-2 md:px-5"
-            role="status"
-          >
-            <p className="text-on-surface-variant mx-auto max-w-[680px] text-center text-[11px] font-medium leading-snug lg:max-w-none">
-              Scoped history: you only see messages from{" "}
-              <time dateTime={chat.membership.historyVisibleFrom}>
-                {new Date(chat.membership.historyVisibleFrom).toLocaleString(undefined, {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </time>
-              . Older messages are hidden for your membership.
-            </p>
-          </div>
-        ) : null}
-
-        <ChatPinnedBar pins={chat.pins || []} onJump={jumpToPinnedMessage} />
-
-        <ChatStream
-          messages={msgs}
-          currentUserId={userId}
-          accessToken={accessToken}
-          threadId={id}
-          transport={chat.transport}
-          onRefresh={() => void refreshThread()}
-          scrollContainerRef={scrollRef}
-          hasMoreOlder={hasMoreOlder}
-          loadingOlder={loadingOlder}
-          onLoadOlder={() => void loadOlder()}
-          viewerRoleBadge={viewerRoleBadge}
-          viewerAvatarUrl={viewerAvatarUrl}
-          viewerUsername={viewerUsername}
-          dealKind={chat.dealKind ?? null}
-          dealListingOwnerId={chat.dealListingOwnerId ?? null}
-          canAdminDelete={isPlatformAdmin}
-          onAdminDeleteMessage={handleAdminDeleteMessage}
-          jumpToMessageId={jumpToMessageId}
-          onJumpToMessageConsumed={() => setJumpToMessageId(null)}
-        />
-
-        <ChatComposer
-          ref={composerRef}
-          text={text}
-          onChange={(v) => {
-            setSendErr(null);
-            setText(v);
-          }}
-          onSubmit={onSend}
-          sending={sending}
-          placeholder="Message, counter-offer, or attach a file…"
-          sendError={sendErr}
-          onComposerFocus={scrollStreamToBottom}
-          uploadBusy={uploadBusy}
-          onPickFiles={(files) => void onPickFiles(files)}
-        />
+        </div>
       </div>
 
+      {/* RIGHT SIDEBAR - Deal Context */}
       <ChatRail
         chatTitle={chat.title || undefined}
         stickyProjectTitle={sticky?.title}

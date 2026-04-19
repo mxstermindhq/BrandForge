@@ -9,6 +9,7 @@ import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { PostedAgo } from "@/components/ui/PostedAgo";
 import { budgetInputFromRequest, formatRequestBudget } from "@/lib/request-display";
 import { formatDealRecordShort } from "@/lib/deal-record";
+import { ArrowLeft, Edit, X, Save, Trash2, Clock, DollarSign, User, CheckCircle, FileText, Tag, Gavel, AlertCircle } from "lucide-react";
 
 type RequestRow = {
   id?: string;
@@ -288,16 +289,11 @@ export function RequestDetailClient({ id }: { id: string }) {
 
   if (err || !request) {
     return (
-      <div className="page-content page-content-sm">
-        <div className="empty-state py-16">
-          <p className="text-critical text-[13px] font-body" role="alert">
-            {err || "Request not found."}
-          </p>
-          <Link
-            href="/requests"
-            className="text-[12px] font-body text-on-surface-variant hover:text-on-surface transition-colors mt-2 inline-flex items-center gap-1"
-          >
-            ← Requests
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-rose-400 text-sm mb-4" role="alert">{err || "Request not found."}</p>
+          <Link href="/marketplace" className="text-zinc-400 hover:text-white text-sm flex items-center gap-2 justify-center">
+            <ArrowLeft size={14}/> Back to marketplace
           </Link>
         </div>
       </div>
@@ -310,361 +306,222 @@ export function RequestDetailClient({ id }: { id: string }) {
   const dealLbl = formatDealRecordShort(request.ownerDealWins, request.ownerDealLosses);
   const repShow = request.ownerReputation != null && request.ownerReputation > 0;
 
-  const statusPillClass =
-    open ? "pill-success" : request.status === "awarded" ? "pill-primary" : "pill-default";
+  const statusColor = open ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" : 
+    request.status === "awarded" ? "text-amber-400 bg-amber-500/10 border-amber-500/30" : "text-zinc-400 bg-zinc-800 border-zinc-700";
 
   return (
-    <article className="page-content page-content-sm pb-24">
-      <div className="flex items-center gap-1.5 mb-8">
-        <Link
-          href="/requests"
-          className="text-[12px] font-body text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1"
-        >
-          ← Requests
-        </Link>
-      </div>
-
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div className="min-w-0">
-          <h1 className="page-title max-w-[520px]">{request.title}</h1>
-          {isOwner ? (
-            <p className="text-[11px] font-headline font-500 text-primary/80 tracking-[0.04em] uppercase mt-2">Your brief</p>
-          ) : null}
-          {repShow || dealLbl ? (
-            <p className="text-[12px] font-body text-on-surface-variant leading-[1.5] mt-2">
-              {repShow ? (
-                <>
-                  Poster reputation{" "}
-                  <span className="text-primary font-headline font-600 tabular-nums">
-                    {Math.round(Number(request.ownerReputation)).toLocaleString()}
-                  </span>
-                </>
-              ) : null}
-              {repShow && dealLbl ? <> · {dealLbl}</> : null}
-              {!repShow && dealLbl ? <>Deal record · {dealLbl}</> : null}
-            </p>
-          ) : null}
-        </div>
-        <span className={`${statusPillClass} mt-1.5 shrink-0 uppercase`}>{request.status || "open"}</span>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 mb-8 text-[13px] font-body text-on-surface-variant">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[14px]">payments</span>
-          <span className="text-primary font-600">{formatRequestBudget(request)}</span>
-        </div>
-        {request.bids != null ? (
-          <>
-            <span className="text-outline-variant">·</span>
-            <span>
-              {request.bids} proposal{request.bids === 1 ? "" : "s"}
-            </span>
-          </>
-        ) : null}
-        {request.days != null && request.days >= 0 ? (
-          <>
-            <span className="text-outline-variant">·</span>
-            <span>due in {request.days}d</span>
-          </>
-        ) : null}
-        {request.dueDate ? (
-          <>
-            <span className="text-outline-variant">·</span>
-            <span>{request.dueDate}</span>
-          </>
-        ) : null}
-        {request.createdAt ? (
-          <>
-            <span className="text-outline-variant">·</span>
-            <PostedAgo iso={request.createdAt} className="inline" />
-          </>
-        ) : null}
-      </div>
-
-      {request.tags && request.tags.length > 0 ? (
-        <ul className="flex flex-wrap gap-2 mb-8">
-          {request.tags.map((tag) => (
-            <li key={tag} className="pill-default">
-              {tag}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 mb-4">
-        <p className="section-label">Brief</p>
-        <p className="text-[14px] font-body text-on-surface leading-[1.6] whitespace-pre-wrap">{request.desc || "No description."}</p>
-        {request.successCriteria ? (
-          <div className="border-t border-outline-variant/40 pt-4 mt-4">
-            <p className="section-label">Success criteria</p>
-            <p className="text-[14px] font-body text-on-surface leading-[1.6] whitespace-pre-wrap">{request.successCriteria}</p>
-          </div>
-        ) : null}
-      </div>
-
-      {showBidCta ? (
-        <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 mb-4">
-          <p className="section-label">Bid</p>
-          <p className="text-[13px] font-body text-on-surface-variant leading-[1.6] mb-4">
-            Enter your price, delivery, and proposal on the next screen. Submitting opens Messages and posts your bid as
-            an embed for the brief owner.
-          </p>
-          <Link href={`/bid/request?id=${encodeURIComponent(id)}`} className="btn-primary inline-flex">
-            Bid
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Header */}
+      <div className="border-b border-zinc-800">
+        <div className="max-w-5xl mx-auto px-6 md:px-10 py-6">
+          <Link href="/marketplace" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm mb-4 transition">
+            <ArrowLeft size={14}/> Back to marketplace
           </Link>
-        </div>
-      ) : null}
-
-      {isOwner && open ? (
-        <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 mb-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="section-label">Manage brief</p>
-              <p className="text-[13px] font-body text-on-surface-variant leading-[1.6]">
-                Edit fields or close the request to stop new bids.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <button
-                type="button"
-                disabled={closeBusy}
-                onClick={() => void onCloseRequest()}
-                className="btn-danger text-[12px] px-3 py-2"
-              >
-                {closeBusy ? "Closing…" : "Close Request"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setManageOpen((o) => !o)}
-                className="btn-primary text-[12px] px-3 py-2"
-              >
-                {manageOpen ? "Cancel editing" : "Edit Request"}
-              </button>
-            </div>
-          </div>
-          {manageOpen ? (
-            <form onSubmit={(ev) => void onSaveRequest(ev)} className="border-t border-outline-variant/40 pt-4 mt-4 space-y-4">
-              {saveErr ? (
-                <p className="text-critical text-[13px] font-body" role="alert">
-                  {saveErr}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <span className={`text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-semibold ${statusColor}`}>
+                  {request.status || "open"}
+                </span>
+                {isOwner && <span className="text-[10px] px-2 py-1 bg-amber-500 text-black rounded-full font-bold">YOUR BRIEF</span>}
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold">{request.title}</h1>
+              {repShow || dealLbl ? (
+                <p className="text-sm text-zinc-500 mt-2">
+                  {repShow && <>Poster reputation <span className="text-amber-400">{Math.round(Number(request.ownerReputation)).toLocaleString()}</span></>}
+                  {repShow && dealLbl && <> · {dealLbl}</>}
+                  {!repShow && dealLbl && <>Deal record · {dealLbl}</>}
                 </p>
               ) : null}
-              <div>
-                <label htmlFor="edit-req-title" className="input-label">
-                  Title
-                </label>
-                <input
-                  id="edit-req-title"
-                  required
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="input"
-                />
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-amber-400">{formatRequestBudget(request)}</div>
+              <div className="flex items-center gap-3 text-sm text-zinc-500 mt-1">
+                {request.bids != null && <span>{request.bids} proposal{request.bids === 1 ? "" : "s"}</span>}
+                {request.days != null && request.days >= 0 && <><Clock size={12}/> {request.days}d</>}
+                {request.createdAt && <PostedAgo iso={request.createdAt} />}
               </div>
-              <div>
-                <label htmlFor="edit-req-desc" className="input-label">
-                  Description
-                </label>
-                <textarea
-                  id="edit-req-desc"
-                  required
-                  rows={5}
-                  value={editDesc}
-                  onChange={(e) => setEditDesc(e.target.value)}
-                  className="input min-h-[120px] resize-y"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-req-budget" className="input-label">
-                  Budget (e.g. 500–1500 or 2000)
-                </label>
-                <input
-                  id="edit-req-budget"
-                  required
-                  value={editBudget}
-                  onChange={(e) => setEditBudget(e.target.value)}
-                  className="input"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-req-due" className="input-label">
-                  Due date (optional)
-                </label>
-                <input id="edit-req-due" type="date" value={editDue} onChange={(e) => setEditDue(e.target.value)} className="input" />
-              </div>
-              <div>
-                <label htmlFor="edit-req-tags" className="input-label">
-                  Tags (comma-separated, max 5)
-                </label>
-                <input
-                  id="edit-req-tags"
-                  value={editTags}
-                  onChange={(e) => setEditTags(e.target.value)}
-                  placeholder="design, motion, web"
-                  className="input"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-req-sc" className="input-label">
-                  Success criteria
-                </label>
-                <textarea
-                  id="edit-req-sc"
-                  rows={3}
-                  value={editSuccess}
-                  onChange={(e) => setEditSuccess(e.target.value)}
-                  className="input min-h-[72px] resize-y"
-                />
-              </div>
-              <button type="submit" disabled={saveBusy} className="btn-primary disabled:opacity-50">
-                {saveBusy ? "Saving…" : "Save changes"}
-              </button>
-            </form>
-          ) : null}
+            </div>
+          </div>
         </div>
-      ) : null}
+      </div>
 
-      {isOwner && open ? (
-        <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 mb-6">
-          <p className="section-label">Proposals</p>
-          <p className="text-[13px] font-body text-on-surface-variant leading-[1.6] mb-4">
-            Accepting a proposal starts payment per your server configuration. Reject to clear it from your shortlist.
-          </p>
-          {bidActionErr ? (
-            <p className="text-critical mb-4 text-[13px] font-body" role="alert">
-              {bidActionErr}
-            </p>
-          ) : null}
-          {cryptoPanel ? (
-            <div className="border border-primary/20 bg-primary/5 mb-6 rounded-xl p-4">
-              <p className="section-label mb-1">Payment</p>
-              <p className="text-[13px] font-body text-on-surface-variant leading-[1.6]">
-                Reference{" "}
-                <span className="text-on-surface font-mono text-[12px]">{cryptoPanel.reference}</span>
-                {" · "}
-                {cryptoPanel.amountUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })}
-              </p>
-              {cryptoPanel.checkoutLink ? (
-                <div className="mt-4 space-y-3">
-                  <a
-                    href={cryptoPanel.checkoutLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary inline-flex min-h-[44px]"
-                  >
-                    Open crypto checkout
-                  </a>
-                  <p className="text-[12px] font-body text-on-surface-variant leading-[1.6]">
-                    When the provider confirms payment, this brief is awarded automatically. Use refresh if the status
-                    does not update.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void loadOwnerBids();
-                      void loadRequest();
-                    }}
-                    className="btn-ghost text-[12px] px-0"
-                  >
-                    Refresh status
+      <div className="max-w-5xl mx-auto px-6 md:px-10 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+          {/* Main content */}
+          <div className="space-y-6">
+            {/* Tags */}
+            {request.tags && request.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {request.tags.map((tag) => (
+                  <span key={tag} className="text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400">
+                    <Tag size={10} className="inline mr-1"/>{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="p-6 rounded-xl bg-zinc-900/30 border border-zinc-800">
+              <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <FileText size={14}/> Brief
+              </h2>
+              <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{request.desc || "No description provided."}</p>
+              {request.successCriteria && (
+                <div className="border-t border-zinc-800 pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-zinc-400 mb-2">Success criteria</h3>
+                  <p className="text-zinc-300">{request.successCriteria}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Bid CTA for non-owners */}
+            {showBidCta && (
+              <div className="p-6 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                <h3 className="font-semibold text-emerald-400 mb-2 flex items-center gap-2"><Gavel size={14}/> Submit a proposal</h3>
+                <p className="text-sm text-zinc-400 mb-4">Enter your price, delivery timeline, and proposal. This will open a message thread with the requester.</p>
+                <Link href={`/bid/request?id=${encodeURIComponent(id)}`} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black rounded-lg font-semibold hover:bg-emerald-400 transition">
+                  Place Bid
+                </Link>
+              </div>
+            )}
+
+            {/* Owner management */}
+            {isOwner && open && (
+              <div className="p-6 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold flex items-center gap-2"><Edit size={14}/> Manage brief</h3>
+                    <p className="text-sm text-zinc-500">Edit or close this request</p>
+                  </div>
+                  <button onClick={() => setManageOpen(!manageOpen)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition">
+                    {manageOpen ? <X size={14}/> : <Edit size={14}/>}
                   </button>
                 </div>
-              ) : null}
-              {cryptoPanel.treasuryAddress ? (
-                <div className="mt-4 text-[13px] font-body">
-                  <p className="text-on-surface-variant leading-[1.6]">
-                    Send <span className="text-on-surface font-600">{cryptoPanel.asset}</span>
-                    {cryptoPanel.network ? ` (${cryptoPanel.network})` : ""} to:
-                  </p>
-                  <p className="text-on-surface mt-1 break-all font-mono text-[12px]">{cryptoPanel.treasuryAddress}</p>
-                  {cryptoPanel.confirmMode === "trust" ? (
-                    <button
-                      type="button"
-                      disabled={busyBidId === cryptoPanel.bidId}
-                      onClick={() => void onConfirmCryptoTrust()}
-                      className="btn-primary mt-4 min-h-[44px] disabled:opacity-50"
-                    >
-                      {busyBidId === cryptoPanel.bidId ? "Confirming…" : "I sent the payment — continue"}
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
-              <button type="button" onClick={() => setCryptoPanel(null)} className="btn-ghost text-[12px] mt-4 px-0">
-                Close
-              </button>
-            </div>
-          ) : null}
-          {ownerBidsLoading ? (
-            <p className="text-[13px] font-body text-on-surface-variant">Loading proposals…</p>
-          ) : ownerBidsErr ? (
-            <p className="text-critical text-[13px] font-body" role="alert">
-              {ownerBidsErr}
-            </p>
-          ) : ownerBids.length === 0 ? (
-            <div className="empty-state py-12">
-              <span className="empty-state-icon material-symbols-outlined" aria-hidden>
-                assignment
-              </span>
-              <p className="empty-state-title">No proposals yet</p>
-              <p className="empty-state-body">Specialists can bid on your brief once it goes live.</p>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {ownerBids.map((b) => {
-                const canAct = b.status === "submitted" || b.status === "shortlisted";
-                return (
-                  <li key={b.id} className="bg-surface-container-high/30 border border-outline-variant/40 rounded-xl p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[15px] font-headline font-600 tracking-[-0.01em] text-on-surface">{b.bidderName || "Member"}</p>
-                        <p className="text-[13px] font-body text-on-surface-variant leading-[1.5]">
-                          {b.price || "—"}
-                          {b.deliveryDays != null && b.deliveryDays > 0 ? ` · ${b.deliveryDays}d delivery` : ""}
-                          {b.status ? (
-                            <span className="text-on-surface-variant">
-                              {" "}
-                              · <span className="font-headline text-[11px] uppercase tracking-[0.06em]">{b.status}</span>
-                            </span>
-                          ) : null}
-                        </p>
-                      </div>
-                      {canAct ? (
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            disabled={busyBidId === b.id}
-                            onClick={() => void onAcceptBid(b.id)}
-                            className="btn-primary text-[12px] px-3 py-2 disabled:opacity-50"
-                          >
-                            {busyBidId === b.id ? "…" : "Accept"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={busyBidId === b.id}
-                            onClick={() => void onRejectBid(b.id)}
-                            className="btn-danger text-[12px] px-3 py-2 disabled:opacity-50"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : null}
+                {manageOpen && (
+                  <form onSubmit={onSaveRequest} className="space-y-4 border-t border-zinc-800 pt-4">
+                    {saveErr && <p className="text-rose-400 text-sm">{saveErr}</p>}
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">Title</label>
+                      <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm" required/>
                     </div>
-                    {b.proposal ? (
-                      <p className="text-[13px] font-body text-on-surface-variant mt-3 whitespace-pre-wrap leading-[1.6]">{b.proposal}</p>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-      ) : null}
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">Description</label>
+                      <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={4} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm resize-y" required/>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-zinc-500 mb-1">Budget</label>
+                        <input value={editBudget} onChange={e => setEditBudget(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm" required/>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-zinc-500 mb-1">Due date</label>
+                        <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"/>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">Tags (comma-separated)</label>
+                      <input value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="design, motion, web" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"/>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">Success criteria</label>
+                      <textarea value={editSuccess} onChange={e => setEditSuccess(e.target.value)} rows={3} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm resize-y"/>
+                    </div>
+                    <div className="flex gap-3">
+                      <button type="submit" disabled={saveBusy} className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold disabled:opacity-50">
+                        <Save size={14}/> {saveBusy ? "Saving…" : "Save"}
+                      </button>
+                      <button type="button" disabled={closeBusy} onClick={onCloseRequest} className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-lg disabled:opacity-50">
+                        <Trash2 size={14}/> {closeBusy ? "Closing…" : "Close"}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
 
-      {isOwner ? (
-        <Link href="/requests/new" className="btn-secondary w-full justify-center min-h-[48px]">
-          Post another request
-        </Link>
-      ) : null}
-    </article>
+            {/* Proposals section for owner */}
+            {isOwner && open && (
+              <div className="p-6 rounded-xl bg-zinc-900/30 border border-zinc-800">
+                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Proposals ({ownerBids.length})</h3>
+                {bidActionErr && <p className="text-rose-400 text-sm mb-4">{bidActionErr}</p>}
+                {cryptoPanel && (
+                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-4">
+                    <p className="text-sm text-amber-400 mb-2 flex items-center gap-2"><AlertCircle size={14}/> Payment Required</p>
+                    <p className="text-sm text-zinc-400">Reference: <span className="font-mono text-white">{cryptoPanel.reference}</span> · {cryptoPanel.amountUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
+                    {cryptoPanel.checkoutLink && (
+                      <a href={cryptoPanel.checkoutLink} target="_blank" rel="noopener noreferrer" className="inline-flex mt-3 px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold">
+                        Open checkout
+                      </a>
+                    )}
+                    <button onClick={() => setCryptoPanel(null)} className="block mt-2 text-zinc-500 text-sm hover:text-white">Close</button>
+                  </div>
+                )}
+                {ownerBidsLoading ? <p className="text-zinc-500">Loading…</p> :
+                  ownerBidsErr ? <p className="text-rose-400">{ownerBidsErr}</p> :
+                  ownerBids.length === 0 ? (
+                    <div className="text-center py-8 text-zinc-500">
+                      <FileText size={32} className="mx-auto mb-2 opacity-30"/>
+                      <p>No proposals yet</p>
+                    </div>
+                  ) : (
+                    <ul className="space-y-3">
+                      {ownerBids.map((b) => {
+                        const canAct = b.status === "submitted" || b.status === "shortlisted";
+                        return (
+                          <li key={b.id} className="p-4 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="font-semibold">{b.bidderName || "Member"}</p>
+                                <p className="text-sm text-zinc-500">{b.price}{b.deliveryDays ? ` · ${b.deliveryDays}d delivery` : ""} · <span className="text-zinc-400 uppercase text-xs">{b.status}</span></p>
+                              </div>
+                              {canAct && (
+                                <div className="flex gap-2">
+                                  <button disabled={busyBidId === b.id} onClick={() => onAcceptBid(b.id)} className="px-3 py-1.5 bg-emerald-500 text-black rounded text-sm font-semibold disabled:opacity-50">Accept</button>
+                                  <button disabled={busyBidId === b.id} onClick={() => onRejectBid(b.id)} className="px-3 py-1.5 bg-zinc-800 text-zinc-400 rounded text-sm disabled:opacity-50">Reject</button>
+                                </div>
+                              )}
+                            </div>
+                            {b.proposal && <p className="text-sm text-zinc-400 mt-3 border-t border-zinc-800 pt-3">{b.proposal}</p>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )
+                }
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {showBidCta ? (
+              <Link href={`/bid/request?id=${encodeURIComponent(id)}`} className="block w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black text-center font-semibold rounded-xl transition">
+                Place Bid
+              </Link>
+            ) : isOwner ? (
+              <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-center">
+                <CheckCircle size={20} className="text-amber-400 mx-auto mb-2"/>
+                <p className="text-sm text-zinc-400">This is your request</p>
+              </div>
+            ) : null}
+            <div className="p-4 rounded-xl bg-zinc-900/30 border border-zinc-800">
+              <h3 className="text-sm font-semibold text-zinc-400 mb-3">Details</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-zinc-500">Budget</span><span className="text-amber-400">{formatRequestBudget(request)}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Timeline</span><span>{request.days ? `${request.days} days` : "—"}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Proposals</span><span>{request.bids || 0}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Status</span><span className="capitalize">{request.status}</span></div>
+              </div>
+            </div>
+            {isOwner && (
+              <Link href="/requests/new" className="block w-full py-3 bg-zinc-900 border border-zinc-800 text-center text-sm rounded-xl hover:border-zinc-700 transition">
+                Post another request
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

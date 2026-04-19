@@ -7,5 +7,9 @@ export const metadata: Metadata = {
 };
 
 export default function StorePage() {
-  return <StoreClient />;
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <StoreClient />
+    </div>
+  );
 }

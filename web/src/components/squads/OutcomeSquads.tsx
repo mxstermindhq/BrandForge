@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { apiMutateJson, apiGetJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import { Users, Search, Plus, FolderOpen, CheckCircle, Percent, Bot, User, LogOut, MessageSquare, Sparkles, Ban, ArrowRight } from "lucide-react";
 
 interface SquadMember {
   id: string;
@@ -149,322 +150,225 @@ export function OutcomeSquads() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-headline font-bold text-on-surface">Outcome Squads</h1>
-          <p className="text-sm text-on-surface-variant mt-1">
-            Assemble human and AI agents into powerful teams
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-xs text-on-surface-variant">My Squads</p>
-            <p className="font-bold text-on-surface">{mySquads.length}</p>
-          </div>
-          <div className="flex gap-2">
-            {[
-              { id: "my-squads", label: "My Squads", icon: "groups" },
-              { id: "find", label: "Find", icon: "search" },
-              { id: "create", label: "Create", icon: "add" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                  activeTab === tab.id
-                    ? "bg-primary text-on-primary border-primary"
-                    : "bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-outline"
-                }`}
-              >
-                <span className="material-symbols-outlined text-sm">{tab.icon}</span>
-                <span className="font-medium hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
+      <div className="border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
+                <Users size={12}/> Squads
+              </div>
+              <h1 className="text-3xl font-bold">Outcome Squads</h1>
+              <p className="text-zinc-400 mt-1">Assemble human and AI agents into powerful teams</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
+                <p className="text-xs text-zinc-500">My Squads</p>
+                <p className="text-xl font-bold">{mySquads.length}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* My Squads Tab */}
-      {activeTab === "my-squads" && (
-        <div className="space-y-4">
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-on-surface-variant">Loading squads...</p>
-            </div>
-          ) : mySquads.map((squad) => (
-            <div key={squad.id} className="surface-card p-5">
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-2xl text-primary">{squad.icon}</span>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-headline font-semibold text-on-surface text-lg">{squad.name}</h3>
-                      {squad.status === 'active' && (
-                        <span className="px-2 py-0.5 rounded-full bg-success/10 border border-success/30 text-success text-[10px] font-medium">
-                          Active
-                        </span>
-                      )}
-                      {squad.isOwner && (
-                        <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] font-medium">
-                          Owner
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-on-surface-variant mt-1">{squad.description}</p>
-                    
-                    {/* Members */}
-                    <div className="flex flex-wrap items-center gap-2 mt-3">
-                      {squad.squad_members?.slice(0, 5).map((member: SquadMember) => (
-                        <div
-                          key={member.id}
-                          className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs ${
-                            member.member_type === "agent"
-                              ? "bg-primary/5 border-primary/20"
-                              : "bg-surface-container-low border-outline-variant"
-                          }`}
-                        >
-                          {member.member_type === "agent" ? (
-                            <span className="material-symbols-outlined text-primary text-sm">smart_toy</span>
-                          ) : (
-                            <div className="w-4 h-4 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
-                              {member.member?.avatar_url ? (
-                                <img src={member.member.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                              ) : (
-                                <span className="material-symbols-outlined text-[10px]">person</span>
-                              )}
-                            </div>
-                          )}
-                          <span className="text-on-surface font-medium">{member.member?.username || 'Member'}</span>
-                          <span className="text-on-surface-variant">· {member.role}</span>
-                        </div>
-                      ))}
-                      {(squad.squad_members?.length || 0) > 5 && (
-                        <span className="text-xs text-on-surface-variant">+{(squad.squad_members?.length || 0) - 5} more</span>
-                      )}
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 mt-3 text-sm text-on-surface-variant">
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-primary">folder_open</span>
-                        {squad.projects_active || 0} active
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-success">task_alt</span>
-                        {squad.projects_completed || 0} completed
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-amber-400">percent</span>
-                        {squad.win_rate || 0}% win rate
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-on-surface-variant">people</span>
-                        {squad.squad_members?.length || 0} / {squad.max_members} members
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 lg:flex-col">
-                  {squad.isOwner ? (
-                    <button
-                      onClick={() => leaveSquad(squad.id)}
-                      className="btn-secondary px-4 py-2 text-sm"
-                    >
-                      Disband
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => leaveSquad(squad.id)}
-                      className="btn-secondary px-4 py-2 text-sm"
-                    >
-                      Leave
-                    </button>
-                  )}
-                  <Link
-                    href={`/chat`}
-                    className="btn-primary px-4 py-2 text-sm"
-                  >
-                    Chat
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {mySquads.length === 0 && (
-            <div className="text-center py-12 surface-card">
-              <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-3xl text-on-surface-variant">groups</span>
-              </div>
-              <h3 className="text-lg font-headline font-semibold text-on-surface mb-2">No squads yet</h3>
-              <p className="text-sm text-on-surface-variant mb-4">
-                {canCreateSquad 
-                  ? "Create your first squad to start executing projects"
-                  : "Free users can join squads but not create them. Find a squad to join!"
-                }
-              </p>
-              <button
-                onClick={() => setActiveTab(canCreateSquad ? "create" : "find")}
-                className="btn-primary"
-              >
-                {canCreateSquad ? "Create Squad" : "Find Squads"}
+      {/* Tabs */}
+      <div className="max-w-6xl mx-auto px-6 py-4">
+        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit mb-6">
+          {[
+            { id: "my-squads" as const, label: "My Squads", icon: Users },
+            { id: "find" as const, label: "Find", icon: Search },
+            { id: "create" as const, label: "Create", icon: Plus },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === tab.id ? "bg-white text-black" : "text-zinc-400 hover:text-white"
+                }`}>
+                <Icon size={14}/> {tab.label}
               </button>
-            </div>
-          )}
+            );
+          })}
         </div>
-      )}
 
-      {/* Find Tab */}
-      {activeTab === "find" && (
-        <div className="space-y-4">
-          {availableSquads.length === 0 ? (
-            <div className="text-center py-12 surface-card">
-              <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-3xl text-on-surface-variant">search</span>
-              </div>
-              <h3 className="text-lg font-headline font-semibold text-on-surface mb-2">No squads available</h3>
-              <p className="text-sm text-on-surface-variant mb-4">Check back later or create your own squad!</p>
-              {canCreateSquad && (
-                <button onClick={() => setActiveTab("create")} className="btn-primary">
-                  Create Squad
-                </button>
-              )}
-            </div>
-          ) : (
-            availableSquads.map((squad) => (
-              <div key={squad.id} className="surface-card p-5">
-                <div className="flex items-start justify-between gap-4">
+        {/* My Squads Tab */}
+        {activeTab === "my-squads" && (
+          <div className="space-y-4">
+            {mySquads.map((squad) => (
+              <div key={squad.id} className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="material-symbols-outlined text-2xl text-primary">{squad.icon}</span>
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
+                      <Users size={24} className="text-amber-400" />
                     </div>
                     <div>
-                      <h3 className="font-headline font-semibold text-on-surface text-lg">{squad.name}</h3>
-                      <p className="text-sm text-on-surface-variant mt-1">{squad.description}</p>
-                      <div className="flex items-center gap-4 mt-3 text-sm text-on-surface-variant">
-                        <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-on-surface-variant">people</span>
-                          {squad.member_count || 0} / {squad.max_members} members
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-success">task_alt</span>
-                          {squad.projects_completed || 0} completed
-                        </span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-lg">{squad.name}</h3>
+                        {squad.status === 'active' && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium">Active</span>
+                        )}
+                        {squad.isOwner && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">Owner</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-zinc-400">{squad.description}</p>
+                      
+                      {/* Members */}
+                      <div className="flex flex-wrap items-center gap-2 mt-3">
+                        {squad.squad_members?.slice(0, 5).map((member: SquadMember) => (
+                          <div key={member.id} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs ${
+                            member.member_type === "agent" ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                          }`}>
+                            {member.member_type === "agent" ? <Bot size={12}/> : <User size={12}/>}
+                            <span>{member.member?.username || 'Member'}</span>
+                            <span className="text-zinc-500">· {member.role}</span>
+                          </div>
+                        ))}
+                        {(squad.squad_members?.length || 0) > 5 && (
+                          <span className="text-xs text-zinc-500">+{(squad.squad_members?.length || 0) - 5} more</span>
+                        )}
+                      </div>
+
+                      {/* Stats */}
+                      <div className="flex items-center gap-4 mt-3 text-sm text-zinc-500">
+                        <span className="flex items-center gap-1"><FolderOpen size={14} className="text-amber-400"/> {squad.projects_active || 0} active</span>
+                        <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-400"/> {squad.projects_completed || 0} completed</span>
+                        <span className="flex items-center gap-1"><Percent size={14} className="text-amber-400"/> {squad.win_rate || 0}% win rate</span>
+                        <span className="flex items-center gap-1"><Users size={14}/> {squad.squad_members?.length || 0} / {squad.max_members}</span>
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => joinSquad(squad.id)}
-                    className="btn-primary px-4 py-2 text-sm"
-                  >
-                    Join Squad
+
+                  <div className="flex gap-2 lg:flex-col">
+                    <button onClick={() => leaveSquad(squad.id)} className="flex items-center gap-2 px-4 py-2 text-sm border border-zinc-700 rounded-lg hover:bg-zinc-800 transition text-zinc-400">
+                      <LogOut size={14}/> {squad.isOwner ? "Disband" : "Leave"}
+                    </button>
+                    <Link href="/chat" className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
+                      <MessageSquare size={14}/> Chat
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {mySquads.length === 0 && (
+              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
+                <Users size={48} className="mx-auto mb-4 text-zinc-600" />
+                <h3 className="text-lg font-semibold mb-2">No squads yet</h3>
+                <p className="text-sm text-zinc-400 mb-4 max-w-md mx-auto">
+                  {canCreateSquad ? "Create your first squad to start executing projects" : "Free users can join squads but not create them. Find a squad to join!"}
+                </p>
+                <button onClick={() => setActiveTab(canCreateSquad ? "create" : "find")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">
+                  {canCreateSquad ? "Create Squad" : "Find Squads"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Find Tab */}
+        {activeTab === "find" && (
+          <div className="space-y-4">
+            {availableSquads.length === 0 ? (
+              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
+                <Search size={48} className="mx-auto mb-4 text-zinc-600" />
+                <h3 className="text-lg font-semibold mb-2">No squads available</h3>
+                <p className="text-sm text-zinc-400 mb-4">Check back later or create your own squad!</p>
+                {canCreateSquad && (
+                  <button onClick={() => setActiveTab("create")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">Create Squad</button>
+                )}
+              </div>
+            ) : (
+              availableSquads.map((squad) => (
+                <div key={squad.id} className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
+                        <Users size={24} className="text-amber-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">{squad.name}</h3>
+                        <p className="text-sm text-zinc-400 mt-1">{squad.description}</p>
+                        <div className="flex items-center gap-4 mt-3 text-sm text-zinc-500">
+                          <span className="flex items-center gap-1"><Users size={14}/> {squad.member_count || 0} / {squad.max_members} members</span>
+                          <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-400"/> {squad.projects_completed || 0} completed</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button onClick={() => joinSquad(squad.id)} className="px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
+                      Join
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Create Tab */}
+        {activeTab === "create" && (
+          <div className="max-w-2xl mx-auto">
+            {!canCreateSquad ? (
+              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
+                <Ban size={48} className="mx-auto mb-4 text-rose-400" />
+                <h3 className="text-lg font-semibold mb-2">Squad Limit Reached</h3>
+                <p className="text-sm text-zinc-400 mb-4">Free users can join squads but cannot create them. Upgrade to create your own squads!</p>
+                <Link href="/plans" className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">View Plans</Link>
+              </div>
+            ) : !generatedSquad ? (
+              <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
+                    <Sparkles size={28} className="text-amber-400" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Create New Squad</h3>
+                  <p className="text-sm text-zinc-400">Describe what you need. AI will generate the perfect squad.</p>
+                </div>
+                <div className="space-y-4">
+                  <textarea value={createInput} onChange={(e) => setCreateInput(e.target.value)}
+                    placeholder="Example: I need a squad to build a SaaS product. Need a full-stack developer, UI/UX designer, and AI content assistant."
+                    className="w-full h-32 px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none"
+                  />
+                  <button onClick={generateSquad} disabled={isCreating || !createInput.trim()}
+                    className="w-full py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition disabled:opacity-50 flex items-center justify-center gap-2">
+                    {isCreating ? "Generating..." : <><Sparkles size={16}/> AI Generate Squad</>}
                   </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Create Tab */}
-      {activeTab === "create" && (
-        <div className="max-w-2xl mx-auto">
-          {!canCreateSquad ? (
-            <div className="text-center py-12 surface-card">
-              <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-3xl text-error">block</span>
-              </div>
-              <h3 className="text-lg font-headline font-semibold text-on-surface mb-2">Squad Limit Reached</h3>
-              <p className="text-sm text-on-surface-variant mb-4">
-                Free users can join squads but cannot create them. Upgrade to create your own squads!
-              </p>
-              <Link href="/plans" className="btn-primary">
-                View Plans
-              </Link>
-            </div>
-          ) : !generatedSquad ? (
-            <div className="surface-card p-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="material-symbols-outlined text-3xl text-primary">add</span>
+            ) : (
+              <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center border border-amber-500/30">
+                    <Users size={20} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{generatedSquad.name}</h3>
+                    <p className="text-sm text-zinc-400">{generatedSquad.description}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-headline font-bold text-on-surface mb-2">Create New Squad</h3>
-                <p className="text-sm text-on-surface-variant">
-                  Describe what you need in 2-3 sentences. AI will generate the perfect squad.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <textarea
-                  value={createInput}
-                  onChange={(e) => setCreateInput(e.target.value)}
-                  placeholder="Example: I need a squad to build a SaaS product. Need a full-stack developer, UI/UX designer, and AI content assistant. We're building a project management tool for remote teams."
-                  className="w-full h-32 px-4 py-3 rounded-lg bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-                />
-
-                <button
-                  onClick={generateSquad}
-                  disabled={isCreating || !createInput.trim()}
-                  className="w-full btn-primary min-h-12 disabled:opacity-50"
-                >
-                  {isCreating ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
-                      Generating Squad...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined">auto_awesome</span>
-                      AI Generate Squad
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="surface-card p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-2xl text-primary">{generatedSquad.icon || "groups"}</span>
+                <div className="mb-6 p-4 rounded-lg bg-zinc-900 border border-zinc-800">
+                  <p className="font-medium">{generatedSquad.name}</p>
+                  <p className="text-sm text-zinc-500">{generatedSquad.description}</p>
                 </div>
-                <div>
-                  <h3 className="font-headline font-semibold text-on-surface">{generatedSquad.name}</h3>
-                  <p className="text-sm text-on-surface-variant">{generatedSquad.description}</p>
+                <div className="flex gap-3">
+                  <button onClick={createSquad} className="flex-1 py-2.5 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition">Create Squad</button>
+                  <button onClick={() => setGeneratedSquad(null)} className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition">Regenerate</button>
                 </div>
               </div>
-
-              <div className="mb-6">
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3 block">
-                  Squad Details
-                </label>
-                <div className="p-3 rounded-lg bg-surface-container-low">
-                  <p className="font-medium text-on-surface">{generatedSquad.name}</p>
-                  <p className="text-sm text-on-surface-variant">{generatedSquad.description}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button onClick={createSquad} className="flex-1 btn-primary">
-                  Create Squad
-                </button>
-                <button
-                  onClick={() => setGeneratedSquad(null)}
-                  className="btn-secondary px-6"
-                >
-                  Regenerate
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function PlansFloatingButton() {
     pathname?.startsWith("/requests/new") ||
     pathname?.startsWith("/services/new") ||
     pathname?.startsWith("/payment") ||
-    (pathname?.startsWith("/chat/") && pathname !== "/chat")
+    pathname?.startsWith("/chat")
   ) {
     return null;
   }

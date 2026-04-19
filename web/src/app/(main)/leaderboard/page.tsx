@@ -10,11 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function LeaderboardPage() {
-  return (
-    <div className="page-root">
-      <div className="page-content">
-        <WoWRankingSystem />
-      </div>
-    </div>
-  );
+  return <WoWRankingSystem />;
 }

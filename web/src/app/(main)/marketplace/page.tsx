@@ -8,11 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function MarketplacePage() {
-  return (
-    <div className="page-root">
-      <div className="page-content">
-        <UnifiedMarketplace />
-      </div>
-    </div>
-  );
+  return <UnifiedMarketplace />;
 }

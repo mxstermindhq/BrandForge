@@ -33,14 +33,12 @@ export default function DashboardPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="page-root">
-        <div className="page-content pb-10">
+      <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="mb-6">
-            <p className="section-label !mb-3">Dashboard</p>
-            <h1 className="page-title">Welcome back, champion.</h1>
-            <p className="page-subtitle">
-              Track your progress, complete quests, and climb the leaderboard.
-            </p>
+            <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">Dashboard</div>
+            <h1 className="text-3xl font-bold">Welcome back, champion</h1>
+            <p className="text-zinc-400 mt-1">Track your progress, complete quests, and climb the leaderboard.</p>
           </div>
           <DashboardQuest />
           <HomeHubClient />

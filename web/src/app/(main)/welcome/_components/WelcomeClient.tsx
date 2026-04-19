@@ -120,23 +120,23 @@ export function WelcomeClient() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-10 md:py-16">
-      <p className="text-secondary font-headline text-[10px] font-black uppercase tracking-[0.2em]">Setup</p>
-      <h1 className="font-display text-on-surface mt-2 text-3xl font-bold tracking-tight">Finish your account</h1>
-      <p className="text-on-surface-variant mt-2 text-sm font-light leading-relaxed">
-        Choose your public <strong className="text-on-surface font-semibold">username</strong>, your professional
+    <div className="min-h-screen bg-[#0a0a0a] text-white max-w-lg mx-auto px-4 py-10 md:py-16">
+      <div className="flex items-center gap-2 text-xs text-amber-400 uppercase tracking-[0.2em]">Setup</div>
+      <h1 className="mt-2 text-3xl font-bold tracking-tight">Finish your account</h1>
+      <p className="text-zinc-400 mt-2 text-sm font-light leading-relaxed">
+        Choose your public <strong className="text-white font-semibold">username</strong>, your professional
         title, and optionally set a password for email sign-in. You can change these later in Settings.
       </p>
 
-      <form onSubmit={onSubmit} className="border-outline-variant/20 bg-surface-container-low/50 mt-8 space-y-5 rounded-2xl border p-6">
+      <form onSubmit={onSubmit} className="border-zinc-800 bg-zinc-900/50 mt-8 space-y-5 rounded-2xl border p-6">
         {err ? (
-          <p className="text-error text-sm" role="alert">
+          <p className="text-rose-400 text-sm" role="alert">
             {err}
           </p>
         ) : null}
 
         <div>
-          <label htmlFor="welcome-user" className="text-on-surface-variant mb-1.5 block text-xs font-bold uppercase tracking-wider">
+          <label htmlFor="welcome-user" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
             Username
           </label>
           <div className="relative">
@@ -146,33 +146,33 @@ export function WelcomeClient() {
               onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
               autoComplete="username"
               placeholder="yourhandle"
-              className="border-outline-variant/40 bg-surface-container-high text-on-surface focus:border-primary w-full min-h-[48px] rounded-xl border py-2 px-3 text-sm outline-none"
+              className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border py-2 px-3 text-sm outline-none"
             />
           </div>
           {unameHint ? (
             <p
-              className={`mt-1 text-xs font-medium ${unameHint === "Available" ? "text-secondary" : "text-error"}`}
+              className={`mt-1 text-xs font-medium ${unameHint === "Available" ? "text-emerald-400" : "text-rose-400"}`}
               role="status"
             >
               {unameHint}
             </p>
           ) : (
-            <p className="text-on-surface-variant mt-1 text-[11px]">Lowercase letters, numbers, underscores, hyphens.</p>
+            <p className="text-zinc-500 mt-1 text-[11px]">Lowercase letters, numbers, underscores, hyphens.</p>
           )}
         </div>
 
         <div>
-          <label htmlFor="welcome-title" className="text-on-surface-variant mb-1.5 block text-xs font-bold uppercase tracking-wider">
+          <label htmlFor="welcome-title" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
             Professional title
           </label>
           <select
             id="welcome-title"
             value={headline}
             onChange={(e) => setHeadline(e.target.value)}
-            className="border-outline-variant/40 bg-surface-container-high text-on-surface focus:border-primary w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
+            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
           >
             {PROFESSIONAL_TITLES.map((t) => (
-              <option key={t} value={t}>
+              <option key={t} value={t} className="bg-zinc-800">
                 {t}
               </option>
             ))}
@@ -180,7 +180,7 @@ export function WelcomeClient() {
         </div>
 
         <div>
-          <label htmlFor="welcome-pass" className="text-on-surface-variant mb-1.5 block text-xs font-bold uppercase tracking-wider">
+          <label htmlFor="welcome-pass" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
             Password <span className="font-normal normal-case opacity-80">(optional)</span>
           </label>
           <input
@@ -190,12 +190,12 @@ export function WelcomeClient() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Min 8 characters"
-            className="border-outline-variant/40 bg-surface-container-high text-on-surface focus:border-primary w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
+            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="welcome-pass2" className="text-on-surface-variant mb-1.5 block text-xs font-bold uppercase tracking-wider">
+          <label htmlFor="welcome-pass2" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
             Confirm password
           </label>
           <input
@@ -204,26 +204,26 @@ export function WelcomeClient() {
             autoComplete="new-password"
             value={password2}
             onChange={(e) => setPassword2(e.target.value)}
-            className="border-outline-variant/40 bg-surface-container-high text-on-surface focus:border-primary w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
+            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={busy}
-          className="bg-primary text-on-primary font-headline w-full min-h-[52px] rounded-xl text-sm font-bold disabled:opacity-50"
+          className="bg-amber-500 text-black w-full min-h-[52px] rounded-xl text-sm font-bold hover:bg-amber-400 transition disabled:opacity-50"
         >
           {busy ? "Saving…" : "Continue to BrandForge"}
         </button>
       </form>
 
-      <p className="text-on-surface-variant mt-6 text-center text-xs">
+      <p className="text-zinc-500 mt-6 text-center text-xs">
         Wrong account?{" "}
         <button
           type="button"
           disabled={busy || switchBusy}
           onClick={() => void onSignOutAndSwitch()}
-          className="text-secondary inline font-semibold underline-offset-2 hover:underline disabled:opacity-50"
+          className="text-amber-400 inline font-semibold underline-offset-2 hover:underline disabled:opacity-50"
         >
           {switchBusy ? "Signing out…" : "Sign out and switch"}
         </button>

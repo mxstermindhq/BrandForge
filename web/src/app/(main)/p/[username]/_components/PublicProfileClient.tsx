@@ -246,7 +246,7 @@ export function PublicProfileClient({ username }: { username: string }) {
     : null;
 
   return (
-    <article className="page-content mx-auto max-w-[960px] pb-24">
+    <article className="min-h-screen bg-surface text-on-surface max-w-6xl mx-auto px-6 py-8 pb-24">
       <header className="flex flex-wrap items-start gap-6">
         <div
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
@@ -368,7 +368,7 @@ export function PublicProfileClient({ username }: { username: string }) {
                 Honor
               </p>
               <p className="text-[14px] text-on-surface-variant">
-                <span className="font-headline font-700 tabular-nums" style={{ color: "var(--color-primary-container)" }}>
+                <span className="font-bold tabular-nums text-amber-400">
                   {conquest.toLocaleString()}
                 </span>{" "}
                 Conquest
@@ -377,33 +377,33 @@ export function PublicProfileClient({ username }: { username: string }) {
             <p className="text-on-surface-variant mt-2 text-[12px]">
               Honor resets weekly (-5% Mondays) · Conquest is permanent this season
             </p>
-            <p className="text-on-surface mt-3 font-headline text-sm font-700">
+            <p className="text-on-surface mt-3 font-semibold text-sm">
               Neon Score:{" "}
-              <span className="text-secondary tabular-nums">{neon.toLocaleString()}</span>
+              <span className="text-purple-400 tabular-nums">{neon.toLocaleString()}</span>
             </p>
           </div>
 
           {isSelf ? (
             <Link
               href="/store"
-              className="bg-surface-container-high border-outline-variant/60 mt-4 flex items-center justify-between rounded-xl border px-4 py-3 text-[13px] text-on-surface transition-colors hover:bg-surface-container-highest"
+              className="bg-surface-container border-outline-variant mt-4 flex items-center justify-between rounded-xl border px-4 py-3 text-[13px] text-on-surface transition-colors hover:bg-surface-container-high"
             >
               <span>Visit Store for boosts &amp; privileges</span>
-              <span className="text-primary font-headline font-600">→</span>
+              <span className="text-amber-500 font-semibold">→</span>
             </Link>
           ) : null}
         </div>
       </header>
 
       {bioText ? (
-        <div className="bg-surface-container-low border-outline-variant/60 mt-8 rounded-xl border p-5">
-          <p className="section-label">About</p>
-          <p className="text-on-surface-variant -mt-2 whitespace-pre-wrap text-[14px] leading-[1.6]">{bioDisplay}</p>
+        <div className="bg-surface-container border-outline-variant mt-8 rounded-xl border p-5">
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">About</p>
+          <p className="text-on-surface-variant whitespace-pre-wrap text-[14px] leading-[1.6]">{bioDisplay}</p>
           {bioLong ? (
             <button
               type="button"
               onClick={() => setBioExpanded((e) => !e)}
-              className="btn-ghost mt-3 px-0 text-[12px] font-headline font-600"
+              className="mt-3 px-0 text-[12px] text-amber-500 hover:text-amber-600 transition"
             >
               {bioExpanded ? "Show less" : "Read more"}
             </button>
@@ -413,22 +413,22 @@ export function PublicProfileClient({ username }: { username: string }) {
 
       {sk.length > 0 ? (
         <div className="mt-8">
-          <p className="section-label">Skills</p>
-          <ul className="-mt-2 flex flex-wrap gap-2">
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">Skills</p>
+          <ul className="flex flex-wrap gap-2">
             {sk.slice(0, 12).map((s, i) => (
-              <li key={`${i}-${s}`} className="pill-default">
+              <li key={`${i}-${s}`} className="px-2 py-1 rounded-full bg-surface-container-high border border-outline-variant text-xs text-on-surface-variant">
                 {s}
               </li>
             ))}
             {sk.length > 12 ? (
-              <li className="text-on-surface-variant self-center text-[12px] font-body">+{sk.length - 12} more</li>
+              <li className="text-on-surface-variant self-center text-[12px]">+{sk.length - 12} more</li>
             ) : null}
           </ul>
         </div>
       ) : null}
 
       <section className="mt-10">
-        <p className="section-label">SERVICES</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">Services</p>
         {services.length === 0 ? (
           <p className="text-on-surface-variant mt-2 text-[13px]">No services listed yet.</p>
         ) : (
@@ -436,12 +436,12 @@ export function PublicProfileClient({ username }: { username: string }) {
             {services.map((s) => (
               <li
                 key={s.id}
-                className="bg-surface-container-low border-outline-variant/60 flex flex-col rounded-xl border p-4"
+                className="bg-surface-container border-outline-variant flex flex-col rounded-xl border p-4"
               >
-                <span className="pill-default mb-2 w-fit text-[10px]">{s.category}</span>
-                <p className="font-headline font-700 text-on-surface">{s.title}</p>
-                <p className="text-secondary mt-1 text-sm font-600 tabular-nums">${Number(s.base_price).toLocaleString()}</p>
-                <Link href={`/services/${encodeURIComponent(s.id)}`} className="btn-primary mt-3 min-h-[40px] text-center">
+                <span className="px-2 py-1 rounded-full bg-surface-container-high border border-outline-variant text-[10px] text-on-surface-variant w-fit mb-2">{s.category}</span>
+                <p className="font-semibold text-on-surface">{s.title}</p>
+                <p className="text-amber-500 mt-1 text-sm font-semibold tabular-nums">${Number(s.base_price).toLocaleString()}</p>
+                <Link href={`/services/${encodeURIComponent(s.id)}`} className="mt-3 min-h-[40px] text-center px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition">
                   Bid
                 </Link>
               </li>
@@ -451,7 +451,7 @@ export function PublicProfileClient({ username }: { username: string }) {
       </section>
 
       <section className="mt-10">
-        <p className="section-label">OPEN REQUESTS</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">Open requests</p>
         {openRequests.length === 0 ? (
           <p className="text-on-surface-variant mt-2 text-[13px]">No open requests.</p>
         ) : (
@@ -461,7 +461,7 @@ export function PublicProfileClient({ username }: { username: string }) {
                 key={r.id}
                 className="bg-surface-container-low border-outline-variant/60 rounded-xl border px-4 py-3"
               >
-                <p className="font-headline font-600 text-on-surface">{r.title}</p>
+                <p className="font-semibold text-on-surface-variant">{r.title}</p>
                 <p className="text-on-surface-variant mt-1 text-[12px]">
                   {budgetLabel(r.budget_min, r.budget_max)}
                   {r.due_date
@@ -477,9 +477,9 @@ export function PublicProfileClient({ username }: { username: string }) {
       </section>
 
       <section className="mt-10">
-        <p className="section-label">COMPLETED DEALS</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">Recent contracts</p>
         {recentContracts.length === 0 ? (
-          <p className="text-on-surface-variant mt-2 text-[13px]">No completed deals yet.</p>
+          <p className="text-on-surface-variant mt-2 text-[13px]">No recent contracts.</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {recentContracts.map((c) => (
@@ -487,7 +487,7 @@ export function PublicProfileClient({ username }: { username: string }) {
                 key={c.id}
                 className="bg-surface-container-low border-outline-variant/60 flex flex-wrap items-center justify-between gap-2 rounded-xl border px-4 py-3"
               >
-                <p className="min-w-0 font-headline font-600 text-on-surface">{c.title}</p>
+                <p className="min-w-0 font-semibold text-on-surface">{c.title}</p>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-on-surface-variant text-[12px] tabular-nums">
                     {new Date(c.updated_at).toLocaleDateString("en-US", {
@@ -496,7 +496,7 @@ export function PublicProfileClient({ username }: { username: string }) {
                       year: "numeric",
                     })}
                   </span>
-                  <span className="pill-default text-[10px]">{contractStatusLabel(c.status)}</span>
+                  <span className="px-2 py-1 rounded-full bg-surface-container-high border border-outline-variant text-[10px] text-on-surface-variant">{contractStatusLabel(c.status)}</span>
                 </div>
               </li>
             ))}
@@ -505,13 +505,13 @@ export function PublicProfileClient({ username }: { username: string }) {
       </section>
 
       <section className="mt-10">
-        <p className="section-label">REVIEWS</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-wider mb-2">Reviews</p>
         {reviews.length === 0 ? (
           <p className="text-on-surface-variant mt-2 text-[13px]">No reviews yet.</p>
         ) : (
           <ul className="mt-3 space-y-4">
             {reviews.map((r) => (
-              <li key={r.id} className="bg-surface-container-low border-outline-variant/60 rounded-xl border p-4">
+              <li key={r.id} className="bg-surface-container border-outline-variant rounded-xl border p-4">
                 <p className="text-[12px] text-on-surface-variant">
                   {r.rating}★ · @
                   {r.reviewerUsername || r.reviewerName?.replace(/\s+/g, "").toLowerCase() || "member"}

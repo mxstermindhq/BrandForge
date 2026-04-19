@@ -9,8 +9,10 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <Suspense fallback={<PageRouteLoading title="Loading settings" variant="inline" />}>
-      <SettingsClient />
-    </Suspense>
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <Suspense fallback={<PageRouteLoading title="Loading settings" variant="inline" />}>
+        <SettingsClient />
+      </Suspense>
+    </div>
   );
 }

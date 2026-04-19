@@ -75,39 +75,39 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-[#0a0a0a] text-white">
         {/* HERO - Main value proposition */}
         <section id="hero" className="relative">
           <LandingHero />
         </section>
 
         {/* PRICING - Plans */}
-        <section id="pricing" className="relative border-t border-outline-variant/40">
+        <section id="pricing" className="relative border-t border-zinc-800">
           <PlansShowcase />
         </section>
 
         {/* PRODUCT - Core offering */}
-        <section id="product" className="relative border-t border-outline-variant/40">
+        <section id="product" className="relative border-t border-zinc-800">
           <WorldOfBrandForge />
         </section>
 
         {/* SOLUTION - Features */}
-        <section id="solution" className="relative border-t border-outline-variant/40">
+        <section id="solution" className="relative border-t border-zinc-800">
           <FeaturesGrid />
         </section>
 
         {/* SOCIAL PROOF - Ask AI */}
-        <section className="relative border-t border-outline-variant/40">
+        <section className="relative border-t border-zinc-800">
           <AskAICards />
         </section>
 
         {/* HOW IT WORKS - Step by step */}
-        <section id="how-it-works" className="relative border-t border-outline-variant/40">
+        <section id="how-it-works" className="relative border-t border-zinc-800">
           <HowItWorks />
         </section>
 
         {/* CTA - Final call to action */}
-        <section className="relative border-t border-outline-variant/40">
+        <section className="relative border-t border-zinc-800">
           <FinalCTA />
         </section>
       </main>

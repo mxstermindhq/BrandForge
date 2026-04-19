@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { apiGetJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import {
+  Trophy, Flame, TrendingUp, TrendingDown, Minus, Crown, Shield, Swords, Star, Medal,
+  Search, Filter, Clock
+} from "lucide-react";
 
 interface RankingUser {
   id: string;
@@ -19,6 +23,8 @@ interface RankingUser {
   streak: number;
   seasonWins: number;
   lastActiveAt: string;
+  trend?: "up" | "down" | "same";
+  change?: number;
 }
 
 interface SeasonInfo {
@@ -31,15 +37,81 @@ interface SeasonInfo {
   tierFloors: Record<string, number>;
 }
 
-const tierConfig = {
-  challenger: { color: "#8B9A8B", icon: "military_tech", name: "Challenger", minRp: 0 },
-  rival: { color: "#A0A0A0", icon: "shield", name: "Rival", minRp: 1000 },
-  duelist: { color: "#CD7F32", icon: "swords", name: "Duelist", minRp: 2000 },
-  gladiator: { color: "#C0C0C0", icon: "local_fire_department", name: "Gladiator", minRp: 3500 },
-  undisputed: { color: "#9D4EDD", icon: "stars", name: "Undisputed Gladiator", minRp: 5000 },
-};
+const tabs = [
+  { id: "ranking" as const, label: "Rating", icon: Medal },
+  { id: "honor" as const, label: "Honor", icon: Shield },
+  { id: "conquest" as const, label: "Conquest", icon: Trophy },
+  { id: "streak" as const, label: "Win Streak", icon: Flame },
+  { id: "season" as const, label: "Season", icon: Star },
+];
+
+const tiers = [
+  { name: "Challenger", min: 0, color: "text-zinc-400", bg: "from-zinc-700/20 to-zinc-800/20", icon: Medal },
+  { name: "Rival", min: 1000, color: "text-sky-400", bg: "from-sky-500/20 to-sky-700/10", icon: Shield },
+  { name: "Duelist", min: 2000, color: "text-amber-400", bg: "from-amber-500/30 to-orange-700/20", icon: Swords },
+  { name: "Gladiator", min: 3500, color: "text-rose-400", bg: "from-rose-500/20 to-red-700/10", icon: Flame },
+  { name: "Undisputed", min: 5000, color: "text-purple-400", bg: "from-purple-500/30 to-fuchsia-700/20", icon: Crown },
+];
+
+function getTier(rp: number) {
+  return [...tiers].reverse().find((t) => rp >= t.min) || tiers[0];
+}
 
 type TabType = "ranking" | "honor" | "conquest" | "streak" | "season";
+
+// Podium Card Component
+function PodiumCard({ 
+  player, 
+  rank, 
+  activeTab, 
+  tierFn, 
+  isFirst = false 
+}: { 
+  player: RankingUser; 
+  rank: number; 
+  activeTab: TabType;
+  tierFn: (rp: number) => typeof tiers[0];
+  isFirst?: boolean;
+}) {
+  const getValue = () => {
+    if (activeTab === "honor") return player.honor;
+    if (activeTab === "conquest") return player.conquest;
+    if (activeTab === "streak") return player.streak;
+    return player.rp;
+  };
+
+  const tierValue = getValue();
+  const tier = tierFn(typeof tierValue === "number" && !isNaN(tierValue) ? tierValue : 0);
+  const TierIcon = tier.icon || Medal;
+  const heightClass = rank === 1 ? "h-48" : rank === 2 ? "h-40" : "h-36";
+  const borderClass = isFirst ? "border-amber-500/40" : "border-zinc-800";
+  const avatarGradient = isFirst 
+    ? "from-amber-400 to-amber-600" 
+    : "from-zinc-600 to-zinc-800";
+
+  return (
+    <div className={`relative rounded-2xl overflow-hidden border ${borderClass} ${heightClass} bg-gradient-to-b ${tier.bg} flex flex-col justify-end p-5`}>
+      {isFirst && <Crown className="absolute top-4 right-4 text-amber-400" size={20}/>}
+      <div className="absolute top-4 left-4 flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur font-bold text-sm">
+        #{rank}
+      </div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center font-bold`}>
+          {player.username?.[0]?.toUpperCase() || "?"}
+        </div>
+        <div className="min-w-0">
+          <div className="font-semibold truncate">{player.fullName || player.username || "Anonymous"}</div>
+          <div className={`text-xs flex items-center gap-1 ${tier.color}`}>
+            <TierIcon size={10}/> {tier.name}
+          </div>
+        </div>
+      </div>
+      <div className="text-2xl font-bold tabular-nums">
+        {typeof tierValue === "number" && !isNaN(tierValue) ? tierValue.toLocaleString() : "0"}
+      </div>
+    </div>
+  );
+}
 
 export function WoWRankingSystem() {
   const { accessToken } = useAuth();
@@ -74,250 +146,216 @@ export function WoWRankingSystem() {
     loadData();
   }, [activeTab, accessToken]);
 
-  const tabs: { id: TabType; label: string; icon: string }[] = [
-    { id: "ranking", label: "RP Ranking", icon: "military_tech" },
-    { id: "honor", label: "Honor", icon: "favorite" },
-    { id: "conquest", label: "Conquest", icon: "emoji_events" },
-    { id: "streak", label: "Win Streak", icon: "local_fire_department" },
-    { id: "season", label: "Season", icon: "calendar_month" },
-  ];
-
-  function getTierBadge(tier: string) {
-    const config = tierConfig[tier as keyof typeof tierConfig];
-    if (!config) return null;
-
+  function getTierBadge(tierName: string) {
+    const tier = tiers.find(t => t.name.toLowerCase() === tierName.toLowerCase()) || tiers[0];
+    const Icon = tier.icon;
     return (
-      <div
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-        style={{ backgroundColor: `${config.color}20`, color: config.color, border: `1px solid ${config.color}50` }}
-      >
-        <span className="material-symbols-outlined text-sm">{config.icon}</span>
-        {config.name}
+      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${tier.color} bg-zinc-900/50`}
+        style={{ borderColor: `${tier.color.replace("text-", "").replace("-400", "-500")}30` }}>
+        <Icon size={12}/>
+        {tier.name}
       </div>
     );
-  }
-
-  function getRankDisplay(rank: number) {
-    if (rank === 1) return { icon: "🏆", color: "#FFD700", bg: "bg-amber-500/10 border-amber-500/30" };
-    if (rank === 2) return { icon: "🥈", color: "#C0C0C0", bg: "bg-slate-400/10 border-slate-400/30" };
-    if (rank === 3) return { icon: "🥉", color: "#CD7F32", bg: "bg-orange-600/10 border-orange-600/30" };
-    return { icon: `#${rank}`, color: undefined, bg: "bg-surface-container-high border-outline-variant" };
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
+  const topThree = users.slice(0, 3);
+  const rest = users.slice(3);
+  
+  const TrendIcon = ({ trend, change }: { trend?: string; change?: number }) => {
+    if (trend === "up") return <div className="flex items-center gap-1 text-emerald-400"><TrendingUp size={12}/><span className="text-xs">{change}</span></div>;
+    if (trend === "down") return <div className="flex items-center gap-1 text-rose-400"><TrendingDown size={12}/><span className="text-xs">{change}</span></div>;
+    return <div className="text-zinc-500"><Minus size={12}/></div>;
+  };
+
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      {/* Season Header */}
-      {season && (
-        <div className="surface-card p-5 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="material-symbols-outlined text-2xl text-on-primary">emoji_events</span>
-              </div>
-              <div>
-                <h2 className="text-xl font-headline font-bold text-on-surface">{season.name}</h2>
-                <p className="text-sm text-on-surface-variant">
-                  {season.startDate ? new Date(season.startDate).toLocaleDateString() : '-'} - {season.endDate ? new Date(season.endDate).toLocaleDateString() : '-'}
-                </p>
-              </div>
+    <div className="min-h-screen bg-[#0a0a0a] text-white p-8">
+      {/* Header with prize pool + season info */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>
+              {season?.name || "Season 3"} · Ends in 12d 4h
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-on-surface-variant uppercase tracking-wide">Prize Pool</p>
-                <p className="text-xl font-bold text-primary">${season.prizePool?.toLocaleString() || 0}</p>
+            <h1 className="text-3xl font-bold">Leaderboard</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-700/5 border border-amber-500/20">
+              <div className="text-[10px] uppercase tracking-wider text-amber-400/70">Prize Pool</div>
+              <div className="text-2xl font-bold text-amber-400">${season?.prizePool?.toLocaleString() || "12,500"}</div>
+            </div>
+            <div className="px-4 py-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <div className="text-[10px] uppercase tracking-wider text-zinc-500">Players</div>
+              <div className="text-2xl font-bold">{users.length.toLocaleString() || "1,247"}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === tab.id ? "bg-amber-500 text-black" : "text-zinc-400 hover:text-white"
+                }`}>
+                <Icon size={14}/>
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Podium for top 3 */}
+      {topThree.length > 0 && (
+        <div className="max-w-6xl mx-auto mb-6">
+          <div className="grid grid-cols-3 gap-4">
+            {/* 2nd Place */}
+            {topThree[1] && (
+              <PodiumCard 
+                key={topThree[1].id || `rank-2-${topThree[1].username}`}
+                player={topThree[1]} 
+                rank={2} 
+                activeTab={activeTab}
+                tierFn={getTier}
+              />
+            )}
+            {/* 1st Place */}
+            {topThree[0] && (
+              <PodiumCard 
+                key={topThree[0].id || `rank-1-${topThree[0].username}`}
+                player={topThree[0]} 
+                rank={1} 
+                activeTab={activeTab}
+                tierFn={getTier}
+                isFirst
+              />
+            )}
+            {/* 3rd Place */}
+            {topThree[2] && (
+              <PodiumCard 
+                key={topThree[2].id || `rank-3-${topThree[2].username}`}
+                player={topThree[2]} 
+                rank={3} 
+                activeTab={activeTab}
+                tierFn={getTier}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Search + filter */}
+      <div className="max-w-6xl mx-auto mb-4 flex items-center gap-3">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16}/>
+          <input 
+            placeholder="Search players..."
+            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-amber-500/50"/>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm hover:border-zinc-700">
+          <Filter size={14}/> All Tiers
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="max-w-6xl mx-auto rounded-xl border border-zinc-800 overflow-hidden">
+        <div className="grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-3 bg-zinc-900/50 text-[10px] uppercase tracking-wider text-zinc-500 border-b border-zinc-800">
+          <div>Rank</div>
+          <div>Player</div>
+          <div>Tier</div>
+          <div className="text-right">{activeTab === "ranking" ? "Rating" : activeTab === "honor" ? "Honor" : activeTab === "conquest" ? "Conquest" : "Streak"}</div>
+          <div className="text-right">W / L · Rate</div>
+          <div className="text-right">Streak</div>
+        </div>
+
+        {rest.map((p) => {
+          const tier = getTier(activeTab === "ranking" ? p.rp : activeTab === "honor" ? p.honor : p.conquest);
+          const TierIcon = tier.icon;
+          const winRate = Math.round(p.wins / (p.wins + p.losses) * 100) || 0;
+          return (
+            <div key={p.id}
+              className={`grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-4 items-center border-b border-zinc-800/50 last:border-0 hover:bg-zinc-900/30 transition-colors ${
+                currentUserRank?.id === p.id ? "bg-amber-500/5" : ""
+              }`}>
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 font-mono">#{p.rank}</span>
+                <TrendIcon trend={p.trend} change={p.change}/>
               </div>
-              {season.competitiveMode && (
-                <div className="px-3 py-1.5 rounded-full bg-error/10 border border-error/30 text-error text-xs font-semibold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-error animate-pulse" />
-                  Competitive
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center text-sm font-semibold">
+                  {p.username[0].toUpperCase()}
                 </div>
-              )}
+                <div>
+                  <div className="font-medium flex items-center gap-2">
+                    {p.fullName || p.username}
+                    {currentUserRank?.id === p.id && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500 text-black rounded">YOU</span>}
+                  </div>
+                  <div className="text-xs text-zinc-500">@{p.username}</div>
+                </div>
+              </div>
+              <div className={`flex items-center gap-1.5 text-sm ${tier.color}`}>
+                <TierIcon size={14}/> {tier.name}
+              </div>
+              <div className="text-right font-mono font-semibold">
+                {(activeTab === "honor" ? p.honor : activeTab === "conquest" ? p.conquest : activeTab === "streak" ? p.streak : p.rp)?.toLocaleString()}
+              </div>
+              <div className="text-right">
+                <div className="text-sm"><span className="text-emerald-400">{p.wins}</span> / <span className="text-rose-400">{p.losses}</span></div>
+                <div className="text-xs text-zinc-500">{winRate}% win rate</div>
+              </div>
+              <div className="text-right">
+                {p.streak > 0 ? (
+                  <div className="inline-flex items-center gap-1 text-orange-400 text-sm">
+                    <Flame size={12}/> {p.streak}
+                  </div>
+                ) : <span className="text-zinc-600 text-sm">—</span>}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {/* Current User Stats */}
+      {/* Tier progress bar */}
       {currentUserRank && (
-        <div className="surface-card p-5 mb-6 border-primary/30">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-headline font-semibold text-on-surface">Your Standing</h3>
-            {getTierBadge(currentUserRank.tier)}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-3 rounded-lg bg-surface-container-low">
-              <p className="text-2xl font-bold text-on-surface">#{currentUserRank.rank}</p>
-              <p className="text-xs text-on-surface-variant">Global Rank</p>
-            </div>
-            <div className="p-3 rounded-lg bg-surface-container-low">
-              <p className="text-2xl font-bold text-primary">{currentUserRank.rp?.toLocaleString() || 0}</p>
-              <p className="text-xs text-on-surface-variant">RP Points</p>
-            </div>
-            <div className="p-3 rounded-lg bg-surface-container-low">
-              <p className="text-2xl font-bold text-amber-400">{currentUserRank.honor?.toLocaleString() || 0}</p>
-              <p className="text-xs text-on-surface-variant">Honor</p>
-            </div>
-            <div className="p-3 rounded-lg bg-surface-container-low">
-              <p className="text-2xl font-bold text-emerald-400">{currentUserRank.conquest?.toLocaleString() || 0}</p>
-              <p className="text-xs text-on-surface-variant">Conquest</p>
+        <div className="max-w-6xl mx-auto mt-8 p-5 rounded-xl border border-zinc-800 bg-zinc-900/30">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-medium">Your Progress</div>
+            <div className="text-xs text-zinc-500">
+              {currentUserRank.rp.toLocaleString()} / {getTier(currentUserRank.rp + 1000).min} to {getTier(currentUserRank.rp + 1000).name}
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-outline-variant flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-success">trending_up</span>
-              <span className="text-sm text-on-surface">
-                <strong>{currentUserRank.wins}</strong> Wins
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-error">trending_down</span>
-              <span className="text-sm text-on-surface">
-                <strong>{currentUserRank.losses}</strong> Losses
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-orange-400">local_fire_department</span>
-              <span className="text-sm text-on-surface">
-                <strong>{currentUserRank.streak}</strong> Streak
-              </span>
-            </div>
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="material-symbols-outlined text-primary">workspace_premium</span>
-              <span className="text-sm text-on-surface">
-                <strong>{currentUserRank.seasonWins}</strong> Season Wins
-              </span>
-            </div>
+          <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden mb-4">
+            <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-purple-500 rounded-full" 
+              style={{ width: `${Math.min(100, (currentUserRank.rp / (getTier(currentUserRank.rp + 1000).min || 5000)) * 100)}%` }}/>
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {tiers.map((t) => {
+              const Icon = t.icon;
+              const reached = currentUserRank.rp >= t.min;
+              return (
+                <div key={t.name} className={`flex items-center gap-2 p-2 rounded-lg ${reached ? "bg-zinc-800/50" : "opacity-40"}`}>
+                  <Icon size={14} className={t.color}/>
+                  <div>
+                    <div className="text-xs font-medium">{t.name}</div>
+                    <div className="text-[10px] text-zinc-500">{t.min}+ RP</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
-
-      {/* Tab Navigation */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border whitespace-nowrap transition-colors ${
-              activeTab === tab.id
-                ? "bg-primary text-on-primary border-primary"
-                : "bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-outline"
-            }`}
-          >
-            <span className="material-symbols-outlined text-sm">{tab.icon}</span>
-            <span className="font-medium">{tab.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Leaderboard Table */}
-      <div className="surface-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-outline-variant bg-surface-container-high">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Rank</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Player</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Tier</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
-                  {activeTab === "honor" ? "Honor" : activeTab === "conquest" ? "Conquest" : activeTab === "streak" ? "Streak" : "RP"}
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-on-surface-variant uppercase tracking-wide">W/L</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Win Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => {
-                const rankDisplay = getRankDisplay(user.rank);
-                const winRate = user.wins + user.losses > 0 ? Math.round((user.wins / (user.wins + user.losses)) * 100) : 0;
-                const score = activeTab === "honor" ? user.honor : activeTab === "conquest" ? user.conquest : activeTab === "streak" ? user.streak : user.rp;
-                const uniqueKey = user.id || `user-${index}`;
-
-                return (
-                  <tr
-                    key={uniqueKey}
-                    className={`border-b border-outline-variant/50 hover:bg-surface-container-high/50 transition-colors ${
-                      currentUserRank?.id === user.id ? "bg-primary/5" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-4">
-                      <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center border ${rankDisplay.bg}`}
-                        style={rankDisplay.color ? { color: rankDisplay.color } : undefined}
-                      >
-                        <span className="font-bold">{rankDisplay.icon}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
-                          {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="material-symbols-outlined text-on-surface-variant">person</span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-on-surface">{user.fullName || user.username}</p>
-                          <p className="text-xs text-on-surface-variant">@{user.username}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">{getTierBadge(user.tier)}</td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="text-lg font-bold text-on-surface">{score?.toLocaleString() || 0}</span>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="text-sm text-on-surface">
-                        <span className="text-success">{user.wins}</span>
-                        <span className="text-on-surface-variant mx-1">/</span>
-                        <span className="text-error">{user.losses}</span>
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="w-16 h-2 rounded-full bg-surface-container-low overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-primary"
-                            style={{ width: `${winRate}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium text-on-surface w-10">{winRate}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Tier Legend */}
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-        {Object.entries(tierConfig).map(([key, config]) => (
-          <div
-            key={key}
-            className="p-3 rounded-lg border text-center"
-            style={{ borderColor: `${config.color}50`, backgroundColor: `${config.color}10` }}
-          >
-            <span className="material-symbols-outlined text-lg" style={{ color: config.color }}>
-              {config.icon}
-            </span>
-            <p className="text-xs font-medium mt-1" style={{ color: config.color }}>
-              {config.name}
-            </p>
-            <p className="text-[10px] text-on-surface-variant/70">{config.minRp}+ RP</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

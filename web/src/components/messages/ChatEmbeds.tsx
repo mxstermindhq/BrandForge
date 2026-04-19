@@ -417,7 +417,7 @@ function DealPhaseEmbed({ embed }: { embed: Record<string, unknown> }) {
         <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-[0.12em]">
           {phaseLabel ? phaseLabel : "Milestone"}
           {checkoutOpened && isCryptoInvoice ? (
-            <span className="text-emerald-200 ml-2 font-black"> · Checkout opened</span>
+                        <span className="text-emerald-500 dark:text-emerald-200 ml-2 font-black"> · Checkout opened</span>
           ) : null}
         </p>
         <p className="text-on-surface mt-1 text-[15px] font-semibold leading-snug">{title}</p>
@@ -426,7 +426,7 @@ function DealPhaseEmbed({ embed }: { embed: Record<string, unknown> }) {
           <p className="text-on-surface-variant mt-1 text-[11px] font-medium">Type · {kindLabel}</p>
         ) : null}
         {isCryptoInvoice ? (
-          <div className="border-outline-variant/25 bg-black/15 mt-2 rounded-lg border px-2.5 py-2 text-[11px] leading-relaxed">
+          <div className="border-outline-variant/25 bg-surface-variant mt-2 rounded-lg border px-2.5 py-2 text-[11px] leading-relaxed">
             <p className="text-on-surface-variant font-bold uppercase tracking-wide">Transaction</p>
             <ul className="text-on-surface-variant mt-1 list-inside list-disc space-y-0.5">
               {amountUsd != null && Number.isFinite(amountUsd) ? (
@@ -513,7 +513,7 @@ function PartyLine({
   const showB = hb ? stripAt(b) : b;
   if (subtle) {
     return (
-      <p className="mt-1.5 text-[11px] leading-snug text-[#444]">
+            <p className="mt-1.5 text-[11px] leading-snug text-on-surface-variant">
         <span>{a}</span>
         <span className="mx-1.5 opacity-70" aria-hidden>
           ·
@@ -660,7 +660,7 @@ function BidProposalEmbed({
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ${
-                bidAccepted ? "bg-emerald-950/30 text-emerald-100" : "bg-secondary/15 text-secondary"
+                bidAccepted ? "bg-emerald-500/15 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-100" : "bg-secondary/15 text-secondary"
               }`}
             >
               {bidAccepted ? "Accepted" : "Request bid"}
@@ -668,7 +668,7 @@ function BidProposalEmbed({
           </div>
           {titleEl}
           <PartyLine proposer={proposer} counterparty={counterparty} leftFallback="Bidder" rightFallback="Client" />
-          <div className="border-outline-variant/20 mt-3 space-y-2 rounded-lg border bg-black/15 px-2.5 py-2">
+          <div className="border-outline-variant/20 mt-3 space-y-2 rounded-lg border bg-surface-variant px-2.5 py-2">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <span className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">Price</span>
               <span className="text-on-surface text-lg font-bold tabular-nums">
@@ -684,7 +684,7 @@ function BidProposalEmbed({
                     <p className="text-on-surface-variant mt-0.5 text-xs tabular-nums">{bidDeliverySummary.detail}</p>
                   ) : null}
                   {bidDeliverySummary.warn ? (
-                    <p className="mt-1 rounded-md bg-amber-500/12 px-2 py-1 text-[11px] font-medium leading-snug text-amber-100">
+                    <p className="mt-1 rounded-md bg-amber-500/10 dark:bg-amber-500/12 px-2 py-1 text-[11px] font-medium leading-snug text-amber-700 dark:text-amber-100">
                       {bidDeliverySummary.warn}
                     </p>
                   ) : null}
@@ -695,7 +695,7 @@ function BidProposalEmbed({
             </div>
           </div>
           {fullText ? (
-            <div className="mt-3 rounded-lg bg-black/20 px-2.5 py-2">
+            <div className="mt-3 rounded-lg bg-surface-variant px-2.5 py-2">
               <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">Proposal</p>
               <p
                 className={`text-on-surface mt-1 whitespace-pre-wrap text-[13px] leading-relaxed ${
@@ -894,108 +894,85 @@ function ServiceOfferEmbed({
     listing && serviceId ? (
       <Link
         href={`/services/${encodeURIComponent(serviceId)}`}
-        className="text-[#00D084] hover:opacity-95 mt-1 inline-block text-[17px] font-bold leading-snug tracking-tight transition-opacity hover:underline"
+        className="text-emerald-500 hover:opacity-95 mt-1 inline-block text-[17px] font-bold leading-snug tracking-tight transition-opacity hover:underline"
       >
         {listing}
       </Link>
     ) : listing ? (
-      <p className="text-[#00D084] mt-1 text-[17px] font-bold leading-snug tracking-tight">{listing}</p>
+      <p className="text-emerald-500 mt-1 text-[17px] font-bold leading-snug tracking-tight">{listing}</p>
     ) : null;
 
   const deliverySummary =
     delivery != null && Number.isFinite(delivery) ? formatDeliverySummary(delivery) : null;
 
   return (
-    <div className="w-full max-w-[520px] text-left">
-      <div className="border-outline-variant/25 overflow-hidden rounded-xl border shadow-sm">
-        <DealEmbedShell accentClassName="bg-[#00D084] shadow-[0_0_18px_rgba(0,208,132,0.15)]">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/95">
+    <div className="w-full max-w-[480px] text-left">
+      <div className="border-outline-variant/25 overflow-hidden rounded-lg border shadow-sm">
+        <DealEmbedShell accentClassName="bg-emerald-500 shadow-[0_0_12px_rgba(0,208,132,0.12)]">
+          {/* Header row with badge and listing */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-on-primary">
               Buyer offer
             </span>
+            {titleEl ?? <span className="text-on-surface-variant text-xs italic">Untitled</span>}
           </div>
-          <p className="text-on-surface-variant mt-1.5 text-[12px] leading-snug">
-            Someone wants to buy your service at the price and delivery window below. Review their message, then accept or
-            counter.
-          </p>
-          <div className="mt-3">
-            <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">Listing</p>
-            {titleEl ?? <p className="text-on-surface-variant mt-1 text-sm italic">Untitled service</p>}
-          </div>
-          <div className="border-outline-variant/25 mt-3 grid grid-cols-1 gap-3 rounded-lg border bg-black/18 px-3 py-2.5 sm:grid-cols-2">
-            <div className="min-w-0">
-              <p className="text-on-surface-variant/90 text-[10px] font-bold uppercase tracking-wide">Buyer</p>
+
+          {/* Compact row: Buyer | Seller | Price | Delivery */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mb-3">
+            <div className="flex items-center gap-1">
+              <span className="text-on-surface-variant/70 text-[9px] uppercase">Buyer</span>
               {(() => {
                 const h = profileHref(proposer);
                 const text = displayHandle(proposer, "Buyer");
                 return h ? (
-                  <Link href={h} className="text-on-surface mt-0.5 block truncate text-sm font-semibold hover:underline">
-                    {text}
-                  </Link>
+                  <Link href={h} className="text-on-surface font-medium hover:underline">{text}</Link>
                 ) : (
-                  <p className="text-on-surface mt-0.5 truncate text-sm font-semibold">{text}</p>
+                  <span className="text-on-surface font-medium">{text}</span>
                 );
               })()}
             </div>
-            <div className="min-w-0">
-              <p className="text-on-surface-variant/90 text-[10px] font-bold uppercase tracking-wide">Seller</p>
+            <span className="text-on-surface-variant/30">·</span>
+            <div className="flex items-center gap-1">
+              <span className="text-on-surface-variant/70 text-[9px] uppercase">Seller</span>
               {(() => {
                 const h = profileHref(counterparty);
                 const text = displayHandle(counterparty, "Seller");
                 return h ? (
-                  <Link href={h} className="text-on-surface mt-0.5 block truncate text-sm font-semibold hover:underline">
-                    {text}
-                  </Link>
+                  <Link href={h} className="text-on-surface font-medium hover:underline">{text}</Link>
                 ) : (
-                  <p className="text-on-surface mt-0.5 truncate text-sm font-semibold">{text}</p>
+                  <span className="text-on-surface font-medium">{text}</span>
                 );
               })()}
             </div>
-          </div>
-          <div className="border-outline-variant/25 mt-3 space-y-2.5 rounded-lg border bg-black/22 px-3 py-2.5">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <span className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">Agreed offer</span>
-              <span className="text-on-surface text-xl font-bold tabular-nums">
+            <span className="text-on-surface-variant/30">·</span>
+            <div className="flex items-center gap-1">
+              <span className="text-on-surface-variant/70 text-[9px] uppercase">Offer</span>
+              <span className="text-on-surface font-bold text-emerald-600 dark:text-emerald-400">
                 {price != null && Number.isFinite(price) ? `$${price.toLocaleString()}` : "—"}
               </span>
             </div>
-            <div className="border-outline-variant/20 border-t pt-2.5">
-              <span className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">Delivery window</span>
-              {deliverySummary ? (
-                <>
-                  <p className="text-on-surface mt-1 text-sm font-semibold leading-snug">{deliverySummary.short}</p>
-                  {deliverySummary.detail ? (
-                    <p className="text-on-surface-variant mt-0.5 text-xs tabular-nums">{deliverySummary.detail}</p>
-                  ) : null}
-                  {deliverySummary.warn ? (
-                    <p className="mt-1.5 rounded-md bg-amber-500/15 px-2 py-1.5 text-[11px] font-medium leading-snug text-amber-100">
-                      {deliverySummary.warn}
-                    </p>
-                  ) : null}
-                </>
-              ) : (
-                <p className="text-on-surface-variant mt-1 text-sm">Not specified on this offer</p>
-              )}
-            </div>
+            {deliverySummary && (
+              <>
+                <span className="text-on-surface-variant/30">·</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-on-surface-variant/70 text-[9px] uppercase">Delivery</span>
+                  <span className="text-on-surface font-medium">{deliverySummary.short}</span>
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Buyer message */}
           {fullText ? (
-            <div className="border-outline-variant/20 mt-3 rounded-lg border bg-black/20 px-3 py-2.5">
-              <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wide">What they wrote</p>
-              <p className="text-on-surface-variant mt-0.5 text-[11px] leading-snug">
-                Scope, timeline notes, or questions from the buyer.
-              </p>
-              <p
-                className={`text-on-surface mt-2 whitespace-pre-wrap text-[13px] leading-relaxed ${
-                  expanded ? "max-h-44 overflow-y-auto pr-1" : "line-clamp-4"
-                }`}
-              >
+            <div className="border-t border-outline-variant/20 pt-2 mt-2">
+              <p className={`text-on-surface-variant/90 text-xs leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>
                 {fullText}
               </p>
-              {fullText.length > 220 ? (
+              {fullText.length > 180 ? (
                 <button
                   type="button"
                   onClick={() => setExpanded((v) => !v)}
-                  className="text-[#00D084] mt-1.5 text-[12px] font-semibold hover:underline"
+                  className="text-secondary mt-1 text-[11px] font-medium hover:underline"
                 >
                   {expanded ? "Show less" : "Read more"}
                 </button>
@@ -1005,35 +982,26 @@ function ServiceOfferEmbed({
         </DealEmbedShell>
       </div>
       {accessToken ? (
-        <div className="mt-3 flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {isSeller ? (
-              <DealEmbedActionButton variant="primary" disabled={acceptBusy || !convId} onClick={() => void onAcceptServiceDeal()}>
-                {acceptBusy ? "…" : "Accept"}
-              </DealEmbedActionButton>
-            ) : null}
-            {isSeller ? (
-              <DealEmbedActionButton
-                type="button"
-                disabled={acceptBusy || counterBusy || !convId}
-                onClick={() => {
-                  setCounterErr(null);
-                  setCounterOpen(true);
-                }}
-              >
-                Counter offer
-              </DealEmbedActionButton>
-            ) : null}
-          </div>
+        <div className="mt-2 flex items-center gap-2">
           {isSeller ? (
-            <p className="text-on-surface-variant text-[11px] font-light leading-snug">
-              Accept locks the deal at this price; then contract and escrow appear in-thread. Counter sends a formal counter
-              card for the buyer to review.
-            </p>
-          ) : (
-            <p className="text-on-surface-variant text-[11px] font-light leading-snug">
-              The seller can accept or counter here. You&apos;ll get a thread update when terms are agreed.
-            </p>
+            <DealEmbedActionButton variant="primary" disabled={acceptBusy || !convId} onClick={() => void onAcceptServiceDeal()}>
+              {acceptBusy ? "…" : "Accept"}
+            </DealEmbedActionButton>
+          ) : null}
+          {isSeller ? (
+            <DealEmbedActionButton
+              type="button"
+              disabled={acceptBusy || counterBusy || !convId}
+              onClick={() => {
+                setCounterErr(null);
+                setCounterOpen(true);
+              }}
+            >
+              Counter
+            </DealEmbedActionButton>
+          ) : null}
+          {!isSeller && (
+            <span className="text-on-surface-variant/60 text-[10px]">Waiting for seller response...</span>
           )}
           {acceptErr ? (
             <p className="text-error text-xs" role="alert">

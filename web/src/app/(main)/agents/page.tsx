@@ -8,11 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AgentsPage() {
-  return (
-    <div className="page-root">
-      <div className="page-content">
-        <AGIAgents />
-      </div>
-    </div>
-  );
+  return <AGIAgents />;
 }

@@ -131,106 +131,100 @@ export function PlansClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-2 pb-16" data-plans-entry={plansEntry}>
-      {paidReturn === "1" ? (
-        <p
-          className="border-outline-variant/40 bg-secondary-container/30 text-on-surface mb-6 rounded-xl border px-4 py-3 text-center text-sm"
-          role="status"
-        >
-          Payment received. Your plan should show as active after the network callback — refresh or open Settings if it
-          does not update within a minute.
-        </p>
-      ) : null}
-      {paidReturn === "cancel" ? (
-        <p className="border-outline-variant/40 bg-surface-container-high text-on-surface-variant mb-6 rounded-xl border px-4 py-3 text-center text-sm">
-          Checkout was cancelled. You can try again when you are ready.
-        </p>
-      ) : null}
-      {planPayError ? (
-        <p className="border-error/50 bg-error/10 text-error mb-6 rounded-xl border px-4 py-3 text-center text-sm">
-          {planPayError}
-        </p>
-      ) : null}
-      <header className="text-center">
-        {plansEntry !== "direct" ? (
-          <p id="plans-entry-attribution" className="sr-only">
-            {plansEntry === "growth"
-              ? "You opened Plans from the in-app growth banner."
-              : "You opened Plans from the floating Plans button."}
+    <div className="min-h-screen bg-[#0a0a0a] text-white" data-plans-entry={plansEntry}>
+      <div className="max-w-6xl mx-auto px-6 py-8 pb-16">
+        {paidReturn === "1" ? (
+          <p className="border-emerald-500/50 bg-emerald-500/10 text-emerald-400 mb-6 rounded-xl border px-4 py-3 text-center text-sm">
+            Payment successful! Welcome to BrandForge Pro.
           </p>
         ) : null}
-        <p className="text-secondary font-headline mb-2 text-[10px] font-black uppercase tracking-[0.28em]">Plans</p>
-        <h1
-          className="font-display text-on-surface text-4xl font-bold tracking-tight"
-          {...(plansEntry !== "direct" ? { "aria-describedby": "plans-entry-attribution" } : {})}
-        >
-          Simple pricing. No surprises.
-        </h1>
-        <p className="text-on-surface-variant mx-auto mt-3 max-w-2xl text-sm font-light leading-relaxed">
-          Free to start. Upgrade when you need more.
-        </p>
+        {paidReturn === "cancel" ? (
+          <p className="border-zinc-700 bg-zinc-900 text-zinc-400 mb-6 rounded-xl border px-4 py-3 text-center text-sm">
+            Checkout was cancelled. You can try again when you are ready.
+          </p>
+        ) : null}
+        {planPayError ? (
+          <p className="border-rose-500/50 bg-rose-500/10 text-rose-400 mb-6 rounded-xl border px-4 py-3 text-center text-sm">
+            {planPayError}
+          </p>
+        ) : null}
+        <header className="text-center">
+          {plansEntry !== "direct" ? (
+            <p id="plans-entry-attribution" className="sr-only">
+              {plansEntry === "growth"
+                ? "You opened Plans from the in-app growth banner."
+                : "You opened Plans from the floating Plans button."}
+            </p>
+          ) : null}
+          <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-2 justify-center">Plans</div>
+          <h1 className="text-4xl font-bold tracking-tight" {...(plansEntry !== "direct" ? { "aria-describedby": "plans-entry-attribution" } : {})}>
+            Simple pricing. No surprises.
+          </h1>
+          <p className="text-zinc-400 mx-auto mt-3 max-w-2xl text-sm font-light leading-relaxed">
+            Free to start. Upgrade when you need more.
+          </p>
 
-        <div className="relative mx-auto mt-10 h-12 w-[280px] rounded-full border border-outline-variant/40 bg-surface-container-low p-1 shadow-ambient">
-          <span
-            className={`pointer-events-none absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-primary-container to-primary/90 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-              annual ? "left-[calc(50%+2px)]" : "left-1"
-            }`}
-            aria-hidden
-          />
-          <button
-            type="button"
-            onClick={() => setAnnual(false)}
-            className={`font-headline relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              !annual ? "text-on-primary-container" : "text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            onClick={() => setAnnual(true)}
-            className={`font-headline relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              annual ? "text-on-primary-container" : "text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            Yearly
-          </button>
-        </div>
-      </header>
-
-      <ul className="mt-14 grid list-none gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {prices.map((t) => {
-          const isFeatured = Boolean(t.popular);
-          return (
-            <li
-              key={t.id}
-              className={`relative flex flex-col rounded-2xl border bg-surface-container-low p-6 transition-all duration-300 hover:shadow-ambient ${
-                isFeatured
-                  ? "border-primary shadow-glow ring-primary/90 ring-2 md:scale-[1.02]"
-                  : "border-outline-variant/25"
+          <div className="relative mx-auto mt-10 h-12 w-[280px] rounded-full border border-zinc-700 bg-zinc-900 p-1 flex">
+            <span
+              className={`pointer-events-none absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                annual ? "left-[calc(50%+2px)]" : "left-1"
+              }`}
+              aria-hidden
+            />
+            <button
+              type="button"
+              onClick={() => setAnnual(false)}
+              className={`relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                !annual ? "text-black" : "text-zinc-400 hover:text-white"
               }`}
             >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setAnnual(true)}
+              className={`relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                annual ? "text-black" : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Yearly
+            </button>
+          </div>
+        </header>
+
+        <ul className="mt-14 grid list-none gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {prices.map((t) => {
+            const isFeatured = Boolean(t.popular);
+            return (
+              <li
+                key={t.id}
+                className={`relative flex flex-col rounded-2xl border bg-zinc-900 p-6 transition-all duration-300 hover:border-zinc-700 ${
+                  isFeatured
+                    ? "border-amber-500/50 ring-2 ring-amber-500/20 md:scale-[1.02]"
+                    : "border-zinc-800"
+                }`}
+              >
               {t.popular ? (
-                <span className="font-headline text-on-primary-fixed absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-glow">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-black">
                   Most popular
                 </span>
               ) : null}
-              <p className="text-on-surface-variant font-headline text-[10px] font-bold uppercase tracking-[0.2em]">
+              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
                 {t.name}
               </p>
               {t.isFree ? (
-                <p className="font-display text-on-surface mt-3 text-3xl font-bold tabular-nums">Free</p>
+                <p className="mt-3 text-3xl font-bold tabular-nums">Free</p>
               ) : (
-                <p className="font-display text-on-surface mt-3 text-3xl font-bold tabular-nums">
+                <p className="mt-3 text-3xl font-bold tabular-nums">
                   ${t.displayPrice}
-                  <span className="text-on-surface-variant text-base font-normal">{t.suffix}</span>
+                  <span className="text-zinc-500 text-base font-normal">{t.suffix}</span>
                 </p>
               )}
-              <p className="text-on-surface-variant mt-2 text-sm font-light leading-relaxed">{t.blurb}</p>
-              <ul className="text-on-surface-variant mt-6 flex-1 space-y-2 text-sm font-light">
+              <p className="text-zinc-400 mt-2 text-sm font-light leading-relaxed">{t.blurb}</p>
+              <ul className="text-zinc-400 mt-6 flex-1 space-y-2 text-sm font-light">
                 {t.highlights.map((h) => (
                   <li key={h} className="flex gap-2">
-                    <span className="text-secondary font-bold">✓</span>
+                    <span className="text-amber-400 font-bold">✓</span>
                     {h}
                   </li>
                 ))}
@@ -238,7 +232,7 @@ export function PlansClient() {
               {t.isFree ? (
                 <Link
                   href="/login"
-                  className="border-outline-variant/40 text-on-surface hover:bg-surface-container-high font-headline mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl border px-4 text-sm font-bold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-zinc-700 text-white hover:bg-zinc-800 px-4 text-sm font-bold transition-all duration-300"
                 >
                   Start free
                 </Link>
@@ -248,17 +242,17 @@ export function PlansClient() {
                     type="button"
                     disabled={Boolean(planCheckoutTierId)}
                     onClick={() => void startPlanCryptoCheckout(t.id)}
-                    className={`font-headline inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-60 ${
+                    className={`inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 disabled:opacity-60 ${
                       isFeatured
-                        ? "bg-secondary-container text-on-secondary-container hover:shadow-glow"
-                        : "border-outline-variant/40 text-on-surface hover:bg-surface-container-high border"
+                        ? "bg-amber-500 text-black hover:bg-amber-400"
+                        : "border border-zinc-700 text-white hover:bg-zinc-800"
                     }`}
                   >
                     {planCheckoutTierId === t.id ? "Opening checkout…" : "Pay with crypto"}
                   </button>
                   <Link
                     href="/settings"
-                    className="text-on-surface-variant hover:text-on-surface text-center text-xs font-medium underline-offset-2 hover:underline"
+                    className="text-zinc-500 hover:text-white text-center text-xs font-medium underline-offset-2 hover:underline"
                   >
                     Billing &amp; account settings
                   </Link>
@@ -266,10 +260,10 @@ export function PlansClient() {
               ) : (
                 <Link
                   href="/login?next=/plans"
-                  className={`font-headline mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
+                  className={`mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 ${
                     isFeatured
-                      ? "bg-secondary-container text-on-secondary-container hover:shadow-glow"
-                      : "border-outline-variant/40 text-on-surface hover:bg-surface-container-high border"
+                      ? "bg-amber-500 text-black hover:bg-amber-400"
+                      : "border border-zinc-700 text-white hover:bg-zinc-800"
                   }`}
                 >
                   Sign in to upgrade
@@ -282,19 +276,20 @@ export function PlansClient() {
 
       <PlansFaq />
 
-      <div className="border-outline-variant/25 bg-primary/10 mt-12 rounded-2xl border p-8 text-center transition-all duration-300 hover:shadow-ambient">
-        <p className="font-display text-on-surface text-lg font-semibold">Ready when you are</p>
-        <p className="text-on-surface-variant mx-auto mt-2 max-w-md text-sm font-light leading-relaxed">
+      <div className="border-zinc-800 bg-zinc-900/50 mt-12 rounded-2xl border p-8 text-center transition-all duration-300 hover:border-zinc-700">
+        <p className="text-lg font-semibold">Ready when you are</p>
+        <p className="text-zinc-400 mx-auto mt-2 max-w-md text-sm font-light leading-relaxed">
           Earn trust and deals on Free first; when Checkout lands, upgrading stays on the same account and keeps your
           reputation and project history intact.
         </p>
         <Link
           href={session ? "/services/new" : "/"}
-          className="bg-primary text-on-primary font-headline mt-6 inline-flex min-h-[44px] items-center rounded-xl px-5 text-sm font-bold transition-all duration-300 hover:shadow-glow"
+          className="bg-amber-500 text-black mt-6 inline-flex min-h-[44px] items-center rounded-xl px-5 text-sm font-bold transition-all duration-300 hover:bg-amber-400"
         >
           {session ? "List a service" : "Explore the marketplace"}
         </Link>
       </div>
+    </div>
     </div>
   );
 }

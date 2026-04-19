@@ -174,13 +174,6 @@ export function Sidebar({
                               {item.materialIcon}
                             </span>
                             <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                            {/* AI indicator for Chat */}
-                            {item.isAI && (
-                              <span className="flex h-4 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 text-[9px] font-bold text-primary">
-                                <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
-                                AI
-                              </span>
-                            )}
                             {chatUnread > 0 ? (
                               <span
                                 className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold tabular-nums leading-none text-white shadow-sm ring-1 ring-red-900/25"
@@ -288,7 +281,6 @@ export function Sidebar({
         className="mt-auto shrink-0 border-t border-outline-variant bg-surface-container-high/50 px-4 py-4"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
       >
-                
         {session ? (
           <UserMenu name={label} email={email} avatarUrl={avatarUrl} showOnlinePulse={showUserOnlinePulse} />
         ) : (

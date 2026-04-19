@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AuthMeProvider } from "@/providers/AuthMeProvider";
 import { BootstrapProvider } from "@/providers/BootstrapProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -103,9 +104,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+      className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        {/* FOUC Prevention - Set theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const saved = localStorage.getItem('brandforge-theme');
+                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                let theme = saved || 'system';
+                let resolved = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
+                document.documentElement.classList.add(resolved);
+              })();
+            `,
+          }}
+        />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
@@ -113,11 +129,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className}`}>
-        <AuthProvider>
-          <AuthMeProvider>
-            <BootstrapProvider>{children}</BootstrapProvider>
-          </AuthMeProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <AuthMeProvider>
+              <BootstrapProvider>{children}</BootstrapProvider>
+            </AuthMeProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

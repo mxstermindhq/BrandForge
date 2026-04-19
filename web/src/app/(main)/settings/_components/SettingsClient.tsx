@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { apiMutateJson, getApiOrigin } from "@/lib/api";
+import { apiMutateJson } from "@/lib/api";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { useAuth } from "@/providers/AuthProvider";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -14,7 +14,7 @@ import { safeImageSrc } from "@/lib/image-url";
 import { SettingsSocialPanel } from "./SettingsSocialPanel";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
 
-type TabId = "account" | "billing" | "notifications" | "social" | "api" | "privacy";
+type TabId = "account" | "billing" | "notifications" | "social" | "api";
 
 type ProfileRow = {
   full_name?: string | null;
@@ -59,7 +59,6 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "notifications", label: "Notifications" },
   { id: "social", label: "Social media" },
   { id: "api", label: "API Keys" },
-  { id: "privacy", label: "Privacy" },
 ];
 
 function roleBadgeLabel(role: string | null | undefined, pro: boolean): string {
@@ -108,12 +107,12 @@ export function SettingsClient() {
 
   const publicProfileHref =
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
-      ? `${getApiOrigin()}/${encodeURIComponent(username.trim())}`
+      ? `/${encodeURIComponent(username.trim())}`
       : null;
 
   useEffect(() => {
     const t = searchParams.get("tab");
-    if (t === "social" || t === "account" || t === "billing" || t === "notifications" || t === "api" || t === "privacy") {
+    if (t === "social" || t === "account" || t === "billing" || t === "notifications" || t === "api") {
       setTab(t as TabId);
     }
     const ok = searchParams.get("ok");
@@ -265,17 +264,17 @@ export function SettingsClient() {
   }
 
   return (
-    <div className="page-content relative pb-32">
+    <div className="max-w-6xl mx-auto px-6 py-8 pb-32">
       <header className="mb-10">
-        <p className="section-label">Workspace</p>
-        <h1 className="page-title max-w-[560px]">Settings</h1>
-        <p className="page-subtitle max-w-[480px]">Profile, billing, notifications, and privacy in one place.</p>
+        <div className="flex items-center gap-2 text-xs text-on-surface-variant uppercase tracking-wider mb-1">Workspace</div>
+        <h1 className="text-3xl font-bold max-w-[560px]">Settings</h1>
+        <p className="text-on-surface-variant mt-1 max-w-[480px]">Profile, billing, notifications, and API keys in one place.</p>
       </header>
 
       {!session ? (
-        <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 max-w-lg">
-          <p className="text-[14px] font-body text-on-surface-variant leading-[1.6]">Sign in to manage your profile.</p>
-          <Link href={`/login?next=${encodeURIComponent("/settings")}`} className="btn-primary mt-4 inline-flex">
+        <div className="bg-surface-container border border-outline-variant rounded-xl p-5 max-w-lg">
+          <p className="text-[14px] text-on-surface-variant leading-[1.6]">Sign in to manage your profile.</p>
+          <Link href={`/login?next=${encodeURIComponent("/settings")}`} className="mt-4 inline-flex px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition">
             Sign in
           </Link>
         </div>
@@ -283,7 +282,7 @@ export function SettingsClient() {
         <div className="flex flex-col gap-10 lg:flex-row lg:gap-8">
           {/* Sub-nav */}
           <nav
-            className="flex shrink-0 flex-row gap-1 overflow-x-auto pb-1 lg:w-[200px] lg:flex-col lg:gap-1 lg:border-r lg:border-outline-variant/40 lg:pr-6 lg:pb-0"
+            className="flex shrink-0 flex-row gap-1 overflow-x-auto pb-1 lg:w-[200px] lg:flex-col lg:gap-1 lg:border-r lg:border-outline-variant lg:pr-6 lg:pb-0"
             aria-label="Settings sections"
           >
             {TABS.map((t) => (
@@ -293,8 +292,8 @@ export function SettingsClient() {
                 onClick={() => setTab(t.id)}
                 className={`flex w-full min-h-[44px] shrink-0 items-center rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors duration-150 lg:min-h-0 ${
                   tab === t.id
-                    ? "bg-surface-container-highest font-headline font-500 text-on-surface"
-                    : "font-body text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                    ? "bg-surface-container-high font-semibold text-on-surface"
+                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                 }`}
               >
                 {t.label}
@@ -306,19 +305,19 @@ export function SettingsClient() {
             {tab === "account" ? (
               <form onSubmit={saveProfile} className="space-y-10">
                 {/* Profile header card */}
-                <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 md:p-6">
+                <section className="bg-surface-container border border-outline-variant rounded-xl p-5 md:p-6">
                   <div className="flex flex-col gap-6 md:flex-row md:items-start">
                     <div className="relative shrink-0">
-                      <div className="relative h-28 w-28 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-high ring-1 ring-outline-variant md:h-32 md:w-32">
+                      <div className="relative h-28 w-28 overflow-hidden rounded-xl border border-outline bg-surface-container-high md:h-32 md:w-32">
                         {avatarUrl ? (
                           <Image src={avatarUrl} alt="" fill className="object-cover" sizes="128px" unoptimized />
                         ) : (
-                          <span className="text-primary flex h-full items-center justify-center text-[22px] font-headline font-700">
+                          <span className="text-amber-500 flex h-full items-center justify-center text-[22px] font-bold">
                             {(username || "?").replace(/^@/, "").slice(0, 2).toUpperCase()}
                           </span>
                         )}
                         {avatarBusy ? (
-                          <div className="absolute inset-0 flex items-center justify-center bg-background/70 text-[12px] font-headline font-600 text-on-surface">
+                          <div className="absolute inset-0 flex items-center justify-center bg-inverse-surface/70 text-[12px] font-semibold text-on-inverse-surface">
                             …
                           </div>
                         ) : null}
@@ -326,7 +325,7 @@ export function SettingsClient() {
                           type="button"
                           aria-label="Change avatar"
                           onClick={() => fileRef.current?.click()}
-                          className="border-outline-variant absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-high text-on-surface transition-colors hover:border-primary/50 hover:text-primary"
+                          className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-md border border-outline bg-surface-container-high text-on-surface transition-colors hover:border-amber-500/50 hover:text-amber-500"
                         >
                           <span className="material-symbols-outlined text-[18px]">photo_camera</span>
                         </button>
@@ -338,30 +337,30 @@ export function SettingsClient() {
                         className="hidden"
                         onChange={(e) => void onPickAvatar(e.target.files?.[0] || null)}
                       />
-                      {avatarErr ? <p className="text-critical mt-2 text-[12px] font-body">{avatarErr}</p> : null}
+                      {avatarErr ? <p className="text-rose-400 mt-2 text-[12px]">{avatarErr}</p> : null}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3 gap-y-2">
-                        <h2 className="text-[15px] font-headline font-600 tracking-[-0.01em] text-on-surface">
+                        <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-on-surface">
                           {username || "Choose a username"}
                         </h2>
-                        <span className="pill-primary">{badge}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-medium">{badge}</span>
                       </div>
-                      <p className="text-[13px] font-body text-on-surface-variant leading-[1.5] mt-2">
+                      <p className="text-[13px] text-on-surface-variant leading-[1.5] mt-2">
                         {[headline, location].filter(Boolean).join(" · ") || "Add a title and location below."}
                       </p>
                       <div className="mt-5 flex flex-wrap gap-3">
-                        <button type="button" onClick={() => fileRef.current?.click()} className="btn-primary min-h-[44px]">
+                        <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition min-h-[44px]">
                           Edit avatar
                         </button>
                         {publicProfileHref ? (
-                          <a href={publicProfileHref} target="_blank" rel="noreferrer" className="btn-secondary min-h-[44px] inline-flex items-center">
+                          <a href={publicProfileHref} target="_blank" rel="noreferrer" className="px-4 py-2 border border-outline-variant text-on-surface rounded-lg hover:bg-surface-container transition min-h-[44px] inline-flex items-center">
                             View public profile
                           </a>
                         ) : (
                           <span
                             title="Set a username to enable your legacy public profile URL."
-                            className="inline-flex min-h-[44px] cursor-not-allowed items-center rounded-md border border-outline-variant/40 px-4 text-[13px] font-body text-on-surface-variant opacity-60"
+                            className="inline-flex min-h-[44px] cursor-not-allowed items-center rounded-md border border-outline-variant/40 px-4 text-[13px] text-on-surface-variant opacity-60"
                           >
                             View public profile
                           </span>
@@ -610,9 +609,6 @@ export function SettingsClient() {
               </section>
             ) : null}
 
-            {tab === "privacy" ? (
-              <PrivacySettingsPanel settings={settings} patchSettings={patchSettings} />
-            ) : null}
           </div>
         </div>
       )}
@@ -718,77 +714,3 @@ function NotificationSettingsPanel({
   );
 }
 
-function PrivacySettingsPanel({
-  settings,
-  patchSettings,
-}: {
-  settings: Record<string, unknown>;
-  patchSettings: (p: Record<string, unknown>) => Promise<void>;
-}) {
-  const [busy, setBusy] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-
-  const isPublic = settings.isPublic !== false;
-  const discoverable = settings.discoverable !== false;
-
-  async function row(key: string, value: boolean) {
-    setErr(null);
-    setBusy(key);
-    try {
-      await patchSettings({ [key]: value });
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Update failed");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  const toggle = (key: string, current: boolean) => (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={current}
-      disabled={busy !== null}
-      onClick={() => void row(key, !current)}
-      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors ${
-        current ? "border-secondary/40 bg-secondary/15" : "border-outline-variant/40 bg-surface-container-high"
-      }`}
-    >
-      <span
-        className={`pointer-events-none absolute top-0.5 h-6 w-6 rounded-full shadow transition-all ${
-          current ? "left-[calc(100%-1.375rem)] bg-secondary" : "left-0.5 bg-on-surface"
-        }`}
-      />
-    </button>
-  );
-
-  return (
-    <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 md:p-6 space-y-6">
-      <div>
-        <p className="section-label !mb-2">Privacy</p>
-        <p className="text-[13px] font-body text-on-surface-variant leading-[1.6]">Who can see you in the marketplace graph.</p>
-      </div>
-      {err ? <p className="text-critical text-[13px] font-body">{err}</p> : null}
-      <ul className="divide-outline-variant/40 divide-y">
-        <li className="flex items-center justify-between gap-4 py-5">
-          <div>
-            <p className="text-[14px] font-body font-500 text-on-surface">Public profile</p>
-            <p className="text-[12px] font-body text-on-surface-variant leading-[1.5]">Allow a public-facing profile page when available.</p>
-          </div>
-          {busy === "isPublic" ? <span className="text-[12px] text-on-surface-variant">…</span> : toggle("isPublic", isPublic)}
-        </li>
-        <li className="flex items-center justify-between gap-4 py-5">
-          <div>
-            <p className="text-[14px] font-body font-500 text-on-surface">Discoverable</p>
-            <p className="text-[12px] font-body text-on-surface-variant leading-[1.5]">Appear in explore and recommendation surfaces.</p>
-          </div>
-          {busy === "discoverable" ? <span className="text-[12px] text-on-surface-variant">…</span> : toggle("discoverable", discoverable)}
-        </li>
-      </ul>
-      <Link href="/" className="text-[12px] font-body text-on-surface-variant hover:text-on-surface inline-flex items-center gap-2 transition-colors">
-        Open home &amp; marketplace
-        <span className="material-symbols-outlined text-[16px]">north_east</span>
-      </Link>
-    </section>
-  );
-}

@@ -11,3 +11,6 @@ export { FAQSection } from "./FAQSection";
 export { LandingFooter } from "./LandingFooter";
 export { MarketplaceShowcase } from "./MarketplaceShowcase";
 export { LandingNav } from "./LandingNav";
+export { LiveStats } from "./LiveStats";
+export { ActivityFeed } from "./ActivityFeed";
+export { StreamingTerminal } from "./StreamingTerminal";

@@ -8,8 +8,128 @@
    Primary = Gold/Amber, Secondary = Deep Blues
    Body font: Inter
 ───────────────────────────────────────── */
+
+/* Light Theme (Default) */
 html {
-  /* Surfaces — Warm Dark Fantasy */
+  /* Surfaces — Light Theme */
+  --color-background: #faf9f7;
+  --color-surface: #faf9f7;
+  --color-surface-dim: #f0ede8;
+  --color-surface-bright: #ffffff;
+  --color-surface-container: #f5f3ef;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f0ede8;
+  --color-surface-container-high: #ffffff;
+  --color-surface-container-highest: #ffffff;
+  --color-surface-variant: #e8e4dc;
+
+  /* Text — Light Theme */
+  --color-on-background: #1a1612;
+  --color-on-surface: #1a1612;
+  --color-on-surface-variant: #6b6256;
+  /* Outline/Border */
+  --color-outline: rgba(139, 119, 83, 0.25);
+  --color-outline-variant: rgba(139, 119, 83, 0.15);
+
+  /* Primary — Gold/Amber */
+  --color-surface-tint: #b8921f;
+  --color-primary: #b8921f;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #f5e6bc;
+  --color-on-primary-container: #4a3d1f;
+  --color-primary-fixed: #f5e6bc;
+  --color-primary-fixed-dim: #e8c97a;
+  --color-on-primary-fixed: #4a3d1f;
+  --color-on-primary-fixed-variant: #7a6a3a;
+
+  /* Secondary — Alliance Blue */
+  --color-secondary: #2d5a8a;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #c5d8f0;
+  --color-on-secondary-container: #0a1520;
+  --color-secondary-fixed: #c5d8f0;
+  --color-secondary-fixed-dim: #7ba3d1;
+  --color-on-secondary-fixed: #071020;
+  --color-on-secondary-fixed-variant: #1a4a7a;
+
+  /* Tertiary — Horde Red */
+  --color-tertiary: #8a3a3a;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #f0c5c5;
+  --color-on-tertiary-container: #3d0f0f;
+  --color-tertiary-fixed: #f0c5c5;
+  --color-tertiary-fixed-dim: #d17b7b;
+  --color-on-tertiary-fixed: #3d0f0f;
+  --color-on-tertiary-fixed-variant: #7a3a3a;
+
+  /* ─── Severity palette ─────────────────── */
+  /* Critical — Red */
+  --color-critical: #dc2626;
+  --color-critical-container: #fef2f2;
+  --color-on-critical: #ffffff;
+  --color-on-critical-container: #991b1b;
+
+  /* High — Orange */
+  --color-high: #ea580c;
+  --color-high-container: #fff7ed;
+  --color-on-high: #ffffff;
+  --color-on-high-container: #9a3412;
+
+  /* Medium — Amber */
+  --color-medium: #b8921f;
+  --color-medium-container: #fefce8;
+  --color-on-medium: #ffffff;
+  --color-on-medium-container: #854d0e;
+
+  /* Low — Green */
+  --color-low: #16a34a;
+  --color-low-container: #f0fdf4;
+  --color-on-low: #ffffff;
+  --color-on-low-container: #166534;
+
+  /* Error */
+  --color-error: #dc2626;
+  --color-on-error: #ffffff;
+  --color-error-container: #fef2f2;
+  --color-on-error-container: #991b1b;
+
+  /* Inverse */
+  --color-inverse-surface: #1a1612;
+  --color-inverse-on-surface: #f5f0e8;
+  --color-inverse-primary: #e8c97a;
+
+  /* Shadows */
+  --shadow-ambient: 0 0 32px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 24px rgba(184, 146, 31, 0.15);
+  --shadow-fab: 0 0 48px rgba(184, 146, 31, 0.25);
+  --scrollbar-thumb: rgba(139, 119, 83, 0.4);
+  --muted-overlay: 107, 98, 86;
+
+  /* Legacy shorthand aliases */
+  --background: var(--color-background);
+  --foreground: var(--color-on-surface);
+  --muted: var(--color-on-surface-variant);
+  --accent: #b8921f;
+  --accent2: #2d5a8a;
+  --card: var(--color-surface-container-low);
+  --sidebar: var(--color-surface-container);
+  --border: rgba(139, 119, 83, 0.25);
+
+  /* WoW Item Quality Colors (unchanged) */
+  --tier-challenger: #9d9d9d;
+  --tier-rival: #1eff00;
+  --tier-duelist: #0070dd;
+  --tier-gladiator: #a335ee;
+  --tier-undisputed: #ff8000;
+
+  --rank-gold: #ffd700;
+  --rank-silver: #c0c0c0;
+  --rank-bronze: #cd7f32;
+}
+
+/* Dark Theme */
+html.dark {
+  /* Surfaces — Dark Theme */
   --color-background: #0d0b09;
   --color-surface: #0d0b09;
   --color-surface-dim: #0a0806;
@@ -21,15 +141,15 @@ html {
   --color-surface-container-highest: #26221e;
   --color-surface-variant: #2a2622;
 
-  /* Text */
+  /* Text — Dark Theme */
   --color-on-background: #f5f0e8;
   --color-on-surface: #f5f0e8;
   --color-on-surface-variant: #a89b8c;
-  /* Outline/Border - warm gold tint */
+  /* Outline/Border */
   --color-outline: rgba(212, 175, 55, 0.2);
   --color-outline-variant: rgba(212, 175, 55, 0.1);
 
-  /* Primary — WoW Gold/Amber */
+  /* Primary — Gold/Amber */
   --color-surface-tint: #d4af37;
   --color-primary: #d4af37;
   --color-on-primary: #1a1200;
@@ -60,33 +180,28 @@ html {
   --color-on-tertiary-fixed: #200707;
   --color-on-tertiary-fixed-variant: #7a1a1a;
 
-  /* ─── Severity palette ─────────────────── */
-
-  /* Critical — Red (Critical Strike) */
+  /* Severity palette — Dark */
   --color-critical: #e85a5a;
   --color-critical-container: #3d0f0f;
   --color-on-critical: #ffffff;
   --color-on-critical-container: #fec5c5;
 
-  /* High — Orange (Rare) */
   --color-high: #ff8c42;
   --color-high-container: #3d1f0a;
   --color-on-high: #ffffff;
   --color-on-high-container: #ffd4b8;
 
-  /* Medium — Amber (Uncommon) */
   --color-medium: #d4af37;
   --color-medium-container: #3d2f0a;
   --color-on-medium: #1a1200;
   --color-on-medium-container: #f5e6bc;
 
-  /* Low — Green (Common) */
   --color-low: #4ade80;
   --color-low-container: #0a2d15;
   --color-on-low: #021208;
   --color-on-low-container: #bbf7d0;
 
-  /* Error (Death Knight) */
+  /* Error */
   --color-error: #e85a5a;
   --color-on-error: #3d0f0f;
   --color-error-container: #5c1414;
@@ -97,14 +212,14 @@ html {
   --color-inverse-on-surface: #1a1612;
   --color-inverse-primary: #5c4a1a;
 
-  /* Shadows - Golden glow */
+  /* Shadows — Dark */
   --shadow-ambient: 0 0 32px rgba(212, 175, 55, 0.08);
   --shadow-glow: 0 0 24px rgba(212, 175, 55, 0.25);
   --shadow-fab: 0 0 48px rgba(212, 175, 55, 0.35);
   --scrollbar-thumb: rgba(212, 175, 55, 0.3);
   --muted-overlay: 42, 38, 34;
 
-  /* Legacy shorthand aliases */
+  /* Legacy shorthand */
   --background: var(--color-background);
   --foreground: var(--color-on-surface);
   --muted: var(--color-on-surface-variant);
@@ -113,17 +228,6 @@ html {
   --card: var(--color-surface-container-low);
   --sidebar: var(--color-surface-container);
   --border: rgba(212, 175, 55, 0.2);
-
-  /* WoW Item Quality Colors */
-  --tier-challenger: #9d9d9d;
-  --tier-rival: #1eff00;
-  --tier-duelist: #0070dd;
-  --tier-gladiator: #a335ee;
-  --tier-undisputed: #ff8000;
-
-  --rank-gold: #ffd700;
-  --rank-silver: #c0c0c0;
-  --rank-bronze: #cd7f32;
 }
 
 @keyframes bf-tier-undisputed-row {
@@ -158,10 +262,14 @@ html {
 
 @layer base {
   html {
+    color-scheme: light;
+  }
+  
+  html.dark {
     color-scheme: dark;
-}
+  }
 
-body {
+  body {
     @apply font-body text-on-surface bg-background antialiased;
     font-size: 16px;
     line-height: 1.6;
@@ -354,8 +462,12 @@ body {
 
 /* Selection */
 ::selection {
-  background: rgba(79, 142, 247, 0.25);
+  background: color-mix(in srgb, var(--color-secondary) 25%, transparent);
   color: var(--color-on-surface);
+}
+
+html.dark ::selection {
+  background: rgba(79, 142, 247, 0.25);
 }
 
 @layer components {

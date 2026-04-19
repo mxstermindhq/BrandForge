@@ -8,11 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function SquadsPage() {
-  return (
-    <div className="page-root">
-      <div className="page-content">
-        <OutcomeSquads />
-      </div>
-    </div>
-  );
+  return <OutcomeSquads />;
 }
