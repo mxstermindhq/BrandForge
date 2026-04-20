@@ -22,12 +22,6 @@ export const NAV: NavSection[] = [
       { label: "Chat", href: "/chat", materialIcon: "chat_bubble", isAI: true, badge: 0 },
       { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },
       { label: "Leaderboard", href: "/leaderboard", materialIcon: "emoji_events" },
-    ],
-  },
-  {
-    section: "AI & Agents",
-    items: [
-      { label: "Agents", href: "/agents", materialIcon: "smart_toy" },
       { label: "Squads", href: "/squads", materialIcon: "groups" },
     ],
   },
