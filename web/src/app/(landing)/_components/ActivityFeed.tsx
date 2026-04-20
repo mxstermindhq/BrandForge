@@ -102,7 +102,7 @@ export function ActivityFeed() {
       try {
         const data = await apiGetJson<ApiActivity[]>("/api/activity/recent", null);
         if (data && Array.isArray(data)) {
-          const transformed = data.map(transformApiActivity);
+          const transformed: Activity[] = data.map(transformApiActivity);
           const deduplicated = deduplicateActivities(transformed);
           setActivities(deduplicated.slice(0, 5)); // Keep only 5 most recent
         }

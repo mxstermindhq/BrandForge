@@ -14,7 +14,7 @@ export type NavSection = {
   items: NavItem[];
 };
 
-/** Main navigation sections */
+/** Main navigation sections - HOTFIX: Deploy 2026-04-21 */
 export const NAV: NavSection[] = [
   {
     section: null,
