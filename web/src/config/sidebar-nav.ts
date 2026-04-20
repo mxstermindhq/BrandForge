@@ -19,7 +19,7 @@ export const NAV: NavSection[] = [
   {
     section: null,
     items: [
-      { label: "Chat", href: "/chat", materialIcon: "chat_bubble" },
+      { label: "Chat", href: "/chat", materialIcon: "chat_bubble", isAI: true, badge: 0 },
       { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },
       { label: "Leaderboard", href: "/leaderboard", materialIcon: "emoji_events" },
     ],
@@ -29,7 +29,6 @@ export const NAV: NavSection[] = [
     items: [
       { label: "Agents", href: "/agents", materialIcon: "smart_toy" },
       { label: "Squads", href: "/squads", materialIcon: "groups" },
-      { label: "AI Chat", href: "/ai", materialIcon: "auto_awesome" },
     ],
   },
 ];
