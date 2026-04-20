@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "brandforge",
-  "main": ".open-next/worker.js",
   "compatibility_date": "2025-04-10",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "pages_build_output_dir": ".open-next",
@@ -13,30 +12,5 @@
     "API_PROXY_DESTINATION": "https://brandforge-production-e488.up.railway.app",
     "NEXT_PUBLIC_SUPABASE_URL": "https://vtctturtitstcljvkcsa.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0Y3R0dXJ0aXRzdGNsanZrY3NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDAyNzUsImV4cCI6MjA5MDcxNjI3NX0.iKi3_XuYPXmQwCsDOVau2HLDQdm2dm4kqUjbmkBSC2E"
-  },
-  "assets": {
-    "directory": ".open-next",
-    "binding": "ASSET_FILES"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "brandforge"
-    }
-  ],
-  "observability": {
-    "enabled": false,
-    "head_sampling_rate": 1,
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "persist": true,
-      "invocation_logs": true
-    },
-    "traces": {
-      "enabled": true,
-      "persist": true,
-      "head_sampling_rate": 1
-    }
   }
 }
