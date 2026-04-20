@@ -10,23 +10,23 @@ interface Line {
 }
 
 const DEMO_LINES: Line[] = [
-  { text: "$ brandforge match \"logo designer under $500\"", delay: 0, color: "text-white" },
-  { text: "🔍 Searching 247 specialists...", delay: 800, color: "text-zinc-400" },
-  { text: "✨ Found 3 perfect matches (98% fit)", delay: 1400, color: "text-emerald-400" },
+  { text: "$ brandforge match \"logo designer under $500\"", delay: 0, color: "text-on-surface" },
+  { text: "🔍 Searching 247 specialists...", delay: 800, color: "text-on-surface-variant" },
+  { text: "✨ Found 3 perfect matches (98% fit)", delay: 1400, color: "text-success" },
   { text: "", delay: 1800 },
-  { text: "┌─────────────────────────────────────┐", delay: 2000, color: "text-zinc-600" },
-  { text: "│ 🎨 @novadesign                      │", delay: 2100, color: "text-white" },
-  { text: "│ ⭐ 4.9★ · $450 · Brand Identity     │", delay: 2200, color: "text-zinc-400" },
-  { text: "│ 🏆 Gladiator tier · Top 1%          │", delay: 2300, color: "text-amber-400" },
-  { text: "└─────────────────────────────────────┘", delay: 2400, color: "text-zinc-600" },
+  { text: "┌─────────────────────────────────────┐", delay: 2000, color: "text-on-surface-variant/60" },
+  { text: "│ 🎨 @novadesign                      │", delay: 2100, color: "text-on-surface" },
+  { text: "│ ⭐ 4.9★ · $450 · Brand Identity     │", delay: 2200, color: "text-on-surface-variant" },
+  { text: "│ 🏆 Gladiator tier · Top 1%          │", delay: 2300, color: "text-primary" },
+  { text: "└─────────────────────────────────────┘", delay: 2400, color: "text-on-surface-variant/60" },
   { text: "", delay: 2600 },
-  { text: "📊 Smart Match Analysis:", delay: 2800, color: "text-sky-400" },
-  { text: "   ✓ Budget match: 90% ($450/$500)", delay: 3000, color: "text-zinc-400" },
-  { text: "   ✓ Style alignment: 95%", delay: 3200, color: "text-zinc-400" },
-  { text: "   ✓ Availability: Within 48h", delay: 3400, color: "text-zinc-400" },
+  { text: "📊 Smart Match Analysis:", delay: 2800, color: "text-secondary" },
+  { text: "   ✓ Budget match: 90% ($450/$500)", delay: 3000, color: "text-on-surface-variant" },
+  { text: "   ✓ Style alignment: 95%", delay: 3200, color: "text-on-surface-variant" },
+  { text: "   ✓ Availability: Within 48h", delay: 3400, color: "text-on-surface-variant" },
   { text: "", delay: 3600 },
-  { text: "💡 Suggested action: Deploy BidCrafter agent", delay: 3800, color: "text-purple-400" },
-  { text: "   to generate a competitive proposal", delay: 4000, color: "text-zinc-500" },
+  { text: "💡 Suggested action: Deploy BidCrafter agent", delay: 3800, color: "text-tertiary" },
+  { text: "   to generate a competitive proposal", delay: 4000, color: "text-on-surface-variant/70" },
 ];
 
 export function StreamingTerminal() {
@@ -69,23 +69,23 @@ export function StreamingTerminal() {
   }, []);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+    <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-2xl">
       {/* Terminal Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-zinc-950 border-b border-zinc-800">
+      <div className="flex items-center justify-between px-4 py-3 bg-surface-container border-b border-outline-variant">
         <div className="flex items-center gap-2">
-          <Terminal size={16} className="text-zinc-500" />
-          <span className="text-xs text-zinc-500 font-medium">BrandForge CLI Demo</span>
+          <Terminal size={16} className="text-on-surface-variant" />
+          <span className="text-xs text-on-surface-variant font-medium">BrandForge CLI Demo</span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded transition"
+            className="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition"
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} />}
           </button>
           <button
             onClick={reset}
-            className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded transition"
+            className="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition"
           >
             <RotateCcw size={14} />
           </button>
@@ -93,11 +93,11 @@ export function StreamingTerminal() {
       </div>
 
       {/* Terminal Body */}
-      <div className="p-4 font-mono text-sm min-h-[320px] bg-gradient-to-b from-zinc-900 to-zinc-950">
+      <div className="p-4 font-mono text-sm min-h-[320px] bg-gradient-to-b from-surface to-surface-dim">
         {lines.map((line, index) => (
           <div
             key={index}
-            className={`${line.color || "text-zinc-300"} leading-relaxed`}
+            className={`${line.color || "text-on-surface-variant"} leading-relaxed`}
             style={{
               animation: "fadeIn 0.2s ease-out",
             }}
@@ -109,7 +109,7 @@ export function StreamingTerminal() {
         {/* Cursor */}
         {currentLine < DEMO_LINES.length && (
           <span
-            className={`inline-block w-2 h-4 bg-amber-400 ml-1 transition-opacity ${
+            className={`inline-block w-2 h-4 bg-primary ml-1 transition-opacity ${
               showCursor ? "opacity-100" : "opacity-0"
             }`}
           />
@@ -117,17 +117,17 @@ export function StreamingTerminal() {
 
         {/* Completed indicator */}
         {currentLine >= DEMO_LINES.length && (
-          <div className="mt-4 flex items-center gap-2 text-emerald-400 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <div className="mt-4 flex items-center gap-2 text-success animate-pulse">
+            <span className="w-2 h-2 rounded-full bg-success" />
             <span className="text-xs">Demo complete — Start your journey</span>
           </div>
         )}
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1 bg-zinc-800">
+      <div className="h-1 bg-surface-container">
         <div
-          className="h-full bg-amber-500 transition-all duration-300"
+          className="h-full bg-primary transition-all duration-300"
           style={{
             width: `${(currentLine / DEMO_LINES.length) * 100}%`,
           }}

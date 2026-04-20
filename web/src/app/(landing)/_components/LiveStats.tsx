@@ -66,18 +66,18 @@ export function LiveStats() {
 
   if (loading) {
     return (
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm animate-pulse">
+      <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm animate-pulse">
         <div className="flex items-center justify-between mb-3">
-          <div className="h-3 w-24 bg-zinc-800 rounded" />
-          <div className="h-2 w-16 bg-zinc-800 rounded" />
+          <div className="h-3 w-24 bg-surface-container-high rounded" />
+          <div className="h-2 w-16 bg-surface-container-high rounded" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center gap-3 p-2">
-              <div className="w-8 h-8 bg-zinc-800 rounded-lg" />
+              <div className="w-8 h-8 bg-surface-container-high rounded-lg" />
               <div className="space-y-1">
-                <div className="h-4 w-16 bg-zinc-800 rounded" />
-                <div className="h-2 w-12 bg-zinc-800 rounded" />
+                <div className="h-4 w-16 bg-surface-container-high rounded" />
+                <div className="h-2 w-12 bg-surface-container-high rounded" />
               </div>
             </div>
           ))}
@@ -87,16 +87,16 @@ export function LiveStats() {
   }
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm">
+    <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">Live Network Stats</span>
+          <span className="text-xs text-on-surface-variant uppercase tracking-wider">Live Network Stats</span>
         </div>
-        <span className="text-[10px] text-zinc-600">
+        <span className="text-[10px] text-on-surface-variant/60">
           Updated {Math.floor((Date.now() - lastUpdate.getTime()) / 1000)}s ago
         </span>
       </div>
@@ -105,14 +105,14 @@ export function LiveStats() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 p-2 rounded-lg bg-zinc-900/80 border border-zinc-800/50 hover:border-zinc-700 transition-colors"
+            className="flex items-center gap-3 p-2 rounded-lg bg-surface-container-high/80 border border-outline-variant/50 hover:border-outline-variant transition-colors"
           >
             <div className={`${stat.color}`}>{stat.icon}</div>
             <div>
-              <div className="text-lg font-bold text-white tabular-nums">
+              <div className="text-lg font-bold text-on-surface tabular-nums">
                 {formatValue(stat)}
               </div>
-              <div className="text-[10px] text-zinc-500">{stat.label}</div>
+              <div className="text-[10px] text-on-surface-variant">{stat.label}</div>
             </div>
           </div>
         ))}

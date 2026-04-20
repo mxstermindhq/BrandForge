@@ -72,45 +72,45 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
   if (authReady && session) {
     return (
       <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-background" />
         <div className="relative z-10 text-center">
-          <div className="w-12 h-12 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Redirecting to dashboard...</p>
+          <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-on-surface-variant">Redirecting to dashboard...</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0a0a0a]">
+    <section className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden bg-background">
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-20 lg:py-0">
         <div className="max-w-md mx-auto lg:mx-0 w-full">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-amber-500/30 mb-8 mt-2">
-            <span className="text-amber-400 text-sm">⚔️</span>
-            <span className="text-sm text-amber-400">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-primary/30 mb-8 mt-2">
+            <span className="text-primary text-sm">⚔️</span>
+            <span className="text-sm text-primary">
               The Professional Business Game for the AI Era
             </span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-[#f5e6bc] via-[#d4af37] to-[#8b6914]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-on-surface mb-4 tracking-tight">
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-primary-container via-primary to-primary-fixed-variant">
               BrandForge
             </span>
           </h1>
 
-          <p className="text-lg text-zinc-400 mb-8">
+          <p className="text-lg text-on-surface-variant mb-8">
             AI agents, deal rooms, and smart matching. Execute projects end-to-end with human and AI squads.
           </p>
 
           {/* Auth Card */}
-          <div id="auth-section" className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-white mb-2">
+          <div id="auth-section" className="bg-surface-container/50 border border-outline-variant rounded-xl p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-on-surface mb-2">
               Enter the Arena
             </h2>
-            <p className="text-sm text-zinc-400 mb-6">
+            <p className="text-sm text-on-surface-variant mb-6">
               Sign in to start your journey
             </p>
 
@@ -118,7 +118,7 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
             <button
               onClick={onGoogleSignIn}
               disabled={busy || !configured}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-lg hover:bg-zinc-700 transition min-h-12 mb-4"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-surface-container-high border border-outline-variant text-on-surface rounded-lg hover:bg-surface-container-highest transition min-h-12 mb-4"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -143,10 +143,10 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-zinc-800" />
+                <div className="w-full border-t border-outline-variant" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-900 px-2 text-zinc-500">or</span>
+                <span className="bg-surface-container px-2 text-on-surface-variant">or</span>
               </div>
             </div>
 
@@ -158,18 +158,18 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-container border border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50"
                   disabled={busy}
                 />
               </div>
               <button
                 type="submit"
                 disabled={busy || !configured}
-                className="w-full px-4 py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition min-h-12"
+                className="w-full px-4 py-3 bg-primary text-on-primary rounded-lg font-semibold hover:bg-primary-fixed-dim transition min-h-12"
               >
                 {busy ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
                     Sending...
                   </span>
                 ) : (
@@ -179,23 +179,23 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
             </form>
 
             {notice && (
-              <p className="mt-4 text-sm text-emerald-400" role="status">
+              <p className="mt-4 text-sm text-success" role="status">
                 {notice}
               </p>
             )}
             {err && (
-              <p className="mt-4 text-sm text-rose-400" role="alert">
+              <p className="mt-4 text-sm text-critical" role="alert">
                 {err}
               </p>
             )}
 
-            <p className="mt-6 text-xs text-zinc-500 text-center">
+            <p className="mt-6 text-xs text-on-surface-variant text-center">
               By signing in, you agree to our{" "}
-              <Link href="/terms" className="text-amber-400 hover:underline">
+              <Link href="/terms" className="text-primary hover:underline">
                 Terms
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="text-amber-400 hover:underline">
+              <Link href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
             </p>
@@ -204,12 +204,12 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
       </div>
 
       {/* Right Side - App Preview Image */}
-      <div className="hidden lg:flex w-1/2 relative bg-zinc-900">
+      <div className="hidden lg:flex w-1/2 relative bg-surface">
         {/* Animated background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-500/10" />
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
         {/* App Screenshot / Preview */}

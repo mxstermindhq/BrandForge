@@ -71,7 +71,7 @@ function deduplicateActivities(activities: Activity[]): Activity[] {
 
 function transformApiActivity(apiActivity: ApiActivity): Activity {
   const type = apiActivity.type;
-  const iconConfig = iconMap[type] || { icon: <ArrowUp size={14} />, color: "text-zinc-400 bg-zinc-500/10" };
+  const iconConfig = iconMap[type] || { icon: <ArrowUp size={14} />, color: "text-on-surface-variant bg-surface-container-high" };
   
   return {
     id: apiActivity.id || `${apiActivity.user}-${Date.now()}`,
@@ -138,22 +138,22 @@ export function ActivityFeed() {
 
   if (loading) {
     return (
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm">
+      <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
             </span>
-            <span className="text-xs text-zinc-500 uppercase tracking-wider">Live Activity</span>
+            <span className="text-xs text-on-surface-variant uppercase tracking-wider">Live Activity</span>
           </div>
-          <Loader2 size={12} className="text-zinc-600 animate-spin" />
+          <Loader2 size={12} className="text-on-surface-variant animate-spin" />
         </div>
         <div className="space-y-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-zinc-900/40 animate-pulse">
-              <div className="w-8 h-8 rounded-full bg-zinc-800" />
-              <div className="flex-1 h-4 bg-zinc-800 rounded" />
+            <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-surface-container-low/40 animate-pulse">
+              <div className="w-8 h-8 rounded-full bg-surface-container-high" />
+              <div className="flex-1 h-4 bg-surface-container-high rounded" />
             </div>
           ))}
         </div>
@@ -163,24 +163,24 @@ export function ActivityFeed() {
 
   if (activities.length === 0) {
     return (
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm">
+      <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
             </span>
-            <span className="text-xs text-zinc-500 uppercase tracking-wider">Live Activity</span>
+            <span className="text-xs text-on-surface-variant uppercase tracking-wider">Live Activity</span>
           </div>
         </div>
-        <p className="text-sm text-zinc-500 text-center py-4">No recent activity</p>
+        <p className="text-sm text-on-surface-variant text-center py-4">No recent activity</p>
       </div>
     );
   }
 
   return (
     <div
-      className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm"
+      className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -190,12 +190,12 @@ export function ActivityFeed() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
           </span>
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">Live Activity</span>
+          <span className="text-xs text-on-surface-variant uppercase tracking-wider">Live Activity</span>
         </div>
         {isPaused ? (
-          <span className="text-[10px] text-zinc-600">Paused</span>
+          <span className="text-[10px] text-on-surface-variant/60">Paused</span>
         ) : (
-          <span className="text-[10px] text-zinc-600">
+          <span className="text-[10px] text-on-surface-variant/60">
             {Math.floor((Date.now() - lastFetch.getTime()) / 1000)}s ago
           </span>
         )}
@@ -206,18 +206,18 @@ export function ActivityFeed() {
           <div
             key={`${activity.id}-${index}`}
             className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-500 ${
-              index === 0 ? "bg-zinc-800/50 border border-zinc-700/50" : "bg-zinc-900/40"
+              index === 0 ? "bg-surface-container-high/50 border border-outline-variant/50" : "bg-surface-container-low/40"
             }`}
             style={{
               animation: index === 0 ? "fadeInDown 0.5s ease-out" : undefined,
             }}
           >
-            <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-medium text-zinc-400 shrink-0">
+            <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-xs font-medium text-on-surface-variant shrink-0">
               {activity.avatar}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-zinc-300 truncate">
-                <span className="font-medium text-white">@{activity.user}</span>{" "}
+              <p className="text-sm text-on-surface-variant truncate">
+                <span className="font-medium text-on-surface">@{activity.user}</span>{" "}
                 {activity.action}{" "}
                 <span className={`${activity.color.split(" ")[0]} font-medium`}>
                   {activity.detail}
@@ -227,7 +227,7 @@ export function ActivityFeed() {
             <div className={`p-1.5 rounded ${activity.color}`}>
               {activity.icon}
             </div>
-            <span className="text-[10px] text-zinc-600 shrink-0">{activity.time}</span>
+            <span className="text-[10px] text-on-surface-variant/60 shrink-0">{activity.time}</span>
           </div>
         ))}
       </div>
