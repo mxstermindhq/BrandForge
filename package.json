@@ -8,7 +8,7 @@
     "start": "node server.js",
     "dev:all": "concurrently -n api,web -c blue,green \"npm run dev\" \"npm run dev --prefix web\"",
     "cf:build": "npm ci --prefix web --include=dev && npm run cf:build --prefix web",
-    "cf:deploy": "npm run cf:build"
+    "cf:deploy": "npm run cf:build && cp -r web/.open-next .open-next"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1"
