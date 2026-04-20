@@ -39,10 +39,10 @@ import {
   Zap,
   MessageSquare,
 } from "lucide-react";
-import { useBoot } from "@/lib/boot";
-import { useSession } from "@/lib/auth";
-import { getSupabaseBrowser } from "@/lib/supabase/browser-client";
-import { chatHistoryUrl, apiGetJson, apiMutateJson } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
+import { useBootstrap } from "@/hooks/useBootstrap";
+import { getSupabaseBrowser } from "@/lib/supabase/browser";
+import { apiFetch } from "@/lib/api";
 
 // Types
 type Mode = "ai" | "human";
@@ -79,8 +79,8 @@ const MODELS: { id: AIModel; name: string; description: string }[] = [
 
 export default function UnifiedChat() {
   const router = useRouter();
-  const { data: bootData, isLoading: bootLoading } = useBoot();
-  const { session } = useSession();
+  const { data: bootData, loading: bootLoading } = useBootstrap();
+  const { session } = useAuth();
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("human");
   const [input, setInput] = useState("");
@@ -140,9 +140,8 @@ export default function UnifiedChat() {
         const { data } = await supabase.auth.getSession();
         t = data.session?.access_token ?? null;
       }
-      const path = chatHistoryUrl(chatId, { limit: 50 });
-      const data = await apiGetJson<{ activeChat: any }>(path, t);
-      setActiveChat(data.activeChat);
+      const { data } = await apiFetch<{ activeChat: any }>(`/api/chat/${chatId}/history?limit=50`, { method: "GET", accessToken: t });
+      setActiveChat(data?.activeChat || null);
     } catch (e) {
       console.error("Failed to load chat", e);
     }
@@ -161,18 +160,10 @@ export default function UnifiedChat() {
     } else {
       // Human chat
       try {
-        const supabase = getSupabaseBrowser();
-        let t: string | null = null;
-        if (supabase) {
-          const { data } = await supabase.auth.getSession();
-          t = data.session?.access_token ?? null;
-        }
-        await apiMutateJson(
-          `/api/chat/${encodeURIComponent(activeChatId)}/messages`,
-          "POST",
-          { content: input.trim() },
-          t
-        );
+        await apiFetch(`/api/chat/${encodeURIComponent(activeChatId)}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ content: input.trim() }),
+        });
         setInput("");
         await loadChat(activeChatId);
       } catch (e) {
