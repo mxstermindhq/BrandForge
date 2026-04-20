@@ -1,5 +1,5 @@
-import { ChatHubClient } from "./_components/ChatHubClient";
+import UnifiedChat from "./_components/UnifiedChat";
 
 export default function ChatHubPage() {
-  return <ChatHubClient />;
+  return <UnifiedChat />;
 }
