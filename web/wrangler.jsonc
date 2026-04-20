@@ -4,6 +4,7 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-04-10",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "pages_build_output_dir": ".open-next",
   // Worker vars: `wrangler deploy` overwrites dashboard-only vars — keep production values here so CLI + Git builds match.
   // NEXT_PUBLIC_SUPABASE_ANON_KEY is the public anon key (same as in the browser bundle); never put service_role here.
   "vars": {
