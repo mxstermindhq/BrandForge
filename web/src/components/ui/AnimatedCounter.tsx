@@ -42,7 +42,7 @@ export function AnimatedCounter({
 }
 
 // Helper component to render the motion value
-function AnimatedNumber({ value }: { value: ReturnType<typeof useTransform> }) {
+function AnimatedNumber({ value }: { value: import('framer-motion').MotionValue<string> }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
