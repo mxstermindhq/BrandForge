@@ -57,6 +57,21 @@ interface Message {
   status?: "sent" | "delivered" | "seen";
 }
 
+interface ChatThread {
+  id: string;
+  t?: string;
+  s?: string;
+  lastMessageAt?: string;
+  unread?: number;
+  peerAvatarUrl?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface ActiveChatData {
+  messages?: Message[];
+  [key: string]: unknown;
+}
+
 interface Chat {
   id: string;
   type: Mode;
@@ -87,12 +102,13 @@ export default function UnifiedChat() {
   const [search, setSearch] = useState("");
   const [model, setModel] = useState<AIModel>("gpt-4");
   const [sending, setSending] = useState(false);
-  const [activeChat, setActiveChat] = useState<any>(null);
+  const [activeChat, setActiveChat] = useState<ActiveChatData | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Get threads from boot data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const humanChats = useMemo(() => {
-    return (bootData?.humanChats || []) as any[];
+    return (bootData?.humanChats || []) as ChatThread[];
   }, [bootData?.humanChats]);
 
   // Mock AI chats for now
@@ -103,7 +119,7 @@ export default function UnifiedChat() {
   ], []);
 
   const allChats = useMemo(() => {
-    const humans: Chat[] = humanChats.map((h: any) => ({
+    const humans: Chat[] = humanChats.map((h: ChatThread) => ({
       id: h.id,
       type: "human" as Mode,
       title: h.t || "Conversation",
@@ -140,7 +156,8 @@ export default function UnifiedChat() {
         const { data } = await supabase.auth.getSession();
         t = data.session?.access_token ?? null;
       }
-      const { data } = await apiFetch<{ activeChat: any }>(`/api/chat/${chatId}/history?limit=50`, { method: "GET", accessToken: t });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await apiFetch<{ activeChat: ActiveChatData }>(`/api/chat/${chatId}/history?limit=50`, { method: "GET", accessToken: t });
       setActiveChat(data?.activeChat || null);
     } catch (e) {
       console.error("Failed to load chat", e);
