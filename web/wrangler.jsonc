@@ -14,7 +14,7 @@
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0Y3R0dXJ0aXRzdGNsanZrY3NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDAyNzUsImV4cCI6MjA5MDcxNjI3NX0.iKi3_XuYPXmQwCsDOVau2HLDQdm2dm4kqUjbmkBSC2E"
   },
   "assets": {
-    "directory": ".open-next/assets",
+    "directory": ".open-next",
     "binding": "ASSETS"
   },
   "services": [
