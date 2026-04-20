@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView } from "framer-motion";
 import { Users, Briefcase, Trophy, Zap } from "lucide-react";
 import { apiGetJson } from "@/lib/api";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";

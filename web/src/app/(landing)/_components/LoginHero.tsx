@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { useAuth } from "@/providers/AuthProvider";
 import { heroStagger, fadeUp, scaleIn } from "@/lib/animations";
 
@@ -94,31 +94,51 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
           variants={heroStagger}
         >
           {/* Badge */}
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-primary/30 mb-8 mt-2">
-            <span className="text-primary text-sm">⚔️</span>
-            <span className="text-sm text-primary">
-              The Professional Business Game for the AI Era
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-primary/30 mb-6 mt-2">
+            <span className="text-sm text-primary font-medium">
+              The professional OS for independent specialists
             </span>
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-bold text-on-surface mb-4 tracking-tight">
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-primary-container via-primary to-primary-fixed-variant">
-              BrandForge
-            </span>
+          <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-bold text-on-surface mb-4 tracking-tight leading-tight">
+            Run high-value client work without the operational drag.
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-lg text-on-surface-variant mb-8">
-            AI agents, deal rooms, and smart matching. Execute projects end-to-end with human and AI squads.
+          <motion.p variants={fadeUp} className="text-lg text-on-surface-variant mb-6">
+            BrandForge is where vetted specialists and serious buyers meet, negotiate, sign, and get paid — with AI handling the busywork and humans owning every decision that matters.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 mb-4">
+            <button
+              onClick={onGoogleSignIn}
+              disabled={busy || !configured}
+              className="btn-primary px-6 py-3 text-base"
+            >
+              Get started — free
+            </button>
+            <a
+              href="#how-it-works"
+              className="btn-secondary px-6 py-3 text-base inline-flex items-center justify-center gap-2"
+            >
+              See how it works
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+          </motion.div>
+
+          {/* Trust row */}
+          <motion.p variants={fadeUp} className="text-sm text-on-surface-variant/70 mb-8">
+            No credit card · Stripe-secured escrow · SOC 2 in progress
           </motion.p>
 
           {/* Auth Card */}
           <motion.div variants={fadeUp} id="auth-section" className="bg-surface-container/50 border border-outline-variant rounded-xl p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-on-surface mb-2">
-              Enter the Arena
+              Start your account
             </h2>
             <p className="text-sm text-on-surface-variant mb-6">
-              Sign in to start your journey
+              Free to join. Upgrade when your pipeline needs it.
             </p>
 
             {/* Google Sign In */}
@@ -197,14 +217,14 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
             )}
 
             <p className="mt-6 text-xs text-on-surface-variant text-center">
-              By signing in, you agree to our{" "}
+              By continuing you agree to our{" "}
               <Link href="/terms" className="text-primary hover:underline">
                 Terms
               </Link>{" "}
               and{" "}
               <Link href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
-              </Link>
+              </Link>.
             </p>
           </motion.div>
         </motion.div>
@@ -242,12 +262,12 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
               {/* Mock Stats */}
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div className="p-3 rounded-lg bg-surface-container-high">
-                  <p className="text-xs text-on-surface-variant">Honor</p>
+                  <p className="text-xs text-on-surface-variant">Index</p>
                   <p className="text-lg font-bold text-primary">2,450</p>
                 </div>
                 <div className="p-3 rounded-lg bg-surface-container-high">
-                  <p className="text-xs text-on-surface-variant">Conquest</p>
-                  <p className="text-lg font-bold text-tertiary">890</p>
+                  <p className="text-xs text-on-surface-variant">Deals</p>
+                  <p className="text-lg font-bold text-tertiary">47</p>
                 </div>
                 <div className="p-3 rounded-lg bg-surface-container-high">
                   <p className="text-xs text-on-surface-variant">Agents</p>
@@ -281,14 +301,14 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
             <div className="absolute -top-6 -right-6 surface-card p-3 rounded-lg shadow-lg border border-outline-variant/50">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-success text-lg">trending_up</span>
-                <span className="text-sm font-medium text-on-surface">Rank Up!</span>
+                <span className="text-sm font-medium text-on-surface">Index Up!</span>
               </div>
             </div>
 
             <div className="absolute -bottom-4 -left-4 surface-card p-3 rounded-lg shadow-lg border border-outline-variant/50">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-lg">groups</span>
-                <span className="text-sm font-medium text-on-surface">3 New Squads</span>
+                <span className="text-sm font-medium text-on-surface">3 New Teams</span>
               </div>
             </div>
           </div>

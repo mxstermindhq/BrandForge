@@ -27,6 +27,16 @@ const navItems = [
 function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
   if (href.startsWith('#')) {
     e.preventDefault();
+    // Check if we're on the home page (landing page)
+    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+    
+    if (!isHomePage) {
+      // Redirect to home page with the hash
+      window.location.href = '/' + href;
+      return;
+    }
+    
+    // On home page, scroll to the section
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -51,7 +61,7 @@ export function LandingNav() {
             />
           </div>
           <span className="font-headline font-bold text-lg text-on-surface group-hover:text-primary transition-colors">
-            World of BrandForge
+            BrandForge
           </span>
         </Link>
 
@@ -104,14 +114,13 @@ export function LandingNav() {
             </Link>
           ) : (
             <>
-              {/* Try BrandForge with Tooltip */}
+                  {/* Request Access CTA */}
               <div className="relative group">
                 <Link
                   href="/login#email"
                   className="relative px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-primary to-primary/90 text-on-primary rounded-lg hover:shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all duration-200 flex items-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-base">⚔️</span>
-                  Try BrandForge
+                  Request access
                   <span className="absolute -top-1 -right-1 flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
@@ -121,7 +130,7 @@ export function LandingNav() {
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                   <div className="bg-surface-container-high border border-outline-variant rounded-lg px-4 py-3 shadow-xl">
                     <p className="text-xs text-on-surface-variant text-center">
-                      <span className="text-primary font-semibold">Join the Arena!</span> Free to start. Build your rep, unlock AI squads, and rank up from Challenger to Legendary.
+                      <span className="text-primary font-semibold">Built for specialists and buyers running serious engagements.</span> Free to join.
                     </p>
                     <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-surface-container-high border-t border-l border-outline-variant rotate-45"></div>
                   </div>

@@ -23,57 +23,33 @@ export function FinalCTA() {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-high border border-outline-variant mb-8">
-          <span className="material-symbols-outlined text-amber-400 text-sm">emoji_events</span>
-          <span className="text-sm font-body text-on-surface-variant">
-            Join thousands of professionals already competing
-          </span>
-        </div>
-
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold text-on-surface mb-6">
-          Ready to Enter the{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-            Arena
-          </span>
-          ?
+          Your next client is already on BrandForge.
         </h2>
 
         <p className="text-xl text-on-surface-variant max-w-2xl mx-auto mb-10">
-          Your journey from Challenger to Undisputed starts with a single click. 
-          Join the World of BrandForge today.
+          Start free. Build a verified record. Keep what you earn.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button onClick={onStartJourney} className="btn-primary min-h-14 px-8 text-lg">
             <span className="flex items-center gap-2">
               <span className="material-symbols-outlined">login</span>
-              Start Your Journey
+              Get started — free
             </span>
           </button>
-          <a href="#features" className="btn-secondary min-h-14 px-8 text-lg">
+          <a href="mailto:sales@brandforge.gg" className="btn-secondary min-h-14 px-8 text-lg">
             <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined">explore</span>
-              Explore Features
+              <span className="material-symbols-outlined">support_agent</span>
+              Talk to the team
             </span>
           </a>
         </div>
 
-        {/* Trust indicators */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-on-surface-variant/70">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">verified</span>
-            <span className="text-sm">Secure Escrow</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">verified</span>
-            <span className="text-sm">AI-Powered</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">verified</span>
-            <span className="text-sm">Smart Contracts</span>
-          </div>
-        </div>
+        {/* Trust line */}
+        <p className="mt-12 text-sm text-on-surface-variant/70">
+          Join in under 60 seconds · 1,200+ deals closed this month
+        </p>
       </div>
     </section>
   );

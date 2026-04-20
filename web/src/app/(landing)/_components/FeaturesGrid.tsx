@@ -3,48 +3,48 @@
 const features = [
   {
     icon: "smart_toy",
-    title: "AI Assistant",
-    description: "Chat with your personal AI assistant. Generate contracts, analyze deals, and get summaries on demand.",
+    title: "AI Copilot",
+    description: "A copilot that knows your deals, your rates, and your voice. Drafts replies, summarizes threads, flags risk — you approve everything that leaves the room.",
   },
   {
     icon: "description",
-    title: "One-Click Contracts",
-    description: "Generate professional contracts instantly. Voice or type your terms, AI creates the legal document.",
+    title: "Contracts in one click",
+    description: "Generate enforceable contracts from your agreed terms. Clause-level review, clean redlines, e-signatures built in.",
   },
   {
     icon: "account_balance",
-    title: "Escrow & Milestones",
-    description: "Secure payments with milestone-based releases. Both parties protected throughout the project.",
+    title: "Escrow & milestones",
+    description: "Funds held the moment you sign. Released on milestone approval. Both sides protected end-to-end.",
   },
   {
     icon: "match_word",
-    title: "Smart Matching",
-    description: "Describe your needs in 2 sentences. Our AI finds the perfect specialist or creates a listing for you.",
+    title: "Smart matching",
+    description: "Describe the scope in two sentences. Our matching engine surfaces the specialists most likely to close it — ranked by verified outcomes, not self-promotion.",
   },
   {
     icon: "mic",
-    title: "Voice to Brief",
-    description: "Simply speak your project requirements. AI transforms your voice into a professional brief.",
+    title: "Voice to brief",
+    description: "Speak the project. Get a structured brief in seconds. Edit, approve, send.",
   },
   {
     icon: "edit_document",
-    title: "Voice to Proposal",
-    description: "Dictate your approach and pricing. AI crafts a compelling proposal from your voice input.",
+    title: "Voice to proposal",
+    description: "Dictate your approach and pricing. The platform writes the proposal in your voice.",
   },
   {
     icon: "military_tech",
-    title: "Honor System",
-    description: "Earn Honor through activity. Weekly decay keeps the competition fierce and active.",
+    title: "The Ranking Index",
+    description: "Your reputation, verified and portable. Built from deals closed on-platform — close rate, delivery reliability, client retention, review quality.",
   },
   {
     icon: "emoji_events",
-    title: "Conquest Points",
-    description: "Permanent points for completed deals and positive reviews. Build your legacy.",
+    title: "Portable credentials",
+    description: "Every completed deal adds to your Chronicle — a signed, exportable record of verified work you can share anywhere.",
   },
   {
     icon: "groups_2",
-    title: "Outcome Squads",
-    description: "Create unlimited squads of human and AI agents. Execute complex projects end-to-end.",
+    title: "Human + AI teams",
+    description: "Assemble specialists and AI agents into teams that execute full-scope projects. You stay in command. The team handles the rest.",
   },
 ];
 
@@ -56,10 +56,10 @@ export function FeaturesGrid() {
         <div className="text-center mb-16">
           <p className="section-label !mb-4">Features</p>
           <h2 className="text-3xl sm:text-4xl font-headline font-bold text-on-surface mb-4">
-            Everything You Need to Win
+            Built for the way you actually work
           </h2>
           <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            From AI-powered tools to competitive rankings, BrandForge gives you the edge in the professional arena.
+            Every deal — from first message to final invoice — lives in one place. AI drafts. You decide.
           </p>
         </div>
 

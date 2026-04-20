@@ -13,67 +13,67 @@ const tiers = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "Start building your reputation. Perfect for getting your first clients.",
+    description: "Everything you need to land your first clients.",
     features: [
       "Public profile & portfolio",
       "List services & bid on requests",
       "Deal rooms & messaging",
       "Milestones & reviews",
-      "Season leaderboard access",
-      "Honor & Conquest credits",
+      "Index & Chronicle access",
+      "AI Copilot",
     ],
-    cta: "Get Started Free",
+    cta: "Start free",
     popular: false,
   },
   {
     id: "starter",
-    name: "Starter",
+    name: "Solo",
     price: "$29",
     period: "/month",
-    description: "For solo specialists ready to grow their presence and win more deals.",
+    description: "For independent specialists with a steady pipeline.",
     features: [
       "Everything in Free",
       "Priority listing placement",
-      "Honor-week visibility boost",
+      "Weekly visibility boost",
       "Email support",
       "Higher AI copilot limits",
       "Advanced analytics",
     ],
-    cta: "Start Growing",
+    cta: "Start Solo",
     popular: false,
   },
   {
     id: "architect",
-    name: "Architect",
+    name: "Studio",
     price: "$79",
     period: "/month",
-    description: "For power sellers juggling multiple clients and complex projects.",
+    description: "For power sellers managing multiple active engagements.",
     features: [
-      "Everything in Starter",
+      "Everything in Solo",
       "Multi-seat team access",
       "Priority support",
       "Custom contract templates",
       "Advanced AI features",
       "Reduced platform fees",
     ],
-    cta: "Scale Up",
+    cta: "Start Studio",
     popular: true,
   },
   {
     id: "scale",
-    name: "Scale",
+    name: "Agency",
     price: "$199",
     period: "/month",
-    description: "For studios and agencies with procurement needs and custom workflows.",
+    description: "For studios and agencies with procurement, compliance, and custom workflows.",
     features: [
-      "Everything in Architect",
+      "Everything in Studio",
       "Stripe escrow & crypto treasury",
       "Admin & dispute tools",
       "White-label options",
       "API access",
       "Dedicated account manager",
     ],
-    cta: "Contact Sales",
+    cta: "Talk to sales",
     popular: false,
   },
 ];
@@ -125,13 +125,12 @@ export function PlansShowcase({ selectedPlan }: PlansShowcaseProps = {}) {
 
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="section-label !mb-6">Simple Pricing</p>
+          <p className="section-label !mb-6">Pricing</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-headline font-bold text-on-surface mb-6">
-            Start Free. Scale As You Grow.
+            Pricing that scales with your practice.
           </h2>
           <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Every plan includes our core marketplace features. No hidden fees. 
-            Upgrade when you&apos;re ready to accelerate.
+            Start free. Upgrade when the volume justifies it. No per-transaction surprises.
           </p>
         </div>
 
@@ -227,7 +226,7 @@ export function PlansShowcase({ selectedPlan }: PlansShowcaseProps = {}) {
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-on-surface-variant">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-success">verified</span>
-            <span>No credit card required for Free</span>
+            <span>No credit card required</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-success">sync</span>
@@ -235,7 +234,7 @@ export function PlansShowcase({ selectedPlan }: PlansShowcaseProps = {}) {
           </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-success">lock</span>
-            <span>Secure payments</span>
+            <span>Stripe-secured payments</span>
           </div>
         </div>
       </div>

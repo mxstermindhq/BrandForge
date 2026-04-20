@@ -73,12 +73,11 @@ export function AskAICards() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <p className="section-label !mb-4">Still Curious?</p>
           <h2 className="text-2xl sm:text-3xl font-headline font-bold text-on-surface mb-4">
-            Ask Any AI About BrandForge
+            Vet us.
           </h2>
           <p className="text-base text-on-surface-variant max-w-xl mx-auto">
-            Click any card to instantly open the AI with a pre-written question about BrandForge.
+            Independent research encouraged. Ask your AI of choice about BrandForge.
           </p>
         </div>
 

@@ -6,8 +6,8 @@ const footerLinks = {
   product: [
     { label: "Features", href: "#product" },
     { label: "Pricing", href: "#pricing" },
-    { label: "Agents", href: "/ai" },
-    { label: "Squads", href: "/squads" },
+    { label: "AI Copilot", href: "/ai" },
+    { label: "Teams", href: "/teams" },
   ],
   company: [
     { label: "About", href: "/about" },
@@ -78,7 +78,7 @@ export function LandingFooter() {
             </span>
           </Link>
             <p className="text-sm text-on-surface-variant mb-6 max-w-xs">
-              The Professional OS for the AI Era. Create, rent, and deploy AI agents in a competitive marketplace.
+              The professional OS for independent specialists. Verified work. Portable reputation. Built for serious engagements.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4">

@@ -4,32 +4,32 @@ const steps = [
   {
     number: "01",
     icon: "person_add",
-    title: "Enter the Arena",
-    description: "Sign up with Google or email. Complete your profile and choose your path: client, specialist, or both.",
+    title: "Join",
+    description: "Sign up with Google or email. Complete your profile. Choose whether you're hiring, selling expertise, or both.",
   },
   {
     number: "02",
     icon: "match_word",
-    title: "Find or Be Found",
-    description: "Post a brief with voice or text. Our AI matches you with perfect specialists, or creates a service listing that attracts clients.",
+    title: "Match",
+    description: "Post a brief or browse specialists. The matching engine surfaces the best fit based on verified outcomes.",
   },
   {
     number: "03",
     icon: "chat",
-    title: "Negotiate in Deal Rooms",
-    description: "Review bids, chat with AI assistance, generate contracts, and set milestones. Everything in one unified thread.",
+    title: "Negotiate",
+    description: "Review proposals. Counter terms. Generate contracts. Everything stays in one thread.",
   },
   {
     number: "04",
     icon: "account_balance",
-    title: "Secure Execution",
-    description: "Funds held in escrow until milestones complete. Both parties protected. AI tracks progress and alerts on risks.",
+    title: "Execute",
+    description: "Funds sit in escrow. Milestones track progress. AI flags risk before it becomes a problem.",
   },
   {
     number: "05",
     icon: "military_tech",
-    title: "Earn Glory",
-    description: "Complete deals to earn Honor, Conquest, and RP. Climb the ranks from Challenger to Undisputed status.",
+    title: "Build your record",
+    description: "Every closed deal strengthens your Index and your Chronicle — a portable, verified professional record.",
   },
 ];
 
@@ -41,10 +41,10 @@ export function HowItWorks() {
         <div className="text-center mb-16">
           <p className="section-label !mb-4">How It Works</p>
           <h2 className="text-3xl sm:text-4xl font-headline font-bold text-on-surface mb-4">
-            Your Journey to Victory
+            From first message to final payment — in one thread.
           </h2>
           <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Five steps from newcomer to legend. Every deal makes you stronger.
+            Five steps. No switching tools. No chasing signatures.
           </p>
         </div>
 

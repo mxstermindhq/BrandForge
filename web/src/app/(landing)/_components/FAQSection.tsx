@@ -4,36 +4,36 @@ import { useState } from "react";
 
 const faqs = [
   {
-    question: "What is World of BrandForge?",
-    answer: "World of BrandForge is a competitive AI-powered marketplace where professionals can create, rent, and deploy AI agents to complete projects, earn Honor and Conquest points, and climb the ranks from Challenger to Undisputed.",
+    question: "What is BrandForge?",
+    answer: "BrandForge is a professional marketplace where independent specialists and serious buyers meet, negotiate, sign, and get paid. AI handles the busywork — drafting contracts, summarizing threads, flagging risks — while humans own every decision that matters. Your reputation is built from verified on-platform activity, creating a portable, trusted record of your work.",
   },
   {
-    question: "How do AI agents work?",
-    answer: "AI agents are customizable assistants that can handle specific tasks like content writing, code generation, research, and more. You can create your own agents, rent them to others, or rent agents from the marketplace to complete your projects.",
+    question: "How does the AI assist without taking over?",
+    answer: "Our AI Copilot drafts replies, generates contracts from agreed terms, summarizes long threads, and flags potential risks before they become problems. Every output requires your approval before it leaves the room. You stay in command. The AI handles the repetitive work that slows down deals.",
   },
   {
-    question: "What are Honor and Conquest points?",
-    answer: "Honor and Conquest are reputation points that determine your ranking. Honor is earned through consistent activity and completing quests. Conquest is earned through competitive wins. They are NOT currency - services are paid in crypto. Both points contribute to your ranking tier.",
+    question: "How does the Ranking Index work?",
+    answer: "The Index is your verified reputation score, calculated from deals closed on-platform. It factors in close rate, delivery reliability, client retention, and review quality — not self-promotion or marketing spend. A higher Index means better placement in search and more trust from potential clients.",
   },
   {
-    question: "How do squads work?",
-    answer: "Squads are teams of professionals who work together on projects. You can join existing squads or create your own (requires upgrade). Squad members can share agents, collaborate on projects, and earn collective rewards.",
+    question: "Can I build a team of specialists and AI agents?",
+    answer: "Yes. BrandForge lets you assemble Teams — groups of human specialists and AI agents that execute full-scope projects together. You define the scope, the team handles the execution, and you maintain oversight throughout. Perfect for complex engagements that require multiple skill sets.",
   },
   {
-    question: "Is there a free plan?",
-    answer: "Yes! The Challenger plan is completely free and includes up to 3 AI agents, basic marketplace access, and participation in quests. You can upgrade anytime to unlock more agents, squad creation, and premium features.",
+    question: "What's included in the free tier?",
+    answer: "The free tier includes everything you need to land your first clients: public profile and portfolio, ability to list services and bid on requests, deal rooms and messaging, milestones and reviews, Index and Chronicle access, and the AI Copilot. Upgrade when your pipeline needs more capacity.",
   },
   {
-    question: "How does the ranking system work?",
-    answer: "The ranking system has 9 tiers from Challenger to Undisputed. You progress by earning Honor and Conquest points through activities like completing projects, winning challenges, and participating in the marketplace.",
+    question: "How is my Index calculated and who verifies it?",
+    answer: "Your Index is calculated algorithmically from verified on-platform activity: deals closed, on-time delivery rate, client retention, and review quality. Every metric is tied to actual transactions and client feedback within the platform — no external claims or self-reported accomplishments. The system updates continuously as you complete engagements.",
   },
   {
-    question: "Can I rent my agents to other users?",
-    answer: "Absolutely! You can set your agents as rentable and set your own price in crypto. When others rent your agents, you earn money while they get access to powerful AI capabilities.",
+    question: "Can I publish my AI workflows for others to use?",
+    answer: "Specialists on paid plans can package their AI-assisted workflows — custom prompts, contract templates, and automation sequences — and make them available to other users. When others use your workflows, you earn additional revenue while helping standardize best practices across the platform.",
   },
   {
-    question: "What types of projects can I complete?",
-    answer: "You can complete a wide range of projects including content creation, coding tasks, research, data analysis, marketing campaigns, and more. The marketplace matches you with projects that fit your skills and agent capabilities.",
+    question: "What kind of work is BrandForge built for?",
+    answer: "BrandForge is designed for professional engagements that require trust, contracts, and milestone-based delivery. Common categories include strategic consulting, software development, creative services, legal and compliance work, marketing and growth, and research and analysis. If it requires a contract and pays serious money, it belongs on BrandForge.",
   },
 ];
 
@@ -48,7 +48,7 @@ export function FAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-on-surface-variant">
-            Everything you need to know about World of BrandForge
+            Everything you need to know about BrandForge
           </p>
         </div>
 

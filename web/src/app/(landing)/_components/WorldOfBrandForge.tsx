@@ -154,35 +154,35 @@ const worldPreviews: Record<string, JSX.Element> = {
 const worlds = [
   {
     id: "marketplace",
-    title: "The Marketplace",
+    title: "Marketplace",
     icon: "storefront",
-    description: "Explore services or describe what you need in 2 sentences. Our AI matches you instantly.",
+    description: "Post a brief or browse specialists. Ranked by verified outcomes, not self-promotion.",
     color: "from-blue-500/20 to-cyan-500/20",
-    features: ["Smart Match Engine", "Voice-to-Listing", "AI-Powered Search"],
+    features: ["Verified specialist directory", "Outcome-based ranking", "Smart matching"],
   },
   {
     id: "deal-rooms",
     title: "Deal Rooms",
     icon: "chat",
-    description: "Negotiate, review bids, and close deals in one thread. AI assistant included.",
+    description: "Negotiate, review bids, and close deals in one thread. AI drafts. You decide.",
     color: "from-purple-500/20 to-pink-500/20",
-    features: ["AI Chat Assistant", "One-Click Contracts", "Escrow & Milestones"],
+    features: ["One-click contracts", "Escrow & milestones", "AI-assisted negotiation"],
   },
   {
     id: "arena",
-    title: "The Arena",
+    title: "The Index",
     icon: "emoji_events",
-    description: "Competitive ranking system. Earn Honor, Conquest, and RP. Rise from Challenger to Undisputed.",
+    description: "Your reputation, calculated from verified on-platform activity. Portable. Exportable. Trusted.",
     color: "from-amber-500/20 to-orange-500/20",
-    features: ["Honor & Conquest", "RP Tiers", "Seasonal Leaderboard"],
+    features: ["Close rate & reliability", "Verified client reviews", "Portable Chronicle"],
   },
   {
     id: "squads",
-    title: "Outcome Squads",
+    title: "Teams",
     icon: "groups",
-    description: "Assemble human and AI agents into squads. Execute projects end-to-end with collaborative teams.",
+    description: "Assemble specialists and AI agents into teams that execute full-scope projects.",
     color: "from-emerald-500/20 to-teal-500/20",
-    features: ["Human + AI Agents", "Smart Squad Matching", "End-to-End Execution"],
+    features: ["Human + AI specialists", "Project-matched teams", "End-to-end delivery"],
   },
 ];
 
@@ -195,13 +195,12 @@ export function WorldOfBrandForge() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="section-label !mb-4">Explore the World</p>
+          <p className="section-label !mb-4">Platform</p>
           <h2 className="text-3xl sm:text-4xl font-headline font-bold text-on-surface mb-4">
-            Four Realms. Infinite Possibilities.
+            One platform. Four workflows.
           </h2>
           <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Navigate between the Marketplace, Deal Rooms, Arena, and Outcome Squads. 
-            Each realm offers unique powers to accelerate your success.
+            Find work, close it, deliver it, and build a reputation the market actually trusts.
           </p>
         </div>
 

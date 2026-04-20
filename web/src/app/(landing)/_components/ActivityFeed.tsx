@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView } from "framer-motion";
 import { Trophy, DollarSign, Users, Star, ArrowUp, Loader2 } from "lucide-react";
 import { apiGetJson } from "@/lib/api";
 import { fadeUp, cardStagger } from "@/lib/animations";
@@ -219,7 +219,7 @@ export function ActivityFeed() {
             {Math.floor((Date.now() - lastFetch.getTime()) / 1000)}s ago
           </span>
         )}
-      </motion.div>
+      </div>
 
       <div className="space-y-2">
         {activities.map((activity, index) => (
