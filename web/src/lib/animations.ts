@@ -6,7 +6,7 @@
  * - Respects prefers-reduced-motion
  */
 
-import { Variants } from 'motion/react';
+import { Variants } from 'framer-motion';
 
 // Easing curves as specified
 const easeOutExpo = [0.16, 1, 0.3, 1];
