@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { useAuth } from "@/providers/AuthProvider";
+import { heroStagger, fadeUp, scaleIn } from "@/lib/animations";
 
 export interface LoginHeroProps {
   selectedPlan?: string | null;
@@ -85,28 +87,33 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
     <section className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden bg-background">
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-20 lg:py-0">
-        <div className="max-w-md mx-auto lg:mx-0 w-full">
+        <motion.div
+          className="max-w-md mx-auto lg:mx-0 w-full"
+          initial="hidden"
+          animate="visible"
+          variants={heroStagger}
+        >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-primary/30 mb-8 mt-2">
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-primary/30 mb-8 mt-2">
             <span className="text-primary text-sm">⚔️</span>
             <span className="text-sm text-primary">
               The Professional Business Game for the AI Era
             </span>
-          </div>
+          </motion.div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-on-surface mb-4 tracking-tight">
+          <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-bold text-on-surface mb-4 tracking-tight">
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-primary-container via-primary to-primary-fixed-variant">
               BrandForge
             </span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-lg text-on-surface-variant mb-8">
+          <motion.p variants={fadeUp} className="text-lg text-on-surface-variant mb-8">
             AI agents, deal rooms, and smart matching. Execute projects end-to-end with human and AI squads.
-          </p>
+          </motion.p>
 
           {/* Auth Card */}
-          <div id="auth-section" className="bg-surface-container/50 border border-outline-variant rounded-xl p-6 sm:p-8">
+          <motion.div variants={fadeUp} id="auth-section" className="bg-surface-container/50 border border-outline-variant rounded-xl p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-on-surface mb-2">
               Enter the Arena
             </h2>
@@ -199,12 +206,17 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
                 Privacy Policy
               </Link>
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Right Side - App Preview Image */}
-      <div className="hidden lg:flex w-1/2 relative bg-surface">
+      <motion.div
+        className="hidden lg:flex w-1/2 relative bg-surface"
+        initial="hidden"
+        animate="visible"
+        variants={scaleIn}
+      >
         {/* Animated background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
@@ -281,7 +293,7 @@ export function LoginHero({ selectedPlan }: LoginHeroProps = {}) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

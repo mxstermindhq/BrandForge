@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "motion/react";
 import { Trophy, DollarSign, Users, Star, ArrowUp, Loader2 } from "lucide-react";
 import { apiGetJson } from "@/lib/api";
+import { fadeUp, cardStagger } from "@/lib/animations";
 
 interface ApiActivity {
   id: string;
@@ -91,6 +93,8 @@ export function ActivityFeed() {
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [lastFetch, setLastFetch] = useState<Date>(new Date());
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   // Fetch real data from API
   useEffect(() => {
@@ -138,7 +142,13 @@ export function ActivityFeed() {
 
   if (loading) {
     return (
-      <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
+      <motion.div
+        ref={ref}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        variants={fadeUp}
+        className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm"
+      >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -157,13 +167,19 @@ export function ActivityFeed() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (activities.length === 0) {
     return (
-      <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
+      <motion.div
+        ref={ref}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        variants={fadeUp}
+        className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm"
+      >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -174,15 +190,19 @@ export function ActivityFeed() {
           </div>
         </div>
         <p className="text-sm text-on-surface-variant text-center py-4">No recent activity</p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div
+    <motion.div
+      ref={ref}
       className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={cardStagger}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -199,18 +219,16 @@ export function ActivityFeed() {
             {Math.floor((Date.now() - lastFetch.getTime()) / 1000)}s ago
           </span>
         )}
-      </div>
+      </motion.div>
 
       <div className="space-y-2">
         {activities.map((activity, index) => (
-          <div
+          <motion.div
             key={`${activity.id}-${index}`}
+            variants={fadeUp}
             className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-500 ${
               index === 0 ? "bg-surface-container-high/50 border border-outline-variant/50" : "bg-surface-container-low/40"
             }`}
-            style={{
-              animation: index === 0 ? "fadeInDown 0.5s ease-out" : undefined,
-            }}
           >
             <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-xs font-medium text-on-surface-variant shrink-0">
               {activity.avatar}
@@ -228,22 +246,9 @@ export function ActivityFeed() {
               {activity.icon}
             </div>
             <span className="text-[10px] text-on-surface-variant/60 shrink-0">{activity.time}</span>
-          </div>
+          </motion.div>
         ))}
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
+    </motion.div>
   );
 }

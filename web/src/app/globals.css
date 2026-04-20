@@ -98,6 +98,23 @@ html {
   --color-inverse-on-surface: #f5f0e8;
   --color-inverse-primary: #e8c97a;
 
+  /* ─── Motion System ────────────────────── */
+  /* Easing curves */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Durations */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-hero: 600ms;
+
+  /* Semantic status colors */
+  --color-success: #16a34a;
+  --color-on-success: #ffffff;
+
   /* Shadows */
   --shadow-ambient: 0 0 32px rgba(0, 0, 0, 0.06);
   --shadow-glow: 0 0 24px rgba(184, 146, 31, 0.15);
@@ -738,4 +755,79 @@ html.dark ::selection {
 
 .mx-typing-orb {
   animation: mx-typing-orb 1.35s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────
+   MOTION SYSTEM - Professional Animation
+───────────────────────────────────────── */
+
+/* Smooth scroll with nav offset */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+/* Theme transition for smooth dark/light switching */
+body {
+  transition: background-color var(--duration-base) var(--ease-in-out),
+              color var(--duration-base) var(--ease-in-out);
+}
+
+/* Animated underline for links */
+.link-animated {
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  transition: background-size var(--duration-base) var(--ease-out-expo);
+}
+.link-animated:hover {
+  background-size: 100% 1px;
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.dot-live {
+  animation: pulse-soft 2s var(--ease-in-out) infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fade up animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion support - non-negotiable accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .dot-live {
+    animation: none;
+    opacity: 1;
+  }
 }

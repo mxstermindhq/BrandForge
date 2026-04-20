@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "motion/react";
 import { Users, Briefcase, Trophy, Zap } from "lucide-react";
 import { apiGetJson } from "@/lib/api";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { fadeUp, cardStagger } from "@/lib/animations";
 
 interface Stat {
   label: string;
@@ -64,6 +67,9 @@ export function LiveStats() {
     return `${stat.value.toLocaleString()}${stat.suffix}`;
   };
 
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   if (loading) {
     return (
       <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm animate-pulse">
@@ -87,8 +93,14 @@ export function LiveStats() {
   }
 
   return (
-    <div className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-3">
+    <motion.div
+      ref={ref}
+      className="bg-surface/50 border border-outline-variant rounded-xl p-4 backdrop-blur-sm"
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={cardStagger}
+    >
+      <motion.div variants={fadeUp} className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -99,24 +111,32 @@ export function LiveStats() {
         <span className="text-[10px] text-on-surface-variant/60">
           Updated {Math.floor((Date.now() - lastUpdate.getTime()) / 1000)}s ago
         </span>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat) => (
-          <div
+          <motion.div
             key={stat.label}
+            variants={fadeUp}
             className="flex items-center gap-3 p-2 rounded-lg bg-surface-container-high/80 border border-outline-variant/50 hover:border-outline-variant transition-colors"
           >
             <div className={`${stat.color}`}>{stat.icon}</div>
             <div>
               <div className="text-lg font-bold text-on-surface tabular-nums">
-                {formatValue(stat)}
+                {stat.label === "Payments" ? (
+                  `$${stat.value.toFixed(1)}M`
+                ) : (
+                  <AnimatedCounter
+                    value={stat.value}
+                    format={(v) => stat.label === "AI Agents" ? `${v}` : `${Math.round(v).toLocaleString()}${stat.suffix}`}
+                  />
+                )}
               </div>
               <div className="text-[10px] text-on-surface-variant">{stat.label}</div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
