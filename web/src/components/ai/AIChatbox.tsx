@@ -1,3 +1,13 @@
+/**
+ * @deprecated Use DealThreadClient from @/app/(main)/chat/[id]/_components/DealThreadClient
+ * 
+ * This component is deprecated in favor of the unified Deal Room experience.
+ * The new DealThreadClient combines human and AI conversations in a single thread
+ * with AI actions as buttons (not a separate mode) and a value rail showing
+ * deal context, artifacts, and next actions.
+ * 
+ * Migration: Replace <AIChatbox /> with <DealThreadClient isNewThread />
+ */
 "use client";
 
 import { useState, useRef, useEffect } from "react";

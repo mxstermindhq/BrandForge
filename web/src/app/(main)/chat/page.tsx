@@ -1,5 +1,5 @@
-import UnifiedChat from "./_components/UnifiedChat";
+import { DealThreadClient } from "./[id]/_components/DealThreadClient";
 
 export default function ChatHubPage() {
-  return <UnifiedChat />;
+  return <DealThreadClient isNewThread />;
 }

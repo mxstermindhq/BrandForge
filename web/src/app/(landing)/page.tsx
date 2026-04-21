@@ -8,6 +8,7 @@ import {
   AskAICards,
   PlansShowcase,
 } from "./_components";
+import { DealRoomShowcase } from "@/components/landing/DealRoomShowcase";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
@@ -79,6 +80,11 @@ export default function LandingPage() {
         {/* HERO - Main value proposition */}
         <section id="hero" className="relative">
           <LandingHero />
+        </section>
+
+        {/* DEAL ROOM SHOWCASE - Product demo */}
+        <section className="relative border-t border-zinc-800">
+          <DealRoomShowcase />
         </section>
 
         {/* PRICING - Plans */}
