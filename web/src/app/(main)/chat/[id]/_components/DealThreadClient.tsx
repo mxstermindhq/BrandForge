@@ -56,45 +56,53 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
   const [selectedModel, setSelectedModel] = useState('gpt-4')
   const [showConversationList, setShowConversationList] = useState(false)
   
-  // Mock conversations data
-  const [conversations] = useState<DealThread[]>([
-    {
-      id: '1',
-      title: 'Acme Corp Proposal',
-      contactName: 'Sarah Chen',
-      companyName: 'Acme Corp',
-      lastMessageAt: new Date(Date.now() - 3600000),
-      unreadCount: 2,
-      stage: 'proposal',
-      dealValue: 18400,
-      currency: 'USD',
-      preview: 'Following up on the revised scope...'
-    },
-    {
-      id: '2', 
-      title: 'TechStart Discovery',
-      contactName: 'Mike Ross',
-      companyName: 'TechStart Inc',
-      lastMessageAt: new Date(Date.now() - 86400000),
-      unreadCount: 0,
-      stage: 'discovery',
-      dealValue: 25000,
-      currency: 'USD',
-      preview: 'Thanks for the intro call...'
-    },
-    {
-      id: '3',
-      title: 'DesignCo Negotiation', 
-      contactName: 'Emma Wilson',
-      companyName: 'DesignCo',
-      lastMessageAt: new Date(Date.now() - 172800000),
-      unreadCount: 1,
-      stage: 'negotiation',
-      dealValue: 12000,
-      currency: 'USD',
-      preview: 'Can we discuss the timeline?'
+  // Conversations list
+  const [conversations, setConversations] = useState<DealThread[]>([])
+  const [currentThread, setCurrentThread] = useState<DealThread | null>(null)
+  
+  // Load conversations list
+  const loadConversations = useCallback(async () => {
+    if (!session?.user?.id) return
+    try {
+      const response = await fetch('/api/chat/threads')
+      if (response.ok) {
+        const data = await response.json()
+        setConversations(data.threads || [])
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error)
     }
-  ])
+  }, [session?.user?.id])
+  
+  // Load specific thread messages
+  const loadThreadMessages = useCallback(async (id: string) => {
+    if (!id) return
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/chat/threads/${id}/messages`)
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data.messages || [])
+        setCurrentThread(data.thread || null)
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+  
+  // Initial load
+  useEffect(() => {
+    loadConversations()
+  }, [loadConversations])
+  
+  // Load thread when threadId changes
+  useEffect(() => {
+    if (threadId && !isNewThread) {
+      loadThreadMessages(threadId)
+    }
+  }, [threadId, isNewThread, loadThreadMessages])
   
   // Deal context (would come from API in real implementation)
   const [dealContext, setDealContext] = useState<DealContext>({

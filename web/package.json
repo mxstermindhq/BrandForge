@@ -48,5 +48,21 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "wrangler": "^4.81.1"
+  },
+  "overrides": {
+    "yargs": {
+      "exports": {
+        ".": {
+          "import": {
+            "types": "./index.d.ts",
+            "default": "./index.cjs"
+          },
+          "require": {
+            "types": "./index.d.ts",
+            "default": "./index.cjs"
+          }
+        }
+      }
+    }
   }
 }
