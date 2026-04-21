@@ -232,23 +232,23 @@ export function UnifiedMarketplace() {
   const onlinePros = Math.floor(totalListings * 0.34); // estimate based on activity
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Hero header */}
-      <div className="relative border-b border-zinc-800 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-purple-500/5"/>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[120px] rounded-full"/>
+      <div className="relative border-b border-border overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-purple-500/5 dark:block hidden"/>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[120px] rounded-full dark:block hidden"/>
         
         <div className="relative max-w-7xl mx-auto px-8 py-10">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-2">
                 <Store size={12}/> Marketplace
               </div>
               <h1 className="text-4xl font-bold mb-2">The Arena</h1>
-              <p className="text-zinc-400">Hire pros. Offer skills. AI matches you instantly.</p>
+              <p className="text-muted-foreground">Hire pros. Offer skills. AI matches you instantly.</p>
             </div>
             <div className="flex items-center gap-2">
-              <Link href={listRequestHref} className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm hover:border-zinc-700 transition">
+              <Link href={listRequestHref} className="flex items-center gap-2 px-4 py-2.5 bg-muted border border-border rounded-lg text-sm hover:border-border/80 transition">
                 <Plus size={14}/> Request Service
               </Link>
               <Link href={listServiceHref} className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
@@ -259,42 +259,42 @@ export function UnifiedMarketplace() {
 
           {/* Live stats strip */}
           <div className="grid grid-cols-4 gap-3 mt-6">
-            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
               <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <TrendingUp size={16} className="text-emerald-400"/>
+                <TrendingUp size={16} className="text-emerald-500 dark:text-emerald-400"/>
               </div>
               <div>
-                <div className="text-xs text-zinc-500">Active listings</div>
+                <div className="text-xs text-muted-foreground">Active listings</div>
                 <div className="font-semibold">{totalListings}</div>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
               <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <DollarSign size={16} className="text-amber-400"/>
+                <DollarSign size={16} className="text-amber-500 dark:text-amber-400"/>
               </div>
               <div>
-                <div className="text-xs text-zinc-500">Volume this week</div>
+                <div className="text-xs text-muted-foreground">Volume this week</div>
                 <div className="font-semibold">${(volumeThisWeek / 1000).toFixed(1)}k</div>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
               <div className="w-9 h-9 rounded-lg bg-sky-500/10 flex items-center justify-center">
-                <Users size={16} className="text-sky-400"/>
+                <Users size={16} className="text-sky-500 dark:text-sky-400"/>
               </div>
               <div>
-                <div className="text-xs text-zinc-500">Online pros</div>
+                <div className="text-xs text-muted-foreground">Online pros</div>
                 <div className="font-semibold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"/>
                   {onlinePros}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
               <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Zap size={16} className="text-purple-400"/>
+                <Zap size={16} className="text-purple-500 dark:text-purple-400"/>
               </div>
               <div>
-                <div className="text-xs text-zinc-500">Avg match time</div>
+                <div className="text-xs text-muted-foreground">Avg match time</div>
                 <div className="font-semibold">4 min</div>
               </div>
             </div>
@@ -304,19 +304,19 @@ export function UnifiedMarketplace() {
 
       <div className="max-w-7xl mx-auto px-8 py-6">
         {/* View toggle (Browse vs Smart Match) */}
-        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit mb-6">
+        <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl w-fit mb-6">
           <button onClick={() => setViewMode("browse")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-              viewMode === "browse" ? "bg-white text-black" : "text-zinc-400 hover:text-white"
+              viewMode === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}>
             <Grid3X3 size={14}/> Browse
           </button>
           <button onClick={() => setViewMode("smart-match")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-              viewMode === "smart-match" ? "bg-gradient-to-r from-amber-500 to-purple-500 text-black" : "text-zinc-400 hover:text-white"
+              viewMode === "smart-match" ? "bg-gradient-to-r from-amber-500 to-purple-500 text-black" : "text-muted-foreground hover:text-foreground"
             }`}>
             <Sparkles size={14}/> Smart Match
-            <span className="text-[10px] px-1.5 py-0.5 bg-black/20 rounded">AI</span>
+            <span className="text-[10px] px-1.5 py-0.5 bg-black/20 dark:bg-white/20 rounded">AI</span>
           </button>
         </div>
 
@@ -333,12 +333,12 @@ export function UnifiedMarketplace() {
             {/* Search + filters row */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={16}/>
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16}/>
                 <input placeholder="Search services, skills, or requests..."
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-amber-500/50"/>
+                  className="w-full bg-muted/50 border border-border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-amber-500/50"/>
               </div>
               
-              <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+              <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl">
                 {[
                   { id: "all", label: "All", icon: Grid3X3 },
                   { id: "services", label: "Services", icon: Briefcase },
@@ -348,7 +348,7 @@ export function UnifiedMarketplace() {
                   return (
                     <button key={t.id} onClick={() => setListingType(t.id as ListingType)}
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium capitalize transition ${
-                        listingType === t.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white"
+                        listingType === t.id ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}>
                       <Icon size={12}/>
                       {t.label}
@@ -360,9 +360,9 @@ export function UnifiedMarketplace() {
               <div className="relative">
                 <button 
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center gap-2 px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm hover:border-zinc-700 transition"
+                  className="flex items-center gap-2 px-4 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition"
                 >
-                  Sort: <span className="text-amber-400">
+                  Sort: <span className="text-amber-500 dark:text-amber-400">
                     {sortBy === "trending" ? "Trending" : 
                      sortBy === "newest" ? "Newest" : 
                      sortBy === "price-low" ? "Price: Low to High" : 
@@ -372,7 +372,7 @@ export function UnifiedMarketplace() {
                 </button>
                 
                 {showSortDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-background border border-border rounded-xl shadow-lg z-50 overflow-hidden">
                     {[
                       { id: "trending", label: "Trending" },
                       { id: "newest", label: "Newest" },
@@ -387,8 +387,8 @@ export function UnifiedMarketplace() {
                         }}
                         className={`w-full text-left px-4 py-2.5 text-sm transition ${
                           sortBy === opt.id 
-                            ? "bg-zinc-800 text-white" 
-                            : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                            ? "bg-muted text-foreground" 
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         }`}
                       >
                         {opt.label}
@@ -406,10 +406,10 @@ export function UnifiedMarketplace() {
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm whitespace-nowrap transition ${
                     category === cat.id 
                       ? "bg-amber-500 text-black font-medium" 
-                      : "bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-white"
+                      : "bg-muted/50 border border-border text-muted-foreground hover:text-foreground"
                   }`}>
                   {cat.label}
-                  <span className={`text-xs ${category === cat.id ? "text-black/60" : "text-zinc-600"}`}>
+                  <span className={`text-xs ${category === cat.id ? "text-black/60" : "text-muted-foreground/60"}`}>
                     {cat.count}
                   </span>
                 </button>
@@ -418,10 +418,10 @@ export function UnifiedMarketplace() {
 
             {/* Results meta */}
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-zinc-500">
-                Showing <span className="text-white font-medium">{combinedListings.items.length}</span> of {totalListings} listings
+              <div className="text-sm text-muted-foreground">
+                Showing <span className="text-foreground font-medium">{combinedListings.items.length}</span> of {totalListings} listings
               </div>
-              <button className="text-xs text-zinc-500 hover:text-white flex items-center gap-1">
+              <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
                 <Bookmark size={12}/> Saved listings
               </button>
             </div>
@@ -429,17 +429,17 @@ export function UnifiedMarketplace() {
             {/* Listings grid */}
             {combinedListings.items.length === 0 ? (
               <div className="py-16 text-center">
-                <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4">
-                  <Briefcase size={24} className="text-zinc-600"/>
+                <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mx-auto mb-4">
+                  <Briefcase size={24} className="text-muted-foreground/60"/>
                 </div>
-                <p className="text-zinc-400 font-medium mb-2">No listings found</p>
-                <p className="text-sm text-zinc-500 mb-6">
+                <p className="text-muted-foreground font-medium mb-2">No listings found</p>
+                <p className="text-sm text-muted-foreground/80 mb-6">
                   {q || category !== "All"
                     ? "Try adjusting your filters or browse all categories."
                     : "Be the first to list a service or post a request."}
                 </p>
                 <div className="flex gap-3 justify-center">
-                  <Link href={listRequestHref} className="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm hover:border-zinc-700 transition">
+                  <Link href={listRequestHref} className="px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:border-border/80 transition">
                     Request Service
                   </Link>
                   <Link href={listServiceHref} className="px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
@@ -465,7 +465,7 @@ export function UnifiedMarketplace() {
 
             {/* Load more */}
             <div className="flex justify-center mt-8">
-              <button className="px-6 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm hover:border-zinc-700 transition">
+              <button className="px-6 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition">
                 Load more listings
               </button>
             </div>
@@ -486,11 +486,11 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
   const dealLbl = formatDealRecordShort(service.ownerDealWins, service.ownerDealLosses);
   
   const tierColors: Record<string, string> = {
-    Challenger: "text-zinc-400",
-    Rival: "text-sky-400",
-    Duelist: "text-amber-400",
-    Gladiator: "text-rose-400",
-    Undisputed: "text-purple-400",
+    Challenger: "text-muted-foreground",
+    Rival: "text-sky-500 dark:text-sky-400",
+    Duelist: "text-amber-500 dark:text-amber-400",
+    Gladiator: "text-rose-500 dark:text-rose-400",
+    Undisputed: "text-purple-500 dark:text-purple-400",
   };
   
   // Determine tier based on reputation/deals
@@ -507,7 +507,7 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
   const tier = getTier(service.ownerReputation, service.ownerDealWins);
   
   return (
-    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-amber-500/[0.03] to-transparent border-zinc-800 hover:border-amber-500/30">
+    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-amber-500/[0.03] to-transparent border-border hover:border-amber-500/30">
       {service.topMember && (
         <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-amber-500 to-amber-600 text-black text-[10px] font-bold uppercase tracking-wider rounded-bl-lg">
           <Star size={10} className="inline mr-1"/> Featured
@@ -517,38 +517,38 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
       <div className="p-5">
         {/* Top row: type badge + category */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20">
             <Briefcase size={10}/> Offer
           </div>
-          <div className="text-xs text-zinc-500">{service.cat || "Service"}</div>
+          <div className="text-xs text-muted-foreground">{service.cat || "Service"}</div>
           {isMine && (
-            <div className="ml-auto text-[10px] px-2 py-0.5 bg-white/10 rounded">YOUR LISTING</div>
+            <div className="ml-auto text-[10px] px-2 py-0.5 bg-foreground/10 rounded">YOUR LISTING</div>
           )}
         </div>
 
         {/* Title */}
         <Link href={detailHref}>
-          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-amber-400 transition-colors">
+          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
             {service.title || "Untitled service"}
           </h3>
         </Link>
 
         {/* Description */}
-        <p className="text-sm text-zinc-400 leading-relaxed mb-4 line-clamp-2">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
           {service.description || "No description provided."}
         </p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {[service.sel].filter(Boolean).map((tag, i) => (
-            <span key={i} className="text-[10px] px-2 py-1 bg-zinc-800/50 text-zinc-400 rounded border border-zinc-800">
+            <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
               {tag}
             </span>
           ))}
         </div>
 
         {/* Views + Offers row */}
-        <div className="flex items-center gap-4 text-xs text-zinc-500 mb-4">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
           <div className="flex items-center gap-1">
             <Eye size={12}/> {service.views || 0} views
           </div>
@@ -558,9 +558,9 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
         </div>
 
         {/* Author card */}
-        <div className="flex items-center gap-3 p-3 bg-black/30 border border-zinc-800 rounded-xl mb-4">
+        <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-xl mb-4">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center font-semibold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-muted-foreground/40 to-muted flex items-center justify-center font-semibold">
               {service.ownerUsername?.[0]?.toUpperCase() || "?"}
             </div>
           </div>
@@ -569,10 +569,10 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
               <div className="font-medium text-sm truncate">{service.ownerUsername || "Anonymous"}</div>
               <div className={`text-[10px] font-semibold ${tierColors[tier]}`}>{tier}</div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Star size={10} className="text-amber-400 fill-amber-400"/>
-                <span className="text-white">{service.rating !== "New" ? service.rating : "4.5"}</span>
+                <Star size={10} className="text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400"/>
+                <span className="text-foreground">{service.rating !== "New" ? service.rating : "4.5"}</span>
               </div>
               <span>·</span>
               <span>{dealLbl || "0 deals"}</span>
@@ -582,14 +582,14 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
 
         {/* Price + delivery row */}
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-3 bg-black/30 border border-zinc-800 rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Starting at</div>
+          <div className="p-3 bg-muted/50 border border-border rounded-xl">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Starting at</div>
             <div className="text-lg font-bold">${service.price?.toLocaleString() || "—"}</div>
           </div>
-          <div className="p-3 bg-black/30 border border-zinc-800 rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Delivery</div>
+          <div className="p-3 bg-muted/50 border border-border rounded-xl">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Delivery</div>
             <div className="text-lg font-bold flex items-center gap-1.5">
-              <Clock size={14} className="text-zinc-500"/>
+              <Clock size={14} className="text-muted-foreground"/>
               ~{service.deliveryDays || "?"} days
             </div>
           </div>
@@ -599,7 +599,7 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
         <Link href={isMine ? detailHref : bidHref}>
           <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
             isMine
-              ? "bg-zinc-800 text-white hover:bg-zinc-700"
+              ? "bg-muted text-foreground hover:bg-muted/80"
               : "bg-amber-500 text-black hover:bg-amber-400"
           }`}>
             {isMine ? "Manage listing" : "Hire now"}
@@ -620,7 +620,7 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
   const band = bandUi(request.band);
   
   return (
-    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-sky-500/[0.03] to-transparent border-zinc-800 hover:border-sky-500/30">
+    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-sky-500/[0.03] to-transparent border-border hover:border-sky-500/30">
       {/* Urgent ribbon */}
       {request.band === "urgent" && (
         <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-rose-500 to-rose-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-bl-lg">
@@ -631,38 +631,38 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
       <div className="p-5">
         {/* Top row: type badge + category */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-sky-500/10 text-sky-500 dark:text-sky-400 border border-sky-500/20">
             <FileText size={10}/> Request
           </div>
-          <div className="text-xs text-zinc-500">{request.category || "General"}</div>
+          <div className="text-xs text-muted-foreground">{request.category || "General"}</div>
           {isMine && (
-            <div className="ml-auto text-[10px] px-2 py-0.5 bg-white/10 rounded">YOUR REQUEST</div>
+            <div className="ml-auto text-[10px] px-2 py-0.5 bg-foreground/10 rounded">YOUR REQUEST</div>
           )}
         </div>
 
         {/* Title */}
         <Link href={detailHref}>
-          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-sky-400 transition-colors">
+          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
             {request.title || "Untitled request"}
           </h3>
         </Link>
 
         {/* Description */}
-        <p className="text-sm text-zinc-400 leading-relaxed mb-4 line-clamp-2">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
           {request.desc || "No description provided."}
         </p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {(request.tags || []).slice(0, 3).map((tag, i) => (
-            <span key={i} className="text-[10px] px-2 py-1 bg-zinc-800/50 text-zinc-400 rounded border border-zinc-800">
+            <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
               {tag}
             </span>
           ))}
         </div>
 
         {/* Views + Bids row */}
-        <div className="flex items-center justify-between text-xs text-zinc-500 mb-4">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Eye size={12}/> {request.views || 0} views
@@ -676,14 +676,14 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
 
         {/* Budget + deadline row */}
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-3 bg-black/30 border border-zinc-800 rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Budget</div>
+          <div className="p-3 bg-muted/50 border border-border rounded-xl">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Budget</div>
             <div className="text-lg font-bold">{formatRequestBudget(request)}</div>
           </div>
-          <div className="p-3 bg-black/30 border border-zinc-800 rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Deadline</div>
+          <div className="p-3 bg-muted/50 border border-border rounded-xl">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Deadline</div>
             <div className="text-lg font-bold flex items-center gap-1.5">
-              <Clock size={14} className="text-zinc-500"/>
+              <Clock size={14} className="text-muted-foreground"/>
               {request.days || "?"} days
             </div>
           </div>
@@ -693,7 +693,7 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
         <Link href={isMine ? detailHref : request.canBid !== false ? bidHref : detailHref}>
           <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
             isMine
-              ? "bg-zinc-800 text-white hover:bg-zinc-700"
+              ? "bg-muted text-foreground hover:bg-muted/80"
               : "bg-sky-500 text-black hover:bg-sky-400"
           }`}>
             {isMine ? "Manage request" : request.canBid !== false ? "Submit proposal" : "View"}

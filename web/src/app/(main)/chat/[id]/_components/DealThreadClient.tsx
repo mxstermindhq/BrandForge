@@ -9,9 +9,12 @@ import { apiFetch } from '@/lib/api'
 import { incrementActionsUsed, getActionsRemaining, hasActionsRemaining } from '@/lib/usage'
 import type { DealMessage, DealContext, AIActionType, Artifact, DealThread } from '@/types/deal'
 import { AIActionBar } from '@/components/deal/AIActionBar'
-import { UsageMeter } from '@/components/deal/UsageMeter'
 import { UpgradeModal } from '@/components/deal/UpgradeModal'
 import { DealValueRail } from './DealValueRail'
+import { ConversationList } from './ConversationList'
+import { ChatModeSwitcher } from './ChatModeSwitcher'
+import { ModelSelector } from './ModelSelector'
+import { ChatToolbar } from './ChatToolbar'
 import { 
   Send, 
   Paperclip, 
@@ -19,7 +22,12 @@ import {
   FileText,
   Download,
   Copy,
-  CheckCircle2
+  CheckCircle2,
+  PanelLeft,
+  PanelLeftClose,
+  Sparkles,
+  Bot,
+  MessageSquare
 } from 'lucide-react'
 
 interface DealThreadClientProps {
@@ -39,6 +47,54 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
   const [isLoading, setIsLoading] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [actionsRemaining, setActionsRemaining] = useState(100)
+  
+  // UI State
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false) // Hidden by default
+  const [rightRailOpen, setRightRailOpen] = useState(true)
+  const [chatMode, setChatMode] = useState<'chat' | 'agentic'>('chat')
+  const [aiEnabled, setAiEnabled] = useState(true)
+  const [selectedModel, setSelectedModel] = useState('gpt-4')
+  const [showConversationList, setShowConversationList] = useState(false)
+  
+  // Mock conversations data
+  const [conversations] = useState<DealThread[]>([
+    {
+      id: '1',
+      title: 'Acme Corp Proposal',
+      contactName: 'Sarah Chen',
+      companyName: 'Acme Corp',
+      lastMessageAt: new Date(Date.now() - 3600000),
+      unreadCount: 2,
+      stage: 'proposal',
+      dealValue: 18400,
+      currency: 'USD',
+      preview: 'Following up on the revised scope...'
+    },
+    {
+      id: '2', 
+      title: 'TechStart Discovery',
+      contactName: 'Mike Ross',
+      companyName: 'TechStart Inc',
+      lastMessageAt: new Date(Date.now() - 86400000),
+      unreadCount: 0,
+      stage: 'discovery',
+      dealValue: 25000,
+      currency: 'USD',
+      preview: 'Thanks for the intro call...'
+    },
+    {
+      id: '3',
+      title: 'DesignCo Negotiation', 
+      contactName: 'Emma Wilson',
+      companyName: 'DesignCo',
+      lastMessageAt: new Date(Date.now() - 172800000),
+      unreadCount: 1,
+      stage: 'negotiation',
+      dealValue: 12000,
+      currency: 'USD',
+      preview: 'Can we discuss the timeline?'
+    }
+  ])
   
   // Deal context (would come from API in real implementation)
   const [dealContext, setDealContext] = useState<DealContext>({
@@ -163,19 +219,38 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
   if (isNewThread || messages.length === 0) {
     return (
       <div className="flex h-full">
-        <div className="flex-1 flex flex-col">
-          {/* Usage Meter */}
-          <UsageMeter 
-            actionsUsed={100 - actionsRemaining}
-            onUpgradeClick={() => setShowUpgradeModal(true)}
-          />
-          
-          {/* AI Action Bar */}
-          <AIActionBar 
-            onAction={handleAIAction}
-            actionsRemaining={actionsRemaining}
-            disabled={isStreaming}
-          />
+        {/* Left Sidebar - Conversation List */}
+        <ConversationList
+          conversations={conversations}
+          isOpen={leftSidebarOpen}
+          onClose={() => setLeftSidebarOpen(false)}
+          onNewThread={() => router.push('/chat')}
+        />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Minimal Header Toolbar */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
+                title={leftSidebarOpen ? 'Hide conversations' : 'Show conversations'}
+              >
+                {leftSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeft className="w-5 h-5" />}
+              </button>
+              <span className="text-sm font-medium text-muted-foreground">New Thread</span>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <ChatModeSwitcher mode={chatMode} onChange={setChatMode} />
+              <ModelSelector
+                selectedModel={selectedModel}
+                onSelect={setSelectedModel}
+                aiEnabled={aiEnabled}
+                onToggleAI={setAiEnabled}
+              />
+            </div>
+          </div>
           
           {/* Empty State */}
           <div className="flex-1 flex items-center justify-center p-8">
@@ -196,7 +271,6 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
                 </button>
                 <button
                   onClick={() => {
-                    // Load example deal
                     setDealContext({
                       contactName: 'Sarah Chen',
                       companyName: 'Acme Corp',
@@ -227,39 +301,51 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
             </div>
           </div>
           
-          {/* Composer */}
-          <div className="border-t border-border p-4">
-            <div className="flex items-end gap-2 max-w-4xl mx-auto">
-              <button
-                onClick={handleFileUpload}
-                className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              <div className="flex-1 relative">
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Type your message..."
-                  rows={1}
-                  className="w-full px-4 py-2.5 bg-muted rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  style={{ minHeight: '44px', maxHeight: '120px' }}
-                />
+          {/* Composer + AI Actions */}
+          <div className="border-t border-border">
+            {/* Composer */}
+            <div className="p-4">
+              <div className="flex items-end gap-2 max-w-4xl mx-auto">
+                <button
+                  onClick={handleFileUpload}
+                  className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder={chatMode === 'agentic' ? "Ask the agent to search, generate, plan, or execute..." : "Type your message..."}
+                    rows={1}
+                    className="w-full px-4 py-2.5 bg-muted rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    style={{ minHeight: '44px', maxHeight: '120px' }}
+                  />
+                </div>
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim() || isStreaming}
+                  className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isStreaming ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isStreaming}
-                className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isStreaming ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
             </div>
+            
+            {/* AI Actions - Below composer */}
+            {aiEnabled && (
+              <AIActionBar 
+                onAction={handleAIAction}
+                actionsRemaining={actionsRemaining}
+                disabled={isStreaming}
+              />
+            )}
           </div>
           
           {/* Upgrade Modal */}
@@ -278,19 +364,45 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
   // Active thread view
   return (
     <div className="flex h-full">
+      {/* Left Sidebar - Conversation List */}
+      <ConversationList
+        conversations={conversations}
+        currentId={threadId}
+        isOpen={leftSidebarOpen}
+        onClose={() => setLeftSidebarOpen(false)}
+        onNewThread={() => router.push('/chat')}
+      />
+
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Usage Meter */}
-        <UsageMeter 
-          actionsUsed={100 - actionsRemaining}
-          onUpgradeClick={() => setShowUpgradeModal(true)}
-        />
-        
-        {/* AI Action Bar */}
-        <AIActionBar 
-          onAction={handleAIAction}
-          actionsRemaining={actionsRemaining}
-          disabled={isStreaming}
-        />
+        {/* Minimal Header Toolbar */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title={leftSidebarOpen ? 'Hide conversations' : 'Show conversations'}
+            >
+              {leftSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeft className="w-5 h-5" />}
+            </button>
+            <span className="text-sm font-medium">{dealContext.contactName} · {dealContext.companyName}</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <ChatModeSwitcher mode={chatMode} onChange={setChatMode} />
+            <ModelSelector
+              selectedModel={selectedModel}
+              onSelect={setSelectedModel}
+              aiEnabled={aiEnabled}
+              onToggleAI={setAiEnabled}
+            />
+            <ChatToolbar 
+              actionsRemaining={actionsRemaining}
+              onInvite={() => console.log('Invite')}
+              onShare={() => console.log('Share')}
+              onArchive={() => console.log('Archive')}
+            />
+          </div>
+        </div>
         
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -349,39 +461,51 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
           <div ref={messagesEndRef} />
         </div>
         
-        {/* Composer */}
-        <div className="border-t border-border p-4">
-          <div className="flex items-end gap-2 max-w-4xl mx-auto">
-            <button
-              onClick={handleFileUpload}
-              className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
-            >
-              <Paperclip className="w-5 h-5" />
-            </button>
-            <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Type your message..."
-                rows={1}
-                className="w-full px-4 py-2.5 bg-muted rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
-                style={{ minHeight: '44px', maxHeight: '120px' }}
-              />
+        {/* Composer + AI Actions */}
+        <div className="border-t border-border">
+          {/* Composer */}
+          <div className="p-4">
+            <div className="flex items-end gap-2 max-w-4xl mx-auto">
+              <button
+                onClick={handleFileUpload}
+                className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
+              >
+                <Paperclip className="w-5 h-5" />
+              </button>
+              <div className="flex-1 relative">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder={chatMode === 'agentic' ? "Ask the agent to search, generate, plan, or execute..." : "Type your message..."}
+                  rows={1}
+                  className="w-full px-4 py-2.5 bg-muted rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  style={{ minHeight: '44px', maxHeight: '120px' }}
+                />
+              </div>
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || isStreaming}
+                className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isStreaming ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </button>
             </div>
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isStreaming}
-              className="p-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isStreaming ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-            </button>
           </div>
+          
+          {/* AI Actions - Below composer */}
+          {aiEnabled && (
+            <AIActionBar 
+              onAction={handleAIAction}
+              actionsRemaining={actionsRemaining}
+              disabled={isStreaming}
+            />
+          )}
         </div>
         
         {/* Upgrade Modal */}

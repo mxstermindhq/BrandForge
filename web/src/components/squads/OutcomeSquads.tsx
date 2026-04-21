@@ -152,28 +152,34 @@ export function OutcomeSquads() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      {/* Ambient Gradient - dark mode only */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none dark:block hidden">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-[150px]" />
+      </div>
+
       {/* Header */}
-      <div className="border-b border-zinc-800">
+      <div className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
                 <Users size={12}/> Squads
               </div>
               <h1 className="text-3xl font-bold">Outcome Squads</h1>
-              <p className="text-zinc-400 mt-1">Assemble human and AI agents into powerful teams</p>
+              <p className="text-muted-foreground mt-1">Assemble human and AI agents into powerful teams</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-right px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
-                <p className="text-xs text-zinc-500">My Squads</p>
+              <div className="text-right px-4 py-2 bg-muted/50 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground">My Squads</p>
                 <p className="text-xl font-bold">{mySquads.length}</p>
               </div>
             </div>
@@ -183,7 +189,7 @@ export function OutcomeSquads() {
 
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit mb-6">
+        <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl w-fit mb-6">
           {[
             { id: "my-squads" as const, label: "My Squads", icon: Users },
             { id: "find" as const, label: "Find", icon: Search },
@@ -193,7 +199,7 @@ export function OutcomeSquads() {
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id ? "bg-white text-black" : "text-zinc-400 hover:text-white"
+                  activeTab === tab.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 <Icon size={14}/> {tab.label}
               </button>
@@ -221,13 +227,13 @@ export function OutcomeSquads() {
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">Owner</span>
                         )}
                       </div>
-                      <p className="text-sm text-zinc-400">{squad.description}</p>
+                      <p className="text-sm text-muted-foreground">{squad.description}</p>
                       
                       {/* Members */}
                       <div className="flex flex-wrap items-center gap-2 mt-3">
                         {squad.squad_members?.slice(0, 5).map((member: SquadMember) => (
                           <div key={member.id} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs ${
-                            member.member_type === "agent" ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                            member.member_type === "agent" ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400" : "bg-muted border-border text-muted-foreground"
                           }`}>
                             {member.member_type === "agent" ? <Bot size={12}/> : <User size={12}/>}
                             <span>{member.member?.username || 'Member'}</span>
@@ -235,7 +241,7 @@ export function OutcomeSquads() {
                           </div>
                         ))}
                         {(squad.squad_members?.length || 0) > 5 && (
-                          <span className="text-xs text-zinc-500">+{(squad.squad_members?.length || 0) - 5} more</span>
+                          <span className="text-xs text-muted-foreground">+{(squad.squad_members?.length || 0) - 5} more</span>
                         )}
                       </div>
 
@@ -250,7 +256,7 @@ export function OutcomeSquads() {
                   </div>
 
                   <div className="flex gap-2 lg:flex-col">
-                    <button onClick={() => leaveSquad(squad.id)} className="flex items-center gap-2 px-4 py-2 text-sm border border-zinc-700 rounded-lg hover:bg-zinc-800 transition text-zinc-400">
+                    <button onClick={() => leaveSquad(squad.id)} className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition text-muted-foreground">
                       <LogOut size={14}/> {squad.isOwner ? "Disband" : "Leave"}
                     </button>
                     <Link href="/chat" className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
@@ -262,10 +268,10 @@ export function OutcomeSquads() {
             ))}
 
             {mySquads.length === 0 && (
-              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <Users size={48} className="mx-auto mb-4 text-zinc-600" />
+              <div className="text-center py-16 rounded-xl bg-muted/30 border border-border">
+                <Users size={48} className="mx-auto mb-4 text-muted-foreground/60" />
                 <h3 className="text-lg font-semibold mb-2">No squads yet</h3>
-                <p className="text-sm text-zinc-400 mb-4 max-w-md mx-auto">
+                <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
                   {canCreateSquad ? "Create your first squad to start executing projects" : "Free users can join squads but not create them. Find a squad to join!"}
                 </p>
                 <button onClick={() => setActiveTab(canCreateSquad ? "create" : "find")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">
@@ -280,17 +286,17 @@ export function OutcomeSquads() {
         {activeTab === "find" && (
           <div className="space-y-4">
             {availableSquads.length === 0 ? (
-              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <Search size={48} className="mx-auto mb-4 text-zinc-600" />
+              <div className="text-center py-16 rounded-xl bg-muted/30 border border-border">
+                <Search size={48} className="mx-auto mb-4 text-muted-foreground/60" />
                 <h3 className="text-lg font-semibold mb-2">No squads available</h3>
-                <p className="text-sm text-zinc-400 mb-4">Check back later or create your own squad!</p>
+                <p className="text-sm text-muted-foreground mb-4">Check back later or create your own squad!</p>
                 {canCreateSquad && (
                   <button onClick={() => setActiveTab("create")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">Create Squad</button>
                 )}
               </div>
             ) : (
               availableSquads.map((squad) => (
-                <div key={squad.id} className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition">
+                <div key={squad.id} className="p-5 rounded-xl bg-card border border-border hover:border-border/80 transition">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
@@ -298,8 +304,8 @@ export function OutcomeSquads() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg">{squad.name}</h3>
-                        <p className="text-sm text-zinc-400 mt-1">{squad.description}</p>
-                        <div className="flex items-center gap-4 mt-3 text-sm text-zinc-500">
+                        <p className="text-sm text-muted-foreground mt-1">{squad.description}</p>
+                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1"><Users size={14}/> {squad.member_count || 0} / {squad.max_members} members</span>
                           <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-400"/> {squad.projects_completed || 0} completed</span>
                         </div>
@@ -319,25 +325,25 @@ export function OutcomeSquads() {
         {activeTab === "create" && (
           <div className="max-w-2xl mx-auto">
             {!canCreateSquad ? (
-              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <Ban size={48} className="mx-auto mb-4 text-rose-400" />
+              <div className="text-center py-16 rounded-xl bg-muted/30 border border-border">
+                <Ban size={48} className="mx-auto mb-4 text-rose-500" />
                 <h3 className="text-lg font-semibold mb-2">Squad Limit Reached</h3>
-                <p className="text-sm text-zinc-400 mb-4">Free users can join squads but cannot create them. Upgrade to create your own squads!</p>
+                <p className="text-sm text-muted-foreground mb-4">Free users can join squads but cannot create them. Upgrade to create your own squads!</p>
                 <Link href="/plans" className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">View Plans</Link>
               </div>
             ) : !generatedSquad ? (
-              <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <div className="p-6 rounded-xl bg-card border border-border">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
-                    <Sparkles size={28} className="text-amber-400" />
+                    <Sparkles size={28} className="text-amber-500 dark:text-amber-400" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Create New Squad</h3>
-                  <p className="text-sm text-zinc-400">Describe what you need. AI will generate the perfect squad.</p>
+                  <p className="text-sm text-muted-foreground">Describe what you need. AI will generate the perfect squad.</p>
                 </div>
                 <div className="space-y-4">
                   <textarea value={createInput} onChange={(e) => setCreateInput(e.target.value)}
                     placeholder="Example: I need a squad to build a SaaS product. Need a full-stack developer, UI/UX designer, and AI content assistant."
-                    className="w-full h-32 px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none"
+                    className="w-full h-32 px-4 py-3 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50 resize-none"
                   />
                   <button onClick={generateSquad} disabled={isCreating || !createInput.trim()}
                     className="w-full py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition disabled:opacity-50 flex items-center justify-center gap-2">
@@ -346,29 +352,29 @@ export function OutcomeSquads() {
                 </div>
               </div>
             ) : (
-              <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <div className="p-6 rounded-xl bg-card border border-border">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/10 flex items-center justify-center border border-amber-500/30">
-                    <Users size={20} className="text-amber-400" />
+                    <Users size={20} className="text-amber-500 dark:text-amber-400" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{generatedSquad.name}</h3>
-                    <p className="text-sm text-zinc-400">{generatedSquad.description}</p>
+                    <p className="text-sm text-muted-foreground">{generatedSquad.description}</p>
                   </div>
                 </div>
-                <div className="mb-6 p-4 rounded-lg bg-zinc-900 border border-zinc-800">
+                <div className="mb-6 p-4 rounded-lg bg-muted border border-border">
                   <p className="font-medium">{generatedSquad.name}</p>
-                  <p className="text-sm text-zinc-500">{generatedSquad.description}</p>
+                  <p className="text-sm text-muted-foreground">{generatedSquad.description}</p>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={createSquad} className="flex-1 py-2.5 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition">Create Squad</button>
-                  <button onClick={() => setGeneratedSquad(null)} className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition">Regenerate</button>
+                  <button onClick={() => setGeneratedSquad(null)} className="px-6 py-2.5 bg-muted hover:bg-muted/80 rounded-lg text-sm transition">Regenerate</button>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

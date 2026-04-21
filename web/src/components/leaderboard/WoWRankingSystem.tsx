@@ -46,11 +46,11 @@ const tabs = [
 ];
 
 const tiers = [
-  { name: "Challenger", min: 0, color: "text-zinc-400", bg: "from-zinc-700/20 to-zinc-800/20", icon: Medal },
-  { name: "Rival", min: 1000, color: "text-sky-400", bg: "from-sky-500/20 to-sky-700/10", icon: Shield },
-  { name: "Duelist", min: 2000, color: "text-amber-400", bg: "from-amber-500/30 to-orange-700/20", icon: Swords },
-  { name: "Gladiator", min: 3500, color: "text-rose-400", bg: "from-rose-500/20 to-red-700/10", icon: Flame },
-  { name: "Undisputed", min: 5000, color: "text-purple-400", bg: "from-purple-500/30 to-fuchsia-700/20", icon: Crown },
+  { name: "Challenger", min: 0, color: "text-muted-foreground", bg: "from-muted/50 to-muted", icon: Medal },
+  { name: "Rival", min: 1000, color: "text-sky-500 dark:text-sky-400", bg: "from-sky-500/20 to-sky-700/10", icon: Shield },
+  { name: "Duelist", min: 2000, color: "text-amber-500 dark:text-amber-400", bg: "from-amber-500/30 to-orange-700/20", icon: Swords },
+  { name: "Gladiator", min: 3500, color: "text-rose-500 dark:text-rose-400", bg: "from-rose-500/20 to-red-700/10", icon: Flame },
+  { name: "Undisputed", min: 5000, color: "text-purple-500 dark:text-purple-400", bg: "from-purple-500/30 to-fuchsia-700/20", icon: Crown },
 ];
 
 function getTier(rp: number) {
@@ -84,15 +84,15 @@ function PodiumCard({
   const tier = tierFn(typeof tierValue === "number" && !isNaN(tierValue) ? tierValue : 0);
   const TierIcon = tier.icon || Medal;
   const heightClass = rank === 1 ? "h-48" : rank === 2 ? "h-40" : "h-36";
-  const borderClass = isFirst ? "border-amber-500/40" : "border-zinc-800";
+  const borderClass = isFirst ? "border-amber-500/40" : "border-border";
   const avatarGradient = isFirst 
     ? "from-amber-400 to-amber-600" 
-    : "from-zinc-600 to-zinc-800";
+    : "from-muted-foreground/30 to-muted";
 
   return (
     <div className={`relative rounded-2xl overflow-hidden border ${borderClass} ${heightClass} bg-gradient-to-b ${tier.bg} flex flex-col justify-end p-5`}>
       {isFirst && <Crown className="absolute top-4 right-4 text-amber-400" size={20}/>}
-      <div className="absolute top-4 left-4 flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur font-bold text-sm">
+      <div className="absolute top-4 left-4 flex items-center justify-center w-8 h-8 rounded-full bg-background/80 backdrop-blur font-bold text-sm">
         #{rank}
       </div>
       <div className="flex items-center gap-3 mb-3">
@@ -220,37 +220,37 @@ export function WoWRankingSystem() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       {/* Header with prize pool + season info */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"/>
               <SeasonCountdown />
             </div>
             <h1 className="text-3xl font-bold">Leaderboard</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="px-4 py-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-700/5 border border-amber-500/20">
-              <div className="text-[10px] uppercase tracking-wider text-amber-400/70">Prize Pool</div>
-              <div className="text-2xl font-bold text-amber-400">${season?.prizePool?.toLocaleString() || "12,500"}</div>
+              <div className="text-[10px] uppercase tracking-wider text-amber-500/70 dark:text-amber-400/70">Prize Pool</div>
+              <div className="text-2xl font-bold text-amber-500 dark:text-amber-400">${season?.prizePool?.toLocaleString() || "12,500"}</div>
             </div>
-            <div className="px-4 py-3 rounded-xl bg-zinc-900/50 border border-zinc-800">
-              <div className="text-[10px] uppercase tracking-wider text-zinc-500">Players</div>
+            <div className="px-4 py-3 rounded-xl bg-muted/50 border border-border">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Players</div>
               <div className="text-2xl font-bold">{users.length.toLocaleString() || "1,247"}</div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit">
+        <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl w-fit">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id ? "bg-amber-500 text-black" : "text-zinc-400 hover:text-white"
+                  activeTab === tab.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 <Icon size={14}/>
                 {tab.label}
@@ -302,19 +302,19 @@ export function WoWRankingSystem() {
       {/* Search + filter */}
       <div className="max-w-6xl mx-auto mb-4 flex items-center gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16}/>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16}/>
           <input 
             placeholder="Search players..."
-            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-amber-500/50"/>
+            className="w-full bg-muted/50 border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-amber-500/50"/>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm hover:border-zinc-700">
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-sm hover:border-border/80">
           <Filter size={14}/> All Tiers
         </button>
       </div>
 
       {/* Table */}
-      <div className="max-w-6xl mx-auto rounded-xl border border-zinc-800 overflow-hidden">
-        <div className="grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-3 bg-zinc-900/50 text-[10px] uppercase tracking-wider text-zinc-500 border-b border-zinc-800">
+      <div className="max-w-6xl mx-auto rounded-xl border border-border overflow-hidden">
+        <div className="grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-3 bg-muted/50 text-[10px] uppercase tracking-wider text-muted-foreground border-b border-border">
           <div>Rank</div>
           <div>Player</div>
           <div>Tier</div>
@@ -329,15 +329,15 @@ export function WoWRankingSystem() {
           const winRate = Math.round(p.wins / (p.wins + p.losses) * 100) || 0;
           return (
             <div key={p.id}
-              className={`grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-4 items-center border-b border-zinc-800/50 last:border-0 hover:bg-zinc-900/30 transition-colors ${
+              className={`grid grid-cols-[80px_1fr_160px_120px_120px_80px] gap-4 px-5 py-4 items-center border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors ${
                 currentUserRank?.id === p.id ? "bg-amber-500/5" : ""
               }`}>
               <div className="flex items-center gap-2">
-                <span className="text-zinc-400 font-mono">#{p.rank}</span>
+                <span className="text-muted-foreground font-mono">#{p.rank}</span>
                 <TrendIcon trend={p.trend} change={p.change}/>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center text-sm font-semibold">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-muted-foreground/30 to-muted flex items-center justify-center text-sm font-semibold">
                   {p.username[0].toUpperCase()}
                 </div>
                 <div>
@@ -345,7 +345,7 @@ export function WoWRankingSystem() {
                     {p.fullName || p.username}
                     {currentUserRank?.id === p.id && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500 text-black rounded">YOU</span>}
                   </div>
-                  <div className="text-xs text-zinc-500">@{p.username}</div>
+                  <div className="text-xs text-muted-foreground">@{p.username}</div>
                 </div>
               </div>
               <div className={`flex items-center gap-1.5 text-sm ${tier.color}`}>
@@ -355,15 +355,15 @@ export function WoWRankingSystem() {
                 {(activeTab === "honor" ? p.honor : activeTab === "conquest" ? p.conquest : activeTab === "streak" ? p.streak : p.rp)?.toLocaleString()}
               </div>
               <div className="text-right">
-                <div className="text-sm"><span className="text-emerald-400">{p.wins}</span> / <span className="text-rose-400">{p.losses}</span></div>
-                <div className="text-xs text-zinc-500">{winRate}% win rate</div>
+                <div className="text-sm"><span className="text-emerald-500 dark:text-emerald-400">{p.wins}</span> / <span className="text-rose-500 dark:text-rose-400">{p.losses}</span></div>
+                <div className="text-xs text-muted-foreground">{winRate}% win rate</div>
               </div>
               <div className="text-right">
                 {p.streak > 0 ? (
-                  <div className="inline-flex items-center gap-1 text-orange-400 text-sm">
+                  <div className="inline-flex items-center gap-1 text-orange-500 dark:text-orange-400 text-sm">
                     <Flame size={12}/> {p.streak}
                   </div>
-                ) : <span className="text-zinc-600 text-sm">—</span>}
+                ) : <span className="text-muted-foreground/60 text-sm">—</span>}
               </div>
             </div>
           );
@@ -372,14 +372,14 @@ export function WoWRankingSystem() {
 
       {/* Tier progress bar */}
       {currentUserRank && (
-        <div className="max-w-6xl mx-auto mt-8 p-5 rounded-xl border border-zinc-800 bg-zinc-900/30">
+        <div className="max-w-6xl mx-auto mt-8 p-5 rounded-xl border border-border bg-muted/30">
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm font-medium">Your Progress</div>
-            <div className="text-xs text-zinc-500">
+            <div className="text-xs text-muted-foreground">
               {currentUserRank.rp.toLocaleString()} / {getTier(currentUserRank.rp + 1000).min} to {getTier(currentUserRank.rp + 1000).name}
             </div>
           </div>
-          <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden mb-4">
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden mb-4">
             <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-purple-500 rounded-full" 
               style={{ width: `${Math.min(100, (currentUserRank.rp / (getTier(currentUserRank.rp + 1000).min || 5000)) * 100)}%` }}/>
           </div>
@@ -388,11 +388,11 @@ export function WoWRankingSystem() {
               const Icon = t.icon;
               const reached = currentUserRank.rp >= t.min;
               return (
-                <div key={t.name} className={`flex items-center gap-2 p-2 rounded-lg ${reached ? "bg-zinc-800/50" : "opacity-40"}`}>
+                <div key={t.name} className={`flex items-center gap-2 p-2 rounded-lg ${reached ? "bg-muted" : "opacity-40"}`}>
                   <Icon size={14} className={t.color}/>
                   <div>
                     <div className="text-xs font-medium">{t.name}</div>
-                    <div className="text-[10px] text-zinc-500">{t.min}+ RP</div>
+                    <div className="text-[10px] text-muted-foreground">{t.min}+ RP</div>
                   </div>
                 </div>
               );

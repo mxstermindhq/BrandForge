@@ -168,29 +168,29 @@ export function AGIAgents() {
   const CategoryIcon = ({ id, size = 16 }: { id: string; size?: number }) => {
     const Icon = getCategoryIcon(id);
     const cat = categories.find(c => c.id === id);
-    return <Icon size={size} className={cat?.color || "text-zinc-400"} />;
+    return <Icon size={size} className={cat?.color || "text-muted-foreground"} />;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="border-b border-zinc-800">
+      <div className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
                 <Bot size={12}/> AI Agents
               </div>
               <h1 className="text-3xl font-bold">Agent Forge</h1>
-              <p className="text-zinc-400 mt-1">Create, deploy, and rent AI agents</p>
+              <p className="text-muted-foreground mt-1">Create, deploy, and rent AI agents</p>
             </div>
             <button onClick={() => setActiveTab("create")} className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition">
               <Plus size={16}/> Create Agent
@@ -201,7 +201,7 @@ export function AGIAgents() {
 
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl w-fit mb-6">
+        <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl w-fit mb-6">
           {[
             { id: "marketplace" as const, label: "Marketplace", icon: Store },
             { id: "my-agents" as const, label: `My Agents (${myAgents.length})`, icon: Bot },
@@ -211,7 +211,7 @@ export function AGIAgents() {
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id ? "bg-white text-black" : "text-zinc-400 hover:text-white"
+                  activeTab === tab.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 <Icon size={14}/> {tab.label}
               </button>
@@ -226,7 +226,7 @@ export function AGIAgents() {
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setSelectedCategory("all")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedCategory === "all" ? "bg-amber-500 text-black" : "bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-white"
+                  selectedCategory === "all" ? "bg-amber-500 text-black" : "bg-muted/50 border border-border text-muted-foreground hover:text-foreground"
                 }`}>
                 All Agents
               </button>
@@ -235,7 +235,7 @@ export function AGIAgents() {
                 return (
                   <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedCategory === cat.id ? "bg-amber-500 text-black" : "bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-white"
+                      selectedCategory === cat.id ? "bg-amber-500 text-black" : "bg-muted/50 border border-border text-muted-foreground hover:text-foreground"
                     }`}>
                     <Icon size={14} className={selectedCategory === cat.id ? "text-black" : cat.color}/> {cat.name}
                   </button>
@@ -245,9 +245,9 @@ export function AGIAgents() {
 
             {/* Grid */}
             {filteredMarketplace.length === 0 ? (
-              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <Store size={48} className="mx-auto mb-4 text-zinc-600" />
-                <p className="text-zinc-400 mb-4">No rentable agents available yet</p>
+              <div className="text-center py-16 rounded-xl bg-muted/30 border border-border">
+                <Store size={48} className="mx-auto mb-4 text-muted-foreground/60" />
+                <p className="text-muted-foreground mb-4">No rentable agents available yet</p>
                 <button onClick={() => setActiveTab("create")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">
                   Be the first to create one
                 </button>
@@ -255,39 +255,39 @@ export function AGIAgents() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredMarketplace.map((agent) => (
-                  <div key={agent.id} className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition">
+                  <div key={agent.id} className="p-5 rounded-xl bg-card border border-border hover:border-border/80 transition">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
                           <CategoryIcon id={agent.category} size={24} />
                         </div>
                         <div>
                           <h3 className="font-semibold">{agent.name}</h3>
-                          <p className="text-xs text-zinc-500 capitalize">{agent.category}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{agent.category}</p>
                         </div>
                       </div>
                       {agent.is_rentable && (
-                        <span className="flex items-center gap-1 text-xs px-2 py-1 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/30">
+                        <span className="flex items-center gap-1 text-xs px-2 py-1 bg-amber-500/10 text-amber-500 dark:text-amber-400 rounded-full border border-amber-500/30">
                           <Zap size={10}/> {agent.rent_price_honor || 50}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{agent.description}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{agent.description}</p>
                     <div className="flex flex-wrap gap-1 mb-3">
                       {agent.capabilities?.slice(0, 3).map((cap) => (
-                        <span key={cap} className="text-[10px] px-2 py-1 rounded-full bg-zinc-800 text-zinc-400">{cap}</span>
+                        <span key={cap} className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{cap}</span>
                       ))}
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-zinc-500 mb-4">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                       <span className="flex items-center gap-1"><CheckCircle size={12}/> {agent.projects_completed || 0} uses</span>
-                      <span className="flex items-center gap-1"><Star size={12} className="text-amber-400"/> {(agent.rating || 0).toFixed(1)}</span>
+                      <span className="flex items-center gap-1"><Star size={12} className="text-amber-500 dark:text-amber-400"/> {(agent.rating || 0).toFixed(1)}</span>
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => rentAgent(agent.id)} disabled={agent.owner_id === session?.user?.id}
-                        className="flex-1 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500 transition">
+                        className="flex-1 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground transition">
                         {agent.owner_id === session?.user?.id ? "Your Agent" : "Rent & Use"}
                       </button>
-                      <button className="px-3 py-2 text-sm border border-zinc-700 rounded-lg hover:bg-zinc-800 transition">
+                      <button className="px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted transition">
                         Preview
                       </button>
                     </div>
@@ -302,9 +302,9 @@ export function AGIAgents() {
         {activeTab === "my-agents" && (
           <div className="space-y-4">
             {myAgents.length === 0 ? (
-              <div className="text-center py-16 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <Bot size={48} className="mx-auto mb-4 text-zinc-600" />
-                <p className="text-zinc-400 mb-4">You haven&apos;t created any agents yet</p>
+              <div className="text-center py-16 rounded-xl bg-muted/30 border border-border">
+                <Bot size={48} className="mx-auto mb-4 text-muted-foreground/60" />
+                <p className="text-muted-foreground mb-4">You haven&apos;t created any agents yet</p>
                 <button onClick={() => setActiveTab("create")} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold">
                   Create Your First Agent
                 </button>
@@ -312,34 +312,34 @@ export function AGIAgents() {
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
                 {myAgents.map((agent) => (
-                  <div key={agent.id} className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                  <div key={agent.id} className="p-5 rounded-xl bg-card border border-border">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
                         <CategoryIcon id={agent.category} size={24} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-1">
                           <div>
                             <h3 className="font-semibold">{agent.name}</h3>
-                            <p className="text-xs text-zinc-500 capitalize">{agent.category}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{agent.category}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             {agent.is_rentable && (
-                              <span className="text-[10px] px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/30">Listed</span>
+                              <span className="text-[10px] px-2 py-1 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 rounded-full border border-emerald-500/30">Listed</span>
                             )}
                             <span className={`text-[10px] px-2 py-1 rounded-full ${
-                              agent.status === "active" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : "bg-zinc-800 text-zinc-400"
+                              agent.status === "active" ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30" : "bg-muted text-muted-foreground"
                             }`}>{agent.status}</span>
                           </div>
                         </div>
-                        <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{agent.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-zinc-500 mb-3">
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{agent.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
                           <span className="flex items-center gap-1"><CheckCircle size={12}/> {agent.projects_completed || 0} uses</span>
-                          <span className="flex items-center gap-1"><Zap size={12} className={agent.is_rentable ? "text-amber-400" : "text-zinc-600"}/> {agent.is_rentable ? `${agent.rent_price_honor || 50}` : "Private"}</span>
+                          <span className="flex items-center gap-1"><Zap size={12} className={agent.is_rentable ? "text-amber-500 dark:text-amber-400" : "text-muted-foreground/60"}/> {agent.is_rentable ? `${agent.rent_price_honor || 50}` : "Private"}</span>
                         </div>
                         <div className="flex gap-2">
                           <button className="flex-1 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold">Use Agent</button>
-                          <button onClick={() => archiveAgent(agent.id)} className="px-3 py-2 text-sm text-rose-400 border border-rose-500/30 rounded-lg hover:bg-rose-500/10 transition">
+                          <button onClick={() => archiveAgent(agent.id)} className="px-3 py-2 text-sm text-rose-500 dark:text-rose-400 border border-rose-500/30 rounded-lg hover:bg-rose-500/10 transition">
                             <Trash2 size={14}/>
                           </button>
                         </div>
@@ -354,25 +354,25 @@ export function AGIAgents() {
 
         {/* Create Tab */}
         {activeTab === "create" && (
-          <div className="max-w-2xl p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
+          <div className="max-w-2xl p-6 rounded-xl bg-card border border-border">
             <h3 className="text-xl font-bold mb-1">Create New Agent</h3>
-            <p className="text-zinc-400 text-sm mb-6">Build an AI agent to automate tasks or rent it to others</p>
+            <p className="text-muted-foreground text-sm mb-6">Build an AI agent to automate tasks or rent it to others</p>
             <div className="space-y-5">
               <div>
-                <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-2">Agent Name</label>
+                <label className="block text-xs text-muted-foreground uppercase tracking-wider mb-2">Agent Name</label>
                 <input type="text" value={newAgentName} onChange={(e) => setNewAgentName(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:border-amber-500/50 outline-none"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm focus:border-amber-500/50 outline-none"
                   placeholder="e.g., Content Writer Pro" required/>
               </div>
               <div>
-                <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-2">Category</label>
+                <label className="block text-xs text-muted-foreground uppercase tracking-wider mb-2">Category</label>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => {
                     const Icon = cat.icon;
                     return (
                       <button key={cat.id} onClick={() => setNewAgentCategory(cat.id)}
                         className={`flex items-center gap-2 p-3 rounded-lg border transition-colors text-left ${
-                          newAgentCategory === cat.id ? "border-amber-500 bg-amber-500/10" : "border-zinc-800 hover:border-zinc-700"
+                          newAgentCategory === cat.id ? "border-amber-500 bg-amber-500/10" : "border-border hover:border-border/80"
                         }`}>
                         <Icon size={16} className={cat.color}/>
                         <span className="text-sm">{cat.name}</span>
@@ -382,41 +382,41 @@ export function AGIAgents() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-2">Description</label>
+                <label className="block text-xs text-muted-foreground uppercase tracking-wider mb-2">Description</label>
                 <textarea value={newAgentDescription} onChange={(e) => setNewAgentDescription(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm min-h-[100px] resize-y focus:border-amber-500/50 outline-none"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm min-h-[100px] resize-y focus:border-amber-500/50 outline-none"
                   placeholder="What does this agent do?"/>
               </div>
               <div>
-                <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-2">Capabilities (comma-separated)</label>
+                <label className="block text-xs text-muted-foreground uppercase tracking-wider mb-2">Capabilities (comma-separated)</label>
                 <input type="text" value={newAgentCapabilities} onChange={(e) => setNewAgentCapabilities(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:border-amber-500/50 outline-none"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm focus:border-amber-500/50 outline-none"
                   placeholder="e.g., Write blogs, Create social posts, SEO optimization"/>
               </div>
-              <div className="border-t border-zinc-800 pt-5">
+              <div className="border-t border-border pt-5">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={newAgentRentable} onChange={(e) => setNewAgentRentable(e.target.checked)}
-                    className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 accent-amber-500"/>
+                    className="w-5 h-5 rounded border-border bg-muted accent-amber-500"/>
                   <div>
                     <span className="text-sm font-medium">Allow others to rent this agent</span>
-                    <p className="text-xs text-zinc-500">Earn Honor when others use your agent</p>
+                    <p className="text-xs text-muted-foreground">Earn Honor when others use your agent</p>
                   </div>
                 </label>
                 {newAgentRentable && (
                   <div className="mt-3 ml-8">
-                    <label className="block text-xs text-zinc-500 mb-2">Rent Price (Honor per use)</label>
+                    <label className="block text-xs text-muted-foreground mb-2">Rent Price (Honor per use)</label>
                     <div className="flex items-center gap-2">
-                      <Zap size={14} className="text-amber-400"/>
+                      <Zap size={14} className="text-amber-500 dark:text-amber-400"/>
                       <input type="number" value={newAgentRentPrice} onChange={(e) => setNewAgentRentPrice(Number(e.target.value))}
-                        className="w-32 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm" min="10" max="1000"/>
-                      <span className="text-sm text-zinc-500">Honor</span>
+                        className="w-32 bg-muted border border-border rounded-lg px-3 py-2 text-sm" min="10" max="1000"/>
+                      <span className="text-sm text-muted-foreground">Honor</span>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-            <div className="flex gap-3 mt-6 pt-4 border-t border-zinc-800">
-              <button onClick={() => setActiveTab("marketplace")} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm font-medium transition">Cancel</button>
+            <div className="flex gap-3 mt-6 pt-4 border-t border-border">
+              <button onClick={() => setActiveTab("marketplace")} className="px-4 py-2.5 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition">Cancel</button>
               <button onClick={createAgent} disabled={!newAgentName.trim() || isCreating}
                 className="flex-1 px-4 py-2.5 bg-amber-500 text-black rounded-lg font-semibold disabled:opacity-50 transition">
                 {isCreating ? "Creating..." : "Create Agent"}

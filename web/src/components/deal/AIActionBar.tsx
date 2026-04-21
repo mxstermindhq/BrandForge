@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { Sparkles, FileText, ListTodo, AlertTriangle, Send, FileOutput } from 'lucide-react'
+import { FileText, ListTodo, AlertTriangle, Send, FileOutput } from 'lucide-react'
 import type { AIActionType } from '@/types/deal'
 
 interface AIActionBarProps {
@@ -29,15 +29,8 @@ export function AIActionBar({ onAction, actionsRemaining, disabled }: AIActionBa
   }, [isExhausted, disabled, onAction])
 
   return (
-    <div className="border-t border-b border-border/50 bg-muted/30 py-2">
-      <div className="flex items-center gap-2 px-4 overflow-x-auto scrollbar-hide">
-        <div className="flex items-center gap-1.5 mr-2 shrink-0">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-xs font-medium text-muted-foreground hidden sm:inline">
-            AI Actions
-          </span>
-        </div>
-        
+    <div className="py-2 px-4">
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
         {actions.map((action) => {
           const isDisabled = isExhausted || disabled
           const variantClasses = isLow && !isExhausted

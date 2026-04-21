@@ -1,5 +1,5 @@
 # ★ World of BrandForge
-
+cd web && npm run cf:build && npx wrangler deploy
 **The professional OS for the AI era.**
 
 Enter the World of BrandForge — where specialists list services, buyers post briefs,
