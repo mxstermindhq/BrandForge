@@ -326,7 +326,7 @@ function RecipientPicker({
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="max-h-64 overflow-y-auto py-1">
+      <div className="max-h-64 overflow-y-auto bg-surface-container py-1">
         {activeItems.map(item => (
           <button
             key={item.id}
@@ -477,11 +477,12 @@ function InputBar({
   const isPeople = recipient.type === "people";
 
   return (
-    <div className="border-t border-outline-variant/60 bg-surface/50 px-4 py-3 backdrop-blur-sm">
+    <div className="relative z-20 border-t border-outline-variant/60 bg-surface/50 px-4 py-3 backdrop-blur-sm">
       <div className="mx-auto max-w-2xl">
         <div ref={pickerRef} className="relative">
+          {/* No overflow-hidden here — it clips the recipient popover (bottom-full). */}
           <div className={cn(
-            "overflow-hidden rounded-2xl border bg-surface-container shadow-sm transition-colors",
+            "overflow-visible rounded-2xl border bg-surface-container shadow-sm transition-colors",
             pickerOpen ? "border-blue-500/40" : "border-outline-variant hover:border-outline"
           )}>
             <textarea
@@ -498,13 +499,13 @@ function InputBar({
                   ? "Give the agent an objective..."
                   : "Ask anything..."
               }
-              className="max-h-40 min-h-[48px] w-full resize-none bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none"
+              className="max-h-40 min-h-[48px] w-full resize-none rounded-t-2xl bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none"
               rows={1}
             />
 
             {/* Toolbar */}
-            <div className="flex items-center gap-1 px-3 py-2">
-              <div className="relative flex shrink-0 items-center gap-0.5">
+            <div className="flex items-center gap-1 rounded-b-2xl px-3 py-2">
+              <div className="relative z-10 flex shrink-0 items-center gap-0.5">
                 {pickerOpen && !hasThread && (
                   <RecipientPicker value={recipient} onChange={onChangeRecipient} onClose={() => setPickerOpen(false)} />
                 )}
