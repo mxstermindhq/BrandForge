@@ -3307,6 +3307,108 @@ async function createPlatformRepository(previewRepository) {
     return cid;
   }
 
+  async function resolveInviteeUserId(payload) {
+    const directId = String(payload?.inviteeUserId || '').trim();
+    if (directId) {
+      const { data: directProfile } = await client
+        .from('profiles')
+        .select('id')
+        .eq('id', directId)
+        .maybeSingle();
+      if (directProfile?.id) return String(directProfile.id);
+    }
+
+    const usernameRaw = String(payload?.username || '').trim().replace(/^@+/, '');
+    if (usernameRaw) {
+      const { data: byUsername } = await client
+        .from('profiles')
+        .select('id')
+        .eq('username', usernameRaw)
+        .maybeSingle();
+      if (byUsername?.id) return String(byUsername.id);
+    }
+
+    const email = String(payload?.email || '').trim().toLowerCase();
+    if (email) {
+      try {
+        const { data: lookedUp } = await client.rpc('lookup_user_id_by_email', { p_email: email });
+        if (lookedUp) return String(lookedUp);
+      } catch {
+        // Optional migration/RPC in some environments.
+      }
+    }
+
+    return null;
+  }
+
+  async function inviteChatParticipant(currentUserId, chatId, payload = {}) {
+    if (!client) throw new Error('Supabase is not configured');
+    const cid = String(chatId || '').trim();
+    if (!cid) throw new Error('Chat id is required');
+
+    const inviteeUserId = await resolveInviteeUserId(payload);
+    if (!inviteeUserId) throw new Error('Invitee not found');
+    if (String(inviteeUserId) === String(currentUserId)) {
+      throw new Error('You cannot invite yourself');
+    }
+
+    const visibilityMode = String(payload?.history || 'since_join') === 'full' ? 'full' : 'since_join';
+    const historyVisibleFrom = visibilityMode === 'since_join' ? new Date().toISOString() : null;
+
+    const { data: legacyMember } = await client
+      .from('conversation_participants')
+      .select('conversation_id')
+      .eq('conversation_id', cid)
+      .eq('user_id', currentUserId)
+      .maybeSingle();
+
+    if (legacyMember) {
+      await client.from('conversation_participants').upsert(
+        {
+          conversation_id: cid,
+          user_id: inviteeUserId,
+          history_visible_from: historyVisibleFrom,
+        },
+        { onConflict: 'conversation_id,user_id' }
+      );
+
+      await notifyInsert({
+        user_id: inviteeUserId,
+        type: 'message',
+        title: 'Added to a conversation',
+        message: 'You were invited to join a chat.',
+        related_id: cid,
+        related_type: 'legacy_chat',
+      });
+
+      return { chatId: cid, inviteeUserId, transport: 'legacy', history: visibilityMode };
+    }
+
+    await assertUnifiedChatAccess(currentUserId, cid);
+
+    await client.from('unified_chat_participants').upsert(
+      {
+        chat_id: cid,
+        user_id: inviteeUserId,
+        role: 'participant',
+        is_deleted: false,
+        history_visible_from: historyVisibleFrom,
+      },
+      { onConflict: 'chat_id,user_id' }
+    );
+
+    await notifyInsert({
+      user_id: inviteeUserId,
+      type: 'message',
+      title: 'Added to a deal room',
+      message: 'You were invited to join a deal room chat.',
+      related_id: cid,
+      related_type: 'chat',
+    });
+
+    return { chatId: cid, inviteeUserId, transport: 'unified', history: visibilityMode };
+  }
+
   function profileSnapFromRow(row) {
     if (!row) return { id: '', username: null, fullName: null, avatarUrl: null };
     return {
@@ -4807,6 +4909,7 @@ async function createPlatformRepository(previewRepository) {
     createUnifiedChat,
     getUnifiedChat,
     addUnifiedMessage,
+    inviteChatParticipant,
     uploadUnifiedChatFile,
     uploadLegacyChatFile,
     leaveUnifiedChat,

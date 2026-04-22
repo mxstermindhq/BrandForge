@@ -2,29 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import {
-  Bot,
-  BriefcaseBusiness,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  MessageSquare,
-  Paperclip,
-  Send,
-  Sparkles,
-  UserPlus,
-  Users,
-  WandSparkles,
-} from "lucide-react";
-import { apiGetJson } from "@/lib/api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, MessageSquare, Send, UserPlus } from "lucide-react";
+import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { getSortedHumanThreads } from "@/lib/human-chat-threads";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/providers/AuthProvider";
-
-type ChatMode = "human" | "ai" | "agents";
 
 type ThreadRow = {
   id?: string;
@@ -32,13 +17,16 @@ type ThreadRow = {
   s?: string;
   lastMessageAt?: string | null;
   hasUnread?: boolean;
+  peerAvatarUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
 };
 
-type ThreadMessage = {
-  id?: string;
-  content?: string;
-  sender_id?: string | null;
-  created_at?: string;
+type MessageRow = {
+  id: string;
+  role: "user" | "peer" | "system" | "ai";
+  text: string;
+  createdAt: string;
+  senderId?: string | null;
 };
 
 type ProfileRow = {
@@ -49,112 +37,9 @@ type ProfileRow = {
   headline?: string | null;
 };
 
-const MODE_OPTIONS: Array<{
-  id: ChatMode;
-  label: string;
-  description: string;
-  icon: typeof MessageSquare;
-}> = [
-  {
-    id: "human",
-    label: "Chat with humans",
-    description: "Marketplace conversations start from bids or offers.",
-    icon: MessageSquare,
-  },
-  {
-    id: "ai",
-    label: "Ask AI",
-    description: "Use a model directly in the same workspace.",
-    icon: Sparkles,
-  },
-  {
-    id: "agents",
-    label: "Plan with agents",
-    description: "Assemble specialist agents around the request.",
-    icon: BriefcaseBusiness,
-  },
-];
+const EMPTY_MESSAGES: MessageRow[] = [];
 
-const MODEL_OPTIONS = [
-  "GPT-5.4",
-  "GPT-5.4 Mini",
-  "Claude Sonnet",
-  "Gemini Pro",
-];
-
-const AGENT_OPTIONS = [
-  "No agent",
-  "CRO Agent",
-  "Launch Agent",
-  "Research Agent",
-  "Copy Agent",
-];
-
-const FALLBACK_THREADS: ThreadRow[] = [
-  { id: "offer-landing", t: "Landing page offer", s: "Offer sent for homepage rebuild", lastMessageAt: new Date().toISOString() },
-  { id: "bid-refresh", t: "Site refresh bid", s: "Bid needs response", lastMessageAt: new Date(Date.now() - 3600000).toISOString() },
-  { id: "agency-sequence", t: "Email sequence bid", s: "Waiting on offer terms", lastMessageAt: new Date(Date.now() - 7200000).toISOString() },
-];
-
-const SUGGESTIONS: Record<
-  ChatMode,
-  Array<{ title: string; body: string; cta: string; href?: string }>
-> = {
-  human: [
-    {
-      title: "Start from a bid",
-      body: "Human chats are attached to marketplace bids so both sides can negotiate from a real request.",
-      cta: "Open marketplace",
-      href: "/marketplace",
-    },
-    {
-      title: "Turn a bid into an offer",
-      body: "Draft the offer terms, scope, and timing before you invite the other person into the thread.",
-      cta: "Prepare offer",
-    },
-    {
-      title: "Invite a teammate",
-      body: "Bring another user into the same chat when you need a closer, designer, or project lead.",
-      cta: "Invite users",
-    },
-  ],
-  ai: [
-    {
-      title: "Draft a homepage fast",
-      body: "Use the selected model to draft copy, CTA structure, and landing-page sections from one prompt.",
-      cta: "Generate draft",
-    },
-    {
-      title: "Summarize the marketplace context",
-      body: "Ask AI to turn bids, offers, and notes into one clean brief before you reply.",
-      cta: "Create summary",
-    },
-    {
-      title: "Write better replies",
-      body: "Generate reply options for human chats without leaving the thread.",
-      cta: "Suggest replies",
-    },
-  ],
-  agents: [
-    {
-      title: "Plan an agent lane",
-      body: "Split the work into research, copy, design, and launch steps in one coordinated plan.",
-      cta: "Build plan",
-    },
-    {
-      title: "Send tasks to specialists",
-      body: "Pick an agent for the thread, keep the marketplace context, and decide what humans still own.",
-      cta: "Assign agent",
-    },
-    {
-      title: "Prepare handoff to humans",
-      body: "Use the same plan to hand work back to real users once the agent work is ready.",
-      cta: "Create handoff",
-    },
-  ],
-};
-
-function relativeTime(value: string | null | undefined) {
+function relativeTime(value?: string | null) {
   if (!value) return "now";
   const diffMs = Date.now() - new Date(value).getTime();
   const diffMin = Math.max(1, Math.floor(diffMs / 60000));
@@ -175,25 +60,59 @@ function initials(name: string) {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
+function mapApiMessage(row: Record<string, unknown>): MessageRow {
+  const id = String(row.id || crypto.randomUUID());
+  const roleRaw = String(row.role || row.senderType || "");
+  const role: MessageRow["role"] =
+    roleRaw === "user" || roleRaw === "peer" || roleRaw === "system" || roleRaw === "ai" ?
+      roleRaw
+    : String(row.senderId || row.sender_id || "") ? "peer"
+    : "system";
+  const text =
+    String(
+      row.text ||
+        row.content ||
+        row.body ||
+        (role === "system" ? "System message" : ""),
+    ).trim() || (role === "system" ? "System message" : "Message");
+  const createdAt = String(row.createdAt || row.created_at || new Date().toISOString());
+  const senderId = row.senderId || row.sender_id;
+  return { id, role, text, createdAt, senderId: senderId ? String(senderId) : null };
+}
+
 export function WorkflowWorkspace({ threadId }: { threadId?: string }) {
   const { accessToken, session } = useAuth();
   const { data: bootstrap } = useBootstrap();
-  const [messages, setMessages] = useState<ThreadMessage[]>([]);
-  const [mode, setMode] = useState<ChatMode>(threadId ? "human" : "ai");
+  const [activeId, setActiveId] = useState<string>("");
+  const [messages, setMessages] = useState<MessageRow[]>(EMPTY_MESSAGES);
   const [composerText, setComposerText] = useState("");
-  const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0]);
-  const [selectedAgent, setSelectedAgent] = useState(AGENT_OPTIONS[0]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorText, setErrorText] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [selectedInviteIds, setSelectedInviteIds] = useState<string[]>([]);
+  const [inviteState, setInviteState] = useState("");
+  const streamRef = useRef<HTMLDivElement | null>(null);
 
   const threads = useMemo(() => {
-    const rows = getSortedHumanThreads(bootstrap?.humanChats) as ThreadRow[];
-    return rows.length ? rows : FALLBACK_THREADS;
+    return getSortedHumanThreads(bootstrap?.humanChats) as ThreadRow[];
   }, [bootstrap?.humanChats]);
 
+  const resolvedThreadId = threadId || activeId || threads[0]?.id || "";
+
+  useEffect(() => {
+    if (threadId) {
+      setActiveId(threadId);
+      return;
+    }
+    if (!activeId && threads[0]?.id) {
+      setActiveId(String(threads[0].id));
+    }
+  }, [threadId, activeId, threads]);
+
   const activeThread = useMemo(
-    () => threads.find((thread) => String(thread.id) === String(threadId)) || threads[0] || null,
-    [threadId, threads],
+    () => threads.find((thread) => String(thread.id) === String(resolvedThreadId)) || null,
+    [resolvedThreadId, threads],
   );
 
   const candidateProfiles = useMemo(() => {
@@ -202,56 +121,43 @@ export function WorkflowWorkspace({ threadId }: { threadId?: string }) {
   }, [bootstrap?.profiles, session?.user?.id]);
 
   useEffect(() => {
-    setMode(threadId ? "human" : "ai");
-  }, [threadId]);
-
-  useEffect(() => {
-    if (!threadId || !accessToken) {
+    if (!resolvedThreadId || !accessToken) {
       setMessages([]);
       return;
     }
-
     let cancelled = false;
     (async () => {
+      setLoadingMessages(true);
+      setErrorText("");
       try {
-        const data = await apiGetJson<{ messages?: ThreadMessage[] }>(
-          `/api/chat/${encodeURIComponent(threadId)}?limit=6`,
+        const data = await apiGetJson<{
+          activeChat?: { messages?: Array<Record<string, unknown>> };
+          messages?: Array<Record<string, unknown>>;
+        }>(
+          `/api/chat/${encodeURIComponent(resolvedThreadId)}/messages?limit=80`,
           accessToken,
         );
-        if (!cancelled) {
-          setMessages(Array.isArray(data.messages) ? data.messages : []);
-        }
-      } catch {
-        if (!cancelled) setMessages([]);
+        if (cancelled) return;
+        const raw = Array.isArray(data.activeChat?.messages) ? data.activeChat?.messages : data.messages;
+        setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
+      } catch (error) {
+        if (cancelled) return;
+        setMessages([]);
+        setErrorText(error instanceof Error ? error.message : "Failed to load chat");
+      } finally {
+        if (!cancelled) setLoadingMessages(false);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [threadId, accessToken]);
+  }, [resolvedThreadId, accessToken]);
 
-  const modeConfig = MODE_OPTIONS.find((option) => option.id === mode) || MODE_OPTIONS[0];
-  const promptSeed = useMemo(() => {
-    if (mode === "human") {
-      return activeThread?.t || "Reply to this bid or offer";
-    }
-    if (mode === "agents") {
-      return "Plan a launch workflow with specialist agents";
-    }
-    return "Ask AI to draft or improve the landing page";
-  }, [activeThread?.t, mode]);
-
-  const syncedNote = useMemo(() => {
-    if (mode === "human") {
-      if (messages.length) return `Loaded ${messages.length} recent messages from this marketplace thread.`;
-      return "Human chats should start from marketplace bids or offers.";
-    }
-    if (mode === "agents") {
-      return `Selected agent: ${selectedAgent}. Keep humans in the loop for marketplace handoff.`;
-    }
-    return `Selected model: ${selectedModel}. Use the same chatbox for drafting and revisions.`;
-  }, [messages.length, mode, selectedAgent, selectedModel]);
+  useEffect(() => {
+    if (!streamRef.current) return;
+    streamRef.current.scrollTop = streamRef.current.scrollHeight;
+  }, [messages.length, resolvedThreadId]);
 
   const invitedPeople = useMemo(
     () =>
@@ -270,195 +176,217 @@ export function WorkflowWorkspace({ threadId }: { threadId?: string }) {
     );
   };
 
+  const submitInvite = async () => {
+    if (!resolvedThreadId || !accessToken || selectedInviteIds.length === 0) return;
+    setInviteState("Sending invites...");
+    const outcomes = await Promise.allSettled(
+      selectedInviteIds.map((inviteeUserId) =>
+        apiMutateJson(
+          `/api/chat/${encodeURIComponent(resolvedThreadId)}/invite`,
+          "POST",
+          { inviteeUserId, history: "since_join" },
+          accessToken,
+        ),
+      ),
+    );
+    const ok = outcomes.filter((entry) => entry.status === "fulfilled").length;
+    const failed = outcomes.length - ok;
+    setInviteState(
+      failed > 0 ? `${ok} invite${ok === 1 ? "" : "s"} sent, ${failed} failed.` : `${ok} invite${ok === 1 ? "" : "s"} sent.`,
+    );
+  };
+
+  const sendMessage = async () => {
+    const text = composerText.trim();
+    if (!text || !resolvedThreadId || !accessToken || sending) return;
+    setComposerText("");
+    setSending(true);
+    setErrorText("");
+    const optimistic: MessageRow = {
+      id: `tmp-${Date.now()}`,
+      role: "user",
+      text,
+      createdAt: new Date().toISOString(),
+      senderId: session?.user?.id || null,
+    };
+    setMessages((current) => [...current, optimistic]);
+    try {
+      await apiMutateJson(
+        "/api/chat/messages",
+        "POST",
+        { conversationId: resolvedThreadId, text },
+        accessToken,
+      );
+      const refreshed = await apiGetJson<{
+        activeChat?: { messages?: Array<Record<string, unknown>> };
+      }>(`/api/chat/${encodeURIComponent(resolvedThreadId)}/messages?limit=80`, accessToken);
+      const raw = refreshed.activeChat?.messages || [];
+      setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
+    } catch (error) {
+      setErrorText(error instanceof Error ? error.message : "Failed to send message");
+      setMessages((current) => current.filter((row) => row.id !== optimistic.id));
+      setComposerText(text);
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="relative min-h-full overflow-hidden bg-[#0a0d16] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(90,83,255,0.12),transparent_28%),linear-gradient(180deg,#0a0d16_0%,#090c14_100%)]" />
-      <div className="relative mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-10">
-        <header className="flex flex-col gap-4 rounded-[28px] border border-white/8 bg-[#11141d]/88 px-5 py-5 shadow-[0_28px_80px_rgba(0,0,0,0.34)] backdrop-blur sm:px-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-100">
-                  {mode === "human" ? "Human" : mode === "agents" ? "Agents" : "AI"}
-                </span>
-                {threadId ? (
-                  <span className="text-xs text-white/36">{relativeTime(activeThread?.lastMessageAt)}</span>
-                ) : null}
-              </div>
-              <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white">
-                {threadId ? activeThread?.t || "Marketplace chat" : "New chat"}
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/58">
-                {modeConfig.description} The marketplace stays in the loop, human chats stay tied to bids and offers, and the same thread can still use models and agents.
-              </p>
+    <div className="flex min-h-full bg-[#0b0f17] text-white">
+      <aside className="hidden w-[320px] shrink-0 border-r border-white/10 bg-[#0f1421]/90 lg:flex lg:flex-col">
+        <div className="border-b border-white/10 px-4 py-4">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">Deal rooms</p>
+          <p className="mt-2 text-xs text-white/50">Chats start when someone places a bid or offer.</p>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+          {threads.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-5 text-sm text-white/50">
+              No active chats yet. Place a bid or send an offer to open a thread.
             </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => setInviteOpen(true)}
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/78 transition hover:bg-white/[0.08]"
-              >
-                <UserPlus className="h-4 w-4" />
-                {inviteSummary}
-              </button>
-              <label className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/78">
-                <Sparkles className="h-4 w-4" />
-                <select
-                  value={selectedModel}
-                  onChange={(event) => setSelectedModel(event.target.value)}
-                  className="bg-transparent outline-none"
-                >
-                  {MODEL_OPTIONS.map((modelOption) => (
-                    <option key={modelOption} value={modelOption} className="bg-[#11141d] text-white">
-                      {modelOption}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="h-4 w-4 text-white/34" />
-              </label>
-              <label className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/78">
-                <BriefcaseBusiness className="h-4 w-4" />
-                <select
-                  value={selectedAgent}
-                  onChange={(event) => setSelectedAgent(event.target.value)}
-                  className="bg-transparent outline-none"
-                >
-                  {AGENT_OPTIONS.map((agentOption) => (
-                    <option key={agentOption} value={agentOption} className="bg-[#11141d] text-white">
-                      {agentOption}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="h-4 w-4 text-white/34" />
-              </label>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {MODE_OPTIONS.map((option) => {
-              const Icon = option.icon;
-              const active = option.id === mode;
+          ) : (
+            threads.map((thread) => {
+              const id = String(thread.id || "");
+              const active = id === String(resolvedThreadId);
+              const avatar = safeImageSrc(thread.peerAvatarUrl || null);
               return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => setMode(option.id)}
+                <Link
+                  key={id}
+                  href={`/chat/${id}`}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm transition",
+                    "mb-1.5 flex items-center gap-3 rounded-xl border px-3 py-3 transition",
                     active ?
-                      "border-violet-400/26 bg-violet-500/[0.14] text-white"
-                    : "border-white/10 bg-white/[0.03] text-white/64 hover:bg-white/[0.06] hover:text-white",
+                      "border-violet-400/40 bg-violet-500/[0.16]"
+                    : "border-white/5 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.05]",
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  {option.label}
-                </button>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/[0.08] text-xs font-semibold text-white">
+                    {avatar ? (
+                      <Image src={avatar} alt="" width={40} height={40} className="h-10 w-10 object-cover" unoptimized />
+                    ) : (
+                      initials(thread.t || "Chat")
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate text-sm", active ? "text-white" : "text-white/86")}>{thread.t || "Deal room"}</p>
+                    <p className="mt-0.5 truncate text-xs text-white/46">{thread.s || "Open thread"}</p>
+                  </div>
+                  <span className="text-[11px] text-white/36">{relativeTime(thread.lastMessageAt)}</span>
+                </Link>
               );
-            })}
+            })
+          )}
+        </div>
+      </aside>
+
+      <main className="flex min-h-0 flex-1 flex-col">
+        <header className="border-b border-white/10 bg-[#101726]/90 px-4 py-4 sm:px-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-violet-200/70">Main chat</p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                {activeThread?.t || "Your conversations"}
+              </h1>
+              <p className="mt-1 text-sm text-white/55">
+                Same chatbox UI as your deal rooms, with member invites directly from the thread.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={!resolvedThreadId}
+              onClick={() => setInviteOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2 text-sm text-white/80 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <UserPlus className="h-4 w-4" />
+              {inviteSummary}
+            </button>
           </div>
         </header>
 
-        <section className="rounded-[32px] border border-violet-400/18 bg-[#11141d]/92 p-5 shadow-[0_32px_90px_rgba(0,0,0,0.36)] backdrop-blur sm:p-6">
-          <div className="rounded-[28px] border border-violet-400/28 bg-[linear-gradient(180deg,#151927_0%,#111522_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-white/34">
-                  {mode === "human" ? "Marketplace thread" : mode === "agents" ? "Agent planning lane" : "AI chatbox"}
-                </p>
-                <p className="mt-2 text-sm text-white/54">{syncedNote}</p>
+        {!resolvedThreadId ? (
+          <div className="flex flex-1 items-center justify-center px-6">
+            <div className="max-w-xl rounded-3xl border border-white/10 bg-white/[0.02] p-6 text-center">
+              <MessageSquare className="mx-auto h-9 w-9 text-violet-200/80" />
+              <h2 className="mt-4 text-xl font-semibold text-white">No active chat yet</h2>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                Chats between users start automatically after placing a bid or an offer.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <Link
+                  href="/bid/service"
+                  className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-sm text-white/85"
+                >
+                  Place service bid
+                </Link>
+                <Link
+                  href="/bid/request"
+                  className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-sm text-white/85"
+                >
+                  Bid on request
+                </Link>
               </div>
-              {threadId ? (
-                <div className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/50">
-                  {activeThread?.s || "Connected to live thread"}
-                </div>
-              ) : null}
-            </div>
-
-            <textarea
-              value={composerText}
-              onChange={(event) => setComposerText(event.target.value)}
-              placeholder={promptSeed}
-              className="min-h-[160px] w-full resize-none bg-transparent text-[20px] font-medium leading-8 text-white outline-none placeholder:text-white/28"
-            />
-
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-4">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/72 transition hover:bg-white/[0.08]">
-                  <Paperclip className="h-4 w-4" />
-                  Attach
-                </button>
-                {mode === "human" ? (
-                  <Link
-                    href="/marketplace"
-                    className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/72 transition hover:bg-white/[0.08]"
-                  >
-                    <Users className="h-4 w-4" />
-                    Marketplace
-                  </Link>
-                ) : null}
-                {mode !== "human" ? (
-                  <span className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/60">
-                    <Bot className="h-4 w-4" />
-                    {mode === "agents" ? selectedAgent : selectedModel}
-                  </span>
-                ) : null}
-              </div>
-              <button
-                type="button"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-[0_16px_40px_rgba(108,76,255,0.42)] transition hover:scale-[1.02]"
-              >
-                <Send className="h-4 w-4" />
-              </button>
             </div>
           </div>
-        </section>
+        ) : (
+          <>
+            <div ref={streamRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
+              {loadingMessages ? (
+                <p className="text-sm text-white/50">Loading messages...</p>
+              ) : messages.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-sm text-white/50">
+                  No messages yet. This thread is ready for your first reply.
+                </div>
+              ) : (
+                messages.map((message) => {
+                  const mine = message.role === "user" || String(message.senderId || "") === String(session?.user?.id || "");
+                  return (
+                    <div key={message.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+                      <div
+                        className={cn(
+                          "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm",
+                          message.role === "system" ?
+                            "border border-white/10 bg-white/[0.04] text-white/70"
+                          : mine ?
+                            "bg-gradient-to-r from-violet-500 to-indigo-500 text-white"
+                          : "border border-white/10 bg-[#131b2d] text-white/86",
+                        )}
+                      >
+                        <p className="whitespace-pre-wrap break-words">{message.text}</p>
+                        <p className="mt-1 text-[11px] text-white/55">{relativeTime(message.createdAt)}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          {SUGGESTIONS[mode].map((card) => (
-            card.href ? (
-              <Link
-                key={card.title}
-                href={card.href}
-                className="group rounded-[28px] border border-white/8 bg-[#11141d]/90 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.24)] transition hover:border-violet-400/24 hover:bg-[#141826]"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-500/[0.14] text-violet-100">
-                  <WandSparkles className="h-5 w-5" />
-                </div>
-                <h2 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-white">{card.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-white/58">{card.body}</p>
-                <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-violet-200">
-                  {card.cta}
-                  <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-            ) : (
-              <button
-                key={card.title}
-                type="button"
-                onClick={() => {
-                  if (card.cta === "Invite users") {
-                    setInviteOpen(true);
-                    return;
-                  }
-                  setComposerText(card.title);
-                }}
-                className="group rounded-[28px] border border-white/8 bg-[#11141d]/90 p-5 text-left shadow-[0_22px_60px_rgba(0,0,0,0.24)] transition hover:border-violet-400/24 hover:bg-[#141826]"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-500/[0.14] text-violet-100">
-                  <WandSparkles className="h-5 w-5" />
-                </div>
-                <h2 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-white">{card.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-white/58">{card.body}</p>
-                <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-violet-200">
-                  {card.cta}
-                  <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                </div>
-              </button>
-            )
-          ))}
-        </section>
-      </div>
+            <div className="border-t border-white/10 bg-[#0f1523] px-4 py-3 sm:px-6">
+              {errorText ? <p className="mb-2 text-xs text-rose-300">{errorText}</p> : null}
+              <div className="flex items-end gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
+                <textarea
+                  value={composerText}
+                  onChange={(event) => setComposerText(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      void sendMessage();
+                    }
+                  }}
+                  placeholder="Reply in this deal room..."
+                  className="max-h-48 min-h-[52px] flex-1 resize-none bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-white/35"
+                />
+                <button
+                  type="button"
+                  disabled={!composerText.trim() || sending}
+                  onClick={() => void sendMessage()}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500 text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </main>
 
       {inviteOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
@@ -470,7 +398,7 @@ export function WorkflowWorkspace({ threadId }: { threadId?: string }) {
                   Add users to this chat
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-white/56">
-                  Invite other users into the same chat, keep the marketplace context, and use the same workspace for AI or agents when needed.
+                  Invite other users into this thread. New invitees join from now by default so existing negotiation history stays private unless you choose otherwise in the API payload.
                 </p>
               </div>
               <button
@@ -534,23 +462,24 @@ export function WorkflowWorkspace({ threadId }: { threadId?: string }) {
                 })
               ) : (
                 <div className="rounded-[22px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-sm text-white/46">
-                  No additional users are available in bootstrap data yet, but the invite flow is ready for marketplace profiles.
+                  No additional users are available from bootstrap yet.
                 </div>
               )}
             </div>
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-4">
-              <p className="text-sm text-white/48">
-                {selectedInviteIds.length > 0 ?
+              <p className="text-sm text-white/48">{inviteState || (
+                selectedInviteIds.length > 0 ?
                   `${selectedInviteIds.length} user${selectedInviteIds.length === 1 ? "" : "s"} selected`
-                : "Select users to invite"}
-              </p>
+                : "Select users to invite"
+              )}</p>
               <button
                 type="button"
-                onClick={() => setInviteOpen(false)}
-                className="rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow-[0_14px_36px_rgba(108,76,255,0.36)]"
+                disabled={!resolvedThreadId || selectedInviteIds.length === 0}
+                onClick={() => void submitInvite()}
+                className="rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow-[0_14px_36px_rgba(108,76,255,0.36)] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Confirm invites
+                Send invites
               </button>
             </div>
           </div>

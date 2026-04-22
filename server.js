@@ -1557,6 +1557,30 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  const chatInviteMatch = pathname.match(/^\/api\/chat\/([^\/]+)\/invite\/?$/);
+  if (chatInviteMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const chatId = chatInviteMatch[1];
+    if (!chatId) {
+      sendJson(res, 400, { error: 'Chat id is required' });
+      return true;
+    }
+    try {
+      const payload = await parseBody(req);
+      const invite = await platformRepository.inviteChatParticipant(user.id, chatId, payload || {});
+      sendJson(res, 200, { invite });
+    } catch (error) {
+      const status =
+        /not found|required|cannot invite yourself/i.test(String(error?.message || '')) ? 400 :
+        /access denied/i.test(String(error?.message || '')) ? 403 :
+        500;
+      sendJson(res, status, { error: error.message || 'Could not invite user' });
+    }
+    return true;
+  }
+
   // GET /api/chat/:id - Get single chat details (must come after more specific routes)
   if (pathname.startsWith('/api/chat/') && method === 'GET') {
     const user = await requireUser(req, res);
