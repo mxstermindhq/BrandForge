@@ -45,7 +45,7 @@ export default function HelpPage() {
         <div className="mt-12 text-center">
           <p className="text-on-surface-variant">
             Still need help?{" "}
-            <a href="mailto:support@brandforge.ai" className="text-primary hover:underline">
+            <a href="mailto:support@brandforge.gg" className="text-primary hover:underline">
               Contact support
             </a>
           </p>

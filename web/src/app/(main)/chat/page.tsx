@@ -1,5 +1,5 @@
-import { WorkflowWorkspace } from "./_components/WorkflowWorkspace";
+import { SimpleChat } from "./_components/SimpleChat";
 
 export default function ChatHubPage() {
-  return <WorkflowWorkspace />;
+  return <SimpleChat />;
 }

@@ -11,7 +11,6 @@ import {
   ChevronDown,
   Paperclip,
   Share2,
-  MessageSquare,
 } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -400,7 +399,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [sending, setSending] = useState(false);
   const [mode, setMode] = useState<ChatMode>("ai");
   const [selectedAgent, setSelectedAgent] = useState<string>("scopeguard");
-  const [sidebarTab, setSidebarTab] = useState<"threads" | "history">("threads");
+  const streamRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
   // Threads from bootstrap
@@ -437,6 +436,13 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     
     return () => { cancelled = true; };
   }, [activeThreadId, accessToken]);
+
+  // Keep latest messages in view when stream updates
+  useEffect(() => {
+    if (streamRef.current) {
+      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    }
+  }, [messages.length]);
   
   // Send message
   const sendMessage = async () => {
@@ -531,45 +537,14 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   
   const currentUserId = session?.user?.id;
   const hasActiveThread = Boolean(activeThreadId);
-  
-  // Compact message item for sidebar
-  const CompactMessageItem = ({ message }: { message: MessageRow }) => {
-    const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
-    const isAI = message.role === "ai";
-    const isAgent = message.role === "agent";
-    const preview = message.text.slice(0, 60) + (message.text.length > 60 ? "..." : "");
-    
-    return (
-      <div className={cn(
-        "flex items-start gap-2 rounded-lg px-2 py-2 text-left transition",
-        isMine ? "bg-white/[0.06]" : "hover:bg-white/[0.03]"
-      )}>
-        <div className={cn(
-          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px]",
-          isAI ? "bg-violet-500/30 text-violet-300" : 
-          isAgent ? "bg-amber-500/30 text-amber-300" : 
-          isMine ? "bg-emerald-500/30 text-emerald-300" : "bg-white/10 text-white/50"
-        )}>
-          {isAI ? <Sparkles className="h-2.5 w-2.5" /> : 
-           isAgent ? <Bot className="h-2.5 w-2.5" /> : 
-           initials(message.senderName || "U")}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-xs text-white/70">{preview}</p>
-          <p className="text-[9px] text-white/40">{relativeTime(message.createdAt)}</p>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="flex h-screen bg-[#0b0f17]">
-      {/* Sidebar - Combined Thread List + Message History */}
+      {/* Sidebar - Conversations list only */}
       <aside className="flex w-80 flex-col border-r border-white/10 bg-[#0f1421]">
-        {/* Sidebar Header with Tabs */}
         <div className="border-b border-white/10 p-3">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-white/80">Chat</h2>
+            <h2 className="text-sm font-semibold text-white/80">Recents</h2>
             <button
               type="button"
               onClick={() => setActiveThreadId("")}
@@ -578,97 +553,14 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
               + New
             </button>
           </div>
-          <div className="flex gap-1 rounded-lg bg-white/[0.03] p-1">
-            <button
-              type="button"
-              onClick={() => setSidebarTab("threads")}
-              className={cn(
-                "flex-1 rounded-md px-2 py-1 text-xs font-medium transition",
-                sidebarTab === "threads" ? "bg-white/[0.1] text-white" : "text-white/50 hover:text-white/70"
-              )}
-            >
-              Conversations
-            </button>
-            <button
-              type="button"
-              onClick={() => setSidebarTab("history")}
-              disabled={!hasActiveThread}
-              className={cn(
-                "flex-1 rounded-md px-2 py-1 text-xs font-medium transition",
-                sidebarTab === "history" ? "bg-white/[0.1] text-white" : "text-white/50 hover:text-white/70",
-                !hasActiveThread && "opacity-50 cursor-not-allowed"
-              )}
-            >
-              History
-            </button>
-          </div>
         </div>
-        
-        {/* Sidebar Content */}
+
         <div className="flex-1 overflow-y-auto p-3">
-          {sidebarTab === "threads" ? (
-            <div className="space-y-1">
-              {threads.length === 0 ? (
-                <p className="py-4 text-center text-sm text-white/40">No conversations yet</p>
-              ) : (
-                threads.map(thread => {
-                  const id = String(thread.id || "");
-                  const isActive = id === activeThreadId;
-                  const avatar = safeImageSrc(thread.peerAvatarUrl || null);
-                  
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => {
-                        setActiveThreadId(id);
-                        setSidebarTab("history");
-                      }}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition",
-                        isActive 
-                          ? "bg-white/[0.08] border border-white/10" 
-                          : "hover:bg-white/[0.04]"
-                      )}
-                    >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/[0.08]">
-                        {avatar ? (
-                          <Image src={avatar} alt="" width={36} height={36} className="h-9 w-9 object-cover" unoptimized />
-                        ) : (
-                          <span className="text-xs font-medium text-white/70">{initials(thread.peerName || thread.t || "User")}</span>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className={cn("truncate text-sm", isActive ? "text-white font-medium" : "text-white/80")}>
-                          {thread.peerName || thread.t || "Conversation"}
-                        </p>
-                        <p className="truncate text-xs text-white/40">{thread.s || "Open to view messages"}</p>
-                      </div>
-                      {thread.hasUnread && (
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                      )}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {loading ? (
-                <p className="py-4 text-center text-sm text-white/40">Loading...</p>
-              ) : messages.length === 0 ? (
-                <p className="py-4 text-center text-sm text-white/40">No messages yet</p>
-              ) : (
-                messages.map(message => (
-                  <CompactMessageItem key={message.id} message={message} />
-                ))
-              )}
-            </div>
-          )}
+          <ThreadList threads={threads} activeId={activeThreadId} onSelect={setActiveThreadId} />
         </div>
       </aside>
       
-      {/* Main Chat Area - Just the Input */}
+      {/* Main Chat Area */}
       <main className="flex flex-1 flex-col min-w-0">
         {/* Header */}
         <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
@@ -704,17 +596,36 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           </div>
         </header>
         
-        {/* Main Content - Empty State or Centered Welcome */}
-        <div className="flex-1 flex items-center justify-center px-6">
+        {/* Message Stream */}
+        <div
+          ref={streamRef}
+          className="flex-1 overflow-y-auto px-4 py-4"
+        >
           {!hasActiveThread ? (
             <EmptyState />
+          ) : loading ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-white/50">Loading messages...</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-white/50">No messages yet. Start the conversation!</p>
+            </div>
           ) : (
-            <div className="text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.08] mx-auto mb-3">
-                <MessageSquare className="h-6 w-6 text-white/30" />
-              </div>
-              <p className="text-sm text-white/50">Continue the conversation below</p>
-              <p className="text-xs text-white/30 mt-1">History available in sidebar</p>
+            <div className="space-y-4">
+              {messages.map(message => {
+                const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isMine={isMine}
+                    currentUserId={currentUserId}
+                    threadId={activeThreadId}
+                    accessToken={accessToken}
+                  />
+                );
+              })}
             </div>
           )}
         </div>

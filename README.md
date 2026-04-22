@@ -1,5 +1,9 @@
 # ★ World of BrandForge
-npm run cf:build npx wrangler deploy
+cd web
+Remove-Item -Recurse -Force node_modules, .next, .open-next
+npm install
+npm run cf:build
+npx wrangler deploy
 **The professional OS for the AI era.**
 
 Enter the World of BrandForge — where specialists list services, buyers post briefs,
