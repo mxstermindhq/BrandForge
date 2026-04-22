@@ -1,30 +1,6 @@
 'use strict';
 
-/**
- * Curated professional titles (display + storage). Keep in sync with
- * `web/src/config/professional-titles.ts` for the UI.
- */
-const PROFESSIONAL_TITLES = Object.freeze([
-  'Product designer',
-  'UX / UI designer',
-  'Software engineer',
-  'Full-stack developer',
-  'Frontend developer',
-  'Backend developer',
-  'Mobile developer',
-  'Data scientist',
-  'ML / AI engineer',
-  'DevOps / SRE',
-  'Product manager',
-  'Project manager',
-  'Technical writer',
-  'Marketing strategist',
-  'Brand designer',
-  'Video / motion designer',
-  'Founder / executive',
-  'Consultant',
-  'Other specialist',
-]);
+const PROFESSIONAL_TITLES = Object.freeze(require('../../data/professional-titles.json'));
 
 const lowerToCanonical = new Map(PROFESSIONAL_TITLES.map((t) => [t.trim().toLowerCase(), t]));
 

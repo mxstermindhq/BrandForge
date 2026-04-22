@@ -115,7 +115,7 @@ export default function RootLayout({
               (function() {
                 const saved = localStorage.getItem('brandforge-theme');
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                let theme = saved || 'system';
+                let theme = saved || 'dark';
                 let resolved = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
                 document.documentElement.classList.add(resolved);
               })();
@@ -129,7 +129,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className}`}>
-        <ThemeProvider>
+        <ThemeProvider defaultTheme="dark">
           <AuthProvider>
             <AuthMeProvider>
               <BootstrapProvider>{children}</BootstrapProvider>

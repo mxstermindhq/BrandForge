@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { NAV, NAV_FOOTER } from "@/config/sidebar-nav";
+import { Menu, Plus, Sparkles } from "lucide-react";
+import { useMemo } from "react";
+import { NAV } from "@/config/sidebar-nav";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
@@ -13,12 +12,20 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { getSortedHumanThreads, unreadHumanChatCount } from "@/lib/human-chat-threads";
 import { cn } from "@/lib/cn";
 
-const CHAT_NAV_LS = "bf-sidebar-chats-open";
-
 const navInactive =
-  "flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-body text-on-surface-variant transition-colors duration-150 hover:bg-surface-container-high hover:text-on-surface";
+  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-[14px] font-medium text-white/60 transition hover:bg-white/[0.06] hover:text-white";
 const navActive =
-  "flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-body font-500 text-on-surface bg-surface-container-highest transition-colors duration-150";
+  "flex w-full items-center gap-3 rounded-2xl border border-violet-400/20 bg-violet-500/[0.14] px-3.5 py-3 text-[14px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]";
+
+function relativeTimeLabel(value: string | null | undefined) {
+  if (!value) return "now";
+  const diffMs = Date.now() - new Date(value).getTime();
+  const diffMin = Math.max(1, Math.floor(diffMs / 60000));
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${Math.floor(diffHours / 24)}d ago`;
+}
 
 export function Sidebar({
   onNavigate,
@@ -28,13 +35,12 @@ export function Sidebar({
   className?: string;
 }) {
   const pathname = usePathname();
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
   const { me } = useAuthMe();
   const { data: bootstrap } = useBootstrap();
   const emailUsername = session?.user?.email?.split("@")[0] || "";
   const profileUsername = me?.profile?.username || "";
   const fullName = me?.profile?.full_name || "";
-  // Use full name if available, otherwise use username (if not too short), otherwise email username
   const label =
     fullName ||
     (profileUsername.length > 2 ? profileUsername : null) ||
@@ -53,245 +59,205 @@ export function Sidebar({
     return getSortedHumanThreads(bootstrap?.humanChats);
   }, [session, bootstrap?.humanChats]);
   const chatUnread = useMemo(() => unreadHumanChatCount(chatThreads), [chatThreads]);
-  const chatNavActive = pathname === "/chat" || pathname.startsWith("/chat/");
-
-  const [chatListOpen, setChatListOpen] = useState(true);
-  useEffect(() => {
-    try {
-      if (typeof window === "undefined") return;
-      if (window.localStorage.getItem(CHAT_NAV_LS) === "0") setChatListOpen(false);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const toggleChatList = () => {
-    setChatListOpen((prev) => {
-      const next = !prev;
-      try {
-        if (typeof window !== "undefined") window.localStorage.setItem(CHAT_NAV_LS, next ? "1" : "0");
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  };
+  const visibleThreads = chatThreads.slice(0, 5);
 
   return (
     <aside
       className={cn(
-        "relative z-30 flex h-full min-h-0 w-[240px] min-w-[240px] shrink-0 flex-col border-r border-outline-variant bg-surface-container",
+        "relative z-30 flex h-full min-h-0 w-[272px] min-w-[272px] shrink-0 flex-col border-r border-white/7 bg-[#070910] text-white",
         className,
       )}
     >
-      {/* Logo Section - BrandForge Logo */}
-      <div className="shrink-0 px-4 py-6">
-        <div className="mb-2 hidden md:block">
-          <Link
-            href="/"
-            className="flex items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary group"
-            onClick={onNavigate}
-          >
-            <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shadow-lg">
-              <img 
-                src="/brandforge-logo-full.png" 
-                alt="BrandForge" 
-                className="w-full h-full object-contain"
-              />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(122,92,255,0.18),transparent_28%),linear-gradient(180deg,#070910_0%,#05070d_100%)]" />
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0 px-4 py-6">
+          <div className="mb-2 hidden md:block">
+            <div className="mb-5 flex items-center justify-between">
+              <Link
+                href="/"
+                className="group flex items-center gap-3"
+                onClick={onNavigate}
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 via-violet-400 to-indigo-500 text-white shadow-[0_16px_32px_rgba(109,78,255,0.36)]">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[18px] font-semibold tracking-[-0.04em] text-white">
+                      BrandForge
+                    </span>
+                    <span className="rounded-full border border-violet-400/20 bg-violet-500/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-100">
+                      Pro
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/36">Workflow OS</p>
+                </div>
+              </Link>
             </div>
-            <div className="flex flex-col">
-              <span className="text-[16px] font-headline font-700 tracking-[-0.02em] text-on-surface group-hover:text-primary transition-colors">BrandForge</span>
-              <span className="text-[11px] text-on-surface-variant/70 tracking-wide">World of BrandForge</span>
-            </div>
-          </Link>
-        </div>
-        <div className="mb-4 flex items-center justify-between px-2 md:hidden">
-          <Link
-            href="/"
-            className="flex min-w-0 items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            onClick={onNavigate}
-          >
-            <div className="w-8 h-8 rounded-lg overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
-              <img 
-                src="/brandforge-logo-full.png" 
-                alt="BrandForge" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <span className="truncate text-[15px] font-headline font-700 tracking-[-0.02em] text-on-surface">
-              BrandForge
-            </span>
-          </Link>
-          <button
-            type="button"
-            className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label="Close menu"
-            onClick={onNavigate}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
 
-      <nav
-        className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 pb-4"
-        aria-label="Main navigation"
-      >
-        <div className="space-y-0.5">
-          {NAV.map((block, bi) => (
-            <div
-              key={bi}
-              className={cn(
-                block.section ? "mt-4 border-t border-outline-variant/40 pt-4 first:mt-0 first:border-0 first:pt-0" : "",
-              )}
+            <Link
+              href="/chat"
+              onClick={onNavigate}
+              className="group flex items-center justify-between rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-500 px-4 py-4 text-sm font-medium text-white shadow-[0_22px_42px_rgba(88,54,255,0.35)] transition hover:translate-y-[-1px]"
             >
-              {block.section ? (
-                <p className="px-2.5 pb-1 pt-5 text-[10px] font-headline font-600 tracking-[0.08em] text-on-surface-variant/60 first:pt-0">
-                  {block.section.toUpperCase()}
-                </p>
-              ) : null}
-              <ul className="space-y-0.5">
-                {block.items.map((item) => {
-                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              <span className="inline-flex items-center gap-3">
+                <Plus className="h-5 w-5" />
+                New Chat
+              </span>
+              <span className="rounded-xl bg-white/10 px-2 py-1 text-[11px] text-white/82">⌘ K</span>
+            </Link>
+          </div>
 
-                  if (item.href === "/chat" && session) {
+          <div className="mb-4 flex items-center justify-between px-2 md:hidden">
+            <Link
+              href="/"
+              className="flex min-w-0 items-center gap-2"
+              onClick={onNavigate}
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <span className="truncate text-[15px] font-semibold tracking-[-0.03em] text-white">
+                BrandForge
+              </span>
+            </Link>
+            <button
+              type="button"
+              className="rounded-xl p-2 text-white/55 transition hover:bg-white/[0.05] hover:text-white"
+              aria-label="Close menu"
+              onClick={onNavigate}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        <nav
+          className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-4 pb-5"
+          aria-label="Main navigation"
+        >
+          <div className="space-y-1.5">
+            {NAV.map((block, bi) => (
+              <div key={bi}>
+                {block.section ? (
+                  <p className="px-3 pb-2 text-[11px] uppercase tracking-[0.22em] text-white/28">
+                    {block.section}
+                  </p>
+                ) : null}
+                <ul className="space-y-1.5">
+                  {block.items.map((item) => {
+                    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                     return (
-                      <li key={item.href} className="space-y-0.5">
-                        <div className="flex min-w-0 items-stretch gap-0.5">
-                          <Link
-                            href="/chat"
-                            onClick={onNavigate}
-                            className={cn(
-                              chatNavActive ? navActive : navInactive,
-                              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-w-0 flex-1",
-                            )}
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={onNavigate}
+                          className={cn(active ? navActive : navInactive)}
+                        >
+                          <span
+                            className="material-symbols-outlined shrink-0 text-[18px] leading-none"
+                            style={{ fontSize: 18 }}
+                            aria-hidden
                           >
-                            <span
-                              className="material-symbols-outlined shrink-0 text-[18px] leading-none"
-                              style={{ fontSize: 18 }}
-                              aria-hidden
-                            >
-                              {item.materialIcon}
+                            {item.materialIcon}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                          {item.href === "/chat" && chatUnread > 0 ? (
+                            <span className="rounded-full bg-violet-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                              {chatUnread > 9 ? "9+" : chatUnread}
                             </span>
-                            <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                            {chatUnread > 0 ? (
-                              <span
-                                className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold tabular-nums leading-none text-white shadow-sm ring-1 ring-red-900/25"
-                                aria-label={`${chatUnread} unread chats`}
-                              >
-                                {chatUnread > 9 ? "9+" : chatUnread}
-                              </span>
-                            ) : null}
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              toggleChatList();
-                            }}
-                            className="text-on-surface-variant hover:bg-surface-container-high flex w-8 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                            aria-expanded={chatListOpen}
-                            aria-label={chatListOpen ? "Hide deal room shortcuts" : "Show deal room shortcuts"}
-                          >
-                            <span className="material-symbols-outlined text-[18px] leading-none" aria-hidden>
-                              {chatListOpen ? "expand_less" : "expand_more"}
-                            </span>
-                          </button>
-                        </div>
-                        {chatListOpen && chatThreads.length > 0 ? (
-                          <ul
-                            className="border-outline-variant/35 mt-0.5 ml-2 space-y-px border-l border-dashed pl-2"
-                            aria-label="Deal room shortcuts"
-                          >
-                            {chatThreads.slice(0, 6).map((t) => {
-                              const tid = String(t.id);
-                              const tActive =
-                                pathname === `/chat/${tid}` || pathname.startsWith(`/chat/${tid}/`);
-                              const unread = Boolean(t.hasUnread);
-                              return (
-                                <li key={tid}>
-                                  <Link
-                                    href={`/chat/${tid}`}
-                                    onClick={onNavigate}
-                                    className={cn(
-                                      "flex items-center gap-2 rounded-md py-1.5 pl-1.5 pr-1 text-[11px] leading-tight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-                                      tActive
-                                        ? "bg-surface-container-high font-600 text-on-surface"
-                                        : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface",
-                                      unread && !tActive ? "font-600 text-on-surface" : "",
-                                    )}
-                                  >
-                                    <span
-                                      className={cn(
-                                        "h-1.5 w-1.5 shrink-0 rounded-full",
-                                        unread ? "bg-red-500" : "bg-transparent",
-                                      )}
-                                      aria-hidden
-                                    />
-                                    <span className="min-w-0 flex-1 truncate">{t.t || "Deal room"}</span>
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                            <li>
-                              <Link
-                                href="/chat"
-                                onClick={onNavigate}
-                                className="text-on-surface-variant hover:text-secondary block py-1.5 pl-3 text-[10px] font-headline font-bold uppercase tracking-wider"
-                              >
-                                All rooms →
-                              </Link>
-                            </li>
-                          </ul>
-                        ) : null}
+                          ) : null}
+                        </Link>
                       </li>
                     );
-                  }
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={onNavigate}
-                        className={cn(
-                          active ? navActive : navInactive,
-                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                        )}
-                      >
-                        <span
-                          className="material-symbols-outlined shrink-0 text-[18px] leading-none"
-                          style={{ fontSize: 18 }}
-                          aria-hidden
-                        >
-                          {item.materialIcon}
-                        </span>
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+          <div className="mt-7">
+            <div className="mb-3 flex items-center justify-between px-3">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-white/28">Chats</p>
+              <Link href="/chat" onClick={onNavigate} className="text-xs text-white/34 transition hover:text-white/70">
+                View all
+              </Link>
             </div>
-          ))}
-        </div>
-      </nav>
+            <div className="space-y-2">
+              {visibleThreads.length > 0 ? (
+                visibleThreads.map((thread) => {
+                  const href = `/chat/${thread.id}`;
+                  const active = pathname === href || pathname.startsWith(`${href}/`);
+                  return (
+                    <Link
+                      key={String(thread.id)}
+                      href={href}
+                      onClick={onNavigate}
+                      className={cn(
+                        "block rounded-2xl border px-3.5 py-3 transition",
+                        active
+                          ? "border-violet-400/22 bg-violet-500/[0.12]"
+                          : "border-white/8 bg-white/[0.03] hover:bg-white/[0.05]",
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className={cn("truncate text-sm", active ? "text-white" : "text-white/76")}>
+                          {thread.t || "Deal room"}
+                        </span>
+                        <span className="shrink-0 text-xs text-white/34">
+                          {relativeTimeLabel(thread.lastMessageAt)}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-3.5 py-4 text-sm text-white/40">
+                  Start a new chat to build your first execution lane.
+                </div>
+              )}
+            </div>
+          </div>
 
-      {/* Bottom Section - User Menu */}
-      <div
-        className="mt-auto shrink-0 border-t border-outline-variant bg-surface-container-high/50 px-4 py-4"
-        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
-      >
-        {session ? (
-          <UserMenu name={label} email={email} avatarUrl={avatarUrl} showOnlinePulse={showUserOnlinePulse} />
-        ) : (
-          <Link
-            href="/login"
-            onClick={onNavigate}
-            className="btn-primary flex min-h-11 w-full justify-center font-headline"
-          >
-            Sign in
-          </Link>
-        )}
+          <div className="mt-7 rounded-[24px] border border-white/8 bg-white/[0.03] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+            <p className="text-xs uppercase tracking-[0.22em] text-white/28">Credits</p>
+            <div className="mt-4 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-3xl font-semibold tracking-[-0.04em] text-white">120</p>
+                <p className="mt-1 text-xs text-white/34">Available this cycle</p>
+              </div>
+              <Link
+                href="/plans"
+                onClick={onNavigate}
+                className="rounded-xl bg-violet-500/18 px-3 py-2 text-sm font-medium text-violet-100 transition hover:bg-violet-500/26"
+              >
+                Top up
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        <div
+          className="mt-auto shrink-0 border-t border-white/7 bg-black/15 px-4 py-4"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
+        >
+          {session ? (
+            <UserMenu
+              name={label}
+              email={email}
+              avatarUrl={avatarUrl}
+              showOnlinePulse={showUserOnlinePulse}
+            />
+          ) : (
+            <Link
+              href="/login"
+              onClick={onNavigate}
+              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-500 px-4 py-3 text-sm font-medium text-white shadow-[0_18px_32px_rgba(88,54,255,0.3)]"
+            >
+              Sign in
+            </Link>
+          )}
+        </div>
       </div>
     </aside>
   );

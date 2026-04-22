@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { Bell, ChevronRight, LogOut, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Sun, Moon, Bell, LogOut } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface UserMenuProps {
   name: string;
@@ -17,6 +18,8 @@ interface UserMenuProps {
 export function UserMenu({
   name,
   email,
+  avatarUrl,
+  showOnlinePulse = false,
   notificationCount = 5,
 }: UserMenuProps) {
   const [open, setOpen] = useState(false);
@@ -34,87 +37,84 @@ export function UserMenu({
 
   return (
     <div className="relative" ref={ref}>
-      {/* Main user bar */}
-      <div className="flex items-center justify-between gap-2">
-        {/* Username */}
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="flex-1 text-left truncate text-[14px] font-body font-500 text-on-surface hover:text-on-surface/80 transition-colors"
-          title={email ?? undefined}
-        >
-          {name}
-        </button>
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-1">
-          {/* Theme toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-            title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {resolvedTheme === "dark" ? (
-              <Sun size={18} className="text-amber-500" />
-            ) : (
-              <Moon size={18} className="text-sky-500" />
-            )}
-          </button>
-
-          {/* Notifications */}
-          <Link
-            href="/inbox"
-            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-            title="Notifications"
-          >
-            <Bell size={18} />
-            {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                {notificationCount > 9 ? "9+" : notificationCount}
-              </span>
-            )}
-          </Link>
-
-          {/* Logout */}
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:text-critical hover:bg-critical-container/30 transition-colors"
-            title="Logout"
-          >
-            <LogOut size={18} />
-          </button>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] px-3 py-3 text-left transition hover:bg-white/[0.05]"
+        title={email ?? undefined}
+      >
+        <div className="relative shrink-0">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="h-11 w-11 rounded-2xl object-cover" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-200 to-slate-400 text-sm font-semibold text-slate-900">
+              {name.slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          {showOnlinePulse ? (
+            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#070910] bg-emerald-400" />
+          ) : null}
         </div>
-      </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-white">{name}</p>
+          <p className="truncate text-xs text-white/40">{email || "Workspace access"}</p>
+        </div>
+        <ChevronRight className={cn("h-4 w-4 text-white/30 transition", open ? "rotate-90" : "")} />
+      </button>
 
-      {/* Dropdown menu */}
       {open ? (
-        <div className="absolute bottom-full left-0 right-0 z-50 mb-1 rounded-xl border border-outline-variant/60 bg-surface-container-highest py-1 shadow-lg">
-          <Link
-            href="/settings"
-            className="block min-h-[44px] px-3 py-2.5 text-[13px] text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            onClick={() => setOpen(false)}
-          >
-            Account
-          </Link>
-          <Link
-            href="/plans"
-            className="block min-h-[44px] px-3 py-2.5 text-[13px] text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            onClick={() => setOpen(false)}
-          >
-            Billing
-          </Link>
-          <button
-            type="button"
-            className="w-full min-h-[44px] px-3 py-2.5 text-left text-[13px] text-critical transition-colors hover:bg-critical-container/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            onClick={() => {
-              setOpen(false);
-              void signOut();
-            }}
-          >
-            Logout
-          </button>
+        <div className="absolute bottom-full left-0 right-0 z-50 mb-2 rounded-[22px] border border-white/10 bg-[#10141f] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.36)] backdrop-blur">
+          <div className="grid grid-cols-2 gap-2 p-1">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-white/[0.04] px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.08]"
+              title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {resolvedTheme === "dark" ? <Sun size={16} className="text-amber-300" /> : <Moon size={16} className="text-sky-300" />}
+              Theme
+            </button>
+            <Link
+              href="/inbox"
+              className="relative flex min-h-[44px] items-center gap-2 rounded-2xl bg-white/[0.04] px-3 py-2 text-sm text-white/76 transition hover:bg-white/[0.08]"
+              onClick={() => setOpen(false)}
+            >
+              <Bell size={16} />
+              Inbox
+              {notificationCount > 0 ? (
+                <span className="ml-auto rounded-full bg-violet-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  {notificationCount > 9 ? "9+" : notificationCount}
+                </span>
+              ) : null}
+            </Link>
+          </div>
+          <div className="mt-2 grid gap-2 px-1">
+            <Link
+              href="/settings"
+              className="rounded-2xl px-3 py-3 text-sm text-white/76 transition hover:bg-white/[0.05]"
+              onClick={() => setOpen(false)}
+            >
+              Account settings
+            </Link>
+            <Link
+              href="/plans"
+              className="rounded-2xl px-3 py-3 text-sm text-white/76 transition hover:bg-white/[0.05]"
+              onClick={() => setOpen(false)}
+            >
+              Billing & plans
+            </Link>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-2xl px-3 py-3 text-sm text-rose-200 transition hover:bg-rose-500/[0.08]"
+              onClick={() => {
+                setOpen(false);
+                void signOut();
+              }}
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       ) : null}
     </div>

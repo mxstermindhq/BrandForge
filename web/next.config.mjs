@@ -85,11 +85,8 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: "/", destination: "/login", permanent: false },
       { source: "/messages", destination: "/chat", permanent: true },
       { source: "/messages/:id", destination: "/chat/:id", permanent: true },
-      { source: "/ai/copilot", destination: "/ai/chat", permanent: true },
-      { source: "/ai/copilot/:path*", destination: "/ai/chat/:path*", permanent: true },
     ];
   },
   async rewrites() {

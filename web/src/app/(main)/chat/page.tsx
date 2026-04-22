@@ -1,5 +1,5 @@
-import { DealThreadClient } from "./[id]/_components/DealThreadClient";
+import { WorkflowWorkspace } from "./_components/WorkflowWorkspace";
 
 export default function ChatHubPage() {
-  return <DealThreadClient isNewThread />;
+  return <WorkflowWorkspace />;
 }

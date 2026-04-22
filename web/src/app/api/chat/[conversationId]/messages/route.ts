@@ -10,6 +10,11 @@ export async function GET(
   try {
     const result = await listConversationMessages(conversationId, request);
     return NextResponse.json({
+      activeChat: {
+        id: conversationId,
+        messages: result.messages,
+        messageWindow: result.window,
+      },
       messages: result.messages,
       hasMoreOlder: result.window.hasMoreOlder,
       oldestId: result.window.oldestId,
@@ -33,7 +38,7 @@ export async function POST(
   try {
     const body = await request.json();
     const result = await createConversationMessage(conversationId, body);
-    return NextResponse.json(result.message);
+    return NextResponse.json({ message: result.message });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create message";
     const status =

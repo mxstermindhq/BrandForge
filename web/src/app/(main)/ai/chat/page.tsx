@@ -1,13 +1,5 @@
-import dynamic from "next/dynamic";
-import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
-
-const CopilotClient = dynamic(
-  () => import("../copilot/_components/CopilotClient").then((m) => ({ default: m.CopilotClient })),
-  {
-    loading: () => <PageRouteLoading title="Loading AI chat" variant="inline" />,
-  },
-);
+import { redirect } from "next/navigation";
 
 export default function AiChatPage() {
-  return <CopilotClient />;
+  redirect("/chat");
 }
