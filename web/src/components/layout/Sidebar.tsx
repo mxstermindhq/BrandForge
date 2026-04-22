@@ -22,11 +22,9 @@ const navActive =
 
 export function Sidebar({
   onNavigate,
-  onToggleCollapse,
   className,
 }: {
   onNavigate?: () => void;
-  onToggleCollapse?: () => void;
   className?: string;
 }) {
   const pathname = usePathname();
@@ -88,7 +86,7 @@ export function Sidebar({
       )}
     >
       <div className="shrink-0 px-4 py-6">
-        <div className="mb-2 hidden items-start justify-between gap-2 md:flex">
+        <div className="mb-2 hidden items-start md:flex">
           <Link
             href="/"
             className="group flex min-w-0 items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -110,17 +108,6 @@ export function Sidebar({
               </span>
             </div>
           </Link>
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high focus-visible:outline-primary shrink-0 rounded-md p-2 transition-colors focus-visible:outline focus-visible:outline-2"
-            aria-label="Collapse sidebar"
-            title="Collapse sidebar"
-          >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
-              left_panel_close
-            </span>
-          </button>
         </div>
         <div className="mb-4 flex items-center justify-between px-2 md:hidden">
           <Link

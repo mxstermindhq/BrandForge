@@ -1,19 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import {
-  Send,
-  Sparkles,
-  Bot,
-  Paperclip,
-} from "lucide-react";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { Send, Paperclip, ChevronDown, X } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/providers/AuthProvider";
 
-// Message types
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export type MessageRole = "user" | "peer" | "system" | "ai" | "agent";
 
 export type MessageEmbed = {
@@ -32,14 +28,62 @@ export type MessageRow = {
   embed?: MessageEmbed | null;
 };
 
+type RecipientType = "ai" | "agent" | "people";
+
+type Recipient = {
+  type: RecipientType;
+  id: string;
+  label: string;
+  sublabel?: string;
+};
+
+const AI_MODELS: Recipient[] = [
+  { type: "ai", id: "sonnet-4-6",  label: "Claude Sonnet 4.6", sublabel: "Fast · balanced" },
+  { type: "ai", id: "opus-4-6",    label: "Claude Opus 4.6",   sublabel: "Powerful · Think mode" },
+  { type: "ai", id: "haiku-4-5",   label: "Claude Haiku 4.5",  sublabel: "Quick · lightweight" },
+  { type: "ai", id: "gpt-4o",      label: "GPT-4o",            sublabel: "OpenAI" },
+  { type: "ai", id: "gemini-25",   label: "Gemini 2.5 Pro",    sublabel: "Google" },
+];
+
+const AI_AGENTS: Recipient[] = [
+  { type: "agent", id: "marketing", label: "Marketing Agent", sublabel: "Copy · campaigns · GTM" },
+];
+
+const QUICK_PEOPLE: Recipient[] = [
+  { type: "people", id: "h1", label: "Alex Rivera",  sublabel: "Deal chat" },
+  { type: "people", id: "h2", label: "Priya Nair",   sublabel: "Deal chat" },
+  { type: "people", id: "h3", label: "Jordan Wu",    sublabel: "Deal chat" },
+];
+
+const SUGGESTIONS = {
+  ai: [
+    { icon: "✦", title: "Draft a launch plan",        sub: "Strategy sprint" },
+    { icon: "✦", title: "Write cold outreach copy",   sub: "That converts" },
+    { icon: "✦", title: "Analyze market fit",         sub: "Opportunity scan" },
+    { icon: "✦", title: "Break goal into tasks",      sub: "Execution roadmap" },
+    { icon: "✦", title: "Review pricing strategy",    sub: "Freemium vs. paid" },
+    { icon: "✦", title: "Rewrite this copy",          sub: "Marketing polish" },
+  ],
+  agent: [
+    { icon: "⚡", title: "Build a GTM campaign",      sub: "End-to-end execution" },
+    { icon: "⚡", title: "Run outreach sequence",      sub: "Draft, review, iterate" },
+    { icon: "⚡", title: "Audit my brand voice",       sub: "Across all channels" },
+    { icon: "⚡", title: "Plan a product launch",      sub: "90-day roadmap" },
+    { icon: "⚡", title: "Competitive positioning",    sub: "Win the narrative" },
+    { icon: "⚡", title: "Write a pitch deck",         sub: "Investor-ready" },
+  ],
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function relativeTime(value?: string | null) {
   if (!value) return "now";
   const diffMs = Date.now() - new Date(value).getTime();
   const diffMin = Math.max(1, Math.floor(diffMs / 60000));
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) return `${diffMin}m`;
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${Math.floor(diffHours / 24)}d ago`;
+  if (diffHours < 24) return `${diffHours}h`;
+  return `${Math.floor(diffHours / 24)}d`;
 }
 
 function initials(name: string) {
@@ -53,167 +97,167 @@ function mapApiMessage(row: Record<string, unknown>): MessageRow {
   const id = String(row.id || crypto.randomUUID());
   const roleRaw = String(row.role || row.senderType || "");
   const role: MessageRow["role"] =
-    roleRaw === "user" || roleRaw === "peer" || roleRaw === "system" || roleRaw === "ai" || roleRaw === "agent"
-      ? roleRaw
-      : String(row.senderId || row.sender_id || "") ? "peer"
-      : "system";
+    roleRaw === "user" || roleRaw === "peer" || roleRaw === "system" ||
+    roleRaw === "ai" || roleRaw === "agent" ? roleRaw
+    : String(row.senderId || row.sender_id || "") ? "peer"
+    : "system";
   const text = String(row.text || row.content || row.body || "").trim();
   const createdAt = String(row.createdAt || row.created_at || new Date().toISOString());
   const senderId = row.senderId || row.sender_id;
-  const senderName = row.senderName || row.sender_name || (row.sender as Record<string, unknown> | undefined)?.fullName || (row.sender as Record<string, unknown> | undefined)?.username;
-  const senderAvatar = row.senderAvatar || row.sender_avatar || (row.sender as Record<string, unknown> | undefined)?.avatarUrl;
-  const embed = row.embed ? { type: String((row.embed as Record<string, unknown>).type || "deal_phase") as MessageEmbed["type"], data: row.embed as Record<string, unknown> } : null;
-  return { id, role, text, createdAt, senderId: senderId ? String(senderId) : null, senderName: senderName ? String(senderName) : null, senderAvatar: senderAvatar ? String(senderAvatar) : null, embed };
+  const senderName = row.senderName || row.sender_name ||
+    (row.sender as Record<string, unknown> | undefined)?.fullName ||
+    (row.sender as Record<string, unknown> | undefined)?.username;
+  const senderAvatar = row.senderAvatar || row.sender_avatar ||
+    (row.sender as Record<string, unknown> | undefined)?.avatarUrl;
+  const embed = row.embed
+    ? { type: String((row.embed as Record<string, unknown>).type || "deal_phase") as MessageEmbed["type"], data: row.embed as Record<string, unknown> }
+    : null;
+  return {
+    id, role, text, createdAt,
+    senderId: senderId ? String(senderId) : null,
+    senderName: senderName ? String(senderName) : null,
+    senderAvatar: senderAvatar ? String(senderAvatar) : null,
+    embed,
+  };
 }
 
-// Embed Card Component
-function EmbedCard({ embed, threadId, accessToken, onRefresh }: { embed: MessageEmbed; threadId?: string; accessToken?: string | null; onRefresh?: () => void }) {
+// ─── Embed Card ───────────────────────────────────────────────────────────────
+
+function EmbedCard({ embed }: { embed: MessageEmbed }) {
   const data = embed.data;
-  
+
   if (embed.type === "bid" || embed.type === "service_offer") {
     const price = data.price != null ? Number(data.price) : null;
     const title = String(data.requestTitle || data.serviceTitle || "Deal");
     const proposer = data.proposer as { username?: string; fullName?: string } | undefined;
-    
     return (
-      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-amber-400">{embed.type === "bid" ? "Request Bid" : "Service Offer"}</span>
-        </div>
+      <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+          {embed.type === "bid" ? "Request Bid" : "Service Offer"}
+        </p>
         <p className="mt-1 text-sm font-medium text-on-surface">{title}</p>
-        {price != null && (
-          <p className="text-lg font-bold text-on-surface">${price.toLocaleString()}</p>
-        )}
-        {proposer && (
-          <p className="mt-1 text-xs text-on-surface-variant">From {proposer.fullName || proposer.username}</p>
-        )}
+        {price != null && <p className="text-base font-bold text-on-surface">${price.toLocaleString()}</p>}
+        {proposer && <p className="mt-1 text-xs text-on-surface-variant">From {proposer.fullName || proposer.username}</p>}
       </div>
     );
   }
-  
+
   if (embed.type === "deal_phase") {
     const phase = String(data.phase || "update");
     const title = String(data.title || "Deal Update");
-    
     return (
-      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-outline-variant/70 bg-surface-container-high p-3">
-        <p className="text-xs font-medium text-emerald-400">{phase.replace(/_/g, " ")}</p>
+      <div className="mt-3 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+          {phase.replace(/_/g, " ")}
+        </p>
         <p className="mt-1 text-sm text-on-surface">{title}</p>
       </div>
     );
   }
-  
+
   return null;
 }
 
-// Message Bubble
-function MessageBubble({ 
-  message, 
-  isMine, 
-  currentUserId,
-  threadId,
-  accessToken,
-  onRefresh 
-}: { 
-  message: MessageRow; 
-  isMine: boolean;
-  currentUserId?: string | null;
-  threadId?: string;
-  accessToken?: string | null;
-  onRefresh?: () => void;
-}) {
-  const isAI = message.role === "ai";
-  const isAgent = message.role === "agent";
-  const isSystem = message.role === "system";
-  
-  const avatar = safeImageSrc(message.senderAvatar || null);
-  const name = message.senderName || (isAI ? "AI Assistant" : isAgent ? "Agent" : "User");
-  
-  return (
-    <div className={cn("flex gap-3", isMine ? "flex-row-reverse" : "flex-row")}>
-      {/* Avatar */}
-      <div className="shrink-0">
-        {isAI ? (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
-        ) : isAgent ? (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-500">
-            <Bot className="h-4 w-4 text-white" />
-          </div>
-        ) : avatar ? (
-          <Image src={avatar} alt="" width={32} height={32} className="h-8 w-8 rounded-full object-cover" unoptimized />
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-xs font-medium text-on-surface">
-            {initials(name)}
-          </div>
-        )}
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+
+function AvatarIcon({ role, senderName, senderAvatar }: { role: MessageRole; senderName?: string | null; senderAvatar?: string | null }) {
+  const avatar = safeImageSrc(senderAvatar || null);
+  const name = senderName || "User";
+
+  if (role === "ai") {
+    return (
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-blue-500/10 border border-blue-500/20 text-sm text-blue-400">
+        ✦
       </div>
-      
-      {/* Content */}
-      <div className={cn("max-w-[80%]", isMine ? "items-end" : "items-start")}>
-        {/* Name and time */}
-        <div className={cn("flex items-center gap-2 mb-1", isMine ? "flex-row-reverse" : "flex-row")}>
-          <span className="text-xs font-medium text-on-surface-variant">{name}</span>
-          <span className="text-[10px] text-on-surface-variant/70">{relativeTime(message.createdAt)}</span>
-        </div>
-        
-        {/* Message bubble */}
-        <div
-          className={cn(
-            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-            isMine
-              ? "bg-gradient-to-r from-violet-500 to-indigo-500 text-white"
-              : isSystem
-              ? "border border-outline-variant bg-surface-container-high text-on-surface-variant italic"
-              : "border border-outline-variant bg-surface-container-low text-on-surface"
-          )}
-        >
+    );
+  }
+  if (role === "agent") {
+    return (
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-amber-500/10 border border-amber-500/20 text-sm text-amber-400">
+        ⚡
+      </div>
+    );
+  }
+  if (avatar) {
+    return <Image src={avatar} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover" unoptimized />;
+  }
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-[10px] font-semibold text-on-surface-variant border border-outline-variant/50">
+      {initials(name)}
+    </div>
+  );
+}
+
+// ─── Message Bubble ───────────────────────────────────────────────────────────
+
+function MessageBubble({ message, isMine }: { message: MessageRow; isMine: boolean }) {
+  const isSystem = message.role === "system";
+  const isAI     = message.role === "ai";
+  const isAgent  = message.role === "agent";
+  const name     = message.senderName || (isAI ? "Claude" : isAgent ? "Marketing Agent" : "User");
+
+  if (isSystem) {
+    return (
+      <div className="flex justify-center py-1">
+        <span className="rounded-full border border-outline-variant/50 bg-surface-container px-3 py-1 text-[11px] text-on-surface-variant">
           {message.text}
-          
-          {/* Embed */}
-          {message.embed && (
-            <EmbedCard embed={message.embed} threadId={threadId} accessToken={accessToken} onRefresh={onRefresh} />
-          )}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("group flex items-end gap-2.5", isMine && "flex-row-reverse")}>
+      <AvatarIcon role={message.role} senderName={message.senderName} senderAvatar={message.senderAvatar} />
+
+      <div className={cn("flex max-w-[68%] flex-col gap-1", isMine && "items-end")}>
+        {/* Sender + time */}
+        <div className={cn("flex items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100", isMine && "flex-row-reverse")}>
+          <span className="text-[10px] font-medium text-on-surface-variant">{name}</span>
+          <span className="text-[10px] text-on-surface-variant/50">{relativeTime(message.createdAt)}</span>
         </div>
+
+        {/* Bubble */}
+        <div className={cn(
+          "rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed",
+          isMine
+            ? "rounded-br-[6px] bg-blue-500 text-white"
+            : isAI
+            ? "rounded-bl-[6px] border border-outline-variant/60 bg-surface-container-low text-on-surface"
+            : isAgent
+            ? "rounded-bl-[6px] border border-amber-500/20 bg-amber-500/5 text-on-surface"
+            : "rounded-bl-[6px] border border-outline-variant/60 bg-surface-container-low text-on-surface"
+        )}>
+          {message.text}
+          {message.embed && <EmbedCard embed={message.embed} />}
+        </div>
+
+        {/* Timestamp — always shown below */}
+        <span className={cn("text-[10px] text-on-surface-variant/40 px-1", isMine && "text-right")}>
+          {relativeTime(message.createdAt)}
+        </span>
       </div>
     </div>
   );
 }
 
-// Empty State
-function EmptyState() {
-  const quickPrompts = [
-    { icon: "🚀", title: "Draft a launch plan for my product", subtitle: "Strategy sprint" },
-    { icon: "🎨", title: "Create a modern brand voice guide", subtitle: "Tone and messaging" },
-    { icon: "📈", title: "Analyze this idea for market fit", subtitle: "Opportunity scan" },
-    { icon: "🧩", title: "Break this goal into weekly tasks", subtitle: "Execution roadmap" },
-    { icon: "🛠️", title: "Help me debug a failing API route", subtitle: "Hands-on troubleshooting" },
-    { icon: "✍️", title: "Rewrite this copy to convert better", subtitle: "Marketing polish" },
-  ];
+// ─── Typing Indicator ─────────────────────────────────────────────────────────
 
+function TypingIndicator({ recipient }: { recipient: Recipient }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-on-surface/30">BrandForge</h1>
-        <p className="mt-4 text-sm text-on-surface-variant">Start with a prompt and shape your next deliverable.</p>
-        
-        <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-4 py-2 dark:border-violet-500/30 dark:bg-violet-500/10">
-          <Sparkles className="h-3 w-3 text-violet-500 dark:text-violet-300" />
-          <span className="text-xs text-violet-700 dark:text-violet-200/80">Pro tip: include goal, audience, and format for better results.</span>
-        </div>
-        
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {quickPrompts.map((item, i) => (
-            <button
-              key={i}
-              type="button"
-              className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3 text-left transition hover:border-outline hover:bg-surface-container-high"
-            >
-              <span className="text-lg">{item.icon}</span>
-              <p className="mt-2 text-sm text-on-surface">{item.title}</p>
-              <p className="mt-0.5 text-[10px] text-on-surface-variant">{item.subtitle}</p>
-            </button>
+    <div className="flex items-end gap-2.5">
+      <div className={cn(
+        "flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border text-sm",
+        recipient.type === "agent"
+          ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
+          : "border-blue-500/20 bg-blue-500/10 text-blue-400"
+      )}>
+        {recipient.type === "agent" ? "⚡" : "✦"}
+      </div>
+      <div className="rounded-2xl rounded-bl-[6px] border border-outline-variant/60 bg-surface-container-low px-4 py-3">
+        <div className="flex gap-1">
+          {[0, 1, 2].map(i => (
+            <span key={i} className="h-1.5 w-1.5 rounded-full bg-on-surface-variant/40 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
           ))}
         </div>
       </div>
@@ -221,66 +265,362 @@ function EmptyState() {
   );
 }
 
+// ─── Recipient Picker ─────────────────────────────────────────────────────────
+
+type PickerCategory = "people" | "models" | "agents";
+
+function RecipientPicker({
+  value,
+  onChange,
+  onClose,
+}: {
+  value: Recipient;
+  onChange: (r: Recipient) => void;
+  onClose: () => void;
+}) {
+  const initialTab = useMemo<PickerCategory>(() => {
+    if (value.type === "people") return "people";
+    if (value.type === "agent") return "agents";
+    return "models";
+  }, [value.type]);
+
+  const [tab, setTab] = useState<PickerCategory>(initialTab);
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
+
+  const tabs: { id: PickerCategory; label: string; items: Recipient[] }[] = [
+    { id: "people", label: "People", items: QUICK_PEOPLE },
+    { id: "models", label: "Models", items: AI_MODELS },
+    { id: "agents", label: "Agents", items: AI_AGENTS },
+  ];
+
+  const activeItems = tabs.find(t => t.id === tab)?.items ?? AI_MODELS;
+
+  return (
+    <div className="absolute bottom-full left-0 z-50 mb-2 w-72 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container shadow-2xl">
+      <div className="flex items-center justify-between border-b border-outline-variant/60 px-2 py-2">
+        <div className="flex flex-1 gap-0.5 rounded-lg bg-surface-container-high p-0.5">
+          {tabs.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={cn(
+                "min-w-0 flex-1 rounded-md px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide transition",
+                tab === id
+                  ? "bg-surface-container text-on-surface shadow-sm"
+                  : "text-on-surface-variant hover:text-on-surface"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-1 shrink-0 rounded p-1 text-on-surface-variant transition hover:text-on-surface"
+          aria-label="Close"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="max-h-64 overflow-y-auto py-1">
+        {activeItems.map(item => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => { onChange(item); onClose(); }}
+            className={cn(
+              "flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-surface-container-high",
+              value.id === item.id && "bg-blue-500/5"
+            )}
+          >
+            <div
+              className={cn(
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs",
+                item.type === "agent"
+                  ? "bg-amber-500/10 text-amber-400"
+                  : item.type === "people"
+                    ? "bg-surface-container-high text-on-surface-variant text-[9px] font-bold"
+                    : "bg-blue-500/10 text-blue-400"
+              )}
+            >
+              {item.type === "agent" ? "⚡" : item.type === "people" ? initials(item.label) : "✦"}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-on-surface">{item.label}</p>
+              {item.sublabel && <p className="text-[10px] text-on-surface-variant">{item.sublabel}</p>}
+            </div>
+            {value.id === item.id && <span className="text-xs text-blue-400">✓</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+
+function EmptyState({
+  recipient,
+  onSuggestion,
+}: {
+  recipient: Recipient;
+  onSuggestion: (text: string) => void;
+}) {
+  const isPeople = recipient.type === "people";
+  const suggs    = SUGGESTIONS[recipient.type === "agent" ? "agent" : "ai"];
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
+      <div className="w-full max-w-lg text-center">
+        {/* Icon */}
+        <div className={cn(
+          "mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border text-xl",
+          recipient.type === "agent"
+            ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
+            : recipient.type === "people"
+            ? "border-outline-variant bg-surface-container text-on-surface-variant text-sm font-bold"
+            : "border-blue-500/20 bg-blue-500/10 text-blue-400"
+        )}>
+          {recipient.type === "agent" ? "⚡" : recipient.type === "people" ? initials(recipient.label) : "✦"}
+        </div>
+
+        <h2 className="text-xl font-bold tracking-tight text-on-surface">
+          {isPeople
+            ? `Chat with ${recipient.label}`
+            : recipient.type === "agent"
+            ? "Run it with an agent"
+            : "What can I help with?"}
+        </h2>
+        <p className="mt-2 text-sm text-on-surface-variant">
+          {isPeople
+            ? "This is a deal conversation. Negotiate, share files, and close contracts here."
+            : "Ask AI, Hire People, Run Agents"}
+        </p>
+
+        {/* People CTA */}
+        {isPeople && (
+          <div className="mt-6 rounded-xl border border-outline-variant/60 bg-surface-container p-4 text-left">
+            <p className="text-xs font-medium text-on-surface-variant">This conversation started from the marketplace.</p>
+            <p className="mt-1 text-sm text-on-surface">Review the service offer above, negotiate terms, or send a counter-offer.</p>
+          </div>
+        )}
+
+        {/* Suggestion cards */}
+        {!isPeople && (
+          <div className="mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {suggs.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => onSuggestion(s.title)}
+                className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3 text-left transition hover:border-outline hover:bg-surface-container"
+              >
+                <span className={cn("text-base", recipient.type === "agent" ? "text-amber-400" : "text-blue-400")}>{s.icon}</span>
+                <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
+                <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Input Bar ────────────────────────────────────────────────────────────────
+
+function InputBar({
+  inputText,
+  setInputText,
+  sending,
+  onSend,
+  onKeyDown,
+  inputRef,
+  recipient,
+  onChangeRecipient,
+  hasThread,
+}: {
+  inputText: string;
+  setInputText: (v: string) => void;
+  sending: boolean;
+  onSend: () => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  inputRef: React.RefObject<HTMLTextAreaElement>;
+  recipient: Recipient;
+  onChangeRecipient: (r: Recipient) => void;
+  hasThread: boolean;
+}) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  // Auto-resize
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [inputText, inputRef]);
+
+  const isPeople = recipient.type === "people";
+
+  return (
+    <div className="border-t border-outline-variant/60 bg-surface/50 px-4 py-3 backdrop-blur-sm">
+      <div className="mx-auto max-w-2xl">
+        <div ref={pickerRef} className="relative">
+          <div className={cn(
+            "overflow-hidden rounded-2xl border bg-surface-container shadow-sm transition-colors",
+            pickerOpen ? "border-blue-500/40" : "border-outline-variant hover:border-outline"
+          )}>
+            <textarea
+              ref={inputRef}
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder={
+                hasThread
+                  ? "Reply in deal room..."
+                  : isPeople
+                  ? `Message ${recipient.label}...`
+                  : recipient.type === "agent"
+                  ? "Give the agent an objective..."
+                  : "Ask anything..."
+              }
+              className="max-h-40 min-h-[48px] w-full resize-none bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none"
+              rows={1}
+            />
+
+            {/* Toolbar */}
+            <div className="flex items-center gap-1 px-3 py-2">
+              <div className="relative flex shrink-0 items-center gap-0.5">
+                {pickerOpen && !hasThread && (
+                  <RecipientPicker value={recipient} onChange={onChangeRecipient} onClose={() => setPickerOpen(false)} />
+                )}
+                <button
+                  type="button"
+                  className="rounded-lg p-1.5 text-on-surface-variant/60 transition hover:bg-surface-container-high hover:text-on-surface"
+                  aria-label="Attach file"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </button>
+                {!hasThread && (
+                  <button
+                    type="button"
+                    onClick={() => setPickerOpen(v => !v)}
+                    className={cn(
+                      "flex max-w-[min(200px,calc(100vw-8rem))] items-center gap-1 rounded-lg border px-2 py-1 text-left text-xs font-medium transition hover:bg-surface-container-high",
+                      recipient.type === "agent"
+                        ? "border-amber-500/30 bg-amber-500/5 text-amber-400"
+                        : recipient.type === "people"
+                          ? "border-outline-variant/80 bg-surface-container-high text-on-surface"
+                          : "border-blue-500/30 bg-blue-500/5 text-blue-400"
+                    )}
+                    aria-expanded={pickerOpen}
+                    aria-haspopup="listbox"
+                    aria-label="Choose recipient"
+                  >
+                    <span className="shrink-0">{recipient.type === "agent" ? "⚡" : recipient.type === "people" ? "👤" : "✦"}</span>
+                    <span className="min-w-0 truncate">{recipient.label}</span>
+                    <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
+                  </button>
+                )}
+              </div>
+              <div className="flex-1" />
+              <span className="mr-2 text-[10px] text-on-surface-variant/40">
+                {sending ? "Sending…" : "↵ send  ⇧↵ newline"}
+              </span>
+              <button
+                type="button"
+                disabled={!inputText.trim() || sending}
+                onClick={onSend}
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition",
+                  inputText.trim() && !sending
+                    ? "bg-blue-500 text-white shadow-sm hover:bg-blue-400"
+                    : "cursor-not-allowed bg-surface-container-high text-on-surface-variant/40"
+                )}
+              >
+                {sending
+                  ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  : <Send className="h-3.5 w-3.5" />
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SimpleChat ───────────────────────────────────────────────────────────────
+
 export function SimpleChat({ threadId: initialThreadId }: { threadId?: string }) {
   const { accessToken, session } = useAuth();
-  
-  // State
+
   const activeThreadId = initialThreadId || "";
-  const [messages, setMessages] = useState<MessageRow[]>([]);
+  const [messages,  setMessages]  = useState<MessageRow[]>([]);
   const [inputText, setInputText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [loading,   setLoading]   = useState(false);
+  const [sending,   setSending]   = useState(false);
+  const [recipient, setRecipient] = useState<Recipient>(AI_MODELS[0]);
+
   const streamRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  
-  // Load messages when thread changes
+  const inputRef  = useRef<HTMLTextAreaElement>(null);
+
+  // Load messages
   useEffect(() => {
     if (!activeThreadId || !accessToken) {
       setMessages([]);
       return;
     }
-    
     let cancelled = false;
     setLoading(true);
-    
     (async () => {
       try {
         const data = await apiGetJson<{
           activeChat?: { messages?: Array<Record<string, unknown>> };
           messages?: Array<Record<string, unknown>>;
         }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
-        
         if (cancelled) return;
         const raw = Array.isArray(data.activeChat?.messages) ? data.activeChat?.messages : data.messages;
         setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
-      } catch (error) {
+      } catch {
         if (!cancelled) setMessages([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    
     return () => { cancelled = true; };
   }, [activeThreadId, accessToken]);
 
-  // Keep latest messages in view when stream updates
+  // Scroll to bottom
   useEffect(() => {
     if (streamRef.current) {
       streamRef.current.scrollTop = streamRef.current.scrollHeight;
     }
   }, [messages.length]);
-  
+
   // Send message
   const sendMessage = async () => {
     const text = inputText.trim();
     if (!text || sending) return;
-    
-    // If no thread, handle AI chat
+
     if (!activeThreadId) {
       setInputText("");
       setSending(true);
-      
-      // Optimistic user message
       const userMsg: MessageRow = {
         id: `tmp-${Date.now()}`,
         role: "user",
@@ -289,33 +629,31 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         senderId: session?.user?.id || null,
       };
       setMessages(prev => [...prev, userMsg]);
-      
       try {
         const response = await apiMutateJson<{ reply?: string; message?: { content?: string } }>(
           "/api/ai/chat",
           "POST",
-          { message: text },
+          { message: text, modelId: recipient.id, recipientType: recipient.type },
           accessToken
         );
-        
         const aiReply = response.reply || response.message?.content || "I'm thinking...";
         setMessages(prev => [...prev, {
           id: `ai-${Date.now()}`,
-          role: "ai",
+          role: recipient.type === "agent" ? "agent" : "ai",
           text: aiReply,
           createdAt: new Date().toISOString(),
+          senderName: recipient.label,
         }]);
-      } catch (error) {
-        // Error handled silently
+      } catch {
+        // silently handle
       } finally {
         setSending(false);
       }
       return;
     }
-    
+
     setInputText("");
     setSending(true);
-    
     const optimistic: MessageRow = {
       id: `tmp-${Date.now()}`,
       role: "user",
@@ -324,7 +662,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       senderId: session?.user?.id || null,
     };
     setMessages(prev => [...prev, optimistic]);
-    
     try {
       await apiMutateJson(
         "/api/chat/messages",
@@ -332,117 +669,76 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         { conversationId: activeThreadId, text, role: "user" },
         accessToken
       );
-      
-      // Refresh messages
       const refreshed = await apiGetJson<{
         activeChat?: { messages?: Array<Record<string, unknown>> };
       }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
-      
       const raw = refreshed.activeChat?.messages || [];
       setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
-    } catch (error) {
+    } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInputText(text);
     } finally {
       setSending(false);
     }
   };
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
-  
+
+  const handleSuggestion = (text: string) => {
+    setInputText(text);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
   const currentUserId = session?.user?.id;
-  const hasActiveThread = Boolean(activeThreadId);
+  const hasThread     = Boolean(activeThreadId);
 
   return (
-    <div className="page-root text-on-surface flex min-h-0 flex-1">
-      <main className="flex min-w-0 flex-1 flex-col">
-        {/* Message Stream */}
-        <div
-          ref={streamRef}
-          className="flex-1 overflow-y-auto px-4 py-4"
-        >
-          {!hasActiveThread && messages.length === 0 ? (
-            <EmptyState />
-          ) : loading ? (
-            <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-on-surface-variant">Loading messages...</p>
+    <div className="page-root flex min-h-0 flex-1 flex-col text-on-surface">
+      {/* Message stream */}
+      <div ref={streamRef} className="flex-1 overflow-y-auto scroll-smooth px-4 py-6">
+        {loading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-outline-variant border-t-on-surface-variant" />
+              Loading…
             </div>
-          ) : messages.length === 0 ? (
-            <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {messages.map(message => {
-                const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
-                return (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isMine={isMine}
-                    currentUserId={currentUserId}
-                    threadId={activeThreadId}
-                    accessToken={accessToken}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-        
-        {/* Sticky Input Footer */}
-        <div className="border-t border-outline-variant bg-surface-container-low/30 px-4 py-4">
-          <div className="mx-auto max-w-2xl">
-            {/* Input */}
-            <div className="flex items-end gap-2 rounded-2xl border border-outline-variant bg-surface-container shadow-lg p-2">
-              <button
-                type="button"
-                className="shrink-0 p-2.5 text-on-surface-variant transition hover:text-on-surface"
-              >
-                <Paperclip className="h-5 w-5" />
-              </button>
-              
-              <textarea
-                ref={inputRef}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={hasActiveThread ? "Reply in deal room..." : "Message AI..."}
-                className="max-h-40 min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-sm text-on-surface placeholder:text-on-surface-variant outline-none"
-                rows={1}
-              />
-              
-              <button
-                type="button"
-                disabled={!inputText.trim() || sending}
-                onClick={sendMessage}
-                className={cn(
-                  "shrink-0 flex h-11 w-11 items-center justify-center rounded-xl transition",
-                  inputText.trim() && !sending
-                    ? "bg-violet-500 text-white hover:bg-violet-400 shadow-lg shadow-violet-500/25"
-                    : "cursor-not-allowed bg-surface-container-high text-on-surface-variant"
-                )}
-              >
-                {sending ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </button>
-            </div>
-            
-            {/* Helper text */}
-            <p className="mt-3 text-center text-[10px] text-on-surface-variant">
-              Enter to send · Shift+Enter for new line · {hasActiveThread ? "Visible to all participants" : "AI responses are generated fresh"}
-            </p>
           </div>
-        </div>
-      </main>
+        ) : !hasThread && messages.length === 0 ? (
+          <EmptyState recipient={recipient} onSuggestion={handleSuggestion} />
+        ) : messages.length === 0 ? (
+          <div className="flex h-full items-center justify-center">
+            <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation.</p>
+          </div>
+        ) : (
+          <div className="mx-auto max-w-2xl space-y-5">
+            {messages.map(message => {
+              const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
+              return <MessageBubble key={message.id} message={message} isMine={isMine} />;
+            })}
+            {sending && (recipient.type === "ai" || recipient.type === "agent") && !hasThread && (
+              <TypingIndicator recipient={recipient} />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <InputBar
+        inputText={inputText}
+        setInputText={setInputText}
+        sending={sending}
+        onSend={sendMessage}
+        onKeyDown={handleKeyDown}
+        inputRef={inputRef}
+        recipient={recipient}
+        onChangeRecipient={setRecipient}
+        hasThread={hasThread}
+      />
     </div>
   );
 }
