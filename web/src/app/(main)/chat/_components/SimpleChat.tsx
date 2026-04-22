@@ -76,16 +76,16 @@ function EmbedCard({ embed, threadId, accessToken, onRefresh }: { embed: Message
     const proposer = data.proposer as { username?: string; fullName?: string } | undefined;
     
     return (
-      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.05]">
+      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-3">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-amber-400">{embed.type === "bid" ? "Request Bid" : "Service Offer"}</span>
         </div>
-        <p className="mt-1 text-sm font-medium text-slate-900 dark:text-white">{title}</p>
+        <p className="mt-1 text-sm font-medium text-on-surface">{title}</p>
         {price != null && (
-          <p className="text-lg font-bold text-slate-900 dark:text-white">${price.toLocaleString()}</p>
+          <p className="text-lg font-bold text-on-surface">${price.toLocaleString()}</p>
         )}
         {proposer && (
-          <p className="mt-1 text-xs text-slate-500 dark:text-white/50">From {proposer.fullName || proposer.username}</p>
+          <p className="mt-1 text-xs text-on-surface-variant">From {proposer.fullName || proposer.username}</p>
         )}
       </div>
     );
@@ -96,9 +96,9 @@ function EmbedCard({ embed, threadId, accessToken, onRefresh }: { embed: Message
     const title = String(data.title || "Deal Update");
     
     return (
-      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-white/10 dark:bg-emerald-500/10">
+      <div className="my-2 max-w-[400px] overflow-hidden rounded-xl border border-outline-variant/70 bg-surface-container-high p-3">
         <p className="text-xs font-medium text-emerald-400">{phase.replace(/_/g, " ")}</p>
-        <p className="mt-1 text-sm text-emerald-900 dark:text-white/90">{title}</p>
+        <p className="mt-1 text-sm text-on-surface">{title}</p>
       </div>
     );
   }
@@ -144,7 +144,7 @@ function MessageBubble({
         ) : avatar ? (
           <Image src={avatar} alt="" width={32} height={32} className="h-8 w-8 rounded-full object-cover" unoptimized />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-700 dark:bg-white/10 dark:text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-xs font-medium text-on-surface">
             {initials(name)}
           </div>
         )}
@@ -154,8 +154,8 @@ function MessageBubble({
       <div className={cn("max-w-[80%]", isMine ? "items-end" : "items-start")}>
         {/* Name and time */}
         <div className={cn("flex items-center gap-2 mb-1", isMine ? "flex-row-reverse" : "flex-row")}>
-          <span className="text-xs font-medium text-slate-600 dark:text-white/70">{name}</span>
-          <span className="text-[10px] text-slate-400 dark:text-white/40">{relativeTime(message.createdAt)}</span>
+          <span className="text-xs font-medium text-on-surface-variant">{name}</span>
+          <span className="text-[10px] text-on-surface-variant/70">{relativeTime(message.createdAt)}</span>
         </div>
         
         {/* Message bubble */}
@@ -165,8 +165,8 @@ function MessageBubble({
             isMine
               ? "bg-gradient-to-r from-violet-500 to-indigo-500 text-white"
               : isSystem
-              ? "border border-slate-200 bg-slate-100 text-slate-500 italic dark:border-white/10 dark:bg-white/[0.03] dark:text-white/60"
-              : "border border-slate-200 bg-white text-slate-800 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/90"
+              ? "border border-outline-variant bg-surface-container-high text-on-surface-variant italic"
+              : "border border-outline-variant bg-surface-container-low text-on-surface"
           )}
         >
           {message.text}
@@ -195,8 +195,8 @@ function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center px-6">
       <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-300 dark:text-white/20">BrandForge</h1>
-        <p className="mt-4 text-sm text-slate-500 dark:text-white/50">Start with a prompt and shape your next deliverable.</p>
+        <h1 className="text-4xl font-bold tracking-tight text-on-surface/30">BrandForge</h1>
+        <p className="mt-4 text-sm text-on-surface-variant">Start with a prompt and shape your next deliverable.</p>
         
         <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-4 py-2 dark:border-violet-500/30 dark:bg-violet-500/10">
           <Sparkles className="h-3 w-3 text-violet-500 dark:text-violet-300" />
@@ -208,11 +208,11 @@ function EmptyState() {
             <button
               key={i}
               type="button"
-              className="rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/20 dark:hover:bg-white/[0.04]"
+              className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3 text-left transition hover:border-outline hover:bg-surface-container-high"
             >
               <span className="text-lg">{item.icon}</span>
-              <p className="mt-2 text-sm text-slate-700 dark:text-white/80">{item.title}</p>
-              <p className="mt-0.5 text-[10px] text-slate-400 dark:text-white/40">{item.subtitle}</p>
+              <p className="mt-2 text-sm text-on-surface">{item.title}</p>
+              <p className="mt-0.5 text-[10px] text-on-surface-variant">{item.subtitle}</p>
             </button>
           ))}
         </div>
@@ -359,7 +359,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const hasActiveThread = Boolean(activeThreadId);
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 dark:bg-[#0b0f17] dark:text-white">
+    <div className="page-root text-on-surface flex min-h-0 flex-1">
       <main className="flex min-w-0 flex-1 flex-col">
         {/* Message Stream */}
         <div
@@ -370,11 +370,11 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             <EmptyState />
           ) : loading ? (
             <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-slate-500 dark:text-white/50">Loading messages...</p>
+              <p className="text-sm text-on-surface-variant">Loading messages...</p>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-slate-500 dark:text-white/50">No messages yet. Start the conversation!</p>
+              <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation!</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -396,13 +396,13 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         </div>
         
         {/* Sticky Input Footer */}
-        <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 dark:border-white/10 dark:bg-[#0b0f17]">
+        <div className="border-t border-outline-variant bg-surface-container-low/30 px-4 py-4">
           <div className="mx-auto max-w-2xl">
             {/* Input */}
-            <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="flex items-end gap-2 rounded-2xl border border-outline-variant bg-surface-container shadow-lg p-2">
               <button
                 type="button"
-                className="shrink-0 p-2.5 text-slate-400 transition hover:text-slate-600 dark:text-white/40 dark:hover:text-white/60"
+                className="shrink-0 p-2.5 text-on-surface-variant transition hover:text-on-surface"
               >
                 <Paperclip className="h-5 w-5" />
               </button>
@@ -413,7 +413,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={hasActiveThread ? "Reply in deal room..." : "Message AI..."}
-                className="max-h-40 min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-white dark:placeholder:text-white/30"
+                className="max-h-40 min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-sm text-on-surface placeholder:text-on-surface-variant outline-none"
                 rows={1}
               />
               
@@ -425,7 +425,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
                   "shrink-0 flex h-11 w-11 items-center justify-center rounded-xl transition",
                   inputText.trim() && !sending
                     ? "bg-violet-500 text-white hover:bg-violet-400 shadow-lg shadow-violet-500/25"
-                    : "cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-white/[0.08] dark:text-white/30"
+                    : "cursor-not-allowed bg-surface-container-high text-on-surface-variant"
                 )}
               >
                 {sending ? (
@@ -437,7 +437,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             </div>
             
             {/* Helper text */}
-            <p className="mt-3 text-center text-[10px] text-slate-400 dark:text-white/30">
+            <p className="mt-3 text-center text-[10px] text-on-surface-variant">
               Enter to send · Shift+Enter for new line · {hasActiveThread ? "Visible to all participants" : "AI responses are generated fresh"}
             </p>
           </div>

@@ -13,7 +13,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { getSortedHumanThreads, unreadHumanChatCount } from "@/lib/human-chat-threads";
 import { cn } from "@/lib/cn";
 
-const CHAT_NAV_LS = "bf-sidebar-chats-open";
+const RECENT_CHATS_LS = "bf-sidebar-recent-chats-open";
 
 const navInactive =
   "flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-body text-on-surface-variant transition-colors duration-150 hover:bg-surface-container-high hover:text-on-surface";
@@ -56,22 +56,22 @@ export function Sidebar({
   const chatUnread = useMemo(() => unreadHumanChatCount(chatThreads), [chatThreads]);
   const chatNavActive = pathname === "/chat" || pathname.startsWith("/chat/");
 
-  const [chatListOpen, setChatListOpen] = useState(true);
+  const [recentChatsOpen, setRecentChatsOpen] = useState(true);
   useEffect(() => {
     try {
       if (typeof window === "undefined") return;
-      if (window.localStorage.getItem(CHAT_NAV_LS) === "0") setChatListOpen(false);
+      if (window.localStorage.getItem(RECENT_CHATS_LS) === "0") setRecentChatsOpen(false);
     } catch {
       /* ignore */
     }
   }, []);
 
-  const toggleChatList = () => {
-    setChatListOpen((prev) => {
+  const toggleRecentChats = () => {
+    setRecentChatsOpen((prev) => {
       const next = !prev;
       try {
         if (typeof window !== "undefined") {
-          window.localStorage.setItem(CHAT_NAV_LS, next ? "1" : "0");
+          window.localStorage.setItem(RECENT_CHATS_LS, next ? "1" : "0");
         }
       } catch {
         /* ignore */
@@ -174,6 +174,16 @@ export function Sidebar({
                   if (item.href === "/chat" && session) {
                     return (
                       <li key={item.href} className="space-y-0.5">
+                        <Link
+                          href="/chat"
+                          onClick={onNavigate}
+                          className="mb-1 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-secondary px-2.5 py-2 text-[12px] font-headline font-700 tracking-wide text-on-primary shadow-ambient transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        >
+                          <span className="material-symbols-outlined text-[16px] leading-none" aria-hidden>
+                            add_comment
+                          </span>
+                          New Chat
+                        </Link>
                         <div className="flex min-w-0 items-stretch gap-0.5">
                           <Link
                             href="/chat"
@@ -200,67 +210,7 @@ export function Sidebar({
                               </span>
                             ) : null}
                           </Link>
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.preventDefault();
-                              toggleChatList();
-                            }}
-                            className="flex w-8 shrink-0 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                            aria-expanded={chatListOpen}
-                            aria-label={chatListOpen ? "Hide deal room shortcuts" : "Show deal room shortcuts"}
-                          >
-                            <span className="material-symbols-outlined text-[18px] leading-none" aria-hidden>
-                              {chatListOpen ? "expand_less" : "expand_more"}
-                            </span>
-                          </button>
                         </div>
-                        {chatListOpen ? (
-                          <ul
-                            className="mt-0.5 ml-2 space-y-px border-l border-dashed border-outline-variant/35 pl-2"
-                            aria-label="Recent chats"
-                          >
-                            <li className="px-1.5 pt-1 pb-0.5 text-[10px] font-headline font-bold uppercase tracking-wider text-on-surface-variant/70">
-                              Recent chats
-                            </li>
-                            {chatThreads.length > 0 ? (
-                              chatThreads.slice(0, 6).map((thread) => {
-                                const tid = String(thread.id);
-                                const threadActive =
-                                  pathname === `/chat/${tid}` || pathname.startsWith(`/chat/${tid}/`);
-                                const unread = Boolean(thread.hasUnread);
-                                return (
-                                  <li key={tid}>
-                                    <Link
-                                      href={`/chat/${tid}`}
-                                      onClick={onNavigate}
-                                      className={cn(
-                                        "flex items-center gap-2 rounded-md py-1.5 pl-1.5 pr-1 text-[11px] leading-tight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-                                        threadActive
-                                          ? "bg-surface-container-high font-600 text-on-surface"
-                                          : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface",
-                                        unread && !threadActive ? "font-600 text-on-surface" : "",
-                                      )}
-                                    >
-                                      <span
-                                        className={cn(
-                                          "h-1.5 w-1.5 shrink-0 rounded-full",
-                                          unread ? "bg-red-500" : "bg-transparent",
-                                        )}
-                                        aria-hidden
-                                      />
-                                      <span className="min-w-0 flex-1 truncate">{thread.t || "Deal room"}</span>
-                                    </Link>
-                                  </li>
-                                );
-                              })
-                            ) : (
-                              <li className="px-1.5 py-1 text-[11px] text-on-surface-variant/70">
-                                No recent chats
-                              </li>
-                            )}
-                          </ul>
-                        ) : null}
                       </li>
                     );
                   }
@@ -297,6 +247,61 @@ export function Sidebar({
         className="mt-auto shrink-0 border-t border-outline-variant bg-surface-container-high/50 px-4 py-4"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
       >
+        {session ? (
+          <div className="mb-3 rounded-xl border border-outline-variant/60 bg-surface-container-low/70 p-2.5">
+            <button
+              type="button"
+              onClick={toggleRecentChats}
+              className="flex w-full items-center justify-between rounded-lg px-1 py-1 text-left"
+              aria-expanded={recentChatsOpen}
+              aria-label={recentChatsOpen ? "Hide recent chats" : "Show recent chats"}
+            >
+              <span className="text-[10px] font-headline font-bold uppercase tracking-[0.1em] text-on-surface-variant/70">
+                Recent chats
+              </span>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant" aria-hidden>
+                {recentChatsOpen ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+            {recentChatsOpen ? (
+              <ul className="mt-1.5 max-h-44 space-y-1 overflow-y-auto pr-1" aria-label="Recent chats list">
+                {chatThreads.length > 0 ? (
+                  chatThreads.slice(0, 8).map((thread) => {
+                    const tid = String(thread.id);
+                    const threadActive = pathname === `/chat/${tid}` || pathname.startsWith(`/chat/${tid}/`);
+                    const unread = Boolean(thread.hasUnread);
+                    return (
+                      <li key={tid}>
+                        <Link
+                          href={`/chat/${tid}`}
+                          onClick={onNavigate}
+                          className={cn(
+                            "flex items-center gap-2 rounded-lg px-2 py-1.5 text-[11px] leading-tight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+                            threadActive
+                              ? "bg-surface-container-high font-600 text-on-surface"
+                              : "text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface",
+                            unread && !threadActive ? "font-600 text-on-surface" : "",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "h-1.5 w-1.5 shrink-0 rounded-full",
+                              unread ? "bg-red-500" : "bg-transparent",
+                            )}
+                            aria-hidden
+                          />
+                          <span className="min-w-0 flex-1 truncate">{thread.t || "Deal room"}</span>
+                        </Link>
+                      </li>
+                    );
+                  })
+                ) : (
+                  <li className="px-2 py-1 text-[11px] text-on-surface-variant/70">No recent chats</li>
+                )}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
         <div className="mb-3 flex items-center justify-end">
           <ThemeToggle size="sm" />
         </div>
