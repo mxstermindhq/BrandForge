@@ -8,7 +8,6 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const mainNav = [
-  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/marketplace", label: "Marketplace", icon: "storefront" },
   { href: "/chat", label: "Chat", icon: "chat" },
   { href: "/leaderboard", label: "Leaderboard", icon: "trophy" },
@@ -38,7 +37,7 @@ export function TopNavBar() {
         {/* Left: Logo + Main Nav */}
         <div className="flex items-center gap-6">
           {/* Logo */}
-          <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-2 group">
+          <Link href={session ? "/chat" : "/"} className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <span className="material-symbols-outlined text-on-primary text-lg">⭐</span>
             </div>

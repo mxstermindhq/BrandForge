@@ -17,10 +17,10 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
   const [notice, setNotice] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to chat
   useEffect(() => {
     if (authReady && session) {
-      router.push("/dashboard");
+      router.push("/chat");
     }
   }, [authReady, session, router]);
 
@@ -72,7 +72,7 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
         <div className="absolute inset-0 bg-background" />
         <div className="relative z-10 text-center">
           <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-on-surface-variant">Redirecting to dashboard...</p>
+          <p className="text-on-surface-variant">Redirecting to chat...</p>
         </div>
       </section>
     );

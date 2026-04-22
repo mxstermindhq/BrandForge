@@ -59,13 +59,6 @@ export default function NotFound() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <Link
-              href="/dashboard"
-              className="text-primary hover:underline"
-            >
-              Dashboard
-            </Link>
-            <span className="text-outline-variant">•</span>
-            <Link
               href="/chat"
               className="text-primary hover:underline"
             >

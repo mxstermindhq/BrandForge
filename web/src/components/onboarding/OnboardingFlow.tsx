@@ -72,7 +72,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     const hasCompletedOnboarding = localStorage.getItem("bf-onboarding-complete");
     const isAuthenticated = localStorage.getItem("bf-session"); // Or check via auth context
     
-    if (!hasCompletedOnboarding && isAuthenticated && pathname === "/dashboard") {
+    if (!hasCompletedOnboarding && isAuthenticated && pathname === "/chat") {
       // Small delay to let the page load
       const timer = setTimeout(() => {
         setIsOnboarding(true);
@@ -248,7 +248,7 @@ export function useOnboardingTrigger() {
   const startOnboarding = () => {
     localStorage.removeItem("bf-onboarding-complete");
     setIsOnboarding(true);
-    window.location.href = "/dashboard";
+    window.location.href = "/chat";
   };
 
   return { startOnboarding, isOnboarding };
