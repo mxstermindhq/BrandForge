@@ -79,18 +79,26 @@ export function DealThreadClient({ threadId, isNewThread }: DealThreadClientProp
     if (!id) return
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/chat/threads/${id}/messages`)
+      const response = await fetch(`/api/chat/${id}`)
       if (response.ok) {
         const data = await response.json()
-        setMessages(data.messages || [])
-        setCurrentThread(data.thread || null)
+        // Transform messages to match DealMessage format
+        const transformedMessages = (data.messages || []).map((msg: any) => ({
+          id: msg.id,
+          content: typeof msg.content === 'string' ? msg.content : msg.content.text || msg.content,
+          role: msg.sender_id === session?.user?.id ? 'user' : 'assistant',
+          created_at: msg.created_at,
+          sender: msg.sender
+        }))
+        setMessages(transformedMessages)
+        setCurrentThread({ id, title: 'Chat Thread' } as DealThread)
       }
     } catch (error) {
       console.error('Failed to load messages:', error)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [session?.user?.id])
   
   // Initial load
   useEffect(() => {

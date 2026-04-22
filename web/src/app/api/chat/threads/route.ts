@@ -9,6 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   
+  // Query real chat_threads table
   const { data: threads, error } = await supabase
     .from('chat_threads')
     .select('*')

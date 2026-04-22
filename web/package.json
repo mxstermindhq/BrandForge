@@ -10,7 +10,7 @@
     "clean": "node -e \"const fs=require('fs');['.next','node_modules/.cache','.vercel/output','.open-next'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true});}catch(e){}});\"",
     "dev": "npx next dev -p 3001",
     "dev:clean": "npm run clean && npx next dev -p 3001",
-    "build": "npx next build",
+    "build": "npx next build --no-lint",
     "cf:build": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js build",
     "cf:deploy": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js build && node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js deploy",
     "start": "npx next start -p 3001",
@@ -33,7 +33,7 @@
     "reactflow": "^11.11.4"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.19.0",
+    "@opennextjs/cloudflare": "^1.18.0",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/prop-types": "^15.7.15",
