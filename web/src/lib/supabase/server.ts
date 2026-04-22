@@ -2,7 +2,7 @@ import { createClient as createSupabaseClient, type SupabaseClient } from '@supa
 import { cookies } from 'next/headers'
 
 export async function createClient(): Promise<SupabaseClient> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -10,6 +10,12 @@ export async function createClient(): Promise<SupabaseClient> {
   if (!url || !anonKey) {
     throw new Error('Missing Supabase environment variables')
   }
+  
+  // Get all cookies and format them properly
+  const allCookies = cookieStore.getAll()
+  const cookieString = allCookies
+    .map(cookie => `${cookie.name}=${cookie.value}`)
+    .join('; ')
   
   const supabase: SupabaseClient = createSupabaseClient(url, anonKey, {
     auth: {
@@ -19,7 +25,7 @@ export async function createClient(): Promise<SupabaseClient> {
     },
     global: {
       headers: {
-        cookie: cookieStore.toString(),
+        cookie: cookieString,
       },
     },
   })
