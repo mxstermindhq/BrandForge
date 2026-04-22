@@ -6,10 +6,7 @@ import {
   Send,
   Sparkles,
   Bot,
-  User,
-  ChevronDown,
   Paperclip,
-  Share2,
 } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
@@ -34,16 +31,6 @@ export type MessageRow = {
   senderAvatar?: string | null;
   embed?: MessageEmbed | null;
 };
-
-// Chat mode
-type ChatMode = "ai" | "agent" | "human";
-
-const AGENTS = [
-  { id: "scopeguard", name: "ScopeGuard", role: "Contract Review", icon: "🛡️" },
-  { id: "bidcrafter", name: "BidCrafter", role: "Proposal Writer", icon: "✍️" },
-  { id: "matchmaker", name: "MatchMaker", role: "Deal Finder", icon: "🎯" },
-  { id: "closer", name: "Closer", role: "Deal Closer", icon: "🤝" },
-];
 
 function relativeTime(value?: string | null) {
   if (!value) return "now";
@@ -194,89 +181,6 @@ function MessageBubble({
   );
 }
 
-// Mode Selector
-function ModeSelector({ mode, onChange, agentId, onAgentChange }: { 
-  mode: ChatMode; 
-  onChange: (mode: ChatMode) => void;
-  agentId?: string;
-  onAgentChange?: (agentId: string) => void;
-}) {
-  const [showAgents, setShowAgents] = useState(false);
-  
-  const selectedAgent = AGENTS.find(a => a.id === agentId);
-  
-  return (
-    <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/[0.03]">
-      <button
-        type="button"
-        onClick={() => onChange("ai")}
-        className={cn(
-          "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition",
-          mode === "ai" ? "bg-violet-500/20 text-violet-700 dark:text-violet-300" : "text-slate-500 hover:text-slate-700 dark:text-white/50 dark:hover:text-white/70"
-        )}
-      >
-        <Sparkles className="h-3 w-3" />
-        AI
-      </button>
-      
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => {
-            onChange("agent");
-            setShowAgents(!showAgents);
-          }}
-          className={cn(
-            "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition",
-            mode === "agent" ? "bg-amber-500/20 text-amber-700 dark:text-amber-300" : "text-slate-500 hover:text-slate-700 dark:text-white/50 dark:hover:text-white/70"
-          )}
-        >
-          <Bot className="h-3 w-3" />
-          {selectedAgent ? selectedAgent.name : "Agent"}
-          {mode === "agent" && <ChevronDown className="h-3 w-3" />}
-        </button>
-        
-        {showAgents && mode === "agent" && (
-          <div className="absolute bottom-full left-0 mb-2 w-48 rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-[#1a1f2e]">
-            {AGENTS.map(agent => (
-              <button
-                key={agent.id}
-                type="button"
-                onClick={() => {
-                  onAgentChange?.(agent.id);
-                  setShowAgents(false);
-                }}
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition",
-                  agentId === agent.id ? "bg-slate-100 text-slate-900 dark:bg-white/[0.08] dark:text-white" : "text-slate-600 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/[0.05]"
-                )}
-              >
-                <span>{agent.icon}</span>
-                <div>
-                  <p className="font-medium">{agent.name}</p>
-                  <p className="text-[10px] text-slate-500 dark:text-white/40">{agent.role}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      <button
-        type="button"
-        onClick={() => onChange("human")}
-        className={cn(
-          "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition",
-          mode === "human" ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" : "text-slate-500 hover:text-slate-700 dark:text-white/50 dark:hover:text-white/70"
-        )}
-      >
-        <User className="h-3 w-3" />
-        Human
-      </button>
-    </div>
-  );
-}
-
 // Empty State
 function EmptyState() {
   const quickPrompts = [
@@ -326,8 +230,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [mode, setMode] = useState<ChatMode>("ai");
-  const [selectedAgent, setSelectedAgent] = useState<string>("scopeguard");
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
@@ -373,8 +275,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     const text = inputText.trim();
     if (!text || sending) return;
     
-    // If no thread and AI mode, handle AI chat
-    if (!activeThreadId && mode === "ai") {
+    // If no thread, handle AI chat
+    if (!activeThreadId) {
       setInputText("");
       setSending(true);
       
@@ -411,12 +313,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       return;
     }
     
-    // Human/agent chat requires a thread
-    if (!activeThreadId) {
-      // Could create a new thread here
-      return;
-    }
-    
     setInputText("");
     setSending(true);
     
@@ -433,7 +329,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       await apiMutateJson(
         "/api/chat/messages",
         "POST",
-        { conversationId: activeThreadId, text, role: mode === "agent" ? "agent" : "user", agentId: mode === "agent" ? selectedAgent : undefined },
+        { conversationId: activeThreadId, text, role: "user" },
         accessToken
       );
       
@@ -465,40 +361,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 dark:bg-[#0b0f17] dark:text-white">
       <main className="flex min-w-0 flex-1 flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-transparent">
-          <div className="flex items-center gap-3">
-            {hasActiveThread ? (
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-white/[0.08]">
-                  <User className="h-4 w-4 text-slate-500 dark:text-white/50" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">Deal Room</p>
-                  <p className="text-[10px] text-slate-400 dark:text-white/40">{messages.length} messages</p>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">New Chat</p>
-                <p className="text-[10px] text-slate-400 dark:text-white/40">Ask AI, agents, or humans</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {hasActiveThread && (
-              <button
-                type="button"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/60 dark:hover:bg-white/[0.06]"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-                Forward
-              </button>
-            )}
-          </div>
-        </header>
-        
         {/* Message Stream */}
         <div
           ref={streamRef}
@@ -536,16 +398,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         {/* Sticky Input Footer */}
         <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 dark:border-white/10 dark:bg-[#0b0f17]">
           <div className="mx-auto max-w-2xl">
-            {/* Mode Selector */}
-            <div className="mb-3 flex items-center justify-center">
-              <ModeSelector 
-                mode={mode} 
-                onChange={setMode}
-                agentId={selectedAgent}
-                onAgentChange={setSelectedAgent}
-              />
-            </div>
-            
             {/* Input */}
             <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-white/[0.05]">
               <button
@@ -560,7 +412,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={mode === "ai" ? "Message AI..." : mode === "agent" ? `Ask ${AGENTS.find(a => a.id === selectedAgent)?.name}...` : "Reply in deal room..."}
+                placeholder={hasActiveThread ? "Reply in deal room..." : "Message AI..."}
                 className="max-h-40 min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-white dark:placeholder:text-white/30"
                 rows={1}
               />
@@ -572,9 +424,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
                 className={cn(
                   "shrink-0 flex h-11 w-11 items-center justify-center rounded-xl transition",
                   inputText.trim() && !sending
-                    ? mode === "ai" ? "bg-violet-500 text-white hover:bg-violet-400 shadow-lg shadow-violet-500/25"
-                    : mode === "agent" ? "bg-amber-500 text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25"
-                    : "bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/25"
+                    ? "bg-violet-500 text-white hover:bg-violet-400 shadow-lg shadow-violet-500/25"
                     : "cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-white/[0.08] dark:text-white/30"
                 )}
               >
@@ -588,7 +438,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             
             {/* Helper text */}
             <p className="mt-3 text-center text-[10px] text-slate-400 dark:text-white/30">
-              Enter to send · Shift+Enter for new line · {mode === "human" && hasActiveThread ? "Visible to all participants" : mode === "agent" ? "Agent will respond in thread" : "AI responses are generated fresh"}
+              Enter to send · Shift+Enter for new line · {hasActiveThread ? "Visible to all participants" : "AI responses are generated fresh"}
             </p>
           </div>
         </div>

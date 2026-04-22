@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { NAV } from "@/config/sidebar-nav";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -21,9 +22,11 @@ const navActive =
 
 export function Sidebar({
   onNavigate,
+  onToggleCollapse,
   className,
 }: {
   onNavigate?: () => void;
+  onToggleCollapse?: () => void;
   className?: string;
 }) {
   const pathname = usePathname();
@@ -85,10 +88,10 @@ export function Sidebar({
       )}
     >
       <div className="shrink-0 px-4 py-6">
-        <div className="mb-2 hidden md:block">
+        <div className="mb-2 hidden items-start justify-between gap-2 md:flex">
           <Link
             href="/"
-            className="group flex items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="group flex min-w-0 items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             onClick={onNavigate}
           >
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-outline-variant bg-surface-container-high shadow-lg">
@@ -107,6 +110,17 @@ export function Sidebar({
               </span>
             </div>
           </Link>
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high focus-visible:outline-primary shrink-0 rounded-md p-2 transition-colors focus-visible:outline focus-visible:outline-2"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
+          >
+            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+              left_panel_close
+            </span>
+          </button>
         </div>
         <div className="mb-4 flex items-center justify-between px-2 md:hidden">
           <Link
@@ -201,50 +215,50 @@ export function Sidebar({
                             </span>
                           </button>
                         </div>
-                        {chatListOpen && chatThreads.length > 0 ? (
+                        {chatListOpen ? (
                           <ul
                             className="mt-0.5 ml-2 space-y-px border-l border-dashed border-outline-variant/35 pl-2"
-                            aria-label="Deal room shortcuts"
+                            aria-label="Recent chats"
                           >
-                            {chatThreads.slice(0, 6).map((thread) => {
-                              const tid = String(thread.id);
-                              const threadActive =
-                                pathname === `/chat/${tid}` || pathname.startsWith(`/chat/${tid}/`);
-                              const unread = Boolean(thread.hasUnread);
-                              return (
-                                <li key={tid}>
-                                  <Link
-                                    href={`/chat/${tid}`}
-                                    onClick={onNavigate}
-                                    className={cn(
-                                      "flex items-center gap-2 rounded-md py-1.5 pl-1.5 pr-1 text-[11px] leading-tight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-                                      threadActive
-                                        ? "bg-surface-container-high font-600 text-on-surface"
-                                        : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface",
-                                      unread && !threadActive ? "font-600 text-on-surface" : "",
-                                    )}
-                                  >
-                                    <span
-                                      className={cn(
-                                        "h-1.5 w-1.5 shrink-0 rounded-full",
-                                        unread ? "bg-red-500" : "bg-transparent",
-                                      )}
-                                      aria-hidden
-                                    />
-                                    <span className="min-w-0 flex-1 truncate">{thread.t || "Deal room"}</span>
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                            <li>
-                              <Link
-                                href="/chat"
-                                onClick={onNavigate}
-                                className="block py-1.5 pl-3 text-[10px] font-headline font-bold uppercase tracking-wider text-on-surface-variant hover:text-secondary"
-                              >
-                                All rooms →
-                              </Link>
+                            <li className="px-1.5 pt-1 pb-0.5 text-[10px] font-headline font-bold uppercase tracking-wider text-on-surface-variant/70">
+                              Recent chats
                             </li>
+                            {chatThreads.length > 0 ? (
+                              chatThreads.slice(0, 6).map((thread) => {
+                                const tid = String(thread.id);
+                                const threadActive =
+                                  pathname === `/chat/${tid}` || pathname.startsWith(`/chat/${tid}/`);
+                                const unread = Boolean(thread.hasUnread);
+                                return (
+                                  <li key={tid}>
+                                    <Link
+                                      href={`/chat/${tid}`}
+                                      onClick={onNavigate}
+                                      className={cn(
+                                        "flex items-center gap-2 rounded-md py-1.5 pl-1.5 pr-1 text-[11px] leading-tight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+                                        threadActive
+                                          ? "bg-surface-container-high font-600 text-on-surface"
+                                          : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface",
+                                        unread && !threadActive ? "font-600 text-on-surface" : "",
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "h-1.5 w-1.5 shrink-0 rounded-full",
+                                          unread ? "bg-red-500" : "bg-transparent",
+                                        )}
+                                        aria-hidden
+                                      />
+                                      <span className="min-w-0 flex-1 truncate">{thread.t || "Deal room"}</span>
+                                    </Link>
+                                  </li>
+                                );
+                              })
+                            ) : (
+                              <li className="px-1.5 py-1 text-[11px] text-on-surface-variant/70">
+                                No recent chats
+                              </li>
+                            )}
                           </ul>
                         ) : null}
                       </li>
@@ -283,6 +297,9 @@ export function Sidebar({
         className="mt-auto shrink-0 border-t border-outline-variant bg-surface-container-high/50 px-4 py-4"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
       >
+        <div className="mb-3 flex items-center justify-end">
+          <ThemeToggle size="sm" />
+        </div>
         {session ? (
           <UserMenu
             name={label}

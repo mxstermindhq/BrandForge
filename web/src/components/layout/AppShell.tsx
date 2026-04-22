@@ -21,6 +21,7 @@ function closeDrawer(
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const drawerRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -79,7 +80,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="bg-background text-on-surface flex h-screen min-h-0 overflow-hidden">
       <OnboardingRedirect />
-      <Sidebar className="hidden md:flex" />
+      {desktopSidebarOpen ? (
+        <Sidebar className="hidden md:flex" onToggleCollapse={() => setDesktopSidebarOpen(false)} />
+      ) : null}
       <div
         ref={drawerRef}
         id="mobile-navigation-drawer"
@@ -108,6 +111,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* App Content - Sidebar Navigation Only */}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          {!desktopSidebarOpen ? (
+            <button
+              type="button"
+              onClick={() => setDesktopSidebarOpen(true)}
+              className="bg-surface-container-high text-on-surface-variant hover:text-on-surface border-outline-variant absolute left-3 top-3 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition-colors md:flex"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                left_panel_open
+              </span>
+            </button>
+          ) : null}
           <ProfileSetupBanner />
           <EngagerGrowthBanner />
           <OnboardingProvider>
