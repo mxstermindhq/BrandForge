@@ -68,23 +68,15 @@ const MOCK_PEOPLE_KEYS = new Set([
   "h3",
 ]);
 
-const SUGGESTIONS = {
-  people: [
-    { icon: "👥", title: "Send a request to multiple humans", sub: "Create a request and invite specialists", href: "/requests/new" },
-    { icon: "🤝", title: "Offer a service or collaboration", sub: "Create your service listing", href: "/services/new" },
-    { icon: "🛍️", title: "Browse marketplace options", sub: "Find the right specialist", href: "/marketplace" },
-  ],
-  ai: [
-    { icon: "🖼️", title: "Generate an image",         sub: "Use the best image model" },
-    { icon: "🎬", title: "Generate a short video",    sub: "Pick a video-capable model" },
-    { icon: "📝", title: "Create text or docs",       sub: "Draft content and documents" },
-  ],
-  agent: [
-    { icon: "🔎", title: "Research a topic deeply",   sub: "Gather and summarize findings" },
-    { icon: "🧭", title: "Plan execution steps",       sub: "Turn goals into workflow" },
-    { icon: "⚙️", title: "Execute a concrete task",    sub: "Run and report outcomes" },
-  ],
-};
+/** CTAs for empty People chat — encourage starting real conversations */
+const PEOPLE_START_CTAS: Array<{ icon: string; title: string; sub: string; href: string }> = [
+  { icon: "📋", title: "Create a request", sub: "Describe the work and invite bids", href: "/requests/new" },
+  { icon: "🛠️", title: "Offer a service", sub: "List what you deliver and get hired", href: "/services/new" },
+  { icon: "🛍️", title: "Browse the marketplace", sub: "Find partners, compare offers", href: "/marketplace" },
+  { icon: "🎯", title: "Place bids", sub: "Compete on open requests", href: "/bid" },
+  { icon: "🏪", title: "Store & listings", sub: "Discover offers and buy", href: "/store" },
+  { icon: "👥", title: "Join squads", sub: "Team up and coordinate deals", href: "/squads" },
+];
 
 const HUMAN_WORKFLOW_STEPS: Array<{
   id: string;
@@ -425,22 +417,136 @@ function EmptyState({
   onSelectRecipientType,
   onOpenDealRoom,
   onOpenPath,
-  onSuggestion,
 }: {
   recipient: Recipient;
   peopleRecipients: Recipient[];
   onSelectRecipientType: (type: RecipientType) => void;
   onOpenDealRoom: (recipient: Recipient) => void;
   onOpenPath: (path: string) => void;
-  onSuggestion: (text: string) => void;
 }) {
   const isPeople = recipient.type === "people";
-  const suggs =
-    recipient.type === "people"
-      ? SUGGESTIONS.people
-      : recipient.type === "agent"
-        ? SUGGESTIONS.agent
-        : SUGGESTIONS.ai;
+
+  if (isPeople) {
+    return (
+      <div className="flex h-full min-h-0 flex-col px-4 pb-6 pt-2">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 text-left">
+          <header>
+            <h2 className="text-lg font-bold tracking-tight text-on-surface">Deal chats</h2>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              Open a deal room you already have, or start something new below — requests, services, bids, and offers all lead to real conversations.
+            </p>
+          </header>
+
+          <section aria-labelledby="recent-deal-chats-heading">
+            <h3
+              id="recent-deal-chats-heading"
+              className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant"
+            >
+              Recent deal chats
+            </h3>
+            <div className="mt-2 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low">
+              {peopleRecipients.length === 0 ? (
+                <p className="p-4 text-sm leading-relaxed text-on-surface-variant">
+                  No deal rooms yet. Use the shortcuts below to post a request, list a service, browse the marketplace, or place bids — then message here.
+                </p>
+              ) : (
+                <ul className="divide-y divide-outline-variant/60">
+                  {peopleRecipients.map((r) => (
+                    <li key={r.id}>
+                      <button
+                        type="button"
+                        onClick={() => onOpenDealRoom(r)}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-container-high"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-outline-variant/60 bg-surface-container text-[10px] font-bold text-on-surface-variant">
+                          {initials(r.label)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-on-surface">{r.label}</p>
+                          {r.sublabel ? (
+                            <p className="truncate text-xs text-on-surface-variant">{r.sublabel}</p>
+                          ) : null}
+                        </div>
+                        <span className="shrink-0 text-xs text-primary">Open</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+
+          <section aria-labelledby="start-conversation-heading">
+            <h3
+              id="start-conversation-heading"
+              className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant"
+            >
+              Start a conversation
+            </h3>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              Create opportunities, respond to bids, make offers, and negotiate — everything here ties back to your deal rooms.
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {PEOPLE_START_CTAS.map((c) => (
+                <button
+                  key={c.href}
+                  type="button"
+                  onClick={() => onOpenPath(c.href)}
+                  className="rounded-xl border border-outline-variant/60 bg-surface-container p-3.5 text-left transition hover:border-outline-variant hover:bg-surface-container-high"
+                >
+                  <span className="text-base text-on-surface-variant">{c.icon}</span>
+                  <p className="mt-1.5 text-xs font-semibold leading-snug text-on-surface">{c.title}</p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-on-surface-variant">{c.sub}</p>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-outline-variant/50 pt-4">
+            <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+              Other modes
+            </span>
+            <button
+              type="button"
+              onClick={() => onSelectRecipientType("people")}
+              className={cn(
+                "rounded-full px-3 py-1 text-xs font-semibold transition",
+                recipient.type === "people"
+                  ? "bg-surface-container-high text-on-surface"
+                  : "text-on-surface-variant hover:text-on-surface"
+              )}
+            >
+              People
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectRecipientType("ai")}
+              className={cn(
+                "rounded-full px-3 py-1 text-xs font-semibold transition",
+                recipient.type === "ai"
+                  ? "bg-surface-container-high text-on-surface"
+                  : "text-on-surface-variant hover:text-on-surface"
+              )}
+            >
+              AI Models
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectRecipientType("agent")}
+              className={cn(
+                "rounded-full px-3 py-1 text-xs font-semibold transition",
+                recipient.type === "agent"
+                  ? "bg-surface-container-high text-on-surface"
+                  : "text-on-surface-variant hover:text-on-surface"
+              )}
+            >
+              AI Agents
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
@@ -450,25 +556,15 @@ function EmptyState({
           "mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border text-xl",
           recipient.type === "agent"
             ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
-            : recipient.type === "people"
-            ? "border-outline-variant bg-surface-container text-on-surface-variant text-sm font-bold"
             : "border-blue-500/20 bg-blue-500/10 text-blue-400"
         )}>
-          {recipient.type === "agent" ? "⚡" : recipient.type === "people" ? initials(recipient.label) : "✦"}
+          {recipient.type === "agent" ? "⚡" : "✦"}
         </div>
 
         <h2 className="text-xl font-bold tracking-tight text-on-surface">
-          {isPeople
-            ? `Chat with ${recipient.label}`
-            : recipient.type === "agent"
-            ? "Run it with an agent"
-            : "What can I help with?"}
+          {recipient.type === "agent" ? "Run it with an agent" : "What can I help with?"}
         </h2>
-        <p className="mt-2 text-sm text-on-surface-variant">
-          {isPeople
-            ? "This is a deal conversation. Negotiate, share files, and close contracts here."
-            : "Ask AI, Hire People, Run Agents"}
-        </p>
+        <p className="mt-2 text-sm text-on-surface-variant">Ask AI, Hire People, Run Agents</p>
         <div className="mt-4 flex items-center justify-center gap-1.5">
           <button
             type="button"
@@ -508,51 +604,15 @@ function EmptyState({
           </button>
         </div>
 
-        {/* Suggestion cards */}
-        {isPeople ? (
-          <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            {suggs.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  const href = (s as { href?: string }).href;
-                  if (href) {
-                    onOpenPath(href);
-                    return;
-                  }
-                  onSuggestion(s.title);
-                }}
-                className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
-              >
-                <span className={cn("text-base", "text-on-surface-variant")}>{s.icon}</span>
-                <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
-                <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-8 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-              Feature locked
-            </p>
-            <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
-            <p className="mt-1 text-xs text-on-surface-variant">
-              Messaging is currently disabled in this mode while core features are being finalized.
-            </p>
-          </div>
-        )}
-
-        {isPeople && peopleRecipients.length > 0 ? (
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => onOpenDealRoom(peopleRecipients[0])}
-              className="text-xs text-primary transition hover:opacity-80"
-            >
-              Open latest deal room →
-            </button>
-          </div>
-        ) : null}
+        <div className="mt-8 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+            Feature locked
+          </p>
+          <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
+          <p className="mt-1 text-xs text-on-surface-variant">
+            Messaging is currently disabled in this mode while core features are being finalized.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -746,11 +806,13 @@ function InputBar({
               disabled={locked}
               placeholder={
                 locked
-                  ? "Locked — feature under development."
+                  ? recipient.type === "people" && !hasThread && !recipient.id
+                    ? "Choose a deal room above to send a message."
+                    : "Locked — feature under development."
                   : hasThread
                   ? "Reply in deal room..."
                   : isPeople
-                  ? "Select a deal room to continue..."
+                  ? "Type your message…"
                   : recipient.type === "agent"
                   ? "Give the agent an objective..."
                   : "Ask anything..."
@@ -765,7 +827,7 @@ function InputBar({
             {/* Toolbar */}
             <div className="flex items-center gap-1 rounded-b-2xl px-3 py-2">
               <div className="relative z-10 flex shrink-0 items-center gap-0.5">
-                {pickerOpen && !hasThread && (
+                {pickerOpen && !hasThread && recipient.type !== "people" && (
                   <RecipientPicker
                     value={recipient}
                     peopleRecipients={peopleRecipients}
@@ -781,7 +843,7 @@ function InputBar({
                 >
                   <Paperclip className="h-4 w-4" />
                 </button>
-                {!hasThread && (
+                {!hasThread && !(recipient.type === "people") && (
                   <button
                     type="button"
                     onClick={() => setPickerOpen(v => !v)}
@@ -789,15 +851,13 @@ function InputBar({
                       "flex max-w-[min(200px,calc(100vw-8rem))] items-center gap-1 rounded-lg border px-2 py-1 text-left text-xs font-medium transition hover:bg-surface-container-high",
                       recipient.type === "agent"
                         ? "border-amber-500/30 bg-amber-500/5 text-amber-400"
-                        : recipient.type === "people"
-                          ? "border-outline-variant/80 bg-surface-container-high text-on-surface"
-                          : "border-blue-500/30 bg-blue-500/5 text-blue-400"
+                        : "border-blue-500/30 bg-blue-500/5 text-blue-400"
                     )}
                     aria-expanded={pickerOpen}
                     aria-haspopup="listbox"
                     aria-label="Choose recipient"
                   >
-                    <span className="shrink-0">{recipient.type === "agent" ? "⚡" : recipient.type === "people" ? "👤" : "✦"}</span>
+                    <span className="shrink-0">{recipient.type === "agent" ? "⚡" : "✦"}</span>
                     <span className="min-w-0 truncate">{recipient.label}</span>
                     <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
                   </button>
@@ -1021,10 +1081,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     }
   };
 
-  const handleSuggestion = (text: string) => {
-    setInputText(text);
-    setTimeout(() => inputRef.current?.focus(), 50);
-  };
   const openPath = (path: string) => {
     router.push(path);
   };
@@ -1035,7 +1091,11 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     () => Boolean(activeThreadId && peopleRecipients.some((p) => String(p.id) === String(activeThreadId))),
     [activeThreadId, peopleRecipients],
   );
-  const lockedComposer = hasThread ? !isHumanThread : recipient.type !== "people";
+  const lockedComposer = hasThread
+    ? !isHumanThread
+    : recipient.type === "people"
+      ? !recipient.id
+      : true;
   const openDealRoom = (next: Recipient) => {
     if (!next.id) return;
     setRecipient(next);
@@ -1043,11 +1103,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   };
   const selectRecipientType = (type: RecipientType) => {
     if (type === "people") {
-      if (peopleRecipients[0]) {
-        setRecipient(peopleRecipients[0]);
-      } else {
-        setRecipient(DEFAULT_PEOPLE_RECIPIENT);
-      }
+      setRecipient(DEFAULT_PEOPLE_RECIPIENT);
       return;
     }
     if (type === "agent") {
@@ -1124,7 +1180,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
               onSelectRecipientType={selectRecipientType}
               onOpenDealRoom={openDealRoom}
               onOpenPath={openPath}
-              onSuggestion={handleSuggestion}
             />
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
