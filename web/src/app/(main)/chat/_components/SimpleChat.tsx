@@ -52,6 +52,13 @@ const AI_AGENTS: Recipient[] = [
   { type: "agent", id: "marketing", label: "Marketing Agent", sublabel: "Copy · campaigns · GTM" },
 ];
 
+const DEFAULT_PEOPLE_RECIPIENT: Recipient = {
+  type: "people",
+  id: "",
+  label: "People",
+  sublabel: "Select deal room",
+};
+
 const MOCK_PEOPLE_KEYS = new Set([
   "alex rivera",
   "priya nair",
@@ -845,7 +852,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [inputText, setInputText] = useState("");
   const [loading,   setLoading]   = useState(false);
   const [sending,   setSending]   = useState(false);
-  const [recipient, setRecipient] = useState<Recipient>(AI_MODELS[0]);
+  const [recipient, setRecipient] = useState<Recipient>(DEFAULT_PEOPLE_RECIPIENT);
   const [showDealContext, setShowDealContext] = useState(false);
 
   const streamRef = useRef<HTMLDivElement>(null);
@@ -873,6 +880,12 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         };
       });
   }, [bootstrap?.humanChats]);
+
+  useEffect(() => {
+    if (!activeThreadId) return;
+    const match = peopleRecipients.find((p) => String(p.id) === String(activeThreadId));
+    if (match) setRecipient(match);
+  }, [activeThreadId, peopleRecipients]);
 
   // Load messages
   useEffect(() => {
@@ -1033,7 +1046,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       if (peopleRecipients[0]) {
         setRecipient(peopleRecipients[0]);
       } else {
-        setRecipient({ type: "people", id: "", label: "People", sublabel: "Select deal room" });
+        setRecipient(DEFAULT_PEOPLE_RECIPIENT);
       }
       return;
     }
