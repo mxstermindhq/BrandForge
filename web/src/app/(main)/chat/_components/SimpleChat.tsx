@@ -431,7 +431,7 @@ function EmptyState({
       <div className="flex h-full min-h-0 flex-col px-4 pb-6 pt-2">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 text-left">
           <header>
-            <h2 className="text-lg font-bold tracking-tight text-on-surface">Deal chats</h2>
+            <h2 className="text-lg font-bold tracking-tight text-on-surface">Hire People</h2>
             <p className="mt-1 text-sm text-on-surface-variant">
               Open a deal room you already have, or start something new below — requests, services, bids, and offers all lead to real conversations.
             </p>
