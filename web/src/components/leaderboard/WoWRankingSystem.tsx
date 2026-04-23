@@ -15,6 +15,62 @@ interface RankingUser {
   losses: number;
 }
 
+/** API may return `users` (legacy) or `entries` (LbEntry) with different field names. */
+function normalizeLeaderboardRows(payload: unknown): RankingUser[] {
+  if (!payload || typeof payload !== "object") return [];
+  const p = payload as Record<string, unknown>;
+  const raw = Array.isArray(p.users) ? p.users : Array.isArray(p.entries) ? p.entries : [];
+  const out: RankingUser[] = [];
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    const id = String(r.userId ?? r.id ?? "").trim();
+    const rank = Number(r.rank);
+    if (!id || !Number.isFinite(rank) || rank <= 0) continue;
+    const username = String(r.username ?? "").trim();
+    const dn = r.displayName != null ? String(r.displayName).trim() : "";
+    const fn = r.fullName != null ? String(r.fullName).trim() : "";
+    const fullName = dn || fn || username || "Member";
+    const rp = Number(r.rp ?? r.currentRp ?? 0);
+    const wins = Number(r.wins ?? r.dealWins ?? 0);
+    const losses = Number(r.losses ?? r.dealLosses ?? 0);
+    out.push({
+      id,
+      rank,
+      username,
+      fullName,
+      rp: Number.isFinite(rp) ? rp : 0,
+      wins: Number.isFinite(wins) ? wins : 0,
+      losses: Number.isFinite(losses) ? losses : 0,
+    });
+  }
+  return out;
+}
+
+function normalizeCurrentUser(row: unknown): RankingUser | null {
+  if (!row || typeof row !== "object") return null;
+  const r = row as Record<string, unknown>;
+  const id = String(r.userId ?? r.id ?? "").trim();
+  if (!id) return null;
+  const rank = Number(r.rank);
+  const username = String(r.username ?? "").trim();
+  const dn = r.displayName != null ? String(r.displayName).trim() : "";
+  const fn = r.fullName != null ? String(r.fullName).trim() : "";
+  const fullName = dn || fn || username || "Member";
+  const rp = Number(r.rp ?? r.currentRp ?? 0);
+  const wins = Number(r.wins ?? r.dealWins ?? 0);
+  const losses = Number(r.losses ?? r.dealLosses ?? 0);
+  return {
+    id,
+    rank: Number.isFinite(rank) ? rank : 0,
+    username,
+    fullName,
+    rp: Number.isFinite(rp) ? rp : 0,
+    wins: Number.isFinite(wins) ? wins : 0,
+    losses: Number.isFinite(losses) ? losses : 0,
+  };
+}
+
 export function WoWRankingSystem() {
   const { accessToken } = useAuth();
   const [users, setUsers] = useState<RankingUser[]>([]);
@@ -29,12 +85,12 @@ export function WoWRankingSystem() {
       }
       try {
         setLoading(true);
-        const leaderboardData = await apiGetJson<{ users: RankingUser[]; currentUser?: RankingUser }>(
-          "/api/leaderboard/ranking",
+        const leaderboardData = await apiGetJson<Record<string, unknown>>(
+          "/api/leaderboard/rating",
           accessToken,
         );
-        setUsers(leaderboardData.users);
-        setCurrentUserRank(leaderboardData.currentUser || null);
+        setUsers(normalizeLeaderboardRows(leaderboardData));
+        setCurrentUserRank(normalizeCurrentUser(leaderboardData.currentUser));
       } catch (error: unknown) {
         const apiError = error as { message?: string; status?: number };
         console.error("Failed to load leaderboard:", apiError?.message || error, apiError?.status);
