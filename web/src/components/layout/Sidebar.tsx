@@ -234,7 +234,7 @@ export function Sidebar({
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
       >
         {session ? (
-          <div className="mb-3 rounded-xl border border-outline-variant/60 bg-surface-container-low/70 p-2.5">
+          <div className="mb-3 rounded-xl bg-surface-container-low/70 p-2.5">
             <button
               type="button"
               onClick={toggleRecentChats}
