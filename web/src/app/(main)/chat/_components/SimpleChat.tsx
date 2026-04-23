@@ -891,9 +891,7 @@ function InputBar({
           </div>
         </div>
         {!isHumanThread ? (
-          <p className="mt-2 px-1 text-[10px] text-on-surface-variant/70">
-            AI can make mistakes. Review important outputs before sending or acting.
-          </p>
+          <div className="mt-2 h-4 shrink-0 px-1" aria-hidden="true" />
         ) : null}
       </div>
     </div>
