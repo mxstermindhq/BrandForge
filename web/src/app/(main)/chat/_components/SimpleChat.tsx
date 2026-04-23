@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Send, Paperclip, ChevronDown, X } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
+import { useBootstrap } from "@/hooks/useBootstrap";
+import { getSortedHumanThreads } from "@/lib/human-chat-threads";
 import { useAuth } from "@/providers/AuthProvider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -49,11 +52,14 @@ const AI_AGENTS: Recipient[] = [
   { type: "agent", id: "marketing", label: "Marketing Agent", sublabel: "Copy · campaigns · GTM" },
 ];
 
-const QUICK_PEOPLE: Recipient[] = [
-  { type: "people", id: "h1", label: "Alex Rivera",  sublabel: "Deal chat" },
-  { type: "people", id: "h2", label: "Priya Nair",   sublabel: "Deal chat" },
-  { type: "people", id: "h3", label: "Jordan Wu",    sublabel: "Deal chat" },
-];
+const MOCK_PEOPLE_KEYS = new Set([
+  "alex rivera",
+  "priya nair",
+  "jordan wu",
+  "h1",
+  "h2",
+  "h3",
+]);
 
 const SUGGESTIONS = {
   ai: [
@@ -91,6 +97,17 @@ function initials(name: string) {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function isMockPersonThread(thread: { id?: string; t?: string; peerUsername?: string | null }) {
+  const id = String(thread.id || "").trim().toLowerCase();
+  const title = String(thread.t || "").trim().toLowerCase();
+  const peer = String(thread.peerUsername || "").trim().toLowerCase();
+  if (/^h\d+$/.test(id)) return true;
+  if (MOCK_PEOPLE_KEYS.has(id)) return true;
+  if (MOCK_PEOPLE_KEYS.has(title)) return true;
+  if (MOCK_PEOPLE_KEYS.has(peer)) return true;
+  return false;
 }
 
 function mapApiMessage(row: Record<string, unknown>): MessageRow {
@@ -271,10 +288,12 @@ type PickerCategory = "people" | "models" | "agents";
 
 function RecipientPicker({
   value,
+  peopleRecipients,
   onChange,
   onClose,
 }: {
   value: Recipient;
+  peopleRecipients: Recipient[];
   onChange: (r: Recipient) => void;
   onClose: () => void;
 }) {
@@ -290,12 +309,12 @@ function RecipientPicker({
   }, [initialTab]);
 
   const tabs: { id: PickerCategory; label: string; items: Recipient[] }[] = [
-    { id: "people", label: "People", items: QUICK_PEOPLE },
+    { id: "people", label: "People", items: peopleRecipients },
     { id: "models", label: "Models", items: AI_MODELS },
     { id: "agents", label: "Agents", items: AI_AGENTS },
   ];
 
-  const activeItems = tabs.find(t => t.id === tab)?.items ?? AI_MODELS;
+  const activeItems = tabs.find(t => t.id === tab)?.items ?? [];
 
   return (
     <div className="absolute bottom-full left-0 z-50 mb-2 w-72 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container shadow-2xl">
@@ -327,35 +346,39 @@ function RecipientPicker({
         </button>
       </div>
       <div className="max-h-64 overflow-y-auto bg-surface-container py-1">
-        {activeItems.map(item => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => { onChange(item); onClose(); }}
-            className={cn(
-              "flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-surface-container-high",
-              value.id === item.id && "bg-blue-500/5"
-            )}
-          >
-            <div
+        {activeItems.length > 0 ? (
+          activeItems.map(item => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => { onChange(item); onClose(); }}
               className={cn(
-                "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs",
-                item.type === "agent"
-                  ? "bg-amber-500/10 text-amber-400"
-                  : item.type === "people"
-                    ? "bg-surface-container-high text-on-surface-variant text-[9px] font-bold"
-                    : "bg-blue-500/10 text-blue-400"
+                "flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-surface-container-high",
+                value.id === item.id && "bg-blue-500/5"
               )}
             >
-              {item.type === "agent" ? "⚡" : item.type === "people" ? initials(item.label) : "✦"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-on-surface">{item.label}</p>
-              {item.sublabel && <p className="text-[10px] text-on-surface-variant">{item.sublabel}</p>}
-            </div>
-            {value.id === item.id && <span className="text-xs text-blue-400">✓</span>}
-          </button>
-        ))}
+              <div
+                className={cn(
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs",
+                  item.type === "agent"
+                    ? "bg-amber-500/10 text-amber-400"
+                    : item.type === "people"
+                      ? "bg-surface-container-high text-on-surface-variant text-[9px] font-bold"
+                      : "bg-blue-500/10 text-blue-400"
+                )}
+              >
+                {item.type === "agent" ? "⚡" : item.type === "people" ? initials(item.label) : "✦"}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-medium text-on-surface">{item.label}</p>
+                {item.sublabel && <p className="text-[10px] text-on-surface-variant">{item.sublabel}</p>}
+              </div>
+              {value.id === item.id && <span className="text-xs text-blue-400">✓</span>}
+            </button>
+          ))
+        ) : (
+          <p className="px-4 py-3 text-xs text-on-surface-variant">No chats yet.</p>
+        )}
       </div>
     </div>
   );
@@ -440,6 +463,7 @@ function InputBar({
   onKeyDown,
   inputRef,
   recipient,
+  peopleRecipients,
   onChangeRecipient,
   hasThread,
 }: {
@@ -450,6 +474,7 @@ function InputBar({
   onKeyDown: (e: React.KeyboardEvent) => void;
   inputRef: React.RefObject<HTMLTextAreaElement>;
   recipient: Recipient;
+  peopleRecipients: Recipient[];
   onChangeRecipient: (r: Recipient) => void;
   hasThread: boolean;
 }) {
@@ -477,14 +502,11 @@ function InputBar({
   const isPeople = recipient.type === "people";
 
   return (
-    <div className="relative z-20 border-t border-outline-variant/60 bg-surface/50 px-4 py-3 backdrop-blur-sm">
+    <div className="relative z-20 bg-surface/50 px-4 py-3 backdrop-blur-sm">
       <div className="mx-auto max-w-2xl">
         <div ref={pickerRef} className="relative">
           {/* No overflow-hidden here — it clips the recipient popover (bottom-full). */}
-          <div className={cn(
-            "overflow-visible rounded-2xl border bg-surface-container shadow-sm transition-colors",
-            pickerOpen ? "border-blue-500/40" : "border-outline-variant hover:border-outline"
-          )}>
+          <div className="overflow-visible rounded-2xl border border-outline-variant bg-surface-container shadow-sm">
             <textarea
               ref={inputRef}
               value={inputText}
@@ -507,7 +529,12 @@ function InputBar({
             <div className="flex items-center gap-1 rounded-b-2xl px-3 py-2">
               <div className="relative z-10 flex shrink-0 items-center gap-0.5">
                 {pickerOpen && !hasThread && (
-                  <RecipientPicker value={recipient} onChange={onChangeRecipient} onClose={() => setPickerOpen(false)} />
+                  <RecipientPicker
+                    value={recipient}
+                    peopleRecipients={peopleRecipients}
+                    onChange={onChangeRecipient}
+                    onClose={() => setPickerOpen(false)}
+                  />
                 )}
                 <button
                   type="button"
@@ -569,7 +596,9 @@ function InputBar({
 // ─── SimpleChat ───────────────────────────────────────────────────────────────
 
 export function SimpleChat({ threadId: initialThreadId }: { threadId?: string }) {
+  const router = useRouter();
   const { accessToken, session } = useAuth();
+  const { data: bootstrap } = useBootstrap();
 
   const activeThreadId = initialThreadId || "";
   const [messages,  setMessages]  = useState<MessageRow[]>([]);
@@ -580,6 +609,29 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
 
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
+
+  const peopleRecipients = useMemo<Recipient[]>(() => {
+    const seen = new Set<string>();
+    return getSortedHumanThreads(bootstrap?.humanChats)
+      .filter((thread) => Boolean(thread.id))
+      .filter((thread) => !isMockPersonThread(thread))
+      .filter((thread) => {
+        const id = String(thread.id);
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((thread) => {
+        const title = String(thread.t || "").trim();
+        const peer = String(thread.peerUsername || "").trim();
+        return {
+          type: "people" as const,
+          id: String(thread.id),
+          label: title || (peer ? `@${peer}` : "Deal chat"),
+          sublabel: peer ? `@${peer}` : "Deal room",
+        };
+      });
+  }, [bootstrap?.humanChats]);
 
   // Load messages
   useEffect(() => {
@@ -631,22 +683,47 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       };
       setMessages(prev => [...prev, userMsg]);
       try {
-        const response = await apiMutateJson<{ reply?: string; message?: { content?: string } }>(
-          "/api/ai/chat",
+        if (recipient.type === "people") {
+          if (!recipient.id) throw new Error("No chat selected");
+          router.push(`/chat/${encodeURIComponent(recipient.id)}`);
+          return;
+        }
+        const created = await apiMutateJson<Record<string, unknown>>(
+          "/api/chat",
           "POST",
-          { message: text, modelId: recipient.id, recipientType: recipient.type },
+          {
+            type: recipient.type === "agent" ? "agent" : "ai",
+            title: recipient.label,
+            subtitle: recipient.sublabel || null,
+            metadata: {
+              source: "simple-chat",
+              recipientType: recipient.type,
+              modelId: recipient.id,
+              modelLabel: recipient.label,
+            },
+          },
           accessToken
         );
-        const aiReply = response.reply || response.message?.content || "I'm thinking...";
-        setMessages(prev => [...prev, {
-          id: `ai-${Date.now()}`,
-          role: recipient.type === "agent" ? "agent" : "ai",
-          text: aiReply,
-          createdAt: new Date().toISOString(),
-          senderName: recipient.label,
-        }]);
+        const createdChat = (created.chat as Record<string, unknown> | undefined) || (created.thread as Record<string, unknown> | undefined);
+        const newThreadId = String(
+          created.conversationId ||
+          created.chatId ||
+          created.id ||
+          createdChat?.id ||
+          ""
+        ).trim();
+        if (!newThreadId) throw new Error("Failed to create chat");
+
+        await apiMutateJson(
+          "/api/chat/messages",
+          "POST",
+          { conversationId: newThreadId, text, role: "user" },
+          accessToken
+        );
+        router.push(`/chat/${encodeURIComponent(newThreadId)}`);
       } catch {
-        // silently handle
+        setMessages(prev => prev.filter(m => m.id !== userMsg.id));
+        setInputText(text);
       } finally {
         setSending(false);
       }
@@ -697,6 +774,12 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
 
   const currentUserId = session?.user?.id;
   const hasThread     = Boolean(activeThreadId);
+  const handleRecipientChange = (next: Recipient) => {
+    setRecipient(next);
+    if (!hasThread && next.type === "people" && next.id) {
+      router.push(`/chat/${encodeURIComponent(next.id)}`);
+    }
+  };
 
   return (
     <div className="page-root flex min-h-0 flex-1 flex-col text-on-surface">
@@ -737,7 +820,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         onKeyDown={handleKeyDown}
         inputRef={inputRef}
         recipient={recipient}
-        onChangeRecipient={setRecipient}
+        peopleRecipients={peopleRecipients}
+        onChangeRecipient={handleRecipientChange}
         hasThread={hasThread}
       />
     </div>
