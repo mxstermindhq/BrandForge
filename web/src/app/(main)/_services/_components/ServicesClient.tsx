@@ -193,8 +193,8 @@ export function ServicesClient() {
         <ul className="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => {
             const pro = isPro(s);
-            const detailHref = s.id ? `/services/${s.id}` : "/services";
-            const bidHref = s.id ? `/bid/service?id=${encodeURIComponent(s.id)}` : "/services";
+            const detailHref = s.id ? `/services/${s.id}` : "/marketplace";
+            const bidHref = s.id ? `/bid/service?id=${encodeURIComponent(s.id)}` : "/marketplace";
             const ownerU = (s.ownerUsername || "").trim();
             const isMine = Boolean(session?.user?.id && s.ownerId && String(session.user.id) === String(s.ownerId));
             const dealLbl = formatDealRecordShort(s.ownerDealWins, s.ownerDealLosses);

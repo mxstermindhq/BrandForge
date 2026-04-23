@@ -48,7 +48,7 @@ export function NewRequestForm() {
         t,
       );
       const newId = res?.request?.id;
-      router.push(newId ? `/requests/${newId}` : "/requests");
+      router.push(newId ? `/requests/${newId}` : "/marketplace");
       router.refresh();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Request failed");
@@ -162,7 +162,7 @@ export function NewRequestForm() {
           {submitting ? "Posting…" : "Post request"}
         </button>
         <Link
-          href="/requests"
+          href="/marketplace"
           className="border-outline-variant/50 text-on-surface-variant hover:border-outline-variant hover:bg-surface-container-high hover:text-on-surface inline-flex min-h-[44px] items-center rounded-xl border bg-transparent px-5 text-sm font-medium transition-colors"
         >
           Cancel

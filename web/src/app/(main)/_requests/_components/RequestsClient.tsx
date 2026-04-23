@@ -216,8 +216,8 @@ export function RequestsClient() {
         <ul className="relative space-y-4">
           {filtered.map((r) => {
             const band = bandUi(r.band);
-            const detailHref = r.id ? `/requests/${r.id}` : "/requests";
-            const bidHref = r.id ? `/bid/request?id=${encodeURIComponent(r.id)}` : "/requests";
+            const detailHref = r.id ? `/requests/${r.id}` : "/marketplace";
+            const bidHref = r.id ? `/bid/request?id=${encodeURIComponent(r.id)}` : "/marketplace";
             const tags = (r.tags || []).slice(0, 6);
             const dealLbl = formatDealRecordShort(r.ownerDealWins, r.ownerDealLosses);
             return (

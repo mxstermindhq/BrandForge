@@ -34,7 +34,7 @@ export default async function PaymentSuccessPage({
             Open chat
           </Link>
           <Link
-            href="/requests"
+            href="/marketplace"
             className="border-outline-variant/40 font-headline text-on-surface hover:bg-surface-container-high inline-flex min-h-11 items-center justify-center rounded-xl border px-5 text-sm font-bold"
           >
             Back to requests

@@ -18,7 +18,7 @@ export default function PaymentCancelledPage() {
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
-            href="/requests"
+            href="/marketplace"
             className="bg-primary text-on-primary font-headline inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold transition-opacity hover:opacity-90"
           >
             Return to marketplace

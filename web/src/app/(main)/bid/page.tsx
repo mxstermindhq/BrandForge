@@ -35,16 +35,16 @@ export default async function BidHubPage({
       </p>
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Link
-          href="/requests"
+          href="/marketplace"
           className="bg-primary text-on-primary font-headline inline-flex min-h-12 items-center justify-center rounded-xl px-6 text-sm font-bold"
         >
-          Browse requests
+          Browse marketplace
         </Link>
         <Link
-          href="/services"
+          href="/marketplace"
           className="border-outline-variant/40 text-on-surface hover:bg-surface-container-high font-headline inline-flex min-h-12 items-center justify-center rounded-xl border px-6 text-sm font-bold"
         >
-          Browse services
+          New request or service
         </Link>
       </div>
     </div>

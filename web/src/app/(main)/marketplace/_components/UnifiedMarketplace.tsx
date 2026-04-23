@@ -384,8 +384,8 @@ export function UnifiedMarketplace() {
 function ServiceCard({ service, session }: { service: ServiceRow; session: ReturnType<typeof useAuth>["session"] }) {
   const ownerU = (service.ownerUsername || "").trim();
   const isMine = Boolean(session?.user?.id && service.ownerId && String(session.user.id) === String(service.ownerId));
-  const detailHref = service.id ? `/services/${service.id}` : "/services";
-  const bidHref = service.id ? `/bid/service?id=${encodeURIComponent(service.id || "")}` : "/services";
+  const detailHref = service.id ? `/services/${service.id}` : "/marketplace";
+  const bidHref = service.id ? `/bid/service?id=${encodeURIComponent(service.id || "")}` : "/marketplace";
   const profileHref = ownerU ? `/p/${encodeURIComponent(ownerU)}` : null;
   const dealLbl = formatDealRecordShort(service.ownerDealWins, service.ownerDealLosses);
   
@@ -518,8 +518,8 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
 // Request Card Component  
 function RequestCard({ request, session }: { request: Req; session: ReturnType<typeof useAuth>["session"] }) {
   const isMine = request.isUserCreated;
-  const detailHref = request.id ? `/requests/${request.id}` : "/requests";
-  const bidHref = request.id ? `/bid/request?id=${encodeURIComponent(request.id || "")}` : "/requests";
+  const detailHref = request.id ? `/requests/${request.id}` : "/marketplace";
+  const bidHref = request.id ? `/bid/request?id=${encodeURIComponent(request.id || "")}` : "/marketplace";
   const dealLbl = formatDealRecordShort(request.ownerDealWins, request.ownerDealLosses);
   const band = bandUi(request.band);
   

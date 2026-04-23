@@ -149,12 +149,9 @@ export function BidPageClient({ variant }: { variant: BidVariant }) {
           <p className="text-critical text-[13px] font-body max-w-[320px]" role="alert">
             Missing listing id. Open this screen from a brief or service using Bid.
           </p>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link href="/requests" className="btn-ghost text-[13px] justify-center">
-              Browse requests
-            </Link>
-            <Link href="/services" className="btn-ghost text-[13px] justify-center">
-              Browse services
+          <div className="mt-4 flex justify-center">
+            <Link href="/marketplace" className="btn-ghost text-[13px] justify-center">
+              Browse marketplace
             </Link>
           </div>
         </div>

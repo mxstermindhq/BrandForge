@@ -142,13 +142,13 @@ function ExploreSearchFallbackCtas() {
   return (
     <div className="mt-4 flex flex-wrap gap-3">
       <Link
-        href="/services"
+        href="/marketplace"
         className="bg-primary text-on-primary font-headline inline-flex min-h-10 items-center rounded-lg px-4 text-xs font-bold transition-opacity hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         Browse services
       </Link>
       <Link
-        href="/requests"
+        href="/marketplace"
         className="border-outline-variant/40 text-on-surface hover:bg-surface-container-high inline-flex min-h-10 items-center rounded-lg border px-4 text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         Open requests
@@ -331,7 +331,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
             </p>
             <div className="flex flex-wrap gap-6">
               <Link
-                href="/services"
+                href="/marketplace"
                 className="font-headline hover:shadow-glow flex min-h-[52px] items-center gap-2 rounded-xl bg-primary px-8 py-4 text-sm font-bold text-on-primary transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Browse services
@@ -435,7 +435,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
             <div className="mt-3 h-1 w-12 bg-secondary" />
           </div>
           <Link
-            href="/services"
+            href="/marketplace"
             className="font-headline flex shrink-0 items-center gap-2 self-start text-sm font-bold text-on-surface-variant transition-colors hover:text-secondary sm:self-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             BROWSE ALL{" "}
@@ -463,7 +463,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
               return (
               <Link
                 key={String(s.id)}
-                href={s.id ? `/services/${s.id}` : "/services"}
+                href={s.id ? `/services/${s.id}` : "/marketplace"}
                 className="border-outline-variant/20 bg-surface-container-low/60 hover:border-outline-variant/35 min-w-[280px] cursor-pointer rounded-xl border p-5 transition-colors sm:min-w-[300px] lg:min-w-[320px]"
               >
                 <article className="h-full text-left">
@@ -613,7 +613,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
                   return (
                     <li key={String(s.id)} className="border-b border-outline-variant/20 pb-4 last:border-0 last:pb-0">
                       <Link
-                        href={s.id ? `/services/${s.id}` : "/services"}
+                        href={s.id ? `/services/${s.id}` : "/marketplace"}
                         className="block transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
                         <span className="line-clamp-2 font-medium text-on-surface">{s.title || "Service"}</span>
@@ -646,7 +646,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
                   return (
                     <li key={String(r.id)} className="border-b border-outline-variant/20 pb-4 last:border-0 last:pb-0">
                       <Link
-                        href={r.id ? `/requests/${r.id}` : "/requests"}
+                        href={r.id ? `/requests/${r.id}` : "/marketplace"}
                         className="block transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
                         <span className="line-clamp-2 font-medium text-on-surface">{r.title || "Request"}</span>
@@ -686,7 +686,7 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
           </div>
           <div className="flex gap-2">
             <Link
-              href="/requests"
+              href="/marketplace"
               className="font-headline flex h-10 items-center justify-center rounded-lg border border-outline-variant/30 transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               aria-label="Filters"
             >
@@ -764,13 +764,13 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={r.id ? `/requests/${r.id}` : "/requests"}
+                    href={r.id ? `/requests/${r.id}` : "/marketplace"}
                     className="font-headline border-outline-variant/30 bg-background group-hover:border-primary/40 flex min-h-[48px] flex-1 items-center justify-center rounded-xl border py-3 text-xs font-bold uppercase tracking-widest transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     Details
                   </Link>
                   <Link
-                    href={r.id ? `/bid/request?id=${encodeURIComponent(r.id)}` : "/requests"}
+                    href={r.id ? `/bid/request?id=${encodeURIComponent(r.id)}` : "/marketplace"}
                     className="font-headline bg-secondary hover:brightness-110 flex min-h-[48px] items-center justify-center rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest text-on-secondary-container transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     Request bid

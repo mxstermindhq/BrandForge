@@ -67,10 +67,10 @@ export function MemberJourneyStrip() {
             <p className="text-on-surface text-sm font-bold leading-snug">Publish an offer</p>
             <p className="text-on-surface-variant mt-1 text-xs font-light leading-relaxed">List a packaged service here.</p>
             <Link
-              href={hasPublishedListing ? "/services" : "/services/new"}
+              href={hasPublishedListing ? "/marketplace" : "/services/new"}
               className="text-secondary mt-2 inline-flex text-xs font-bold hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              {hasPublishedListing ? "Your listings →" : "New listing →"}
+              {hasPublishedListing ? "Marketplace →" : "New listing →"}
             </Link>
           </div>
         </li>
@@ -88,10 +88,10 @@ export function MemberJourneyStrip() {
             </p>
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold">
               <Link
-                href="/requests"
+                href="/marketplace"
                 className="text-secondary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                Open requests
+                Marketplace
               </Link>
               <span className="text-on-surface-variant" aria-hidden>
                 ·

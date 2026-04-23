@@ -48,7 +48,7 @@ export function NewServiceForm() {
         t,
       );
       const id = res?.service?.id ?? null;
-      router.push(id ? `/services/${id}` : "/services");
+      router.push(id ? `/services/${id}` : "/marketplace");
       router.refresh();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not create service");
@@ -176,7 +176,7 @@ export function NewServiceForm() {
           {submitting ? "Publishing…" : "Publish service"}
         </button>
         <Link
-          href="/services"
+          href="/marketplace"
           className="border-outline-variant/50 text-on-surface-variant hover:border-outline-variant hover:bg-surface-container-high hover:text-on-surface inline-flex min-h-[44px] items-center rounded-xl border bg-transparent px-5 text-sm font-medium transition-colors"
         >
           Cancel

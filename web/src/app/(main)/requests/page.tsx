@@ -1,13 +1,6 @@
-import type { Metadata } from "next";
-import { RequestsClient } from "@/app/(main)/_requests/_components/RequestsClient";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Open Requests",
-  description:
-    "Active briefs from operators and founders. " + "Post a request or bid on real marketplace demand.",
-  openGraph: { url: "https://brandforge.gg/requests" },
-};
-
-export default function RequestsPage() {
-  return <RequestsClient />;
+/** Legacy listing URL — unified marketplace is canonical. */
+export default function RequestsIndexRedirect() {
+  permanentRedirect("/marketplace");
 }

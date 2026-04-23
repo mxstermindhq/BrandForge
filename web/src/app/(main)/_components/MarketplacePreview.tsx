@@ -246,7 +246,7 @@ export function MarketplacePreview() {
                 : `Browse ${stats.requestsCount.toLocaleString()}+ open requests`}
           </p>
           <Link
-            href={activeTab === "services" ? "/services" : "/requests"}
+            href="/marketplace"
             className="text-xs font-medium text-amber-400 hover:text-amber-300 transition"
           >
             View all →

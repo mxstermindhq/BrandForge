@@ -195,8 +195,8 @@ export function PublicProfileClient({ username }: { username: string }) {
             <Link href="/" className="btn-primary min-h-[44px]">
               Home
             </Link>
-            <Link href="/services" className="btn-secondary min-h-[44px]">
-              Services
+            <Link href="/marketplace" className="btn-secondary min-h-[44px]">
+              Marketplace
             </Link>
           </div>
         </div>
