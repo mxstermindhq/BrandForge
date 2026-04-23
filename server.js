@@ -543,6 +543,7 @@ async function routeApi(req, res, pathname) {
         username: rawUser,
         headline,
         onboarding_completed_at: new Date().toISOString(),
+        is_public: true,
       });
       // Award Honor for completing onboarding
       try {
@@ -1049,6 +1050,7 @@ async function routeApi(req, res, pathname) {
     if (!user) return true;
     await ensureProfileForUser(user).catch(() => null);
     const payload = await parseBody(req);
+    delete payload.is_public;
     try {
       const profile = await platformRepository.updateProfile(user.id, payload);
       sendJson(res, 200, { profile });

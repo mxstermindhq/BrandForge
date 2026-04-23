@@ -14,12 +14,12 @@ export type NavSection = {
   items: NavItem[];
 };
 
-/** Main navigation sections - HOTFIX: Deploy 2026-04-21 */
+/** Main navigation sections */
 export const NAV: NavSection[] = [
   {
     section: null,
     items: [
-      { label: "Feed", href: "/feed", materialIcon: "dynamic_feed", isAI: true, badge: 0 },
+      { label: "Chat", href: "/chat", materialIcon: "chat" },
       { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },
       { label: "Leaderboard", href: "/leaderboard", materialIcon: "emoji_events" },
       { label: "Squads", href: "/squads", materialIcon: "groups" },

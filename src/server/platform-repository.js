@@ -116,7 +116,7 @@ function structureSettings(flat = {}, existing = null) {
     },
     privacy_settings: {
       ...(existing?.privacy_settings || {}),
-      isPublic: pickBool('isPublic', existing?.privacy_settings?.isPublic),
+      isPublic: pickBool('isPublic', existing?.privacy_settings?.isPublic ?? true),
       discoverable: pickBool('discoverable', existing?.privacy_settings?.discoverable ?? true),
     },
     billing_settings: {
@@ -771,7 +771,12 @@ async function createPlatformRepository(previewRepository) {
     }
     const nextProfile = { updated_at: new Date().toISOString() };
     if (payload.full_name !== undefined) nextProfile.full_name = payload.full_name || null;
-    if (payload.username !== undefined) nextProfile.username = payload.username || null;
+    if (payload.username !== undefined) {
+      nextProfile.username = payload.username || null;
+      if (String(payload.username || '').trim()) {
+        nextProfile.is_public = true;
+      }
+    }
     if (payload.headline !== undefined) nextProfile.headline = payload.headline || null;
     if (payload.timezone !== undefined) nextProfile.timezone = payload.timezone || null;
     if (payload.company_name !== undefined) nextProfile.company_name = payload.company_name || null;
@@ -779,6 +784,9 @@ async function createPlatformRepository(previewRepository) {
     if (payload.avatar_url !== undefined) nextProfile.avatar_url = payload.avatar_url || null;
     if (payload.onboarding_completed_at !== undefined) {
       nextProfile.onboarding_completed_at = payload.onboarding_completed_at || null;
+    }
+    if (payload.is_public !== undefined) {
+      nextProfile.is_public = Boolean(payload.is_public);
     }
     if (payload.availability != null) {
       const a = String(payload.availability);

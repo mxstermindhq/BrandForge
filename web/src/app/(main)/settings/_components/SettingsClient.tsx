@@ -107,7 +107,7 @@ export function SettingsClient() {
 
   const publicProfileHref =
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
-      ? `/${encodeURIComponent(username.trim())}`
+      ? `/p/${encodeURIComponent(username.trim())}`
       : null;
   const publicProfileShareUrl = publicProfileHref
     ? `https://brandforge.gg${publicProfileHref}`
@@ -357,12 +357,17 @@ export function SettingsClient() {
                           Edit avatar
                         </button>
                         {publicProfileHref ? (
-                          <a href={publicProfileHref} target="_blank" rel="noreferrer" className="px-4 py-2 border border-outline-variant text-on-surface rounded-lg hover:bg-surface-container transition min-h-[44px] inline-flex items-center">
+                          <a
+                            href={publicProfileHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex min-h-[44px] items-center rounded-lg border border-outline-variant px-4 py-2 text-on-surface transition hover:bg-surface-container"
+                          >
                             View public profile
                           </a>
                         ) : (
                           <span
-                            title="Set a username to enable your legacy public profile URL."
+                            title="Set a username to enable your public profile URL."
                             className="inline-flex min-h-[44px] cursor-not-allowed items-center rounded-md border border-outline-variant/40 px-4 text-[13px] text-on-surface-variant opacity-60"
                           >
                             View public profile
@@ -382,7 +387,8 @@ export function SettingsClient() {
                         </button>
                       </div>
                       <p className="mt-3 text-xs text-on-surface-variant">
-                        Profiles are private by default in workspace contexts. Sharing your public link makes your profile accessible publicly.
+                        With a username, your profile is public at the link above. Share it anywhere you want people to
+                        find you on BrandForge.
                       </p>
                     </div>
                   </div>
@@ -391,8 +397,8 @@ export function SettingsClient() {
                 {/* Personal information */}
                 <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 md:p-6">
                   <p className="section-label">Personal information</p>
-                  <p className="text-[13px] font-body text-on-surface-variant leading-[1.6] mb-8">
-                    Manage your public and private identification details.
+                  <p className="mb-8 text-[13px] font-body leading-[1.6] text-on-surface-variant">
+                    Manage how you appear on BrandForge.
                   </p>
                   {me?.pendingOnboarding ? (
                     <div

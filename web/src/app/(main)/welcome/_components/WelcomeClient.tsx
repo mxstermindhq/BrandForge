@@ -8,6 +8,13 @@ import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { PROFESSIONAL_TITLES } from "@/config/professional-titles";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
+import { cn } from "@/lib/cn";
+
+const fieldLabel = "mb-1.5 block text-xs font-medium text-on-surface";
+const control = cn(
+  "input-base w-full min-h-[48px] rounded-xl px-3.5 py-2.5",
+  "placeholder:text-on-surface-variant/50",
+);
 
 export function WelcomeClient() {
   const router = useRouter();
@@ -120,114 +127,118 @@ export function WelcomeClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white max-w-lg mx-auto px-4 py-10 md:py-16">
-      <div className="flex items-center gap-2 text-xs text-amber-400 uppercase tracking-[0.2em]">Setup</div>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight">Finish your account</h1>
-      <p className="text-zinc-400 mt-2 text-sm font-light leading-relaxed">
-        Choose your public <strong className="text-white font-semibold">username</strong>, your professional
-        title, and optionally set a password for email sign-in. You can change these later in Settings.
-      </p>
+    <div className="min-h-screen bg-background px-4 py-10 text-on-surface md:py-16">
+      <div className="mx-auto max-w-lg">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">Setup</p>
+        <h1 className="font-display mt-2 text-3xl font-bold tracking-tight">Finish your account</h1>
+        <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+          Choose your public{" "}
+          <strong className="font-semibold text-on-surface">username</strong>, your professional title, and optionally
+          set a password for email sign-in. You can change these later in Settings.
+        </p>
 
-      <form onSubmit={onSubmit} className="border-zinc-800 bg-zinc-900/50 mt-8 space-y-5 rounded-2xl border p-6">
-        {err ? (
-          <p className="text-rose-400 text-sm" role="alert">
-            {err}
-          </p>
-        ) : null}
+        <form
+          onSubmit={onSubmit}
+          className="surface-card mt-8 space-y-5 rounded-2xl border border-outline-variant/40 p-6 shadow-sm md:p-8"
+        >
+          {err ? (
+            <p className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error" role="alert">
+              {err}
+            </p>
+          ) : null}
 
-        <div>
-          <label htmlFor="welcome-user" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
-            Username
-          </label>
-          <div className="relative">
+          <div>
+            <label htmlFor="welcome-user" className={fieldLabel}>
+              Username
+            </label>
             <input
               id="welcome-user"
               value={username}
               onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
               autoComplete="username"
               placeholder="yourhandle"
-              className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border py-2 px-3 text-sm outline-none"
+              className={control}
+            />
+            {unameHint ? (
+              <p
+                className={`mt-1 text-xs font-medium ${unameHint === "Available" ? "text-emerald-600 dark:text-emerald-400" : "text-error"}`}
+                role="status"
+              >
+                {unameHint}
+              </p>
+            ) : (
+              <p className="mt-1 text-[11px] text-on-surface-variant">Lowercase letters, numbers, underscores, hyphens.</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="welcome-title" className={fieldLabel}>
+              Professional title
+            </label>
+            <select
+              id="welcome-title"
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              className={control}
+            >
+              {PROFESSIONAL_TITLES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="welcome-pass" className={fieldLabel}>
+              Password <span className="font-normal normal-case text-on-surface-variant">(optional)</span>
+            </label>
+            <input
+              id="welcome-pass"
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Min 8 characters"
+              className={control}
             />
           </div>
-          {unameHint ? (
-            <p
-              className={`mt-1 text-xs font-medium ${unameHint === "Available" ? "text-emerald-400" : "text-rose-400"}`}
-              role="status"
-            >
-              {unameHint}
-            </p>
-          ) : (
-            <p className="text-zinc-500 mt-1 text-[11px]">Lowercase letters, numbers, underscores, hyphens.</p>
-          )}
-        </div>
 
-        <div>
-          <label htmlFor="welcome-title" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
-            Professional title
-          </label>
-          <select
-            id="welcome-title"
-            value={headline}
-            onChange={(e) => setHeadline(e.target.value)}
-            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
+          <div>
+            <label htmlFor="welcome-pass2" className={fieldLabel}>
+              Confirm password
+            </label>
+            <input
+              id="welcome-pass2"
+              type="password"
+              autoComplete="new-password"
+              value={password2}
+              onChange={(e) => setPassword2(e.target.value)}
+              className={control}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="bg-primary text-on-primary font-headline w-full min-h-[52px] rounded-xl text-sm font-bold shadow-sm transition hover:brightness-110 disabled:pointer-events-none disabled:opacity-50"
           >
-            {PROFESSIONAL_TITLES.map((t) => (
-              <option key={t} value={t} className="bg-zinc-800">
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
+            {busy ? "Saving…" : "Continue to BrandForge"}
+          </button>
+        </form>
 
-        <div>
-          <label htmlFor="welcome-pass" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
-            Password <span className="font-normal normal-case opacity-80">(optional)</span>
-          </label>
-          <input
-            id="welcome-pass"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Min 8 characters"
-            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="welcome-pass2" className="text-zinc-400 mb-1.5 block text-xs font-bold uppercase tracking-wider">
-            Confirm password
-          </label>
-          <input
-            id="welcome-pass2"
-            type="password"
-            autoComplete="new-password"
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
-            className="border-zinc-700 bg-zinc-800 text-white focus:border-amber-500 w-full min-h-[48px] rounded-xl border px-3 text-sm outline-none"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="bg-amber-500 text-black w-full min-h-[52px] rounded-xl text-sm font-bold hover:bg-amber-400 transition disabled:opacity-50"
-        >
-          {busy ? "Saving…" : "Continue to BrandForge"}
-        </button>
-      </form>
-
-      <p className="text-zinc-500 mt-6 text-center text-xs">
-        Wrong account?{" "}
-        <button
-          type="button"
-          disabled={busy || switchBusy}
-          onClick={() => void onSignOutAndSwitch()}
-          className="text-amber-400 inline font-semibold underline-offset-2 hover:underline disabled:opacity-50"
-        >
-          {switchBusy ? "Signing out…" : "Sign out and switch"}
-        </button>
-      </p>
+        <p className="mt-6 text-center text-xs text-on-surface-variant">
+          Wrong account?{" "}
+          <button
+            type="button"
+            disabled={busy || switchBusy}
+            onClick={() => void onSignOutAndSwitch()}
+            className="text-primary inline font-semibold underline-offset-2 hover:underline disabled:opacity-50"
+          >
+            {switchBusy ? "Signing out…" : "Sign out and switch"}
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

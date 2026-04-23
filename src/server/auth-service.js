@@ -52,7 +52,7 @@ async function ensureProfileForUser(user) {
     avatar_url: user.user_metadata?.avatar_url || null,
     headline: user.user_metadata?.headline || null,
     timezone: 'UTC',
-    is_public: false,
+    is_public: true,
   };
 
   const { data: existingProfile, error: existingProfileError } = await client
@@ -96,7 +96,7 @@ async function ensureProfileForUser(user) {
       aiInBids: true,
     },
     privacy_settings: {
-      isPublic: false,
+      isPublic: true,
       discoverable: true,
     },
     billing_settings: {},

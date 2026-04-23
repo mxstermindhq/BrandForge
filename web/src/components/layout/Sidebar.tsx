@@ -6,11 +6,10 @@ import { Menu } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { NAV } from "@/config/sidebar-nav";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useBootstrap } from "@/hooks/useBootstrap";
-import { getSortedHumanThreads, unreadHumanChatCount } from "@/lib/human-chat-threads";
+import { getSortedHumanThreads } from "@/lib/human-chat-threads";
 import { cn } from "@/lib/cn";
 
 const RECENT_CHATS_LS = "bf-sidebar-recent-chats-open";
@@ -39,7 +38,6 @@ export function Sidebar({
     (profileUsername.length > 2 ? profileUsername : null) ||
     emailUsername ||
     "Guest";
-  const email = session?.user?.email ?? null;
   const avatarUrl = me?.profile?.avatar_url ?? null;
   const userId = session?.user?.id ? String(session.user.id) : null;
   const onlineIds = bootstrap?.onlineUserIds;
@@ -51,7 +49,6 @@ export function Sidebar({
     if (!session) return [];
     return getSortedHumanThreads(bootstrap?.humanChats);
   }, [session, bootstrap?.humanChats]);
-  const chatUnread = useMemo(() => unreadHumanChatCount(chatThreads), [chatThreads]);
 
   const [recentChatsOpen, setRecentChatsOpen] = useState(true);
   useEffect(() => {
@@ -157,50 +154,6 @@ export function Sidebar({
                 {block.items.map((item) => {
                   const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-                  if (item.href === "/feed" && session) {
-                    return (
-                      <li key={item.href} className="space-y-0.5">
-                        <Link
-                          href="/chat"
-                          onClick={onNavigate}
-                          className="-mt-1 mb-2 flex items-center justify-center gap-2 rounded-lg bg-black px-2.5 py-2 text-[12px] font-headline font-700 tracking-wide text-white shadow-ambient transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-white dark:text-black"
-                        >
-                          <span className="material-symbols-outlined text-[16px] leading-none" aria-hidden>
-                            add_comment
-                          </span>
-                          New Chat
-                        </Link>
-                        <div className="flex min-w-0 items-stretch gap-0.5">
-                          <Link
-                            href="/feed"
-                            onClick={onNavigate}
-                            className={cn(
-                              active ? navActive : navInactive,
-                              "min-w-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                            )}
-                          >
-                            <span
-                              className="material-symbols-outlined shrink-0 text-[18px] leading-none"
-                              style={{ fontSize: 18 }}
-                              aria-hidden
-                            >
-                              {item.materialIcon}
-                            </span>
-                            <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                            {chatUnread > 0 ? (
-                              <span
-                                className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none tabular-nums text-white shadow-sm ring-1 ring-red-900/25"
-                                aria-label={`${chatUnread} unread chats`}
-                              >
-                                {chatUnread > 9 ? "9+" : chatUnread}
-                              </span>
-                            ) : null}
-                          </Link>
-                        </div>
-                      </li>
-                    );
-                  }
-
                   return (
                     <li key={item.href}>
                       <Link
@@ -288,14 +241,11 @@ export function Sidebar({
             ) : null}
           </div>
         ) : null}
-        <div className="mb-3 flex items-center justify-end">
-          <ThemeToggle size="sm" />
-        </div>
         {session ? (
           <UserMenu
             name={label}
-            email={email}
             avatarUrl={avatarUrl}
+            profileUsername={profileUsername || null}
             showOnlinePulse={showUserOnlinePulse}
           />
         ) : (
