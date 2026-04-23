@@ -1,0 +1,16 @@
+---
+description: Auto-ship workflow after code edits
+alwaysApply: true
+---
+
+# Auto Ship After Edits
+
+When a task includes code/file edits, finish with this sequence:
+
+1. Run quick validation for changed areas (lint/build/tests as appropriate).
+2. Commit the edits with a clear message.
+3. Push to the current branch (`main` unless user says otherwise).
+4. Deploy latest production build (`npm run cf:deploy` in `web` with Node 20).
+5. Report commit SHA and deployed version ID/URL.
+
+If the user asks for read-only analysis, planning, or review only, do not commit/push/deploy.

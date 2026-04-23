@@ -22,8 +22,19 @@ function closeDrawer(
 export function AppShell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsMobileViewport(media.matches);
+    apply();
+    const onChange = () => apply();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     if (!drawer) return;
@@ -110,14 +121,29 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* App Content - Sidebar Navigation Only */}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <button
+            ref={menuButtonRef}
             type="button"
-            onClick={() => setDesktopSidebarOpen((open) => !open)}
-            className="border-outline-variant bg-surface-container-high text-on-surface-variant hover:text-on-surface absolute left-3 top-3 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition-colors md:flex"
-            aria-label={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            title={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            onClick={() => {
+              if (isMobileViewport) {
+                setDrawer((open) => !open);
+                return;
+              }
+              setDesktopSidebarOpen((open) => !open);
+            }}
+            className="border-outline-variant bg-surface-container-high text-on-surface-variant hover:text-on-surface absolute left-3 top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition-colors"
+            aria-label={
+              isMobileViewport
+                ? (drawer ? "Close navigation" : "Open navigation")
+                : (desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar")
+            }
+            title={
+              isMobileViewport
+                ? (drawer ? "Close navigation" : "Open navigation")
+                : (desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar")
+            }
           >
             <span className="material-symbols-outlined text-[18px]" aria-hidden>
-              {desktopSidebarOpen ? "left_panel_close" : "left_panel_open"}
+              {isMobileViewport ? (drawer ? "close" : "menu") : (desktopSidebarOpen ? "left_panel_close" : "left_panel_open")}
             </span>
           </button>
           <ProfileSetupBanner />

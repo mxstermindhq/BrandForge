@@ -62,21 +62,20 @@ const MOCK_PEOPLE_KEYS = new Set([
 ]);
 
 const SUGGESTIONS = {
+  people: [
+    { icon: "👥", title: "Send a request to multiple humans", sub: "Describe what you want done" },
+    { icon: "🤝", title: "Offer a service or collaboration", sub: "Share what you can deliver" },
+    { icon: "🛍️", title: "Browse marketplace options", sub: "Find the right specialist" },
+  ],
   ai: [
-    { icon: "✦", title: "Draft a launch plan",        sub: "Strategy sprint" },
-    { icon: "✦", title: "Write cold outreach copy",   sub: "That converts" },
-    { icon: "✦", title: "Analyze market fit",         sub: "Opportunity scan" },
-    { icon: "✦", title: "Break goal into tasks",      sub: "Execution roadmap" },
-    { icon: "✦", title: "Review pricing strategy",    sub: "Freemium vs. paid" },
-    { icon: "✦", title: "Rewrite this copy",          sub: "Marketing polish" },
+    { icon: "🖼️", title: "Generate an image",         sub: "Use the best image model" },
+    { icon: "🎬", title: "Generate a short video",    sub: "Pick a video-capable model" },
+    { icon: "📝", title: "Create text or docs",       sub: "Draft content and documents" },
   ],
   agent: [
-    { icon: "⚡", title: "Build a GTM campaign",      sub: "End-to-end execution" },
-    { icon: "⚡", title: "Run outreach sequence",      sub: "Draft, review, iterate" },
-    { icon: "⚡", title: "Audit my brand voice",       sub: "Across all channels" },
-    { icon: "⚡", title: "Plan a product launch",      sub: "90-day roadmap" },
-    { icon: "⚡", title: "Competitive positioning",    sub: "Win the narrative" },
-    { icon: "⚡", title: "Write a pitch deck",         sub: "Investor-ready" },
+    { icon: "🔎", title: "Research a topic deeply",   sub: "Gather and summarize findings" },
+    { icon: "🧭", title: "Plan execution steps",       sub: "Turn goals into workflow" },
+    { icon: "⚙️", title: "Execute a concrete task",    sub: "Run and report outcomes" },
   ],
 };
 
@@ -331,24 +330,7 @@ function RecipientPicker({
 
   return (
     <div className="absolute bottom-full left-0 z-50 mb-2 w-72 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container shadow-2xl">
-      <div className="flex items-center justify-between border-b border-outline-variant/60 px-2 py-2">
-        <div className="flex flex-1 gap-0.5 rounded-lg bg-surface-container-high p-0.5">
-          {tabs.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={cn(
-                "min-w-0 flex-1 rounded-md px-2 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wide transition",
-                tab === id
-                  ? "bg-surface-container text-on-surface shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      <div className="flex items-center justify-end border-b border-outline-variant/60 px-2 py-2">
         <button
           type="button"
           onClick={onClose}
@@ -413,7 +395,12 @@ function EmptyState({
   onSuggestion: (text: string) => void;
 }) {
   const isPeople = recipient.type === "people";
-  const suggs    = SUGGESTIONS[recipient.type === "agent" ? "agent" : "ai"];
+  const suggs =
+    recipient.type === "people"
+      ? SUGGESTIONS.people
+      : recipient.type === "agent"
+        ? SUGGESTIONS.agent
+        : SUGGESTIONS.ai;
 
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
@@ -481,51 +468,32 @@ function EmptyState({
           </button>
         </div>
 
-        {/* People CTA */}
-        {isPeople && (
-          <div className="mt-6 space-y-2 text-left">
-            <p className="px-1 text-xs font-medium text-on-surface-variant">Select a deal room:</p>
-            {peopleRecipients.length > 0 ? (
-              peopleRecipients.slice(0, 6).map((person) => (
-                <button
-                  key={person.id}
-                  type="button"
-                  onClick={() => onOpenDealRoom(person)}
-                  className="flex w-full items-center gap-3 rounded-xl bg-surface-container-low px-3 py-3 text-left transition hover:bg-surface-container"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-container-high text-[10px] font-bold text-on-surface-variant">
-                    {initials(person.label)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-xs font-semibold text-on-surface">{person.label}</span>
-                    <span className="block truncate text-[10px] text-on-surface-variant">{person.sublabel || "Deal room"}</span>
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="rounded-xl bg-surface-container-low px-3 py-3 text-xs text-on-surface-variant">
-                No human deal rooms yet.
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Suggestion cards */}
-        {!isPeople && (
-          <div className="mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-            {suggs.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => onSuggestion(s.title)}
-                className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
-              >
-                <span className={cn("text-base", recipient.type === "agent" ? "text-amber-400" : "text-blue-400")}>{s.icon}</span>
-                <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
-                <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
-              </button>
-            ))}
+        <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          {suggs.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => onSuggestion(s.title)}
+              className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
+            >
+              <span className={cn("text-base", recipient.type === "agent" ? "text-amber-400" : recipient.type === "people" ? "text-on-surface-variant" : "text-blue-400")}>{s.icon}</span>
+              <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
+              <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
+            </button>
+          ))}
+        </div>
+
+        {isPeople && peopleRecipients.length > 0 ? (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => onOpenDealRoom(peopleRecipients[0])}
+              className="text-xs text-primary transition hover:opacity-80"
+            >
+              Open latest deal room →
+            </button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
