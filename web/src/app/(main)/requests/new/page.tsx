@@ -6,5 +6,9 @@ export const metadata: Metadata = {
 };
 
 export default function NewRequestPage() {
-  return <NewRequestForm />;
+  return (
+    <div className="px-4 py-6 md:px-8">
+      <NewRequestForm />
+    </div>
+  );
 }
