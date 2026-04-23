@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Send, Paperclip, ChevronDown, X } from "lucide-react";
+import { Send, Paperclip, ChevronDown, X, Mic } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
@@ -79,6 +79,19 @@ const SUGGESTIONS = {
     { icon: "⚡", title: "Write a pitch deck",         sub: "Investor-ready" },
   ],
 };
+
+const HUMAN_QUICK_ACTIONS = [
+  "Bid received",
+  "Offer sent",
+  "Accept",
+  "Counter offer",
+  "Decline",
+  "Draft contract",
+  "Set milestone",
+  "Request payment",
+  "Follow up",
+  "Post update",
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -388,9 +401,15 @@ function RecipientPicker({
 
 function EmptyState({
   recipient,
+  peopleRecipients,
+  onSelectRecipientType,
+  onOpenDealRoom,
   onSuggestion,
 }: {
   recipient: Recipient;
+  peopleRecipients: Recipient[];
+  onSelectRecipientType: (type: RecipientType) => void;
+  onOpenDealRoom: (recipient: Recipient) => void;
   onSuggestion: (text: string) => void;
 }) {
   const isPeople = recipient.type === "people";
@@ -423,12 +442,71 @@ function EmptyState({
             ? "This is a deal conversation. Negotiate, share files, and close contracts here."
             : "Ask AI, Hire People, Run Agents"}
         </p>
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onSelectRecipientType("people")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold transition",
+              recipient.type === "people"
+                ? "bg-surface-container-high text-on-surface"
+                : "text-on-surface-variant hover:text-on-surface"
+            )}
+          >
+            People
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectRecipientType("ai")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold transition",
+              recipient.type === "ai"
+                ? "bg-surface-container-high text-on-surface"
+                : "text-on-surface-variant hover:text-on-surface"
+            )}
+          >
+            AI Models
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectRecipientType("agent")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold transition",
+              recipient.type === "agent"
+                ? "bg-surface-container-high text-on-surface"
+                : "text-on-surface-variant hover:text-on-surface"
+            )}
+          >
+            AI Agents
+          </button>
+        </div>
 
         {/* People CTA */}
         {isPeople && (
-          <div className="mt-6 rounded-xl border border-outline-variant/60 bg-surface-container p-4 text-left">
-            <p className="text-xs font-medium text-on-surface-variant">This conversation started from the marketplace.</p>
-            <p className="mt-1 text-sm text-on-surface">Review the service offer above, negotiate terms, or send a counter-offer.</p>
+          <div className="mt-6 space-y-2 text-left">
+            <p className="px-1 text-xs font-medium text-on-surface-variant">Select a deal room:</p>
+            {peopleRecipients.length > 0 ? (
+              peopleRecipients.slice(0, 6).map((person) => (
+                <button
+                  key={person.id}
+                  type="button"
+                  onClick={() => onOpenDealRoom(person)}
+                  className="flex w-full items-center gap-3 rounded-xl bg-surface-container-low px-3 py-3 text-left transition hover:bg-surface-container"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-container-high text-[10px] font-bold text-on-surface-variant">
+                    {initials(person.label)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-xs font-semibold text-on-surface">{person.label}</span>
+                    <span className="block truncate text-[10px] text-on-surface-variant">{person.sublabel || "Deal room"}</span>
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="rounded-xl bg-surface-container-low px-3 py-3 text-xs text-on-surface-variant">
+                No human deal rooms yet.
+              </div>
+            )}
           </div>
         )}
 
@@ -439,7 +517,7 @@ function EmptyState({
               <button
                 key={i}
                 onClick={() => onSuggestion(s.title)}
-                className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3 text-left transition hover:border-outline hover:bg-surface-container"
+                className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
               >
                 <span className={cn("text-base", recipient.type === "agent" ? "text-amber-400" : "text-blue-400")}>{s.icon}</span>
                 <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
@@ -465,6 +543,8 @@ function InputBar({
   recipient,
   peopleRecipients,
   onChangeRecipient,
+  isHumanThread,
+  onHumanAction,
   hasThread,
 }: {
   inputText: string;
@@ -476,6 +556,8 @@ function InputBar({
   recipient: Recipient;
   peopleRecipients: Recipient[];
   onChangeRecipient: (r: Recipient) => void;
+  isHumanThread: boolean;
+  onHumanAction: (text: string) => void;
   hasThread: boolean;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -516,7 +598,7 @@ function InputBar({
                 hasThread
                   ? "Reply in deal room..."
                   : isPeople
-                  ? `Message ${recipient.label}...`
+                  ? "Select a deal room to continue..."
                   : recipient.type === "agent"
                   ? "Give the agent an objective..."
                   : "Ask anything..."
@@ -524,6 +606,23 @@ function InputBar({
               className="max-h-40 min-h-[48px] w-full resize-none rounded-t-2xl bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none"
               rows={1}
             />
+
+            {isHumanThread ? (
+              <div className="px-3 pb-2 pt-1">
+                <div className="flex flex-wrap gap-1.5">
+                  {HUMAN_QUICK_ACTIONS.map((action) => (
+                    <button
+                      key={action}
+                      type="button"
+                      onClick={() => onHumanAction(action)}
+                      className="rounded-full bg-surface-container-low px-2.5 py-1 text-[10px] text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface"
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             {/* Toolbar */}
             <div className="flex items-center gap-1 rounded-b-2xl px-3 py-2">
@@ -571,23 +670,30 @@ function InputBar({
               </span>
               <button
                 type="button"
-                disabled={!inputText.trim() || sending}
-                onClick={onSend}
+                disabled={sending}
+                onClick={() => {
+                  if (inputText.trim()) onSend();
+                }}
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition",
                   inputText.trim() && !sending
                     ? "bg-blue-500 text-white shadow-sm hover:bg-blue-400"
-                    : "cursor-not-allowed bg-surface-container-high text-on-surface-variant/40"
+                    : "bg-surface-container-high text-on-surface-variant/70"
                 )}
               >
                 {sending
                   ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  : <Send className="h-3.5 w-3.5" />
+                  : inputText.trim()
+                    ? <Send className="h-3.5 w-3.5" />
+                    : <Mic className="h-3.5 w-3.5" />
                 }
               </button>
             </div>
           </div>
         </div>
+        <p className="mt-2 px-1 text-[10px] text-on-surface-variant/70">
+          AI can make mistakes. Review important outputs before sending or acting.
+        </p>
       </div>
     </div>
   );
@@ -774,11 +880,39 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
 
   const currentUserId = session?.user?.id;
   const hasThread     = Boolean(activeThreadId);
+  const isHumanThread = useMemo(
+    () => Boolean(activeThreadId && peopleRecipients.some((p) => String(p.id) === String(activeThreadId))),
+    [activeThreadId, peopleRecipients],
+  );
+  const openDealRoom = (next: Recipient) => {
+    if (!next.id) return;
+    setRecipient(next);
+    router.push(`/chat/${encodeURIComponent(next.id)}`);
+  };
+  const selectRecipientType = (type: RecipientType) => {
+    if (type === "people") {
+      if (peopleRecipients[0]) {
+        setRecipient(peopleRecipients[0]);
+      } else {
+        setRecipient({ type: "people", id: "", label: "People", sublabel: "Select deal room" });
+      }
+      return;
+    }
+    if (type === "agent") {
+      setRecipient(AI_AGENTS[0]);
+      return;
+    }
+    setRecipient(AI_MODELS[0]);
+  };
   const handleRecipientChange = (next: Recipient) => {
     setRecipient(next);
     if (!hasThread && next.type === "people" && next.id) {
       router.push(`/chat/${encodeURIComponent(next.id)}`);
     }
+  };
+  const handleHumanAction = (text: string) => {
+    setInputText(text);
+    queueMicrotask(() => inputRef.current?.focus());
   };
 
   return (
@@ -793,7 +927,13 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             </div>
           </div>
         ) : !hasThread && messages.length === 0 ? (
-          <EmptyState recipient={recipient} onSuggestion={handleSuggestion} />
+          <EmptyState
+            recipient={recipient}
+            peopleRecipients={peopleRecipients}
+            onSelectRecipientType={selectRecipientType}
+            onOpenDealRoom={openDealRoom}
+            onSuggestion={handleSuggestion}
+          />
         ) : messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation.</p>
@@ -822,6 +962,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
         recipient={recipient}
         peopleRecipients={peopleRecipients}
         onChangeRecipient={handleRecipientChange}
+        isHumanThread={isHumanThread}
+        onHumanAction={handleHumanAction}
         hasThread={hasThread}
       />
     </div>
