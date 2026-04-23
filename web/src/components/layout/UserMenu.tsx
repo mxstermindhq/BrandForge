@@ -38,7 +38,7 @@ export function UserMenu({
         type="button"
         onClick={() => setOpen((openValue) => !openValue)}
         className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 transition-colors duration-150 hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        title={email ?? undefined}
+        title={name}
       >
         <div className="relative flex h-7 w-7 shrink-0">
           <div className="flex h-7 w-7 shrink-0 overflow-hidden rounded-full ring-1 ring-outline-variant">
@@ -63,9 +63,6 @@ export function UserMenu({
         </div>
         <div className="min-w-0 flex-1 text-left">
           <p className="truncate text-[12px] font-body font-500 text-on-surface">{name}</p>
-          {email ? (
-            <p className="truncate text-[11px] font-body text-on-surface-variant">{email}</p>
-          ) : null}
         </div>
       </button>
       {open ? (

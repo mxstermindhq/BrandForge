@@ -52,7 +52,6 @@ export function Sidebar({
     return getSortedHumanThreads(bootstrap?.humanChats);
   }, [session, bootstrap?.humanChats]);
   const chatUnread = useMemo(() => unreadHumanChatCount(chatThreads), [chatThreads]);
-  const chatNavActive = pathname === "/chat" || pathname.startsWith("/chat/");
 
   const [recentChatsOpen, setRecentChatsOpen] = useState(true);
   useEffect(() => {
@@ -158,13 +157,13 @@ export function Sidebar({
                 {block.items.map((item) => {
                   const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-                  if (item.href === "/chat" && session) {
+                  if (item.href === "/feed" && session) {
                     return (
                       <li key={item.href} className="space-y-0.5">
                         <Link
                           href="/chat"
                           onClick={onNavigate}
-                          className="mb-1 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-secondary px-2.5 py-2 text-[12px] font-headline font-700 tracking-wide text-on-primary shadow-ambient transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                          className="-mt-1 mb-2 flex items-center justify-center gap-2 rounded-lg bg-black px-2.5 py-2 text-[12px] font-headline font-700 tracking-wide text-white shadow-ambient transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-white dark:text-black"
                         >
                           <span className="material-symbols-outlined text-[16px] leading-none" aria-hidden>
                             add_comment
@@ -173,10 +172,10 @@ export function Sidebar({
                         </Link>
                         <div className="flex min-w-0 items-stretch gap-0.5">
                           <Link
-                            href="/chat"
+                            href="/feed"
                             onClick={onNavigate}
                             className={cn(
-                              chatNavActive ? navActive : navInactive,
+                              active ? navActive : navInactive,
                               "min-w-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                             )}
                           >

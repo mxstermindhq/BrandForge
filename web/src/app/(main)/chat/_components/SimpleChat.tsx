@@ -63,9 +63,9 @@ const MOCK_PEOPLE_KEYS = new Set([
 
 const SUGGESTIONS = {
   people: [
-    { icon: "👥", title: "Send a request to multiple humans", sub: "Describe what you want done" },
-    { icon: "🤝", title: "Offer a service or collaboration", sub: "Share what you can deliver" },
-    { icon: "🛍️", title: "Browse marketplace options", sub: "Find the right specialist" },
+    { icon: "👥", title: "Send a request to multiple humans", sub: "Create a request and invite specialists", href: "/requests/new" },
+    { icon: "🤝", title: "Offer a service or collaboration", sub: "Create your service listing", href: "/services/new" },
+    { icon: "🛍️", title: "Browse marketplace options", sub: "Find the right specialist", href: "/marketplace" },
   ],
   ai: [
     { icon: "🖼️", title: "Generate an image",         sub: "Use the best image model" },
@@ -79,17 +79,48 @@ const SUGGESTIONS = {
   ],
 };
 
-const HUMAN_QUICK_ACTIONS = [
-  "Bid received",
-  "Offer sent",
-  "Accept",
-  "Counter offer",
-  "Decline",
-  "Draft contract",
-  "Set milestone",
-  "Request payment",
-  "Follow up",
-  "Post update",
+const HUMAN_WORKFLOW_STEPS: Array<{
+  id: string;
+  label: string;
+  title: string;
+  description: string;
+  quickActions?: string[];
+}> = [
+  {
+    id: "offer",
+    label: "DEAL START",
+    title: "Bid received / Offer sent",
+    description: "Start from a marketplace bid or direct offer and confirm direction quickly.",
+    quickActions: ["Accept", "Counter offer", "Decline"],
+  },
+  {
+    id: "contract",
+    label: "CONTRACT",
+    title: "Draft and sign contract",
+    description: "Lock the scope, price, timeline, and responsibilities for both sides.",
+    quickActions: ["Draft contract"],
+  },
+  {
+    id: "milestones",
+    label: "DELIVERY",
+    title: "Set milestones and deliverables",
+    description: "Track artifact handoff, status updates, and completion criteria by milestone.",
+    quickActions: ["Set milestone", "Post update"],
+  },
+  {
+    id: "payment",
+    label: "PAYMENT",
+    title: "Request and confirm payment",
+    description: "Request payment at agreed milestones and mark receipts in-thread.",
+    quickActions: ["Request payment"],
+  },
+  {
+    id: "followup",
+    label: "FOLLOW-UP",
+    title: "Follow up and next steps",
+    description: "Capture follow-ups, revisions, and support updates for transparency.",
+    quickActions: ["Follow up"],
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -386,12 +417,14 @@ function EmptyState({
   peopleRecipients,
   onSelectRecipientType,
   onOpenDealRoom,
+  onOpenPath,
   onSuggestion,
 }: {
   recipient: Recipient;
   peopleRecipients: Recipient[];
   onSelectRecipientType: (type: RecipientType) => void;
   onOpenDealRoom: (recipient: Recipient) => void;
+  onOpenPath: (path: string) => void;
   onSuggestion: (text: string) => void;
 }) {
   const isPeople = recipient.type === "people";
@@ -469,19 +502,38 @@ function EmptyState({
         </div>
 
         {/* Suggestion cards */}
-        <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {suggs.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => onSuggestion(s.title)}
-              className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
-            >
-              <span className={cn("text-base", recipient.type === "agent" ? "text-amber-400" : recipient.type === "people" ? "text-on-surface-variant" : "text-blue-400")}>{s.icon}</span>
-              <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
-              <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
-            </button>
-          ))}
-        </div>
+        {isPeople ? (
+          <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            {suggs.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  const href = (s as { href?: string }).href;
+                  if (href) {
+                    onOpenPath(href);
+                    return;
+                  }
+                  onSuggestion(s.title);
+                }}
+                className="rounded-xl bg-surface-container-low p-3 text-left transition hover:bg-surface-container"
+              >
+                <span className={cn("text-base", "text-on-surface-variant")}>{s.icon}</span>
+                <p className="mt-1.5 text-xs font-medium leading-snug text-on-surface">{s.title}</p>
+                <p className="mt-0.5 text-[10px] text-on-surface-variant">{s.sub}</p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+              Feature locked
+            </p>
+            <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
+            <p className="mt-1 text-xs text-on-surface-variant">
+              Messaging is currently disabled in this mode while core features are being finalized.
+            </p>
+          </div>
+        )}
 
         {isPeople && peopleRecipients.length > 0 ? (
           <div className="mt-4">
@@ -499,6 +551,128 @@ function EmptyState({
   );
 }
 
+function DealWorkflowCards({
+  onQuickAction,
+}: {
+  onQuickAction: (text: string) => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-low p-3">
+      <div className="mb-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+          Deal workflow
+        </p>
+        <p className="mt-1 text-xs text-on-surface-variant">
+          Keep client and specialist aligned from offer to delivery.
+        </p>
+      </div>
+      <div className="space-y-2">
+        {HUMAN_WORKFLOW_STEPS.map((step) => (
+          <div
+            key={step.id}
+            className="rounded-xl border border-outline-variant/50 bg-surface-container p-3"
+          >
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary">{step.label}</p>
+            <p className="mt-1 text-sm font-semibold text-on-surface">{step.title}</p>
+            <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">{step.description}</p>
+            {step.quickActions?.length ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {step.quickActions.map((action) => (
+                  <button
+                    key={action}
+                    type="button"
+                    onClick={() => onQuickAction(action)}
+                    className={cn(
+                      "rounded-md px-2.5 py-1 text-[10px] font-semibold transition",
+                      action === "Accept"
+                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
+                        : action === "Counter offer"
+                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-300"
+                        : action === "Decline"
+                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-300"
+                        : "bg-surface-container-high text-on-surface-variant hover:text-on-surface"
+                    )}
+                  >
+                    {action}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DealRoomContextSidebar({
+  recipientLabel,
+  messageCount,
+  lastActivity,
+  progress,
+}: {
+  recipientLabel: string;
+  messageCount: number;
+  lastActivity?: string | null;
+  progress: Array<{ id: string; label: string; done: boolean }>;
+}) {
+  return (
+    <aside className="flex h-full w-72 shrink-0 flex-col border-l border-outline-variant bg-surface-container-low">
+      <div className="border-b border-outline-variant/60 px-4 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+          Deal context
+        </p>
+        <p className="mt-1 truncate text-sm font-semibold text-on-surface">{recipientLabel}</p>
+        <p className="mt-1 text-[11px] text-on-surface-variant">
+          {messageCount} messages · last activity {relativeTime(lastActivity || undefined)}
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="rounded-xl border border-outline-variant/50 bg-surface-container p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-on-surface-variant">
+            Workflow progress
+          </p>
+          <ul className="mt-2 space-y-2">
+            {progress.map((step) => (
+              <li key={step.id} className="flex items-center gap-2 text-xs">
+                <span
+                  className={cn(
+                    "inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold",
+                    step.done
+                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                      : "bg-surface-container-high text-on-surface-variant"
+                  )}
+                >
+                  {step.done ? "✓" : "•"}
+                </span>
+                <span className={step.done ? "text-on-surface" : "text-on-surface-variant"}>{step.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-3 rounded-xl border border-outline-variant/50 bg-surface-container p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-on-surface-variant">
+            Quick links
+          </p>
+          <div className="mt-2 space-y-1.5">
+            <a href="/requests/new" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+              Create request
+            </a>
+            <a href="/services/new" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+              Create service
+            </a>
+            <a href="/marketplace" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+              Open marketplace
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 // ─── Input Bar ────────────────────────────────────────────────────────────────
 
 function InputBar({
@@ -512,7 +686,7 @@ function InputBar({
   peopleRecipients,
   onChangeRecipient,
   isHumanThread,
-  onHumanAction,
+  locked,
   hasThread,
 }: {
   inputText: string;
@@ -525,7 +699,7 @@ function InputBar({
   peopleRecipients: Recipient[];
   onChangeRecipient: (r: Recipient) => void;
   isHumanThread: boolean;
-  onHumanAction: (text: string) => void;
+  locked: boolean;
   hasThread: boolean;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -562,8 +736,11 @@ function InputBar({
               value={inputText}
               onChange={e => setInputText(e.target.value)}
               onKeyDown={onKeyDown}
+              disabled={locked}
               placeholder={
-                hasThread
+                locked
+                  ? "Locked — feature under development."
+                  : hasThread
                   ? "Reply in deal room..."
                   : isPeople
                   ? "Select a deal room to continue..."
@@ -571,26 +748,12 @@ function InputBar({
                   ? "Give the agent an objective..."
                   : "Ask anything..."
               }
-              className="max-h-40 min-h-[48px] w-full resize-none rounded-t-2xl bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none"
+              className={cn(
+                "max-h-40 min-h-[48px] w-full resize-none rounded-t-2xl bg-transparent px-4 py-3 text-[13.5px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 outline-none",
+                locked ? "cursor-not-allowed opacity-70" : ""
+              )}
               rows={1}
             />
-
-            {isHumanThread ? (
-              <div className="px-3 pb-2 pt-1">
-                <div className="flex flex-wrap gap-1.5">
-                  {HUMAN_QUICK_ACTIONS.map((action) => (
-                    <button
-                      key={action}
-                      type="button"
-                      onClick={() => onHumanAction(action)}
-                      className="rounded-full bg-surface-container-low px-2.5 py-1 text-[10px] text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface"
-                    >
-                      {action}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
 
             {/* Toolbar */}
             <div className="flex items-center gap-1 rounded-b-2xl px-3 py-2">
@@ -605,6 +768,7 @@ function InputBar({
                 )}
                 <button
                   type="button"
+                  disabled={locked}
                   className="rounded-lg p-1.5 text-on-surface-variant/60 transition hover:bg-surface-container-high hover:text-on-surface"
                   aria-label="Attach file"
                 >
@@ -638,7 +802,7 @@ function InputBar({
               </span>
               <button
                 type="button"
-                disabled={sending}
+                disabled={sending || locked}
                 onClick={() => {
                   if (inputText.trim()) onSend();
                 }}
@@ -659,9 +823,11 @@ function InputBar({
             </div>
           </div>
         </div>
-        <p className="mt-2 px-1 text-[10px] text-on-surface-variant/70">
-          AI can make mistakes. Review important outputs before sending or acting.
-        </p>
+        {!isHumanThread ? (
+          <p className="mt-2 px-1 text-[10px] text-on-surface-variant/70">
+            AI can make mistakes. Review important outputs before sending or acting.
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -680,6 +846,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [loading,   setLoading]   = useState(false);
   const [sending,   setSending]   = useState(false);
   const [recipient, setRecipient] = useState<Recipient>(AI_MODELS[0]);
+  const [showDealContext, setShowDealContext] = useState(false);
 
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
@@ -845,6 +1012,9 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     setInputText(text);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
+  const openPath = (path: string) => {
+    router.push(path);
+  };
 
   const currentUserId = session?.user?.id;
   const hasThread     = Boolean(activeThreadId);
@@ -852,6 +1022,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     () => Boolean(activeThreadId && peopleRecipients.some((p) => String(p.id) === String(activeThreadId))),
     [activeThreadId, peopleRecipients],
   );
+  const lockedComposer = hasThread ? !isHumanThread : recipient.type !== "people";
   const openDealRoom = (next: Recipient) => {
     if (!next.id) return;
     setRecipient(next);
@@ -882,58 +1053,112 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     setInputText(text);
     queueMicrotask(() => inputRef.current?.focus());
   };
+  const activeHumanRecipient = useMemo(
+    () => peopleRecipients.find((p) => String(p.id) === String(activeThreadId)),
+    [peopleRecipients, activeThreadId],
+  );
+  const messageBlob = useMemo(
+    () =>
+      messages
+        .map((m) => `${m.text} ${m.embed?.type ?? ""}`.toLowerCase())
+        .join(" "),
+    [messages],
+  );
+  const dealProgress = useMemo(
+    () => [
+      { id: "offer", label: "Offer accepted", done: /(offer accepted|bid accepted|accept)/.test(messageBlob) },
+      { id: "contract", label: "Contract drafted", done: /(contract|draft contract|signed)/.test(messageBlob) },
+      { id: "milestones", label: "Milestones set", done: /(milestone|deliverable|artifact)/.test(messageBlob) },
+      { id: "payment", label: "Payment requested", done: /(payment|invoice|paid)/.test(messageBlob) },
+      { id: "updates", label: "Follow-ups and updates", done: /(follow up|follow-up|update)/.test(messageBlob) },
+    ],
+    [messageBlob],
+  );
+  useEffect(() => {
+    setShowDealContext(false);
+  }, [activeThreadId]);
 
   return (
-    <div className="page-root flex min-h-0 flex-1 flex-col text-on-surface">
-      {/* Message stream */}
-      <div ref={streamRef} className="flex-1 overflow-y-auto scroll-smooth px-4 py-6">
-        {loading ? (
-          <div className="flex h-full items-center justify-center">
-            <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-outline-variant border-t-on-surface-variant" />
-              Loading…
+    <div className="page-root relative flex min-h-0 flex-1 text-on-surface">
+      {isHumanThread ? (
+        <button
+          type="button"
+          onClick={() => setShowDealContext((v) => !v)}
+          className="border-outline-variant bg-surface-container-high text-on-surface-variant hover:text-on-surface absolute right-3 top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition-colors"
+          aria-label={showDealContext ? "Hide deal context panel" : "Show deal context panel"}
+          title={showDealContext ? "Hide deal context panel" : "Show deal context panel"}
+        >
+          <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            {showDealContext ? "right_panel_close" : "right_panel_open"}
+          </span>
+        </button>
+      ) : null}
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        {/* Message stream */}
+        <div ref={streamRef} className="flex-1 overflow-y-auto scroll-smooth px-4 py-6">
+          {loading ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-outline-variant border-t-on-surface-variant" />
+                Loading…
+              </div>
             </div>
-          </div>
-        ) : !hasThread && messages.length === 0 ? (
-          <EmptyState
-            recipient={recipient}
-            peopleRecipients={peopleRecipients}
-            onSelectRecipientType={selectRecipientType}
-            onOpenDealRoom={openDealRoom}
-            onSuggestion={handleSuggestion}
-          />
-        ) : messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation.</p>
-          </div>
-        ) : (
-          <div className="mx-auto max-w-2xl space-y-5">
-            {messages.map(message => {
-              const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
-              return <MessageBubble key={message.id} message={message} isMine={isMine} />;
-            })}
-            {sending && (recipient.type === "ai" || recipient.type === "agent") && !hasThread && (
-              <TypingIndicator recipient={recipient} />
-            )}
-          </div>
-        )}
+          ) : !hasThread && messages.length === 0 ? (
+            <EmptyState
+              recipient={recipient}
+              peopleRecipients={peopleRecipients}
+              onSelectRecipientType={selectRecipientType}
+              onOpenDealRoom={openDealRoom}
+              onOpenPath={openPath}
+              onSuggestion={handleSuggestion}
+            />
+          ) : messages.length === 0 ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="w-full max-w-2xl space-y-4">
+                {isHumanThread ? <DealWorkflowCards onQuickAction={handleHumanAction} /> : null}
+                <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-2xl space-y-5">
+              {isHumanThread ? <DealWorkflowCards onQuickAction={handleHumanAction} /> : null}
+              {messages.map(message => {
+                const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
+                return <MessageBubble key={message.id} message={message} isMine={isMine} />;
+              })}
+              {sending && (recipient.type === "ai" || recipient.type === "agent") && !hasThread && (
+                <TypingIndicator recipient={recipient} />
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Input */}
+        <InputBar
+          inputText={inputText}
+          setInputText={setInputText}
+          sending={sending}
+          onSend={sendMessage}
+          onKeyDown={handleKeyDown}
+          inputRef={inputRef}
+          recipient={recipient}
+          peopleRecipients={peopleRecipients}
+          onChangeRecipient={handleRecipientChange}
+          isHumanThread={isHumanThread}
+          locked={lockedComposer}
+          hasThread={hasThread}
+        />
       </div>
 
-      {/* Input */}
-      <InputBar
-        inputText={inputText}
-        setInputText={setInputText}
-        sending={sending}
-        onSend={sendMessage}
-        onKeyDown={handleKeyDown}
-        inputRef={inputRef}
-        recipient={recipient}
-        peopleRecipients={peopleRecipients}
-        onChangeRecipient={handleRecipientChange}
-        isHumanThread={isHumanThread}
-        onHumanAction={handleHumanAction}
-        hasThread={hasThread}
-      />
+      {isHumanThread && showDealContext ? (
+        <DealRoomContextSidebar
+          recipientLabel={activeHumanRecipient?.label || "Deal room"}
+          messageCount={messages.filter((m) => m.role !== "system").length}
+          lastActivity={messages[messages.length - 1]?.createdAt || null}
+          progress={dealProgress}
+        />
+      ) : null}
     </div>
   );
 }

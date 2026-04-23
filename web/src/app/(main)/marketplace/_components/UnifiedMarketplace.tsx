@@ -11,7 +11,7 @@ import { formatDealRecordShort } from "@/lib/deal-record";
 import { formatRequestBudget, requestTimelineLabel } from "@/lib/request-display";
 import {
   Store, Sparkles, Grid3X3, Briefcase, FileText, Search, SlidersHorizontal,
-  DollarSign, Clock, Users, Zap, TrendingUp, ChevronDown, Plus, ArrowRight, Eye,
+  Clock, ChevronDown, Plus, ArrowRight, Eye,
   Bookmark, MessageSquare, Star, Tag
 } from "lucide-react";
 
@@ -66,9 +66,6 @@ type Req = {
   ownerDealLosses?: number | null;
 };
 
-const CATEGORIES = ["All", "Development", "Design", "Strategy", "AI Training", "3D Motion", "Smart Contracts"] as const;
-type CategoryId = (typeof CATEGORIES)[number];
-
 function serviceDeliveryChip(days: number | null | undefined): string | null {
   if (days == null || !Number.isFinite(Number(days))) return null;
   const d = Math.round(Number(days));
@@ -92,21 +89,6 @@ function matchesQuery(item: ServiceRow | Req, q: string, type: "service" | "requ
   const r = item as Req;
   const blob = [r.title, r.desc, r.budget, r.category, ...(r.tags || [])].filter(Boolean).join(" ").toLowerCase();
   return blob.includes(n);
-}
-
-function matchesCategory(item: ServiceRow | Req, cat: CategoryId, type: "service" | "request"): boolean {
-  if (cat === "All") return true;
-  const needle = cat.toLowerCase();
-  if (type === "service") {
-    const s = item as ServiceRow;
-    const c = (s.cat || "").toLowerCase();
-    return c.includes(needle);
-  }
-  const r = item as Req;
-  const c = (r.category || "").toLowerCase();
-  if (c && c.includes(needle)) return true;
-  const tags = (r.tags || []).map((t) => t.toLowerCase().replace(/_/g, " "));
-  return tags.some((t) => t.includes(needle));
 }
 
 function isPro(s: ServiceRow): boolean {
@@ -165,7 +147,6 @@ export function UnifiedMarketplace() {
   const params = useSearchParams();
   const q = (params.get("q") || "").trim();
   const [listingType, setListingType] = useState<ListingType>("all");
-  const [category, setCategory] = useState<CategoryId>("All");
   const [viewMode, setViewMode] = useState<ViewMode>("browse");
   const [sortBy, setSortBy] = useState<SortOption>("trending");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -174,16 +155,16 @@ export function UnifiedMarketplace() {
 
   const services = useMemo(() => {
     const all = (data?.services as ServiceRow[]) ?? [];
-    const filtered = all.filter((s) => matchesQuery(s, q, "service") && matchesCategory(s, category, "service"));
+    const filtered = all.filter((s) => matchesQuery(s, q, "service"));
     return sortItems([...filtered], sortBy, "service") as ServiceRow[];
-  }, [data?.services, q, category, sortBy]);
+  }, [data?.services, q, sortBy]);
 
   const requests = useMemo(() => {
     const all = (data?.requests as Req[]) ?? [];
     const open = all.filter((r) => r.status !== "closed" && r.status !== "awarded");
-    const filtered = open.filter((r) => matchesQuery(r, q, "request") && matchesCategory(r, category, "request"));
+    const filtered = open.filter((r) => matchesQuery(r, q, "request"));
     return sortItems([...filtered], sortBy, "request") as Req[];
-  }, [data?.requests, q, category, sortBy]);
+  }, [data?.requests, q, sortBy]);
 
   const combinedListings = useMemo(() => {
     if (listingType === "services") return { items: services, type: "service" as const };
@@ -211,92 +192,22 @@ export function UnifiedMarketplace() {
     );
   }
 
-  const getCategory = (x: ServiceRow | Req) => {
-    if (x._type === "service") return (x as ServiceRow).cat || "";
-    return (x as Req).category || "";
-  };
-
-  const categories = [
-    { id: "All", label: "All", count: services.length + requests.length },
-    { id: "Development", label: "Development", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("dev")).length },
-    { id: "Design", label: "Design", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("design")).length },
-    { id: "Strategy", label: "Strategy", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("strategy")).length },
-    { id: "AI Training", label: "AI Training", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("ai")).length },
-    { id: "3D Motion", label: "3D Motion", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("3d")).length },
-    { id: "Smart Contracts", label: "Smart Contracts", count: [...services, ...requests].filter(x => getCategory(x).toLowerCase().includes("contract")).length },
-  ];
-
-  // Calculate stats
   const totalListings = services.length + requests.length;
-  const volumeThisWeek = services.reduce((acc, s) => acc + (s.price || 0), 0);
-  const onlinePros = Math.floor(totalListings * 0.34); // estimate based on activity
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero header */}
       <div className="relative border-b border-border overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-purple-500/5 dark:block hidden"/>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[120px] rounded-full dark:block hidden"/>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:block hidden"/>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/10 blur-[120px] rounded-full dark:block hidden"/>
         
         <div className="relative max-w-7xl mx-auto px-8 py-10">
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-2">
             <div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-2">
                 <Store size={12}/> Marketplace
               </div>
-              <h1 className="text-4xl font-bold mb-2">The Arena</h1>
-              <p className="text-muted-foreground">Hire pros. Offer skills. AI matches you instantly.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href={listRequestHref} className="flex items-center gap-2 px-4 py-2.5 bg-muted border border-border rounded-lg text-sm hover:border-border/80 transition">
-                <Plus size={14}/> Request Service
-              </Link>
-              <Link href={listServiceHref} className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
-                <Briefcase size={14}/> Offer Service
-              </Link>
-            </div>
-          </div>
-
-          {/* Live stats strip */}
-          <div className="grid grid-cols-4 gap-3 mt-6">
-            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
-              <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <TrendingUp size={16} className="text-emerald-500 dark:text-emerald-400"/>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Active listings</div>
-                <div className="font-semibold">{totalListings}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
-              <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <DollarSign size={16} className="text-amber-500 dark:text-amber-400"/>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Volume this week</div>
-                <div className="font-semibold">${(volumeThisWeek / 1000).toFixed(1)}k</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
-              <div className="w-9 h-9 rounded-lg bg-sky-500/10 flex items-center justify-center">
-                <Users size={16} className="text-sky-500 dark:text-sky-400"/>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Online pros</div>
-                <div className="font-semibold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"/>
-                  {onlinePros}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-lg">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Zap size={16} className="text-purple-500 dark:text-purple-400"/>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Avg match time</div>
-                <div className="font-semibold">4 min</div>
-              </div>
+              <h1 className="text-4xl font-bold">Browse opportunities</h1>
             </div>
           </div>
         </div>
@@ -304,20 +215,30 @@ export function UnifiedMarketplace() {
 
       <div className="max-w-7xl mx-auto px-8 py-6">
         {/* View toggle (Browse vs Smart Match) */}
-        <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl w-fit mb-6">
-          <button onClick={() => setViewMode("browse")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-              viewMode === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}>
-            <Grid3X3 size={14}/> Browse
-          </button>
-          <button onClick={() => setViewMode("smart-match")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-              viewMode === "smart-match" ? "bg-gradient-to-r from-amber-500 to-purple-500 text-black" : "text-muted-foreground hover:text-foreground"
-            }`}>
-            <Sparkles size={14}/> Smart Match
-            <span className="text-[10px] px-1.5 py-0.5 bg-black/20 dark:bg-white/20 rounded">AI</span>
-          </button>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
+            <button onClick={() => setViewMode("browse")}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+                viewMode === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}>
+              <Grid3X3 size={14}/> Browse
+            </button>
+            <button onClick={() => setViewMode("smart-match")}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+                viewMode === "smart-match" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}>
+              <Sparkles size={14}/> Smart Match
+              <span className="rounded bg-black/20 px-1.5 py-0.5 text-[10px] dark:bg-white/20">AI</span>
+            </button>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href={listRequestHref} className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-2.5 text-sm transition hover:border-border/80">
+              <Plus size={14}/> Request Service
+            </Link>
+            <Link href={listServiceHref} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+              <Briefcase size={14}/> Offer Service
+            </Link>
+          </div>
         </div>
 
         {/* Smart Match View */}
@@ -335,7 +256,7 @@ export function UnifiedMarketplace() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16}/>
                 <input placeholder="Search services, skills, or requests..."
-                  className="w-full bg-muted/50 border border-border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-amber-500/50"/>
+                  className="w-full bg-muted/50 border border-border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50"/>
               </div>
               
               <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl">
@@ -362,7 +283,7 @@ export function UnifiedMarketplace() {
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
                   className="flex items-center gap-2 px-4 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition"
                 >
-                  Sort: <span className="text-amber-500 dark:text-amber-400">
+                  Sort: <span className="text-primary">
                     {sortBy === "trending" ? "Trending" : 
                      sortBy === "newest" ? "Newest" : 
                      sortBy === "price-low" ? "Price: Low to High" : 
@@ -399,23 +320,6 @@ export function UnifiedMarketplace() {
               </div>
             </div>
 
-            {/* Category pills with counts */}
-            <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-              {categories.map((cat) => (
-                <button key={cat.id} onClick={() => setCategory(cat.id as CategoryId)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm whitespace-nowrap transition ${
-                    category === cat.id 
-                      ? "bg-amber-500 text-black font-medium" 
-                      : "bg-muted/50 border border-border text-muted-foreground hover:text-foreground"
-                  }`}>
-                  {cat.label}
-                  <span className={`text-xs ${category === cat.id ? "text-black/60" : "text-muted-foreground/60"}`}>
-                    {cat.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-
             {/* Results meta */}
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm text-muted-foreground">
@@ -434,15 +338,15 @@ export function UnifiedMarketplace() {
                 </div>
                 <p className="text-muted-foreground font-medium mb-2">No listings found</p>
                 <p className="text-sm text-muted-foreground/80 mb-6">
-                  {q || category !== "All"
-                    ? "Try adjusting your filters or browse all categories."
+                  {q
+                    ? "Try adjusting your search query."
                     : "Be the first to list a service or post a request."}
                 </p>
                 <div className="flex gap-3 justify-center">
                   <Link href={listRequestHref} className="px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:border-border/80 transition">
                     Request Service
                   </Link>
-                  <Link href={listServiceHref} className="px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold hover:bg-amber-400 transition">
+                  <Link href={listServiceHref} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition">
                     Offer Service
                   </Link>
                 </div>

@@ -109,6 +109,9 @@ export function SettingsClient() {
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
       ? `/${encodeURIComponent(username.trim())}`
       : null;
+  const publicProfileShareUrl = publicProfileHref
+    ? `https://brandforge.gg${publicProfileHref}`
+    : null;
 
   useEffect(() => {
     const t = searchParams.get("tab");
@@ -350,7 +353,7 @@ export function SettingsClient() {
                         {[headline, location].filter(Boolean).join(" · ") || "Add a title and location below."}
                       </p>
                       <div className="mt-5 flex flex-wrap gap-3">
-                        <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition min-h-[44px]">
+                        <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition min-h-[44px]">
                           Edit avatar
                         </button>
                         {publicProfileHref ? (
@@ -365,7 +368,22 @@ export function SettingsClient() {
                             View public profile
                           </span>
                         )}
+                        <button
+                          type="button"
+                          disabled={!publicProfileShareUrl}
+                          onClick={() => {
+                            if (!publicProfileShareUrl) return;
+                            void navigator.clipboard.writeText(publicProfileShareUrl);
+                            setSaveMsg("Public profile link copied.");
+                          }}
+                          className="inline-flex min-h-[44px] items-center rounded-lg border border-outline-variant px-4 py-2 text-on-surface transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Share public link
+                        </button>
                       </div>
+                      <p className="mt-3 text-xs text-on-surface-variant">
+                        Profiles are private by default in workspace contexts. Sharing your public link makes your profile accessible publicly.
+                      </p>
                     </div>
                   </div>
                 </section>

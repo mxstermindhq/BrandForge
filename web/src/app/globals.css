@@ -12,35 +12,35 @@
 /* Light Theme (Default) */
 html {
   /* Surfaces — Light Theme */
-  --color-background: #faf9f7;
-  --color-surface: #faf9f7;
-  --color-surface-dim: #f0ede8;
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-dim: #f3f6fb;
   --color-surface-bright: #ffffff;
-  --color-surface-container: #f5f3ef;
+  --color-surface-container: #f8fbff;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f0ede8;
+  --color-surface-container-low: #f3f6fb;
   --color-surface-container-high: #ffffff;
   --color-surface-container-highest: #ffffff;
-  --color-surface-variant: #e8e4dc;
+  --color-surface-variant: #dfe7f5;
 
   /* Text — Light Theme */
-  --color-on-background: #1a1612;
-  --color-on-surface: #1a1612;
-  --color-on-surface-variant: #6b6256;
+  --color-on-background: #111827;
+  --color-on-surface: #111827;
+  --color-on-surface-variant: #4b5563;
   /* Outline/Border */
-  --color-outline: rgba(139, 119, 83, 0.25);
-  --color-outline-variant: rgba(139, 119, 83, 0.15);
+  --color-outline: rgba(37, 99, 235, 0.25);
+  --color-outline-variant: rgba(37, 99, 235, 0.15);
 
-  /* Primary — Gold/Amber */
-  --color-surface-tint: #b8921f;
-  --color-primary: #b8921f;
+  /* Primary — Professional Blue */
+  --color-surface-tint: #2563eb;
+  --color-primary: #2563eb;
   --color-on-primary: #ffffff;
-  --color-primary-container: #f5e6bc;
-  --color-on-primary-container: #4a3d1f;
-  --color-primary-fixed: #f5e6bc;
-  --color-primary-fixed-dim: #e8c97a;
-  --color-on-primary-fixed: #4a3d1f;
-  --color-on-primary-fixed-variant: #7a6a3a;
+  --color-primary-container: #dbeafe;
+  --color-on-primary-container: #1e3a8a;
+  --color-primary-fixed: #dbeafe;
+  --color-primary-fixed-dim: #93c5fd;
+  --color-on-primary-fixed: #1e3a8a;
+  --color-on-primary-fixed-variant: #1d4ed8;
 
   /* Secondary — Alliance Blue */
   --color-secondary: #2d5a8a;
@@ -76,7 +76,7 @@ html {
   --color-on-high-container: #9a3412;
 
   /* Medium — Amber */
-  --color-medium: #b8921f;
+  --color-medium: #2563eb;
   --color-medium-container: #fefce8;
   --color-on-medium: #ffffff;
   --color-on-medium-container: #854d0e;
@@ -96,7 +96,7 @@ html {
   /* Inverse */
   --color-inverse-surface: #1a1612;
   --color-inverse-on-surface: #f5f0e8;
-  --color-inverse-primary: #e8c97a;
+  --color-inverse-primary: #93c5fd;
 
   /* ─── Motion System ────────────────────── */
   /* Easing curves */
@@ -117,20 +117,20 @@ html {
 
   /* Shadows */
   --shadow-ambient: 0 0 32px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 24px rgba(184, 146, 31, 0.15);
-  --shadow-fab: 0 0 48px rgba(184, 146, 31, 0.25);
-  --scrollbar-thumb: rgba(139, 119, 83, 0.4);
-  --muted-overlay: 107, 98, 86;
+  --shadow-glow: 0 0 24px rgba(37, 99, 235, 0.15);
+  --shadow-fab: 0 0 48px rgba(37, 99, 235, 0.25);
+  --scrollbar-thumb: rgba(37, 99, 235, 0.4);
+  --muted-overlay: 75, 85, 99;
 
   /* Legacy shorthand aliases */
   --background: var(--color-background);
   --foreground: var(--color-on-surface);
   --muted: var(--color-on-surface-variant);
-  --accent: #b8921f;
+  --accent: #2563eb;
   --accent2: #2d5a8a;
   --card: var(--color-surface-container-low);
   --sidebar: var(--color-surface-container);
-  --border: rgba(139, 119, 83, 0.25);
+  --border: rgba(37, 99, 235, 0.25);
 
   /* WoW Item Quality Colors (unchanged) */
   --tier-challenger: #9d9d9d;
@@ -147,35 +147,35 @@ html {
 /* Dark Theme */
 html.dark {
   /* Surfaces — Dark Theme */
-  --color-background: #0d0b09;
-  --color-surface: #0d0b09;
-  --color-surface-dim: #0a0806;
-  --color-surface-bright: #1a1612;
-  --color-surface-container: #16120e;
-  --color-surface-container-lowest: #080604;
-  --color-surface-container-low: #12100c;
-  --color-surface-container-high: #1e1a16;
-  --color-surface-container-highest: #26221e;
-  --color-surface-variant: #2a2622;
+  --color-background: #0b1220;
+  --color-surface: #0b1220;
+  --color-surface-dim: #0a101c;
+  --color-surface-bright: #172033;
+  --color-surface-container: #111a2b;
+  --color-surface-container-lowest: #070d16;
+  --color-surface-container-low: #0e1624;
+  --color-surface-container-high: #172338;
+  --color-surface-container-highest: #1d2b43;
+  --color-surface-variant: #26344b;
 
   /* Text — Dark Theme */
-  --color-on-background: #f5f0e8;
-  --color-on-surface: #f5f0e8;
-  --color-on-surface-variant: #a89b8c;
+  --color-on-background: #e5e7eb;
+  --color-on-surface: #e5e7eb;
+  --color-on-surface-variant: #a5b4cb;
   /* Outline/Border */
-  --color-outline: rgba(212, 175, 55, 0.2);
-  --color-outline-variant: rgba(212, 175, 55, 0.1);
+  --color-outline: rgba(59, 130, 246, 0.35);
+  --color-outline-variant: rgba(59, 130, 246, 0.2);
 
-  /* Primary — Gold/Amber */
-  --color-surface-tint: #d4af37;
-  --color-primary: #d4af37;
-  --color-on-primary: #1a1200;
-  --color-primary-container: #3d2f0f;
-  --color-on-primary-container: #f5e6bc;
-  --color-primary-fixed: #f5e6bc;
-  --color-primary-fixed-dim: #e8c97a;
-  --color-on-primary-fixed: #2a1f08;
-  --color-on-primary-fixed-variant: #5c4a1a;
+  /* Primary — Professional Blue */
+  --color-surface-tint: #60a5fa;
+  --color-primary: #60a5fa;
+  --color-on-primary: #0b1220;
+  --color-primary-container: #1e3a8a;
+  --color-on-primary-container: #dbeafe;
+  --color-primary-fixed: #dbeafe;
+  --color-primary-fixed-dim: #93c5fd;
+  --color-on-primary-fixed: #0f172a;
+  --color-on-primary-fixed-variant: #1d4ed8;
 
   /* Secondary — Alliance Blue */
   --color-secondary: #4a7fb5;
@@ -208,10 +208,10 @@ html.dark {
   --color-on-high: #ffffff;
   --color-on-high-container: #ffd4b8;
 
-  --color-medium: #d4af37;
-  --color-medium-container: #3d2f0a;
-  --color-on-medium: #1a1200;
-  --color-on-medium-container: #f5e6bc;
+  --color-medium: #60a5fa;
+  --color-medium-container: #1e3a8a;
+  --color-on-medium: #0b1220;
+  --color-on-medium-container: #dbeafe;
 
   --color-low: #4ade80;
   --color-low-container: #0a2d15;
@@ -225,26 +225,26 @@ html.dark {
   --color-on-error-container: #fec5c5;
 
   /* Inverse */
-  --color-inverse-surface: #f5f0e8;
-  --color-inverse-on-surface: #1a1612;
-  --color-inverse-primary: #5c4a1a;
+  --color-inverse-surface: #e5e7eb;
+  --color-inverse-on-surface: #111827;
+  --color-inverse-primary: #1e3a8a;
 
   /* Shadows — Dark */
-  --shadow-ambient: 0 0 32px rgba(212, 175, 55, 0.08);
-  --shadow-glow: 0 0 24px rgba(212, 175, 55, 0.25);
-  --shadow-fab: 0 0 48px rgba(212, 175, 55, 0.35);
-  --scrollbar-thumb: rgba(212, 175, 55, 0.3);
-  --muted-overlay: 42, 38, 34;
+  --shadow-ambient: 0 0 32px rgba(59, 130, 246, 0.1);
+  --shadow-glow: 0 0 24px rgba(59, 130, 246, 0.25);
+  --shadow-fab: 0 0 48px rgba(59, 130, 246, 0.35);
+  --scrollbar-thumb: rgba(59, 130, 246, 0.3);
+  --muted-overlay: 38, 52, 75;
 
   /* Legacy shorthand */
   --background: var(--color-background);
   --foreground: var(--color-on-surface);
   --muted: var(--color-on-surface-variant);
-  --accent: #d4af37;
+  --accent: #60a5fa;
   --accent2: #4a7fb5;
   --card: var(--color-surface-container-low);
   --sidebar: var(--color-surface-container);
-  --border: rgba(212, 175, 55, 0.2);
+  --border: rgba(59, 130, 246, 0.3);
 }
 
 @keyframes bf-tier-undisputed-row {
