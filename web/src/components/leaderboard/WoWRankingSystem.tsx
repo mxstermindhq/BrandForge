@@ -131,13 +131,16 @@ export function WoWRankingSystem() {
             >
               <span className="font-mono text-sm text-on-surface-variant">#{p.rank}</span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-on-surface">
+                <p className="truncate text-sm font-normal text-on-surface">
                   {p.username ? (
-                    <Link href={`/p/${encodeURIComponent(p.username)}`} className="hover:text-primary">
-                      {p.fullName || p.username}
+                    <Link
+                      href={`/p/${encodeURIComponent(p.username)}`}
+                      className="font-normal hover:text-primary"
+                    >
+                      {p.username}
                     </Link>
                   ) : (
-                    p.fullName || "Member"
+                    "Member"
                   )}
                   {currentUserRank?.id === p.id ? (
                     <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
@@ -145,7 +148,6 @@ export function WoWRankingSystem() {
                     </span>
                   ) : null}
                 </p>
-                {p.username ? <p className="truncate text-xs text-on-surface-variant">@{p.username}</p> : null}
               </div>
               <span className="text-right font-mono text-sm font-semibold text-on-surface">{p.rp.toLocaleString()}</span>
               <span className="text-right text-sm">

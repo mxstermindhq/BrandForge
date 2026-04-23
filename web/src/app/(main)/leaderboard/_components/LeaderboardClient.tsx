@@ -348,7 +348,7 @@ export function LeaderboardClient() {
                                     <Image src={av} alt="" fill className="object-cover" sizes="36px" />
                                   ) : (
                                     <span className="text-primary flex h-full items-center justify-center text-xs font-headline font-700">
-                                      {(row.username || row.displayName || "?").slice(0, 2).toUpperCase()}
+                                      {(row.username || "?").slice(0, 2).toUpperCase()}
                                     </span>
                                   )}
                                 </div>
@@ -358,21 +358,18 @@ export function LeaderboardClient() {
                                 />
                               </div>
                               <div className="min-w-0">
-                                <p className="truncate font-bold text-on-surface">
+                                <p className="truncate font-normal text-on-surface">
                                   {row.username ? (
                                     <Link
                                       href={`/p/${encodeURIComponent(row.username)}`}
-                                      className="hover:text-secondary"
+                                      className="font-normal hover:text-secondary"
                                     >
-                                      {row.displayName}
+                                      {row.username}
                                     </Link>
                                   ) : (
-                                    row.displayName
+                                    "Member"
                                   )}
                                 </p>
-                                {row.username ? (
-                                  <p className="text-on-surface-variant truncate text-[11px]">@{row.username}</p>
-                                ) : null}
                               </div>
                             </div>
                           </div>
@@ -445,7 +442,7 @@ export function LeaderboardClient() {
                                 <Image src={av} alt="" fill className="object-cover" sizes="36px" />
                               ) : (
                                 <span className="text-primary flex h-full items-center justify-center text-xs font-headline font-700">
-                                  {(row.username || row.displayName || "?").slice(0, 2).toUpperCase()}
+                                  {(row.username || "?").slice(0, 2).toUpperCase()}
                                 </span>
                               )}
                             </div>
@@ -455,16 +452,16 @@ export function LeaderboardClient() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate font-bold text-on-surface">
+                            <p className="truncate font-normal text-on-surface">
                               {row.username ? (
                                 <Link
                                   href={`/p/${encodeURIComponent(row.username)}`}
-                                  className="hover:text-secondary"
+                                  className="font-normal hover:text-secondary"
                                 >
-                                  {row.displayName}
+                                  {row.username}
                                 </Link>
                               ) : (
-                                row.displayName
+                                "Member"
                               )}
                               {row.isVerified ? (
                                 <span className="text-primary ml-1 text-[10px]" title="Verified">
@@ -472,9 +469,6 @@ export function LeaderboardClient() {
                                 </span>
                               ) : null}
                             </p>
-                            {row.username ? (
-                              <p className="text-on-surface-variant truncate text-[11px]">@{row.username}</p>
-                            ) : null}
                           </div>
                         </div>
                         <span className="text-on-surface text-sm tabular-nums">
