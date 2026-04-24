@@ -73,9 +73,6 @@ const PEOPLE_START_CTAS: Array<{ icon: string; title: string; sub: string; href:
   { icon: "📋", title: "Create a request", sub: "Describe the work and invite bids", href: "/requests/new" },
   { icon: "🛠️", title: "Offer a service", sub: "List what you deliver and get hired", href: "/services/new" },
   { icon: "🛍️", title: "Browse the marketplace", sub: "Find partners, compare offers", href: "/marketplace" },
-  { icon: "🎯", title: "Place bids", sub: "Compete on open requests", href: "/bid" },
-  { icon: "🏪", title: "Store & listings", sub: "Discover offers and buy", href: "/store" },
-  { icon: "👥", title: "Join squads", sub: "Team up and coordinate deals", href: "/squads" },
 ];
 
 const HUMAN_WORKFLOW_STEPS: Array<{
@@ -447,7 +444,7 @@ function EmptyState({
             <div className="mt-2 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low">
               {peopleRecipients.length === 0 ? (
                 <p className="p-4 text-sm leading-relaxed text-on-surface-variant">
-                  No deal rooms yet. Use the shortcuts below to post a request, list a service, browse the marketplace, or place bids — then message here.
+                  No deal rooms yet. Use the three shortcuts below to post a request, offer a service, or browse the marketplace.
                 </p>
               ) : (
                 <ul className="divide-y divide-outline-variant/60">

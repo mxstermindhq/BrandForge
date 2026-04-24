@@ -173,19 +173,15 @@ export function PublicProfileClient({ username }: { username: string }) {
   }
 
   if (err || !data) {
-    const msg = (err || "").toLowerCase();
-    const is404 = msg.includes("not found") || msg.includes("404");
     return (
       <div className="page-content">
         <div className="empty-state mx-auto max-w-[420px] py-16">
-          <h1 className="page-title text-[22px]">{is404 ? "Profile not found" : "Couldn’t load profile"}</h1>
+          <h1 className="page-title text-[22px]">Couldn’t load profile</h1>
           <p className="mt-3 text-[13px] font-body leading-[1.6] text-on-surface-variant" role="status">
-            {is404
-              ? "There’s no member with this handle, it matches a reserved route name, or the account hasn’t set a username yet."
-              : err || "Something went wrong loading this profile."}
+            {err || "Something went wrong loading this profile."}
           </p>
           <p className="mt-4 text-[13px] font-body leading-[1.6] text-on-surface-variant">
-            Double-check the URL. To publish your page, set a username under{" "}
+            Double-check the URL and try again. You can manage your profile under{" "}
             <Link href="/settings" className="text-primary font-500 underline-offset-2 hover:underline">
               Settings
             </Link>

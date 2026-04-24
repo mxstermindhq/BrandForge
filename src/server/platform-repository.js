@@ -4420,11 +4420,13 @@ async function createPlatformRepository(previewRepository) {
   // Public Profile
   async function getPublicProfile(username) {
     if (!client) throw new Error('Supabase is not configured');
+  const handle = String(username || '').trim().replace(/^@+/, '').toLowerCase();
+  if (!handle) throw new Error('Username is required');
     const { data, error } = await client
       .from('profiles')
       .select('*')
-      .eq('username', username)
-      .eq('is_public', true)
+    // Usernames are live public profile routes by default.
+    .eq('username', handle)
       .maybeSingle();
     
     if (error) throw error;
