@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { useAuth } from "@/providers/AuthProvider";
 import { SmartMatchEngine } from "@/components/marketplace/SmartMatchEngine";
@@ -72,6 +72,24 @@ function serviceDeliveryChip(days: number | null | undefined): string | null {
   if (d <= 0) return null;
   return d === 1 ? "1-day turnaround" : `~${d} days delivery`;
 }
+
+function reputationTier(reputation?: number | null, wins?: number | null): string {
+  const rep = reputation || 0;
+  const w = wins || 0;
+  if (w >= 50 || rep >= 5000) return "Undisputed";
+  if (w >= 35 || rep >= 3500) return "Gladiator";
+  if (w >= 20 || rep >= 2000) return "Duelist";
+  if (w >= 10 || rep >= 1000) return "Rival";
+  return "Challenger";
+}
+
+const tierColors: Record<string, string> = {
+  Challenger: "text-muted-foreground",
+  Rival: "text-sky-500 dark:text-sky-400",
+  Duelist: "text-amber-500 dark:text-amber-400",
+  Gladiator: "text-rose-500 dark:text-rose-400",
+  Undisputed: "text-purple-500 dark:text-purple-400",
+};
 
 function matchesQuery(item: ServiceRow | Req, q: string, type: "service" | "request"): boolean {
   if (!q) return true;
@@ -143,15 +161,64 @@ function sortItems<T extends ServiceRow | Req>(items: T[], sortBy: SortOption, t
   }
 }
 
+function parseListingTab(raw: string | null): ListingType {
+  const t = (raw || "").toLowerCase();
+  if (t === "services" || t === "requests") return t;
+  return "all";
+}
+
+function parseViewMode(raw: string | null): ViewMode {
+  const v = (raw || "").toLowerCase();
+  if (v === "smart-match") return "smart-match";
+  return "browse";
+}
+
+function parseSort(raw: string | null): SortOption {
+  const s = (raw || "").toLowerCase();
+  if (s === "newest" || s === "price-low" || s === "price-high") return s;
+  return "trending";
+}
+
 export function UnifiedMarketplace() {
   const params = useSearchParams();
-  const q = (params.get("q") || "").trim();
-  const [listingType, setListingType] = useState<ListingType>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("browse");
-  const [sortBy, setSortBy] = useState<SortOption>("trending");
+  const pathname = usePathname();
+  const router = useRouter();
+  const qFromUrl = (params.get("q") || "").trim();
+  const listingType = parseListingTab(params.get("tab"));
+  const viewMode = parseViewMode(params.get("view"));
+  const sortBy = parseSort(params.get("sort"));
+  const [searchDraft, setSearchDraft] = useState(qFromUrl);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const { data, err, loading } = useBootstrap();
   const { session } = useAuth();
+
+  useEffect(() => {
+    setSearchDraft(qFromUrl);
+  }, [qFromUrl]);
+
+  const replaceQuery = useCallback(
+    (mutate: (u: URLSearchParams) => void) => {
+      const u = new URLSearchParams(params.toString());
+      mutate(u);
+      const qs = u.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [params, pathname, router],
+  );
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const next = searchDraft.trim();
+      if (next === qFromUrl) return;
+      replaceQuery(u => {
+        if (next) u.set("q", next);
+        else u.delete("q");
+      });
+    }, 400);
+    return () => window.clearTimeout(id);
+  }, [searchDraft, qFromUrl, replaceQuery]);
+
+  const q = searchDraft.trim();
 
   const services = useMemo(() => {
     const all = (data?.services as ServiceRow[]) ?? [];
@@ -179,6 +246,13 @@ export function UnifiedMarketplace() {
 
   const listServiceHref = session ? "/services/new" : `/login?next=${encodeURIComponent("/services/new")}`;
   const listRequestHref = session ? "/requests/new" : `/login?next=${encodeURIComponent("/requests/new")}`;
+  const loginBrowseHref = `/login?next=${encodeURIComponent("/marketplace")}`;
+  const myListedServices = useMemo(() => {
+    const uid = session?.user?.id;
+    if (!uid) return 0;
+    const all = (data?.services as ServiceRow[]) ?? [];
+    return all.filter(s => s.ownerId && String(s.ownerId) === String(uid)).length;
+  }, [data?.services, session?.user?.id]);
 
   if (loading) {
     return <PageRouteLoading title="Loading marketplace" subtitle="Fetching services and requests." />;
@@ -217,13 +291,25 @@ export function UnifiedMarketplace() {
         {/* View toggle (Browse vs Smart Match) */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
-            <button onClick={() => setViewMode("browse")}
+            <button
+              type="button"
+              onClick={() =>
+                replaceQuery(u => {
+                  u.delete("view");
+                })
+              }
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
                 viewMode === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               }`}>
               <Grid3X3 size={14}/> Browse
             </button>
-            <button onClick={() => setViewMode("smart-match")}
+            <button
+              type="button"
+              onClick={() =>
+                replaceQuery(u => {
+                  u.set("view", "smart-match");
+                })
+              }
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
                 viewMode === "smart-match" ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               }`}>
@@ -255,8 +341,13 @@ export function UnifiedMarketplace() {
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16}/>
-                <input placeholder="Search services, skills, or requests..."
-                  className="w-full bg-muted/50 border border-border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50"/>
+                <input
+                  value={searchDraft}
+                  onChange={e => setSearchDraft(e.target.value)}
+                  placeholder="Search services, skills, or requests..."
+                  className="w-full bg-muted/50 border border-border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-primary/50"
+                  aria-label="Search marketplace"
+                />
               </div>
               
               <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl">
@@ -267,7 +358,15 @@ export function UnifiedMarketplace() {
                 ].map((t) => {
                   const Icon = t.icon;
                   return (
-                    <button key={t.id} onClick={() => setListingType(t.id as ListingType)}
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() =>
+                        replaceQuery(u => {
+                          if (t.id === "all") u.delete("tab");
+                          else u.set("tab", t.id);
+                        })
+                      }
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium capitalize transition ${
                         listingType === t.id ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}>
@@ -279,7 +378,8 @@ export function UnifiedMarketplace() {
               </div>
 
               <div className="relative">
-                <button 
+                <button
+                  type="button"
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
                   className="flex items-center gap-2 px-4 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition"
                 >
@@ -302,8 +402,12 @@ export function UnifiedMarketplace() {
                     ].map((opt) => (
                       <button
                         key={opt.id}
+                        type="button"
                         onClick={() => {
-                          setSortBy(opt.id as SortOption);
+                          replaceQuery(u => {
+                            if (opt.id === "trending") u.delete("sort");
+                            else u.set("sort", opt.id);
+                          });
                           setShowSortDropdown(false);
                         }}
                         className={`w-full text-left px-4 py-2.5 text-sm transition ${
@@ -339,16 +443,107 @@ export function UnifiedMarketplace() {
                 <p className="text-muted-foreground font-medium mb-2">No listings found</p>
                 <p className="text-sm text-muted-foreground/80 mb-6">
                   {q
-                    ? "Try adjusting your search query."
-                    : "Be the first to list a service or post a request."}
+                    ? "Try adjusting your search or filters."
+                    : session
+                      ? "List an offer or post what you need so the marketplace has something to browse."
+                      : "Sign in to add the first listing, or widen your search."}
                 </p>
-                <div className="flex gap-3 justify-center">
-                  <Link href={listRequestHref} className="px-4 py-2 bg-muted border border-border rounded-lg text-sm hover:border-border/80 transition">
-                    Request Service
-                  </Link>
-                  <Link href={listServiceHref} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition">
-                    Offer Service
-                  </Link>
+                <div className="flex flex-col items-center gap-3">
+                  {!session ? (
+                    <>
+                      <Link
+                        href={loginBrowseHref}
+                        className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                      >
+                        Sign in to post a listing
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchDraft("");
+                          replaceQuery(u => {
+                            u.delete("q");
+                            u.delete("tab");
+                            u.delete("sort");
+                          });
+                        }}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                      >
+                        Clear search
+                      </button>
+                    </>
+                  ) : q ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchDraft("");
+                        replaceQuery(u => u.delete("q"));
+                      }}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                    >
+                      Clear search
+                    </button>
+                  ) : listingType === "requests" ? (
+                    <>
+                      <Link
+                        href={listRequestHref}
+                        className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                      >
+                        Post a request
+                      </Link>
+                      <Link
+                        href={listServiceHref}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                      >
+                        List a service instead
+                      </Link>
+                    </>
+                  ) : listingType === "services" ? (
+                    <>
+                      <Link
+                        href={listServiceHref}
+                        className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                      >
+                        Offer a service
+                      </Link>
+                      <Link
+                        href={listRequestHref}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                      >
+                        Post a request instead
+                      </Link>
+                    </>
+                  ) : myListedServices > 0 ? (
+                    <>
+                      <Link
+                        href={listRequestHref}
+                        className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                      >
+                        Post a request
+                      </Link>
+                      <Link
+                        href={listServiceHref}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                      >
+                        Add another service listing
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href={listServiceHref}
+                        className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                      >
+                        Offer a service
+                      </Link>
+                      <Link
+                        href={listRequestHref}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                      >
+                        Post a request instead
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -388,27 +583,8 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
   const bidHref = service.id ? `/bid/service?id=${encodeURIComponent(service.id || "")}` : "/marketplace";
   const profileHref = ownerU ? `/p/${encodeURIComponent(ownerU)}` : null;
   const dealLbl = formatDealRecordShort(service.ownerDealWins, service.ownerDealLosses);
-  
-  const tierColors: Record<string, string> = {
-    Challenger: "text-muted-foreground",
-    Rival: "text-sky-500 dark:text-sky-400",
-    Duelist: "text-amber-500 dark:text-amber-400",
-    Gladiator: "text-rose-500 dark:text-rose-400",
-    Undisputed: "text-purple-500 dark:text-purple-400",
-  };
-  
-  // Determine tier based on reputation/deals
-  const getTier = (reputation?: number | null, wins?: number | null) => {
-    const rep = reputation || 0;
-    const w = wins || 0;
-    if (w >= 50 || rep >= 5000) return "Undisputed";
-    if (w >= 35 || rep >= 3500) return "Gladiator";
-    if (w >= 20 || rep >= 2000) return "Duelist";
-    if (w >= 10 || rep >= 1000) return "Rival";
-    return "Challenger";
-  };
-  
-  const tier = getTier(service.ownerReputation, service.ownerDealWins);
+  const tier = reputationTier(service.ownerReputation, service.ownerDealWins);
+  const deliveryChip = serviceDeliveryChip(service.deliveryDays);
   
   return (
     <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-amber-500/[0.03] to-transparent border-border hover:border-amber-500/30">
@@ -443,12 +619,24 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {[service.sel].filter(Boolean).map((tag, i) => (
             <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
               {tag}
             </span>
           ))}
+        </div>
+
+        <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+          <span className="font-medium text-foreground">{dealLbl ?? "No closed deals yet"}</span>
+          <span className="opacity-40">·</span>
+          <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
+          {deliveryChip ? (
+            <>
+              <span className="opacity-40">·</span>
+              <span>{deliveryChip}</span>
+            </>
+          ) : null}
         </div>
 
         {/* Views + Offers row */}
@@ -522,7 +710,9 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
   const bidHref = request.id ? `/bid/request?id=${encodeURIComponent(request.id || "")}` : "/marketplace";
   const dealLbl = formatDealRecordShort(request.ownerDealWins, request.ownerDealLosses);
   const band = bandUi(request.band);
-  
+  const tier = reputationTier(request.ownerReputation, request.ownerDealWins);
+  const timelineLbl = requestTimelineLabel(request.days);
+
   return (
     <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-sky-500/[0.03] to-transparent border-border hover:border-sky-500/30">
       {/* Urgent ribbon */}
@@ -557,7 +747,7 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {(request.tags || []).slice(0, 3).map((tag, i) => (
             <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
               {tag}
@@ -565,17 +755,22 @@ function RequestCard({ request, session }: { request: Req; session: ReturnType<t
           ))}
         </div>
 
+        <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+          <span className="font-medium text-foreground">{dealLbl ?? "No deal history yet"}</span>
+          <span className="opacity-40">·</span>
+          <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
+          <span className="opacity-40">·</span>
+          <span>Timeline {timelineLbl}</span>
+        </div>
+
         {/* Views + Bids row */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Eye size={12}/> {request.views || 0} views
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageSquare size={12}/> {request.bids || 0} bids
-            </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+          <div className="flex items-center gap-1">
+            <Eye size={12}/> {request.views || 0} views
           </div>
-          {dealLbl && <span>{dealLbl}</span>}
+          <div className="flex items-center gap-1">
+            <MessageSquare size={12}/> {request.bids || 0} bids
+          </div>
         </div>
 
         {/* Budget + deadline row */}

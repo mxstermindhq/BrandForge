@@ -63,9 +63,46 @@ function retrieveCheckoutSession(stripe, sessionId) {
   return stripe.checkout.sessions.retrieve(String(sessionId));
 }
 
+/**
+ * One-off Checkout session (e.g. chat-linked deposit). Amount is total charged in USD.
+ */
+async function createSimpleUsdCheckoutSession(stripe, options) {
+  const { publicAppUrl, title, amountDollars, metadata } = options;
+  const amt = Number(amountDollars);
+  if (!Number.isFinite(amt) || amt <= 0) throw new Error('Invalid amount');
+  const amountCents = Math.max(50, Math.round(amt * 100));
+  const base = normalizePublicAppUrl(publicAppUrl);
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'usd',
+          unit_amount: amountCents,
+          product_data: {
+            name: String(title || 'Payment').slice(0, 120),
+            description: 'Held for the active deal — confirm delivery in chat.',
+          },
+        },
+      },
+    ],
+    success_url: `${base}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${base}/payment/cancelled`,
+    metadata:
+      metadata && typeof metadata === 'object'
+        ? Object.fromEntries(
+            Object.entries(metadata).map(([k, v]) => [String(k).slice(0, 40), String(v ?? '').slice(0, 500)]),
+          )
+        : {},
+  });
+  return { session, amountCents };
+}
+
 module.exports = {
   getStripeClient,
   createEscrowCheckoutSession,
+  createSimpleUsdCheckoutSession,
   constructWebhookEvent,
   normalizePublicAppUrl,
   retrieveCheckoutSession,

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Send, Paperclip, ChevronDown, X, Mic } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
@@ -677,11 +677,15 @@ function DealRoomContextSidebar({
   messageCount,
   lastActivity,
   progress,
+  onChatDeposit,
+  depositBusy,
 }: {
   recipientLabel: string;
   messageCount: number;
   lastActivity?: string | null;
   progress: Array<{ id: string; label: string; done: boolean }>;
+  onChatDeposit?: () => void;
+  depositBusy?: boolean;
 }) {
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col border-l border-outline-variant bg-surface-container-low">
@@ -733,6 +737,16 @@ function DealRoomContextSidebar({
             <a href="/marketplace" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
               Open marketplace
             </a>
+            {onChatDeposit ? (
+              <button
+                type="button"
+                disabled={depositBusy}
+                onClick={() => onChatDeposit()}
+                className="mt-1 w-full rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-left text-xs font-semibold text-amber-700 transition hover:bg-amber-500/15 disabled:opacity-50 dark:text-amber-200"
+              >
+                {depositBusy ? "Opening checkout…" : "Deposit / checkout (Stripe)"}
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -755,6 +769,8 @@ function InputBar({
   isHumanThread,
   locked,
   hasThread,
+  onAttachClick,
+  attachDisabled,
 }: {
   inputText: string;
   setInputText: (v: string) => void;
@@ -768,6 +784,8 @@ function InputBar({
   isHumanThread: boolean;
   locked: boolean;
   hasThread: boolean;
+  onAttachClick?: () => void;
+  attachDisabled?: boolean;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -837,9 +855,11 @@ function InputBar({
                 )}
                 <button
                   type="button"
-                  disabled={locked}
-                  className="rounded-lg p-1.5 text-on-surface-variant/60 transition hover:bg-surface-container-high hover:text-on-surface"
-                  aria-label="Attach file"
+                  disabled={locked || attachDisabled}
+                  onClick={() => onAttachClick?.()}
+                  className="rounded-lg p-1.5 text-on-surface-variant/60 transition hover:bg-surface-container-high hover:text-on-surface disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Attach image or PDF"
+                  title={attachDisabled ? "Open a deal room to attach files" : "JPEG, PNG, GIF, WebP, or PDF (max ~4.5MB)"}
                 >
                   <Paperclip className="h-4 w-4" />
                 </button>
@@ -915,6 +935,10 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
 
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
+  const attachRef = useRef<HTMLInputElement>(null);
+  const sendGuardRef = useRef(false);
+  const sendingRef = useRef(false);
+  const [depositBusy, setDepositBusy] = useState(false);
 
   const peopleRecipients = useMemo<Recipient[]>(() => {
     const seen = new Set<string>();
@@ -982,93 +1006,116 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const sendMessage = async () => {
     const text = inputText.trim();
     if (!text || sending) return;
+    if (sendGuardRef.current) return;
+    sendGuardRef.current = true;
 
-    if (!activeThreadId) {
+    try {
+      if (!activeThreadId) {
+        if (recipient.type === "people") {
+          if (!recipient.id) return;
+          setInputText("");
+          setSending(true);
+          try {
+            await apiMutateJson(
+              "/api/chat/messages",
+              "POST",
+              { conversationId: recipient.id, text, role: "user" },
+              accessToken,
+            );
+            router.push(`/chat/${encodeURIComponent(recipient.id)}`);
+          } catch {
+            setInputText(text);
+          } finally {
+            setSending(false);
+          }
+          return;
+        }
+
+        setInputText("");
+        setSending(true);
+        const userMsg: MessageRow = {
+          id: `tmp-${Date.now()}`,
+          role: "user",
+          text,
+          createdAt: new Date().toISOString(),
+          senderId: session?.user?.id || null,
+        };
+        setMessages(prev => [...prev, userMsg]);
+        try {
+          const created = await apiMutateJson<Record<string, unknown>>(
+            "/api/chat",
+            "POST",
+            {
+              type: recipient.type === "agent" ? "agent" : "ai",
+              title: recipient.label,
+              subtitle: recipient.sublabel || null,
+              metadata: {
+                source: "simple-chat",
+                recipientType: recipient.type,
+                modelId: recipient.id,
+                modelLabel: recipient.label,
+              },
+            },
+            accessToken,
+          );
+          const createdChat =
+            (created.chat as Record<string, unknown> | undefined) ||
+            (created.thread as Record<string, unknown> | undefined);
+          const newThreadId = String(
+            created.conversationId ||
+              created.chatId ||
+              created.id ||
+              createdChat?.id ||
+              "",
+          ).trim();
+          if (!newThreadId) throw new Error("Failed to create chat");
+
+          await apiMutateJson(
+            "/api/chat/messages",
+            "POST",
+            { conversationId: newThreadId, text, role: "user" },
+            accessToken,
+          );
+          router.push(`/chat/${encodeURIComponent(newThreadId)}`);
+        } catch {
+          setMessages(prev => prev.filter(m => m.id !== userMsg.id));
+          setInputText(text);
+        } finally {
+          setSending(false);
+        }
+        return;
+      }
+
       setInputText("");
       setSending(true);
-      const userMsg: MessageRow = {
+      const optimistic: MessageRow = {
         id: `tmp-${Date.now()}`,
         role: "user",
         text,
         createdAt: new Date().toISOString(),
         senderId: session?.user?.id || null,
       };
-      setMessages(prev => [...prev, userMsg]);
+      setMessages(prev => [...prev, optimistic]);
       try {
-        if (recipient.type === "people") {
-          if (!recipient.id) throw new Error("No chat selected");
-          router.push(`/chat/${encodeURIComponent(recipient.id)}`);
-          return;
-        }
-        const created = await apiMutateJson<Record<string, unknown>>(
-          "/api/chat",
-          "POST",
-          {
-            type: recipient.type === "agent" ? "agent" : "ai",
-            title: recipient.label,
-            subtitle: recipient.sublabel || null,
-            metadata: {
-              source: "simple-chat",
-              recipientType: recipient.type,
-              modelId: recipient.id,
-              modelLabel: recipient.label,
-            },
-          },
-          accessToken
-        );
-        const createdChat = (created.chat as Record<string, unknown> | undefined) || (created.thread as Record<string, unknown> | undefined);
-        const newThreadId = String(
-          created.conversationId ||
-          created.chatId ||
-          created.id ||
-          createdChat?.id ||
-          ""
-        ).trim();
-        if (!newThreadId) throw new Error("Failed to create chat");
-
         await apiMutateJson(
           "/api/chat/messages",
           "POST",
-          { conversationId: newThreadId, text, role: "user" },
-          accessToken
+          { conversationId: activeThreadId, text, role: "user" },
+          accessToken,
         );
-        router.push(`/chat/${encodeURIComponent(newThreadId)}`);
+        const refreshed = await apiGetJson<{
+          activeChat?: { messages?: Array<Record<string, unknown>> };
+        }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
+        const raw = refreshed.activeChat?.messages || [];
+        setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
       } catch {
-        setMessages(prev => prev.filter(m => m.id !== userMsg.id));
+        setMessages(prev => prev.filter(m => m.id !== optimistic.id));
         setInputText(text);
       } finally {
         setSending(false);
       }
-      return;
-    }
-
-    setInputText("");
-    setSending(true);
-    const optimistic: MessageRow = {
-      id: `tmp-${Date.now()}`,
-      role: "user",
-      text,
-      createdAt: new Date().toISOString(),
-      senderId: session?.user?.id || null,
-    };
-    setMessages(prev => [...prev, optimistic]);
-    try {
-      await apiMutateJson(
-        "/api/chat/messages",
-        "POST",
-        { conversationId: activeThreadId, text, role: "user" },
-        accessToken
-      );
-      const refreshed = await apiGetJson<{
-        activeChat?: { messages?: Array<Record<string, unknown>> };
-      }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
-      const raw = refreshed.activeChat?.messages || [];
-      setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
-    } catch {
-      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
-      setInputText(text);
     } finally {
-      setSending(false);
+      sendGuardRef.current = false;
     }
   };
 
@@ -1141,12 +1188,109 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     ],
     [messageBlob],
   );
+
+  useEffect(() => {
+    sendingRef.current = sending;
+  }, [sending]);
+
+  const startChatDeposit = useCallback(async () => {
+    if (!activeThreadId || !accessToken) return;
+    setDepositBusy(true);
+    try {
+      const res = await apiMutateJson<{ url?: string }>(
+        "/api/checkout/chat-deposit",
+        "POST",
+        { conversationId: activeThreadId, amountUsd: 25 },
+        accessToken,
+      );
+      if (res && typeof res === "object" && "url" in res && res.url) {
+        window.open(String(res.url), "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      /* non-blocking */
+    } finally {
+      setDepositBusy(false);
+    }
+  }, [activeThreadId, accessToken]);
+
+  const onAttachFiles = useCallback(
+    async (files: FileList | null) => {
+      const file = files?.[0];
+      if (!file || !activeThreadId || !accessToken) return;
+      const okMime =
+        /^image\/(jpeg|png|gif|webp)$/i.test(file.type) || file.type === "application/pdf";
+      if (!okMime) {
+        window.alert("Allowed types: JPEG, PNG, GIF, WebP, or PDF.");
+        return;
+      }
+      if (file.size > 4_500_000) {
+        window.alert("File is too large (max about 4.5MB).");
+        return;
+      }
+      setSending(true);
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(String(r.result));
+          r.onerror = () => reject(new Error("Could not read file"));
+          r.readAsDataURL(file);
+        });
+        await apiMutateJson(
+          `/api/chats/${encodeURIComponent(activeThreadId)}/files`,
+          "POST",
+          { dataUrl, fileName: file.name, caption: "" },
+          accessToken,
+        );
+        const refreshed = await apiGetJson<{
+          activeChat?: { messages?: Array<Record<string, unknown>> };
+          messages?: Array<Record<string, unknown>>;
+        }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
+        const raw = Array.isArray(refreshed.activeChat?.messages)
+          ? refreshed.activeChat?.messages
+          : refreshed.messages;
+        setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
+      } catch (e) {
+        window.alert(e instanceof Error ? e.message : "Upload failed");
+      } finally {
+        setSending(false);
+        if (attachRef.current) attachRef.current.value = "";
+      }
+    },
+    [activeThreadId, accessToken],
+  );
+
+  useEffect(() => {
+    if (!activeThreadId || !accessToken || !isHumanThread) return;
+    const tick = window.setInterval(async () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      if (sendingRef.current) return;
+      try {
+        const data = await apiGetJson<{
+          activeChat?: { messages?: Array<Record<string, unknown>> };
+          messages?: Array<Record<string, unknown>>;
+        }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
+        const raw = Array.isArray(data.activeChat?.messages) ? data.activeChat?.messages : data.messages;
+        if (Array.isArray(raw)) setMessages(raw.map(mapApiMessage));
+      } catch {
+        /* ignore poll errors */
+      }
+    }, 12_000);
+    return () => window.clearInterval(tick);
+  }, [activeThreadId, accessToken, isHumanThread]);
+
   useEffect(() => {
     setShowDealContext(false);
   }, [activeThreadId]);
 
   return (
     <div className="page-root relative flex min-h-0 flex-1 text-on-surface">
+      <input
+        ref={attachRef}
+        type="file"
+        className="hidden"
+        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+        onChange={e => void onAttachFiles(e.target.files)}
+      />
       {isHumanThread ? (
         <button
           type="button"
@@ -1214,6 +1358,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           isHumanThread={isHumanThread}
           locked={lockedComposer}
           hasThread={hasThread}
+          onAttachClick={() => attachRef.current?.click()}
+          attachDisabled={!activeThreadId}
         />
       </div>
 
@@ -1223,6 +1369,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           messageCount={messages.filter((m) => m.role !== "system").length}
           lastActivity={messages[messages.length - 1]?.createdAt || null}
           progress={dealProgress}
+          onChatDeposit={startChatDeposit}
+          depositBusy={depositBusy}
         />
       ) : null}
     </div>

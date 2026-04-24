@@ -296,9 +296,27 @@ async function completeMxAgentChat(opts) {
   });
 }
 
+/**
+ * Safe runtime info for status endpoints (no secrets).
+ * @param {object} env - getEnv()
+ */
+function getMxAgentRuntimeInfo(env) {
+  const creds = resolveLlmCredentials(env);
+  const configured = creds.kind !== 'none' && Boolean(creds.apiKey);
+  const providerId = creds.kind === 'none' ? null : creds.providerId;
+  const model = defaultModelForProvider(providerId || 'openai', env.aiModel);
+  return {
+    configured,
+    providerId,
+    model,
+    aiProviderEnv: String(env.aiProvider || '').trim() || null,
+  };
+}
+
 module.exports = {
   completeMxAgentChat,
   resolveLlmCredentials,
   hasConfiguredLlm,
   buildSystemPrompt,
+  getMxAgentRuntimeInfo,
 };

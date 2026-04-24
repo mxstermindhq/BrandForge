@@ -11,6 +11,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { safeImageSrc } from "@/lib/image-url";
+import { publicSiteOrigin } from "@/lib/auth-public-url";
 import { SettingsSocialPanel } from "./SettingsSocialPanel";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
 
@@ -109,9 +110,9 @@ export function SettingsClient() {
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
       ? `/p/${encodeURIComponent(username.trim())}`
       : null;
-  const publicProfileShareUrl = publicProfileHref
-    ? `https://brandforge.gg${publicProfileHref}`
-    : null;
+  const siteOrigin = publicSiteOrigin().replace(/\/+$/, "");
+  const publicProfileShareUrl =
+    publicProfileHref && siteOrigin ? `${siteOrigin}${publicProfileHref}` : publicProfileHref ? publicProfileHref : null;
 
   useEffect(() => {
     const t = searchParams.get("tab");
@@ -387,8 +388,22 @@ export function SettingsClient() {
                         </button>
                       </div>
                       <p className="mt-3 text-xs text-on-surface-variant">
-                        With a username, your profile is public at the link above. Share it anywhere you want people to
-                        find you on BrandForge.
+                        With a username, your public profile uses the path pattern{" "}
+                        <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px] text-on-surface">
+                          /p/yourhandle
+                        </code>{" "}
+                        (slash{" "}
+                        <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px]">p</code> slash
+                        handle). Yours:{" "}
+                        {publicProfileHref ? (
+                          <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px] text-on-surface">
+                            {publicProfileHref}
+                          </code>
+                        ) : (
+                          <span className="text-on-surface-variant/80">set a username to preview the exact URL.</span>
+                        )}{" "}
+                        It is public by default so people can verify you from marketplace links; copy the full HTTPS link
+                        above to share off-platform.
                       </p>
                     </div>
                   </div>

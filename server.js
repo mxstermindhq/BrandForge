@@ -6,7 +6,15 @@ const { createStateRepository } = require('./src/server/state-repository');
 const { createPlatformRepository } = require('./src/server/platform-repository');
 const { createAgentInfraRepository } = require('./src/server/agent-infra-repository');
 const { getUserFromAccessToken, ensureProfileForUser } = require('./src/server/auth-service');
-const { completeMxAgentChat, hasConfiguredLlm, resolveLlmCredentials } = require('./src/server/ai-chat');
+const {
+  completeMxAgentChat,
+  hasConfiguredLlm,
+  resolveLlmCredentials,
+  getMxAgentRuntimeInfo,
+} = require('./src/server/ai-chat');
+const { getClientIp } = require('./src/server/http-guards');
+const { getStripeClient, createSimpleUsdCheckoutSession } = require('./src/server/stripe-payments');
+const { computeEscrowQuote } = require('./src/server/marketplace-fees');
 const { generateOpenAiImage, resolveOpenAiImageKey } = require('./src/server/ai-image');
 
 const env = getEnv();
@@ -365,6 +373,28 @@ function verifyCronSecret(req, body, cronSecret) {
 
 async function routeApi(req, res, pathname) {
   const method = req.method || 'GET';
+
+  if (pathname === '/api/activation' && method === 'POST') {
+    const payload = await parseBody(req);
+    const step = String(payload.step || '').trim().slice(0, 64);
+    if (!step) {
+      sendJson(res, 400, { error: 'step is required' });
+      return true;
+    }
+    const user = await getOptionalUser(req);
+    const ip = getClientIp(req);
+    const row = {
+      type: 'activation',
+      ts: nowIso(),
+      step,
+      userId: user ? user.id : null,
+      ip,
+      meta: payload.meta && typeof payload.meta === 'object' ? payload.meta : null,
+    };
+    console.log(`[activation] ${JSON.stringify(row)}`);
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
 
   if (pathname === '/api/health' && method === 'GET') {
     sendJson(res, 200, {
@@ -1404,10 +1434,11 @@ async function routeApi(req, res, pathname) {
     const payload = await parseBody(req);
     const mode = String(payload.mode || 'general');
     const messages = payload.messages;
+    const modelPick = String(payload.model || env.aiModel || '').trim();
     try {
       const reply = await completeMxAgentChat({
         env,
-        model: env.aiModel || undefined,
+        model: modelPick || undefined,
         mode,
         messages,
       });
@@ -1503,6 +1534,20 @@ async function routeApi(req, res, pathname) {
       winRate: 0,
     };
     sendJson(res, 200, newSquad);
+    return true;
+  }
+
+  if ((pathname === '/api/chat' || pathname === '/api/chat/') && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const chat = await platformRepository.createUnifiedChat(user.id, payload);
+      sendJson(res, 201, { chat, conversationId: chat.id, id: chat.id });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not create chat' });
+    }
     return true;
   }
 
@@ -1729,9 +1774,10 @@ async function routeApi(req, res, pathname) {
     if (hasConfiguredLlm(env)) {
       try {
         const depth = String(payload.mode || 'Quick').trim();
+        const modelPick = String(payload.model || env.aiModel || '').trim();
         const reply = await completeMxAgentChat({
           env,
-          model: env.aiModel || undefined,
+          model: modelPick || undefined,
           mode: 'research',
           messages: [
             {
@@ -2522,14 +2568,75 @@ async function routeApi(req, res, pathname) {
   }
 
   if (pathname === '/api/ai/status' && method === 'GET') {
-    const creds = resolveLlmCredentials(env);
+    const rt = getMxAgentRuntimeInfo(env);
     sendJson(res, 200, {
       chat: {
-        configured: hasConfiguredLlm(env),
-        providerId: creds.kind === 'none' ? null : creds.providerId,
+        configured: rt.configured,
+        providerId: rt.providerId,
+        model: rt.model,
+        aiProviderEnv: rt.aiProviderEnv,
       },
       image: { configured: Boolean(resolveOpenAiImageKey(env)) },
     });
+    return true;
+  }
+
+  if (pathname === '/api/checkout/chat-deposit' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    const conversationId = String(payload.conversationId || '').trim();
+    if (!conversationId) {
+      sendJson(res, 400, { error: 'conversationId is required' });
+      return true;
+    }
+    let amount = Number(payload.amountUsd != null ? payload.amountUsd : 25);
+    if (!Number.isFinite(amount) || amount < 1) amount = 25;
+    if (amount > 50_000) amount = 50_000;
+    try {
+      await platformRepository.getConversation(user.id, conversationId);
+    } catch (e) {
+      sendJson(res, 403, { error: e.message || 'Not allowed for this chat' });
+      return true;
+    }
+    let quote;
+    try {
+      quote = computeEscrowQuote(amount);
+    } catch (e) {
+      sendJson(res, 400, { error: e.message || 'Invalid amount' });
+      return true;
+    }
+    const stripe = getStripeClient(env.stripeSecretKey);
+    if (!stripe) {
+      sendJson(res, 200, {
+        configured: false,
+        quote,
+        message: 'Stripe is not configured (set STRIPE_SECRET_KEY on the API).',
+      });
+      return true;
+    }
+    try {
+      const meta = {
+        kind: 'chat_deposit',
+        conversation_id: String(conversationId).slice(0, 200),
+        payer_user_id: String(user.id).slice(0, 200),
+      };
+      const { session } = await createSimpleUsdCheckoutSession(stripe, {
+        publicAppUrl: env.publicWebOrigin,
+        title: 'Deal deposit (chat)',
+        amountDollars: amount,
+        metadata: meta,
+      });
+      sendJson(res, 200, {
+        configured: true,
+        quote,
+        url: session.url,
+        sessionId: session.id,
+      });
+    } catch (e) {
+      sendJson(res, 400, { error: e.message || 'Checkout failed' });
+    }
     return true;
   }
 

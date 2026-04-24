@@ -41,6 +41,11 @@ export function WelcomeClient() {
   }, [me, meLoading, router]);
 
   useEffect(() => {
+    if (!authReady || !session || !accessToken || meLoading || me?.pendingOnboarding !== true) return;
+    void apiMutateJson("/api/activation", "POST", { step: "welcome_view" }, accessToken).catch(() => {});
+  }, [authReady, session, accessToken, meLoading, me?.pendingOnboarding]);
+
+  useEffect(() => {
     const t = username.trim().replace(/^@+/, "").toLowerCase();
     if (t.length < 2) {
       setUnameHint(null);
@@ -83,6 +88,9 @@ export function WelcomeClient() {
     }
     setBusy(true);
     try {
+      if (accessToken) {
+        void apiMutateJson("/api/activation", "POST", { step: "welcome_submit" }, accessToken).catch(() => {});
+      }
       if (password) {
         const supabase = getSupabaseBrowser();
         if (!supabase) throw new Error("Auth not available.");
@@ -92,6 +100,9 @@ export function WelcomeClient() {
       const t = accessToken;
       if (!t) throw new Error("Sign in again.");
       await apiMutateJson("/api/onboarding/complete", "POST", { username: u, headline }, t);
+      void apiMutateJson("/api/activation", "POST", { step: "welcome_success", meta: { username: u } }, t).catch(
+        () => {},
+      );
       await reloadMe();
       router.replace("/");
     } catch (e2) {

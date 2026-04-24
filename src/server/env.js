@@ -58,6 +58,7 @@ function getEnv() {
     nowpaymentsSandbox: process.env.NOWPAYMENTS_SANDBOX === '1' || process.env.NOWPAYMENTS_SANDBOX === 'true',
     /** Optional: protect POST /api/cron/decay-* (Bearer or JSON body.secret). Set in host env, not committed. */
     cronSecret: process.env.CRON_SECRET || '',
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
   };
 }
 

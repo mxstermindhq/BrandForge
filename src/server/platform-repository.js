@@ -2989,6 +2989,9 @@ async function createPlatformRepository(previewRepository) {
     const buffer = Buffer.from(m[2], 'base64');
     if (buffer.length > 4_800_000) throw new Error('File too large (max ~4.8MB)');
     const mime = (m[1].split(';')[0] || 'application/octet-stream').trim();
+    if (!/^image\/(jpeg|png|gif|webp)|application\/pdf$/i.test(mime)) {
+      throw new Error('Unsupported file type (allowed: JPEG, PNG, GIF, WebP, PDF)');
+    }
     const contentType = mime.startsWith('image/') ? 'image' : 'file';
     const rawName = String(originalName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'file';
     const baseName = rawName.replace(/\.[^/.]+$/, '') || 'file';
@@ -3033,6 +3036,9 @@ async function createPlatformRepository(previewRepository) {
     const buffer = Buffer.from(m[2], 'base64');
     if (buffer.length > 4_800_000) throw new Error('File too large (max ~4.8MB)');
     const mime = (m[1].split(';')[0] || 'application/octet-stream').trim();
+    if (!/^image\/(jpeg|png|gif|webp)|application\/pdf$/i.test(mime)) {
+      throw new Error('Unsupported file type (allowed: JPEG, PNG, GIF, WebP, PDF)');
+    }
     const contentType = mime.startsWith('image/') ? 'image' : 'file';
     const rawName = String(originalName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'file';
     const baseName = rawName.replace(/\.[^/.]+$/, '') || 'file';
