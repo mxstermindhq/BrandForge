@@ -68,13 +68,6 @@ const MOCK_PEOPLE_KEYS = new Set([
   "h3",
 ]);
 
-/** CTAs for empty People chat — encourage starting real conversations */
-const PEOPLE_START_CTAS: Array<{ icon: string; title: string; sub: string; href: string }> = [
-  { icon: "📋", title: "Create a request", sub: "Describe the work and invite bids", href: "/requests/new" },
-  { icon: "🛠️", title: "Offer a service", sub: "List what you deliver and get hired", href: "/services/new" },
-  { icon: "🛍️", title: "Browse the marketplace", sub: "Find partners, compare offers", href: "/marketplace" },
-];
-
 const HUMAN_WORKFLOW_STEPS: Array<{
   id: string;
   label: string;
@@ -410,141 +403,11 @@ function RecipientPicker({
 
 function EmptyState({
   recipient,
-  peopleRecipients,
   onSelectRecipientType,
-  onOpenDealRoom,
-  onOpenPath,
 }: {
   recipient: Recipient;
-  peopleRecipients: Recipient[];
   onSelectRecipientType: (type: RecipientType) => void;
-  onOpenDealRoom: (recipient: Recipient) => void;
-  onOpenPath: (path: string) => void;
 }) {
-  const isPeople = recipient.type === "people";
-
-  if (isPeople) {
-    return (
-      <div className="flex h-full min-h-0 flex-col px-4 pb-6 pt-2">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 text-left">
-          <header>
-            <h2 className="text-lg font-bold tracking-tight text-on-surface">Hire People</h2>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              Open a deal room you already have, or start something new below — requests, services, bids, and offers all lead to real conversations.
-            </p>
-          </header>
-
-          <section aria-labelledby="recent-deal-chats-heading">
-            <h3
-              id="recent-deal-chats-heading"
-              className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant"
-            >
-              Recent deal chats
-            </h3>
-            <div className="mt-2 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low">
-              {peopleRecipients.length === 0 ? (
-                <p className="p-4 text-sm leading-relaxed text-on-surface-variant">
-                  No deal rooms yet. Use the three shortcuts below to post a request, offer a service, or browse the marketplace.
-                </p>
-              ) : (
-                <ul className="divide-y divide-outline-variant/60">
-                  {peopleRecipients.map((r) => (
-                    <li key={r.id}>
-                      <button
-                        type="button"
-                        onClick={() => onOpenDealRoom(r)}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-container-high"
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-outline-variant/60 bg-surface-container text-[10px] font-bold text-on-surface-variant">
-                          {initials(r.label)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-on-surface">{r.label}</p>
-                          {r.sublabel ? (
-                            <p className="truncate text-xs text-on-surface-variant">{r.sublabel}</p>
-                          ) : null}
-                        </div>
-                        <span className="shrink-0 text-xs text-primary">Open</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
-
-          <section aria-labelledby="start-conversation-heading">
-            <h3
-              id="start-conversation-heading"
-              className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant"
-            >
-              Start a conversation
-            </h3>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              Create opportunities, respond to bids, make offers, and negotiate — everything here ties back to your deal rooms.
-            </p>
-            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {PEOPLE_START_CTAS.map((c) => (
-                <button
-                  key={c.href}
-                  type="button"
-                  onClick={() => onOpenPath(c.href)}
-                  className="rounded-xl border border-outline-variant/60 bg-surface-container p-3.5 text-left transition hover:border-outline-variant hover:bg-surface-container-high"
-                >
-                  <span className="text-base text-on-surface-variant">{c.icon}</span>
-                  <p className="mt-1.5 text-xs font-semibold leading-snug text-on-surface">{c.title}</p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-on-surface-variant">{c.sub}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-outline-variant/50 pt-4">
-            <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-              Other modes
-            </span>
-            <button
-              type="button"
-              onClick={() => onSelectRecipientType("people")}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition",
-                recipient.type === "people"
-                  ? "bg-surface-container-high text-on-surface"
-                  : "text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              People
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectRecipientType("ai")}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition",
-                recipient.type === "ai"
-                  ? "bg-surface-container-high text-on-surface"
-                  : "text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              AI Models
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectRecipientType("agent")}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition",
-                recipient.type === "agent"
-                  ? "bg-surface-container-high text-on-surface"
-                  : "text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              AI Agents
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
       <div className="w-full max-w-lg text-center">
@@ -559,7 +422,11 @@ function EmptyState({
         </div>
 
         <h2 className="text-xl font-bold tracking-tight text-on-surface">
-          {recipient.type === "agent" ? "Run it with an agent" : "What can I help with?"}
+          {recipient.type === "agent"
+            ? "Run it with an agent"
+            : recipient.type === "people"
+            ? "Pick a deal room from the sidebar"
+            : "What can I help with?"}
         </h2>
         <p className="mt-2 text-sm text-on-surface-variant">Ask AI, Hire People, Run Agents</p>
         <div className="mt-4 flex items-center justify-center gap-1.5">
@@ -603,12 +470,21 @@ function EmptyState({
 
         <div className="mt-8 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-            Feature locked
+            {recipient.type === "people" ? "People chats" : "Feature locked"}
           </p>
-          <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
-          <p className="mt-1 text-xs text-on-surface-variant">
-            Messaging is currently disabled in this mode while core features are being finalized.
-          </p>
+          {recipient.type === "people" ? (
+            <p className="mt-2 text-sm text-on-surface-variant">
+              Start a new conversation from <strong className="text-on-surface">New Chat</strong> or reopen a thread
+              from chat history in the sidebar.
+            </p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
+              <p className="mt-1 text-xs text-on-surface-variant">
+                Messaging is currently disabled in this mode while core features are being finalized.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -1123,10 +999,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     }
   };
 
-  const openPath = (path: string) => {
-    router.push(path);
-  };
-
   const currentUserId = session?.user?.id;
   const hasThread     = Boolean(activeThreadId);
   const isHumanThread = useMemo(
@@ -1138,11 +1010,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     : recipient.type === "people"
       ? !recipient.id
       : true;
-  const openDealRoom = (next: Recipient) => {
-    if (!next.id) return;
-    setRecipient(next);
-    router.push(`/chat/${encodeURIComponent(next.id)}`);
-  };
   const selectRecipientType = (type: RecipientType) => {
     if (type === "people") {
       setRecipient(DEFAULT_PEOPLE_RECIPIENT);
@@ -1315,10 +1182,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           ) : !hasThread && messages.length === 0 ? (
             <EmptyState
               recipient={recipient}
-              peopleRecipients={peopleRecipients}
               onSelectRecipientType={selectRecipientType}
-              onOpenDealRoom={openDealRoom}
-              onOpenPath={openPath}
             />
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
