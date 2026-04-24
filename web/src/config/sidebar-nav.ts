@@ -22,7 +22,6 @@ export const NAV: NavSection[] = [
       { label: "Chat", href: "/chat", materialIcon: "chat" },
       { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },
       { label: "Leaderboard", href: "/leaderboard", materialIcon: "emoji_events" },
-      { label: "Squads", href: "/squads", materialIcon: "groups" },
     ],
   },
 ];

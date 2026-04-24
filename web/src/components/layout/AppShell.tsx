@@ -130,7 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               }
               setDesktopSidebarOpen((open) => !open);
             }}
-            className="border-outline-variant bg-surface-container-high text-on-surface-variant hover:text-on-surface absolute left-3 top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition-colors"
+            className="border-outline-variant bg-surface-container-high text-on-surface-variant hover:text-on-surface absolute left-2.5 top-2.5 z-30 flex h-8 w-8 items-center justify-center rounded-lg border shadow-sm transition-colors"
             aria-label={
               isMobileViewport
                 ? (drawer ? "Close navigation" : "Open navigation")
@@ -142,7 +142,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 : (desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar")
             }
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden>
               {isMobileViewport ? (drawer ? "close" : "menu") : (desktopSidebarOpen ? "left_panel_close" : "left_panel_open")}
             </span>
           </button>

@@ -68,50 +68,6 @@ const MOCK_PEOPLE_KEYS = new Set([
   "h3",
 ]);
 
-const HUMAN_WORKFLOW_STEPS: Array<{
-  id: string;
-  label: string;
-  title: string;
-  description: string;
-  quickActions?: string[];
-}> = [
-  {
-    id: "offer",
-    label: "DEAL START",
-    title: "Bid received / Offer sent",
-    description: "Start from a marketplace bid or direct offer and confirm direction quickly.",
-    quickActions: ["Accept", "Counter offer", "Decline"],
-  },
-  {
-    id: "contract",
-    label: "CONTRACT",
-    title: "Draft and sign contract",
-    description: "Lock the scope, price, timeline, and responsibilities for both sides.",
-    quickActions: ["Draft contract"],
-  },
-  {
-    id: "milestones",
-    label: "DELIVERY",
-    title: "Set milestones and deliverables",
-    description: "Track artifact handoff, status updates, and completion criteria by milestone.",
-    quickActions: ["Set milestone", "Post update"],
-  },
-  {
-    id: "payment",
-    label: "PAYMENT",
-    title: "Request and confirm payment",
-    description: "Request payment at agreed milestones and mark receipts in-thread.",
-    quickActions: ["Request payment"],
-  },
-  {
-    id: "followup",
-    label: "FOLLOW-UP",
-    title: "Follow up and next steps",
-    description: "Capture follow-ups, revisions, and support updates for transparency.",
-    quickActions: ["Follow up"],
-  },
-];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function relativeTime(value?: string | null) {
@@ -486,60 +442,6 @@ function EmptyState({
             </>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-function DealWorkflowCards({
-  onQuickAction,
-}: {
-  onQuickAction: (text: string) => void;
-}) {
-  return (
-    <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-low p-3">
-      <div className="mb-2">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-          Deal workflow
-        </p>
-        <p className="mt-1 text-xs text-on-surface-variant">
-          Keep client and specialist aligned from offer to delivery.
-        </p>
-      </div>
-      <div className="space-y-2">
-        {HUMAN_WORKFLOW_STEPS.map((step) => (
-          <div
-            key={step.id}
-            className="rounded-xl border border-outline-variant/50 bg-surface-container p-3"
-          >
-            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary">{step.label}</p>
-            <p className="mt-1 text-sm font-semibold text-on-surface">{step.title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">{step.description}</p>
-            {step.quickActions?.length ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {step.quickActions.map((action) => (
-                  <button
-                    key={action}
-                    type="button"
-                    onClick={() => onQuickAction(action)}
-                    className={cn(
-                      "rounded-md px-2.5 py-1 text-[10px] font-semibold transition",
-                      action === "Accept"
-                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
-                        : action === "Counter offer"
-                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-300"
-                        : action === "Decline"
-                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-300"
-                        : "bg-surface-container-high text-on-surface-variant hover:text-on-surface"
-                    )}
-                  >
-                    {action}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -1027,10 +929,6 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       router.push(`/chat/${encodeURIComponent(next.id)}`);
     }
   };
-  const handleHumanAction = (text: string) => {
-    setInputText(text);
-    queueMicrotask(() => inputRef.current?.focus());
-  };
   const activeHumanRecipient = useMemo(
     () => peopleRecipients.find((p) => String(p.id) === String(activeThreadId)),
     [peopleRecipients, activeThreadId],
@@ -1187,13 +1085,11 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
               <div className="w-full max-w-2xl space-y-4">
-                {isHumanThread ? <DealWorkflowCards onQuickAction={handleHumanAction} /> : null}
                 <p className="text-sm text-on-surface-variant">No messages yet. Start the conversation.</p>
               </div>
             </div>
           ) : (
             <div className="mx-auto max-w-2xl space-y-5">
-              {isHumanThread ? <DealWorkflowCards onQuickAction={handleHumanAction} /> : null}
               {messages.map(message => {
                 const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
                 return <MessageBubble key={message.id} message={message} isMine={isMine} />;

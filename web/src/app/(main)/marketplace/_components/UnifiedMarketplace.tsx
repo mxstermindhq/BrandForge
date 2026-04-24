@@ -188,6 +188,7 @@ export function UnifiedMarketplace() {
   const viewMode = parseViewMode(params.get("view"));
   const sortBy = parseSort(params.get("sort"));
   const [searchDraft, setSearchDraft] = useState(qFromUrl);
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const { data, err, loading } = useBootstrap();
   const { session } = useAuth();
@@ -547,16 +548,39 @@ export function UnifiedMarketplace() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="overflow-hidden rounded-2xl border border-border bg-muted/20">
                 {combinedListings.items.map((item) => {
                   const isService = item._type === "service" || (!item._type && "price" in item);
-                  
+                  const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
+                  const expanded = expandedKey === rowKey;
                   if (isService) {
                     const s = item as ServiceRow;
-                    return <ServiceCard key={`svc-${s.id}`} service={s} session={session} />;
+                    return (
+                      <MarketplaceRow
+                        key={rowKey}
+                        expanded={expanded}
+                        onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
+                        heading={s.title || "Untitled service"}
+                        subheading={`Offer · ${s.cat || "Service"}`}
+                        rightMeta={`$${s.price?.toLocaleString() || "—"}`}
+                      >
+                        <ServiceDetails service={s} session={session} />
+                      </MarketplaceRow>
+                    );
                   } else {
                     const r = item as Req;
-                    return <RequestCard key={`req-${r.id}`} request={r} session={session} />;
+                    return (
+                      <MarketplaceRow
+                        key={rowKey}
+                        expanded={expanded}
+                        onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
+                        heading={r.title || "Untitled request"}
+                        subheading={`Request · ${r.category || "General"}`}
+                        rightMeta={formatRequestBudget(r)}
+                      >
+                        <RequestDetails request={r} session={session} />
+                      </MarketplaceRow>
+                    );
                   }
                 })}
               </div>
@@ -575,8 +599,41 @@ export function UnifiedMarketplace() {
   );
 }
 
-// Service Card Component
-function ServiceCard({ service, session }: { service: ServiceRow; session: ReturnType<typeof useAuth>["session"] }) {
+function MarketplaceRow({
+  expanded,
+  onToggle,
+  heading,
+  subheading,
+  rightMeta,
+  children,
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+  heading: string;
+  subheading: string;
+  rightMeta: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted/40"
+      >
+        <ChevronDown size={16} className={`shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">{heading}</p>
+          <p className="truncate text-xs text-muted-foreground">{subheading}</p>
+        </div>
+        <span className="shrink-0 text-xs font-semibold text-foreground">{rightMeta}</span>
+      </button>
+      {expanded ? <div className="border-t border-border bg-background px-4 py-4">{children}</div> : null}
+    </div>
+  );
+}
+
+function ServiceDetails({ service, session }: { service: ServiceRow; session: ReturnType<typeof useAuth>["session"] }) {
   const ownerU = (service.ownerUsername || "").trim();
   const isMine = Boolean(session?.user?.id && service.ownerId && String(session.user.id) === String(service.ownerId));
   const detailHref = service.id ? `/services/${service.id}` : "/marketplace";
@@ -585,221 +642,119 @@ function ServiceCard({ service, session }: { service: ServiceRow; session: Retur
   const dealLbl = formatDealRecordShort(service.ownerDealWins, service.ownerDealLosses);
   const tier = reputationTier(service.ownerReputation, service.ownerDealWins);
   const deliveryChip = serviceDeliveryChip(service.deliveryDays);
-  
+
   return (
-    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-amber-500/[0.03] to-transparent border-border hover:border-amber-500/30">
-      {service.topMember && (
-        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-amber-500 to-amber-600 text-black text-[10px] font-bold uppercase tracking-wider rounded-bl-lg">
-          <Star size={10} className="inline mr-1"/> Featured
-        </div>
-      )}
-
-      <div className="p-5">
-        {/* Top row: type badge + category */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20">
-            <Briefcase size={10}/> Offer
-          </div>
-          <div className="text-xs text-muted-foreground">{service.cat || "Service"}</div>
-          {isMine && (
-            <div className="ml-auto text-[10px] px-2 py-0.5 bg-foreground/10 rounded">YOUR LISTING</div>
-          )}
-        </div>
-
-        {/* Title */}
-        <Link href={detailHref}>
-          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
-            {service.title || "Untitled service"}
-          </h3>
-        </Link>
-
-        {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
-          {service.description || "No description provided."}
-        </p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {[service.sel].filter(Boolean).map((tag, i) => (
-            <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-          <span className="font-medium text-foreground">{dealLbl ?? "No closed deals yet"}</span>
-          <span className="opacity-40">·</span>
-          <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
-          {deliveryChip ? (
-            <>
-              <span className="opacity-40">·</span>
-              <span>{deliveryChip}</span>
-            </>
-          ) : null}
-        </div>
-
-        {/* Views + Offers row */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-          <div className="flex items-center gap-1">
-            <Eye size={12}/> {service.views || 0} views
-          </div>
-          <div className="flex items-center gap-1">
-            <Briefcase size={12}/> {service.offers || service.sales || 0} offers
-          </div>
-        </div>
-
-        {/* Author card */}
-        <div className="flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-xl mb-4">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-muted-foreground/40 to-muted flex items-center justify-center font-semibold">
-              {service.ownerUsername?.[0]?.toUpperCase() || "?"}
-            </div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <div className="font-medium text-sm truncate">{service.ownerUsername || "Anonymous"}</div>
-              <div className={`text-[10px] font-semibold ${tierColors[tier]}`}>{tier}</div>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Star size={10} className="text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400"/>
-                <span className="text-foreground">{service.rating !== "New" ? service.rating : "4.5"}</span>
-              </div>
-              <span>·</span>
-              <span>{dealLbl || "0 deals"}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Price + delivery row */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-3 bg-muted/50 border border-border rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Starting at</div>
-            <div className="text-lg font-bold">${service.price?.toLocaleString() || "—"}</div>
-          </div>
-          <div className="p-3 bg-muted/50 border border-border rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Delivery</div>
-            <div className="text-lg font-bold flex items-center gap-1.5">
-              <Clock size={14} className="text-muted-foreground"/>
-              ~{service.deliveryDays || "?"} days
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <Link href={isMine ? detailHref : bidHref}>
-          <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
-            isMine
-              ? "bg-muted text-foreground hover:bg-muted/80"
-              : "bg-amber-500 text-black hover:bg-amber-400"
-          }`}>
-            {isMine ? "Manage listing" : "Hire now"}
-            <ArrowRight size={14}/>
-          </button>
-        </Link>
+    <div>
+      <p className="mb-3 text-sm text-muted-foreground">{service.description || "No description provided."}</p>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {[service.sel].filter(Boolean).map((tag, i) => (
+          <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
+            {tag}
+          </span>
+        ))}
       </div>
+      <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+        <span className="font-medium text-foreground">{dealLbl ?? "No closed deals yet"}</span>
+        <span className="opacity-40">·</span>
+        <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
+        {deliveryChip ? (
+          <>
+            <span className="opacity-40">·</span>
+            <span>{deliveryChip}</span>
+          </>
+        ) : null}
+      </div>
+      <div className="mb-4 flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <Eye size={12}/> {service.views || 0} views
+        </div>
+        <div className="flex items-center gap-1">
+          <Briefcase size={12}/> {service.offers || service.sales || 0} offers
+        </div>
+      </div>
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="p-3 bg-muted/50 border border-border rounded-xl">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Starting at</div>
+          <div className="text-lg font-bold">${service.price?.toLocaleString() || "—"}</div>
+        </div>
+        <div className="p-3 bg-muted/50 border border-border rounded-xl">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Delivery</div>
+          <div className="text-lg font-bold flex items-center gap-1.5">
+            <Clock size={14} className="text-muted-foreground"/>
+            ~{service.deliveryDays || "?"} days
+          </div>
+        </div>
+      </div>
+      <Link href={isMine ? detailHref : bidHref}>
+        <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
+          isMine
+            ? "bg-muted text-foreground hover:bg-muted/80"
+            : "bg-amber-500 text-black hover:bg-amber-400"
+        }`}>
+          {isMine ? "Manage listing" : "Hire now"}
+          <ArrowRight size={14}/>
+        </button>
+      </Link>
     </div>
   );
 }
 
-// Request Card Component  
-function RequestCard({ request, session }: { request: Req; session: ReturnType<typeof useAuth>["session"] }) {
+function RequestDetails({ request, session }: { request: Req; session: ReturnType<typeof useAuth>["session"] }) {
   const isMine = request.isUserCreated;
   const detailHref = request.id ? `/requests/${request.id}` : "/marketplace";
   const bidHref = request.id ? `/bid/request?id=${encodeURIComponent(request.id || "")}` : "/marketplace";
   const dealLbl = formatDealRecordShort(request.ownerDealWins, request.ownerDealLosses);
-  const band = bandUi(request.band);
   const tier = reputationTier(request.ownerReputation, request.ownerDealWins);
   const timelineLbl = requestTimelineLabel(request.days);
 
   return (
-    <div className="group relative rounded-2xl border overflow-hidden transition-all hover:-translate-y-0.5 bg-gradient-to-br from-sky-500/[0.03] to-transparent border-border hover:border-sky-500/30">
-      {/* Urgent ribbon */}
-      {request.band === "urgent" && (
-        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-rose-500 to-rose-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-bl-lg">
-          <span className="inline mr-1">!</span> Urgent
-        </div>
-      )}
-
-      <div className="p-5">
-        {/* Top row: type badge + category */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-sky-500/10 text-sky-500 dark:text-sky-400 border border-sky-500/20">
-            <FileText size={10}/> Request
-          </div>
-          <div className="text-xs text-muted-foreground">{request.category || "General"}</div>
-          {isMine && (
-            <div className="ml-auto text-[10px] px-2 py-0.5 bg-foreground/10 rounded">YOUR REQUEST</div>
-          )}
-        </div>
-
-        {/* Title */}
-        <Link href={detailHref}>
-          <h3 className="text-lg font-semibold leading-snug mb-2 group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
-            {request.title || "Untitled request"}
-          </h3>
-        </Link>
-
-        {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
-          {request.desc || "No description provided."}
-        </p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {(request.tags || []).slice(0, 3).map((tag, i) => (
-            <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-          <span className="font-medium text-foreground">{dealLbl ?? "No deal history yet"}</span>
-          <span className="opacity-40">·</span>
-          <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
-          <span className="opacity-40">·</span>
-          <span>Timeline {timelineLbl}</span>
-        </div>
-
-        {/* Views + Bids row */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-          <div className="flex items-center gap-1">
-            <Eye size={12}/> {request.views || 0} views
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageSquare size={12}/> {request.bids || 0} bids
-          </div>
-        </div>
-
-        {/* Budget + deadline row */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-3 bg-muted/50 border border-border rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Budget</div>
-            <div className="text-lg font-bold">{formatRequestBudget(request)}</div>
-          </div>
-          <div className="p-3 bg-muted/50 border border-border rounded-xl">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Deadline</div>
-            <div className="text-lg font-bold flex items-center gap-1.5">
-              <Clock size={14} className="text-muted-foreground"/>
-              {request.days || "?"} days
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <Link href={isMine ? detailHref : request.canBid !== false ? bidHref : detailHref}>
-          <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
-            isMine
-              ? "bg-muted text-foreground hover:bg-muted/80"
-              : "bg-sky-500 text-black hover:bg-sky-400"
-          }`}>
-            {isMine ? "Manage request" : request.canBid !== false ? "Submit proposal" : "View"}
-            <ArrowRight size={14}/>
-          </button>
-        </Link>
+    <div>
+      <p className="mb-3 text-sm text-muted-foreground">{request.desc || "No description provided."}</p>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {(request.tags || []).slice(0, 3).map((tag, i) => (
+          <span key={i} className="text-[10px] px-2 py-1 bg-muted text-muted-foreground rounded border border-border">
+            {tag}
+          </span>
+        ))}
       </div>
+      <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+        <span className="font-medium text-foreground">{dealLbl ?? "No deal history yet"}</span>
+        <span className="opacity-40">·</span>
+        <span className={`font-semibold ${tierColors[tier]}`}>{tier}</span>
+        <span className="opacity-40">·</span>
+        <span>Timeline {timelineLbl}</span>
+      </div>
+      <div className="mb-4 flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <Eye size={12}/> {request.views || 0} views
+        </div>
+        <div className="flex items-center gap-1">
+          <MessageSquare size={12}/> {request.bids || 0} bids
+        </div>
+      </div>
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="p-3 bg-muted/50 border border-border rounded-xl">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Budget</div>
+          <div className="text-lg font-bold">{formatRequestBudget(request)}</div>
+        </div>
+        <div className="p-3 bg-muted/50 border border-border rounded-xl">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Deadline</div>
+          <div className="text-lg font-bold flex items-center gap-1.5">
+            <Clock size={14} className="text-muted-foreground"/>
+            {request.days || "?"} days
+          </div>
+        </div>
+      </div>
+      <Link href={isMine ? detailHref : request.canBid !== false ? bidHref : detailHref}>
+        <button className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
+          isMine
+            ? "bg-muted text-foreground hover:bg-muted/80"
+            : "bg-sky-500 text-black hover:bg-sky-400"
+        }`}>
+          {isMine ? "Manage request" : request.canBid !== false ? "Submit proposal" : "View"}
+          <ArrowRight size={14}/>
+        </button>
+      </Link>
     </div>
   );
 }

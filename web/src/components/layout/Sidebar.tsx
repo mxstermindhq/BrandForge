@@ -111,6 +111,17 @@ export function Sidebar({
         className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 pb-4"
         aria-label="Main navigation"
       >
+        {session ? (
+          <div className="mb-3">
+            <Link
+              href="/chat"
+              onClick={onNavigate}
+              className="inline-flex min-h-[36px] w-full items-center justify-center rounded-lg bg-foreground px-3 py-2 text-[12px] font-semibold text-background transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              New Chat
+            </Link>
+          </div>
+        ) : null}
         <div className="space-y-0.5">
           {NAV.map((block, bi) => (
             <div
@@ -156,16 +167,6 @@ export function Sidebar({
         </div>
         {session ? (
           <div className="mt-4 border-t border-outline-variant/40 pt-4">
-            <p className="px-2.5 pb-2 text-[10px] font-headline font-600 tracking-[0.08em] text-on-surface-variant/60">
-              SQUADS
-            </p>
-            <Link
-              href="/chat"
-              onClick={onNavigate}
-              className="mx-2.5 mb-2 inline-flex min-h-[36px] w-[calc(100%-1.25rem)] items-center justify-center rounded-lg bg-foreground px-3 py-2 text-[12px] font-semibold text-background transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-            >
-              New Chat
-            </Link>
             <p className="px-2.5 pb-1 text-[10px] font-headline font-600 tracking-[0.08em] text-on-surface-variant/60">
               Chat history
             </p>
