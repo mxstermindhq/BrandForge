@@ -225,8 +225,9 @@ function createRatingService(client) {
       const pageSize = 1000;
       let from = 0;
       const all = [];
-      const selectFull = 'id, username, full_name, avatar_url, is_verified, top_member';
-      const selectNoTop = 'id, username, full_name, avatar_url, is_verified';
+      const selectFull =
+        'id, username, full_name, avatar_url, is_verified, top_member, rating_avg, headline, completed_projects_count';
+      const selectNoTop = 'id, username, full_name, avatar_url, is_verified, rating_avg, headline, completed_projects_count';
       let useTopMember = true;
       for (;;) {
         const sel = useTopMember ? selectFull : selectNoTop;
@@ -236,10 +237,29 @@ function createRatingService(client) {
           .order('created_at', { ascending: false })
           .range(from, from + pageSize - 1);
         if (error) {
-          if (useTopMember && String(error.message || '').includes('top_member')) {
+          const msg = String(error.message || '');
+          if (useTopMember && msg.includes('top_member')) {
             useTopMember = false;
             from = 0;
             all.length = 0;
+            continue;
+          }
+          if (msg.includes('completed_projects_count') || msg.includes('rating_avg') || msg.includes('headline')) {
+            const selectLegacy = 'id, username, full_name, avatar_url, is_verified';
+            const selLegacyTop = `${selectLegacy}, top_member`;
+            const { data: d2, error: e2 } = await client
+              .from('profiles')
+              .select(useTopMember ? selLegacyTop : selectLegacy)
+              .order('created_at', { ascending: false })
+              .range(from, from + pageSize - 1);
+            if (e2) {
+              console.warn('[rating] getLeaderboard profiles:', e2.message);
+              return [];
+            }
+            if (!d2?.length) break;
+            all.push(...d2.map((row) => ({ ...row, rating_avg: null, headline: null, completed_projects_count: null })));
+            if (d2.length < pageSize) break;
+            from += pageSize;
             continue;
           }
           console.warn('[rating] getLeaderboard profiles:', error.message);
@@ -255,7 +275,13 @@ function createRatingService(client) {
 
     try {
       const profRows = await fetchAllProfiles();
-      if (!profRows.length) return { entries: [], season };
+      if (!profRows.length) {
+        return {
+          entries: [],
+          season,
+          meta: { totalProfessionals: 0, totalDealsClosed: 0 },
+        };
+      }
 
       const ids = profRows.map((p) => p.id).filter(Boolean);
       const ucM = new Map();
@@ -285,6 +311,13 @@ function createRatingService(client) {
         if (type === 'honor') sortKey = honor;
         else if (type === 'conquest') sortKey = conq;
         else if (type === 'streak') sortKey = streak;
+        else if (type === 'performance') {
+          const deals = Number(ur.deal_wins) || 0;
+          const ra = Number(p.rating_avg) || 0;
+          const vol = Number(uc.total_conquest_earned) || 0;
+          const completed = Number(p.completed_projects_count) || 0;
+          sortKey = deals * 1e15 + ra * 1e12 + vol * 1e3 + completed;
+        }
         return { p, uc, ur, honor, conq, neon, streak, sortKey };
       });
 
@@ -299,16 +332,21 @@ function createRatingService(client) {
         !Number.isFinite(n) || n <= 0 ? scored : scored.slice(0, Math.min(maxCap, Math.max(1, n)));
 
       const entries = sliced.map((row, idx) => {
-        const { p, ur, honor, conq } = row;
+        const { p, ur, honor, conq, uc } = row;
         const id = p.id;
         const w = Number(ur.deal_wins) || 0;
         const l = Number(ur.deal_losses) || 0;
         const winRate = w + l > 0 ? Math.round((w / (w + l)) * 1000) / 10 : 0;
+        const ratingAvg = p.rating_avg != null && Number.isFinite(Number(p.rating_avg)) ? Number(p.rating_avg) : null;
         return {
           rank: idx + 1,
           userId: id,
           username: p.username || null,
           displayName: p.full_name || p.username || 'Member',
+          headline: p.headline || null,
+          ratingAvg,
+          dealVolume: Number(uc.total_conquest_earned) || 0,
+          completedProjects: Number(p.completed_projects_count) || 0,
           avatarUrl: p.avatar_url || null,
           isVerified: Boolean(p.is_verified),
           topMember: Boolean(p.top_member ?? false),
@@ -326,10 +364,19 @@ function createRatingService(client) {
         };
       });
 
-      return { entries, season };
+      const meta = {
+        totalProfessionals: profRows.length,
+        totalDealsClosed: scored.reduce((sum, x) => sum + (Number(x.ur?.deal_wins) || 0), 0),
+      };
+
+      return { entries, season, meta };
     } catch (e) {
       console.warn('[rating] getLeaderboard:', e.message);
-      return { entries: [], season };
+      return {
+        entries: [],
+        season,
+        meta: { totalProfessionals: 0, totalDealsClosed: 0 },
+      };
     }
   }
 

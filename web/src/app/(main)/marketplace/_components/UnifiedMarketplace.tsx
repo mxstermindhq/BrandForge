@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { useAuth } from "@/providers/AuthProvider";
+import { apiGetJson } from "@/lib/api";
 import { SmartMatchEngine } from "@/components/marketplace/SmartMatchEngine";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { formatDealRecordShort } from "@/lib/deal-record";
@@ -190,8 +191,37 @@ export function UnifiedMarketplace() {
   const [searchDraft, setSearchDraft] = useState(qFromUrl);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [eco, setEco] = useState<{
+    listingsActive: number;
+    volumeUsdEstimate: number;
+    registeredMembers: number;
+  } | null>(null);
   const { data, err, loading } = useBootstrap();
   const { session } = useAuth();
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const j = await apiGetJson<{
+          listingsActive?: number;
+          volumeUsdEstimate?: number;
+          registeredMembers?: number;
+        }>("/api/marketplace/stats", null);
+        if (cancelled) return;
+        setEco({
+          listingsActive: Number(j.listingsActive) || 0,
+          volumeUsdEstimate: Number(j.volumeUsdEstimate) || 0,
+          registeredMembers: Number(j.registeredMembers) || 0,
+        });
+      } catch {
+        if (!cancelled) setEco(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     setSearchDraft(qFromUrl);
@@ -283,6 +313,34 @@ export function UnifiedMarketplace() {
                 <Store size={12}/> Marketplace
               </div>
               <h1 className="text-4xl font-bold">Browse opportunities</h1>
+              {eco ? (
+                <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                  <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600/90 dark:text-emerald-400/90">
+                      Est. marketplace volume
+                    </p>
+                    <p className="font-mono text-lg font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                      ${eco.volumeUsdEstimate.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-sky-500/25 bg-sky-500/5 px-4 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-sky-600/90 dark:text-sky-400/90">
+                      Active listings
+                    </p>
+                    <p className="font-mono text-lg font-bold tabular-nums text-sky-600 dark:text-sky-400">
+                      {eco.listingsActive.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-violet-500/25 bg-violet-500/5 px-4 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-600/90 dark:text-violet-300/90">
+                      Registered members
+                    </p>
+                    <p className="font-mono text-lg font-bold tabular-nums text-violet-600 dark:text-violet-300">
+                      {eco.registeredMembers.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

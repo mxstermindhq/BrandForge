@@ -29,12 +29,21 @@ interface Request {
 interface Stats {
   servicesCount: number;
   requestsCount: number;
+  listingsActive?: number;
+  volumeUsdEstimate?: number;
+  registeredMembers?: number;
 }
 
 export function MarketplacePreview() {
   const [services, setServices] = useState<Service[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
-  const [stats, setStats] = useState<Stats>({ servicesCount: 0, requestsCount: 0 });
+  const [stats, setStats] = useState<Stats>({
+    servicesCount: 0,
+    requestsCount: 0,
+    listingsActive: 0,
+    volumeUsdEstimate: 0,
+    registeredMembers: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"services" | "requests">("services");
 
@@ -49,13 +58,19 @@ export function MarketplacePreview() {
         setServices(previewRes.services?.slice(0, 4) || []);
         setRequests(previewRes.requests?.slice(0, 3) || []);
         if (statsRes) {
-          setStats(statsRes);
+          setStats({
+            servicesCount: statsRes.servicesCount ?? 0,
+            requestsCount: statsRes.requestsCount ?? 0,
+            listingsActive: statsRes.listingsActive ?? (statsRes.servicesCount ?? 0) + (statsRes.requestsCount ?? 0),
+            volumeUsdEstimate: statsRes.volumeUsdEstimate ?? 0,
+            registeredMembers: statsRes.registeredMembers ?? 0,
+          });
         }
       } catch {
         // Silently fail - show empty state
         setServices([]);
         setRequests([]);
-        setStats({ servicesCount: 0, requestsCount: 0 });
+        setStats({ servicesCount: 0, requestsCount: 0, listingsActive: 0, volumeUsdEstimate: 0, registeredMembers: 0 });
       } finally {
         setLoading(false);
       }
@@ -80,6 +95,26 @@ export function MarketplacePreview() {
             <div>
               <h2 className="text-lg font-semibold">Marketplace</h2>
               <p className="text-xs text-zinc-500">Live opportunities</p>
+              <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-zinc-400">
+                <span>
+                  <span className="font-semibold text-emerald-400 tabular-nums">
+                    ${(stats.volumeUsdEstimate ?? 0).toLocaleString()}
+                  </span>{" "}
+                  est. volume
+                </span>
+                <span className="text-zinc-600">·</span>
+                <span>
+                  <span className="font-semibold text-sky-400 tabular-nums">{stats.listingsActive?.toLocaleString() ?? "—"}</span>{" "}
+                  active listings
+                </span>
+                <span className="text-zinc-600">·</span>
+                <span>
+                  <span className="font-semibold text-violet-400 tabular-nums">
+                    {stats.registeredMembers?.toLocaleString() ?? "—"}
+                  </span>{" "}
+                  members
+                </span>
+              </div>
             </div>
           </div>
           <Link

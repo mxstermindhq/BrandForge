@@ -630,15 +630,24 @@ async function routeApi(req, res, pathname) {
       const servicesCount = marketplaceStats.servicesPublished ?? 2450;
       const requestsCount = marketplaceStats.requestsOpen ?? 180;
       console.log('[API /api/marketplace/stats] returning:', { servicesCount, requestsCount });
+      const listingsActive = marketplaceStats.listingsActive ?? servicesCount + requestsCount;
+      const volumeUsdEstimate = marketplaceStats.volumeUsdEstimate ?? 0;
+      const registeredMembers = marketplaceStats.registeredMembers ?? 0;
       sendJson(res, 200, {
         servicesCount,
         requestsCount,
+        listingsActive,
+        volumeUsdEstimate,
+        registeredMembers,
       });
     } catch (error) {
       console.error('[API /api/marketplace/stats] error:', error);
       sendJson(res, 200, {
         servicesCount: 2450,
         requestsCount: 180,
+        listingsActive: 2630,
+        volumeUsdEstimate: 0,
+        registeredMembers: 0,
       });
     }
     return true;
@@ -899,22 +908,29 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  const leaderboardTypeMatch = pathname.match(/^\/api\/leaderboard\/(rating|ranking|honor|conquest|streak|season)$/);
+  const leaderboardTypeMatch = pathname.match(
+    /^\/api\/leaderboard\/(rating|ranking|honor|conquest|streak|season|performance)$/,
+  );
   if (leaderboardTypeMatch && method === 'GET') {
     let type = leaderboardTypeMatch[1];
     // Map 'ranking' to 'rating' for frontend compatibility
     if (type === 'ranking') type = 'rating';
     // Map 'season' to 'rating' as default leaderboard
     if (type === 'season') type = 'rating';
+    const u = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
+    const limitParam = u.searchParams.get('limit');
+    const parsedLimit = limitParam != null && limitParam !== '' ? Number(limitParam) : 0;
+    const limit = Number.isFinite(parsedLimit) ? parsedLimit : 0;
     const rs = platformRepository.ratingService;
-    // Pass 0 as limit to get ALL registered users, not just top N
-    const { entries, season } = rs
-      ? await rs.getLeaderboard(type, 0)
-      : { entries: [], season: null };
+    const lb = rs
+      ? await rs.getLeaderboard(type, limit)
+      : { entries: [], season: null, meta: { totalProfessionals: 0, totalDealsClosed: 0 } };
+    const { entries, season, meta } = lb;
     sendJson(res, 200, {
       type,
       users: entries, // Rename to users for frontend compatibility
       entries, // Keep for backwards compatibility
+      meta: meta || { totalProfessionals: 0, totalDealsClosed: 0 },
       onlineUserIds: listOnlineUserIds(),
       season: season
         ? {

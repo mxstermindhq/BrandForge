@@ -575,6 +575,7 @@ async function createPlatformRepository(previewRepository) {
       const rows = pubSvcRes.error ? [] : pubSvcRes.data || [];
       const owners = new Set(rows.map((r) => r.owner_id).filter(Boolean));
       const ordersSum = rows.reduce((s, r) => s + (Number(r.metadata?.sales) || 0), 0);
+      const servicesVolumeUsd = rows.reduce((s, r) => s + Number(r.base_price || 0), 0);
       const avgPrice = rows.length
         ? Math.round(rows.reduce((s, r) => s + Number(r.base_price || 0), 0) / rows.length)
         : 0;
@@ -594,17 +595,45 @@ async function createPlatformRepository(previewRepository) {
         ? Math.round(budgetMids.reduce((s, v) => s + v, 0) / budgetMids.length)
         : null;
 
+      const openReqRows = rrows.filter((r) => r.status === 'open');
+      let openRequestBudgetSum = 0;
+      for (const r of openReqRows) {
+        const mn = Number(r.budget_min);
+        const mx = Number(r.budget_max);
+        if (Number.isFinite(mn) || Number.isFinite(mx)) {
+          const a = Number.isFinite(mn) ? mn : mx;
+          const b = Number.isFinite(mx) ? mx : mn;
+          openRequestBudgetSum += (a + b) / 2;
+        }
+      }
+
+      let registeredMembers = 0;
+      try {
+        const { count, error: pcErr } = await client
+          .from('profiles')
+          .select('id', { count: 'exact', head: true });
+        if (!pcErr) registeredMembers = Number(count) || 0;
+      } catch (_) {
+        /* optional */
+      }
+
+      const listingsActive = rows.length + openReqRows.length;
+      const volumeUsdEstimate = Math.round(servicesVolumeUsd + openRequestBudgetSum);
+
       return {
         servicesPublished: rows.length,
         uniqueSellers: owners.size,
         ordersTracked: ordersSum,
         avgServicePrice: avgPrice,
         requestsTotal: rrows.length,
-        requestsOpen: rrows.filter((r) => r.status === 'open').length,
+        requestsOpen: openReqRows.length,
         requestsReview: rrows.filter((r) => r.status === 'review').length,
         requestsClosed: rrows.filter((r) => r.status === 'closed').length,
         bidsTotal: bidRes.error ? 0 : bidRes.count || 0,
         avgRequestBudgetMid: avgReqBudget,
+        listingsActive,
+        volumeUsdEstimate,
+        registeredMembers,
       };
     } catch (e) {
       console.warn('[bootstrap] marketplace stats:', e.message);
@@ -4966,6 +4995,7 @@ async function createPlatformRepository(previewRepository) {
           honor_points: Number(uc.honor_points) || 0,
           conquest_points: Number(uc.conquest_points) || 0,
           neonScore: (Number(uc.honor_points) || 0) + (Number(uc.conquest_points) || 0) * 10,
+          total_conquest_earned: Number(uc.total_conquest_earned) || 0,
         };
       }
       if (ur) {

@@ -25,9 +25,9 @@
 | Zone                  | Role                                                                                                 |
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
 | **Marketplace**       | Canonical discovery for services + requests (legacy `/services` / `/requests` index redirect here).  |
-| **Chat / deal rooms** | Execution and negotiation; empty state drives requests, services, bids, squads.                      |
-| **Leaderboard**       | Competitive loop; show **username only** (no full name stack), normal weight, no `@` prefix in list. |
-| **Profile**           | Public by default at `/p/{username}` once a username exists; settings copy matches that.             |
+| **Chat / deal rooms** | Execution and negotiation; hub empty state uses **People / AI Models / AI Agents** tabs — People shows marketplace CTAs + import card + top performers; AI tabs prioritize the composer. |
+| **Leaderboard**       | **Performance** view: deals closed, lifetime volume score, public rating; aggregate **professionals** + **deals closed** in header — no WoW-style honor/conquest framing in UX.              |
+| **Profile**           | Public at `/p/{username}` with tabs **About · Services/Requests · Reviews · Portfolio** and a compact stat strip (projects, deals, rating, volume, response).                             |
 | **Welcome**           | Onboarding uses shared tokens (no orphan dark-only zinc pages).                                      |
 
 

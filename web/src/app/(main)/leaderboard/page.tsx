@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { WoWRankingSystem } from "@/components/leaderboard/WoWRankingSystem";
+import { PerformanceLeaderboard } from "@/components/leaderboard/WoWRankingSystem";
 
 export const metadata: Metadata = {
-  title: "Arena Rankings | BrandForge",
+  title: "Leaderboard | BrandForge",
   description:
-    "World of BrandForge competitive rankings. Rise from Challenger to Undisputed. " +
-    "Earn Honor, Conquest, and RP through successful deals. Seasonal prize pools.",
+    "Top professionals ranked by closed deals, marketplace volume, and client ratings — transparent signals for hiring.",
   openGraph: { url: "https://brandforge.gg/leaderboard" },
 };
 
 export default function LeaderboardPage() {
-  return <WoWRankingSystem />;
+  return <PerformanceLeaderboard />;
 }

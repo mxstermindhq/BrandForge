@@ -1,9 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { Send, Paperclip, ChevronDown, X, Mic } from "lucide-react";
+import {
+  Send,
+  Paperclip,
+  ChevronDown,
+  X,
+  Mic,
+  Store,
+  ClipboardList,
+  Briefcase,
+  ArrowRight,
+  Star,
+  Upload,
+  Sparkles,
+} from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
@@ -344,6 +358,145 @@ function RecipientPicker({
   );
 }
 
+// ─── Chat hub landing (empty thread) ───────────────────────────────────────────
+
+type MiniLbRow = {
+  rank: number;
+  username: string | null;
+  displayName: string;
+  dealWins: number;
+  ratingAvg: number | null;
+  dealVolume: number;
+};
+
+function HubTabBar({
+  recipient,
+  onSelectRecipientType,
+}: {
+  recipient: Recipient;
+  onSelectRecipientType: (type: RecipientType) => void;
+}) {
+  return (
+    <div className="flex shrink-0 rounded-xl border border-outline-variant/60 bg-surface-container-low p-1">
+      {(["people", "ai", "agent"] as RecipientType[]).map((t) => (
+        <button
+          key={t}
+          type="button"
+          onClick={() => onSelectRecipientType(t)}
+          className={cn(
+            "rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm",
+            recipient.type === t ? "bg-surface-container-high text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface",
+          )}
+        >
+          {t === "people" ? "People" : t === "ai" ? "AI Models" : "AI Agents"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ChatLeaderboardPreview() {
+  const [rows, setRows] = useState<MiniLbRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const data = await apiGetJson<Record<string, unknown>>("/api/leaderboard/performance?limit=6", null);
+        if (cancelled) return;
+        const raw = Array.isArray(data.entries) ? data.entries : Array.isArray(data.users) ? data.users : [];
+        const out: MiniLbRow[] = [];
+        for (const row of raw) {
+          if (!row || typeof row !== "object") continue;
+          const r = row as Record<string, unknown>;
+          const rank = Number(r.rank);
+          if (!Number.isFinite(rank) || rank <= 0) continue;
+          out.push({
+            rank,
+            username: r.username != null ? String(r.username).trim() : null,
+            displayName: String(r.displayName ?? r.fullName ?? r.username ?? "Member").trim(),
+            dealWins: Number(r.dealWins) || 0,
+            ratingAvg: r.ratingAvg != null && Number.isFinite(Number(r.ratingAvg)) ? Number(r.ratingAvg) : null,
+            dealVolume: Number(r.dealVolume) || 0,
+          });
+        }
+        setRows(out);
+      } catch {
+        if (!cancelled) setRows([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-low/80 p-4 text-left">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">Top professionals</p>
+        <Link href="/leaderboard" className="text-xs font-semibold text-sky-500 hover:text-sky-400">
+          View all →
+        </Link>
+      </div>
+      {loading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-12 animate-pulse rounded-xl bg-surface-container-high/60" />
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
+        <p className="text-xs text-on-surface-variant">Rankings will appear as members close deals.</p>
+      ) : (
+        <ul className="space-y-2">
+          {rows.map((p) => (
+            <li key={`${p.rank}-${p.username || "x"}`}>
+              {p.username ? (
+                <Link
+                  href={`/p/${encodeURIComponent(p.username)}`}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-transparent px-2 py-2 transition hover:border-outline-variant hover:bg-surface-container-high/40"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className={cn(
+                        "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                        p.rank === 1
+                          ? "bg-amber-500/20 text-amber-400"
+                          : p.rank === 2
+                            ? "bg-zinc-400/20 text-zinc-300"
+                            : "bg-surface-container-high text-on-surface-variant",
+                      )}
+                    >
+                      {p.rank}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-sky-400">{p.displayName}</p>
+                      <p className="truncate text-[11px] text-on-surface-variant">@{p.username}</p>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-0.5 text-[11px]">
+                    <span className="font-semibold text-emerald-400 tabular-nums">{p.dealWins} deals</span>
+                    <span className="flex items-center gap-0.5 text-amber-500">
+                      <Star className="h-3 w-3" aria-hidden />
+                      <span className="tabular-nums">{p.ratingAvg != null ? p.ratingAvg.toFixed(1) : "—"}</span>
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex items-center justify-between px-2 py-2 text-sm text-on-surface-variant">
+                  <span>{p.displayName}</span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 function EmptyState({
@@ -360,63 +513,116 @@ function EmptyState({
   const [importErr, setImportErr] = useState<string | null>(null);
   const [form, setForm] = useState<SocialImportPayload>({});
 
+  const isPeople = recipient.type === "people";
+
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
-      <div className="w-full max-w-5xl text-center">
-        <div className="rounded-3xl border border-outline-variant bg-gradient-to-br from-surface-container-low via-surface to-surface-container-low px-6 py-9 shadow-sm">
-          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-            World of professional
+    <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto px-4 py-4 sm:px-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">Chat with people</p>
+          <HubTabBar recipient={recipient} onSelectRecipientType={onSelectRecipientType} />
+        </div>
+
+        {!isPeople ? (
+          <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-blue-500/25 bg-gradient-to-b from-blue-500/5 to-transparent px-4 py-10 text-center">
+            <Sparkles className="mb-3 h-10 w-10 text-blue-400" aria-hidden />
+            <h2 className="text-xl font-semibold text-on-surface sm:text-2xl">
+              {recipient.type === "ai" ? "Ask an AI model" : "Run an AI agent"}
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-on-surface-variant">
+              Your conversation opens here. Choose a model from the toolbar below, type your prompt, and press send — this
+              space stays focused on the thread.
+            </p>
           </div>
-          <h2 className="text-4xl font-bold tracking-tight text-on-surface">Your professional operating system</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-on-surface-variant">
-            Connect with experts, post requests, offer services, and close deals in one unified flow.
-          </p>
-          <div className="mt-6">
+        ) : (
+          <>
+            <div className="rounded-2xl border border-outline-variant bg-gradient-to-br from-surface-container-low via-surface to-surface-container-low px-4 py-5 shadow-sm sm:px-6 sm:py-6">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-400">
+                World of professional
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">Your professional operating system</h2>
+              <p className="mt-2 max-w-2xl text-sm text-on-surface-variant sm:text-base">
+                Connect with top professionals, post requests, offer services, and close deals — all in one place.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href="/marketplace"
+                  className="inline-flex items-center gap-2 rounded-xl border border-outline-variant px-4 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-high"
+                >
+                  Explore marketplace <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+                <Link
+                  href="/requests/new"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/20"
+                >
+                  + Post a request
+                </Link>
+              </div>
+            </div>
+
+            <p className="text-xs text-on-surface-variant sm:text-sm">
+              Open a deal room from the sidebar, or discover pros in the marketplace. Click any professional below to view
+              their profile.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Link
+                href="/marketplace"
+                className="group relative overflow-hidden rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-500/15 to-surface-container-low p-4 text-left transition hover:border-teal-400/50 hover:shadow-lg hover:shadow-teal-500/10"
+              >
+                <div className="mb-2 inline-flex rounded-lg bg-teal-500/20 p-2 text-teal-300">
+                  <Store className="h-5 w-5" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold text-on-surface">Browse Marketplace</p>
+                <p className="mt-1 text-xs text-on-surface-variant">Find &amp; bid on projects</p>
+                <ArrowRight className="absolute right-3 top-3 h-4 w-4 text-teal-400 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+              </Link>
+              <Link
+                href="/requests/new"
+                className="group relative overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/15 to-surface-container-low p-4 text-left transition hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10"
+              >
+                <div className="mb-2 inline-flex rounded-lg bg-violet-500/20 p-2 text-violet-300">
+                  <ClipboardList className="h-5 w-5" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold text-on-surface">Post a Request</p>
+                <p className="mt-1 text-xs text-on-surface-variant">Get proposals fast</p>
+                <ArrowRight className="absolute right-3 top-3 h-4 w-4 text-violet-400 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+              </Link>
+              <Link
+                href="/services/new"
+                className="group relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-surface-container-low p-4 text-left transition hover:border-emerald-400/50 hover:shadow-lg hover:shadow-emerald-500/10"
+              >
+                <div className="mb-2 inline-flex rounded-lg bg-emerald-500/20 p-2 text-emerald-300">
+                  <Briefcase className="h-5 w-5" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold text-on-surface">Offer a Service</p>
+                <p className="mt-1 text-xs text-on-surface-variant">List your expertise</p>
+                <ArrowRight className="absolute right-3 top-3 h-4 w-4 text-emerald-400 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+              </Link>
+            </div>
+
             <button
               type="button"
               onClick={() => setImportOpen(true)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:opacity-95"
+              className="flex w-full flex-col items-start gap-1 rounded-2xl border border-sky-500/35 bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 p-4 text-left transition hover:border-sky-400/50 sm:flex-row sm:items-center sm:justify-between"
             >
-              ↑ Import your profile
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
+                  <Upload className="h-5 w-5" aria-hidden />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-on-surface">Import your profile</p>
+                  <p className="text-xs text-on-surface-variant">Pull headline, skills, and links from LinkedIn, X, or GitHub.</p>
+                </div>
+              </div>
+              <span className="mt-2 text-xs font-semibold text-sky-400 sm:mt-0">Get started →</span>
             </button>
-          </div>
-        </div>
-        <div className="mt-6">
-          <p className="mb-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">Get started</p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <a href="/marketplace" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
-              <p className="text-sm font-semibold text-on-surface">Browse Marketplace</p>
-              <p className="mt-1 text-xs text-on-surface-variant">Find and bid on projects</p>
-            </a>
-            <a href="/requests/new" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
-              <p className="text-sm font-semibold text-on-surface">Post a Request</p>
-              <p className="mt-1 text-xs text-on-surface-variant">Get proposals from pros</p>
-            </a>
-            <a href="/services/new" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
-              <p className="text-sm font-semibold text-on-surface">Offer a Service</p>
-              <p className="mt-1 text-xs text-on-surface-variant">List what you do best</p>
-            </a>
-          </div>
-        </div>
 
-        <div className="mt-6 rounded-2xl border border-outline-variant/60 bg-surface-container-low p-2">
-          <div className="grid grid-cols-3 gap-1">
-            {(["people", "ai", "agent"] as RecipientType[]).map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => onSelectRecipientType(type)}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-sm font-semibold transition",
-                  recipient.type === type ? "bg-surface-container-high text-on-surface" : "text-on-surface-variant hover:text-on-surface"
-                )}
-              >
-                {type === "people" ? "People" : type === "ai" ? "AI Models" : "AI Agents"}
-              </button>
-            ))}
-          </div>
-        </div>
+            <ChatLeaderboardPreview />
+          </>
+        )}
       </div>
+
       {importOpen ? (
         <div
           className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 px-4"
