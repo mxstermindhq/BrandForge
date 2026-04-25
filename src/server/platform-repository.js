@@ -951,6 +951,69 @@ async function createPlatformRepository(previewRepository) {
     return data;
   }
 
+  function parseSocialHandle(input) {
+    const raw = String(input || '').trim();
+    if (!raw) return '';
+    try {
+      if (/^https?:\/\//i.test(raw)) {
+        const u = new URL(raw);
+        const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+        const first = u.pathname.split('/').filter(Boolean)[0] || '';
+        if (host.includes('linkedin.com') && first.toLowerCase() === 'in') {
+          return (u.pathname.split('/').filter(Boolean)[1] || '').replace(/^@+/, '');
+        }
+        return first.replace(/^@+/, '');
+      }
+    } catch {
+      // fall through
+    }
+    return raw.replace(/^@+/, '');
+  }
+
+  async function importProfileFromSocial(userId, payload = {}) {
+    if (!client) throw new Error('Supabase is not configured');
+    const source = String(payload?.source || 'social').trim();
+    const linkedin = String(payload?.linkedin || '').trim();
+    const x = String(payload?.x || '').trim();
+    const github = String(payload?.github || '').trim();
+    const website = String(payload?.website || '').trim();
+    const instagram = String(payload?.instagram || '').trim();
+    const focus = String(payload?.focus || '').trim();
+    const socials = [linkedin, x, github, website, instagram].filter(Boolean);
+    if (!socials.length) throw new Error('Add at least one social profile URL or handle');
+
+    const handle =
+      parseSocialHandle(linkedin) ||
+      parseSocialHandle(x) ||
+      parseSocialHandle(github) ||
+      parseSocialHandle(instagram);
+    const cleanHandle = String(handle || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30);
+    const headline = focus || 'Open to new client projects';
+    const bio = [
+      `Imported profile from ${source}.`,
+      cleanHandle ? `Known online as @${cleanHandle}.` : null,
+      'This profile was auto-generated from public social links and can be edited anytime.',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const skillSeeds = [focus, 'client communication', 'delivery management', 'strategy']
+      .map((s) => String(s || '').trim())
+      .filter(Boolean)
+      .slice(0, 6);
+
+    const patch = {
+      updated_at: new Date().toISOString(),
+      headline,
+      bio,
+      skills: skillSeeds,
+    };
+    if (cleanHandle) patch.username = cleanHandle;
+    const { data, error } = await client.from('profiles').update(patch).eq('id', userId).select('*').maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error('Profile not found');
+    return data;
+  }
+
   function normalizePublicUsername(raw) {
     return String(raw || '')
       .trim()
@@ -5267,6 +5330,7 @@ async function createPlatformRepository(previewRepository) {
     getRecentListings,
     getRecentBids,
     updateProfile,
+    importProfileFromSocial,
     checkUsernameAvailable,
     getServiceById,
     submitServicePackageBid,

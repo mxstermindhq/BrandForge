@@ -1090,6 +1090,20 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  if (pathname === '/api/profile/import-social' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const profile = await platformRepository.importProfileFromSocial(user.id, payload);
+      sendJson(res, 200, { profile });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Social import failed' });
+    }
+    return true;
+  }
+
   if (pathname === '/api/profile/avatar' && method === 'POST') {
     const user = await requireUser(req, res);
     if (!user) return true;

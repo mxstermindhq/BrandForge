@@ -36,6 +36,15 @@ type Recipient = {
   sublabel?: string;
 };
 
+type SocialImportPayload = {
+  linkedin?: string;
+  x?: string;
+  github?: string;
+  instagram?: string;
+  website?: string;
+  focus?: string;
+};
+
 const AI_MODELS: Recipient[] = [
   { type: "ai", id: "sonnet-4-6",  label: "Claude Sonnet 4.6", sublabel: "Fast · balanced" },
   { type: "ai", id: "opus-4-6",    label: "Claude Opus 4.6",   sublabel: "Powerful · Think mode" },
@@ -340,89 +349,127 @@ function RecipientPicker({
 function EmptyState({
   recipient,
   onSelectRecipientType,
+  onImportProfile,
 }: {
   recipient: Recipient;
   onSelectRecipientType: (type: RecipientType) => void;
+  onImportProfile: (payload: SocialImportPayload) => Promise<void>;
 }) {
+  const [importOpen, setImportOpen] = useState(false);
+  const [submittingImport, setSubmittingImport] = useState(false);
+  const [importErr, setImportErr] = useState<string | null>(null);
+  const [form, setForm] = useState<SocialImportPayload>({});
+
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
-      <div className="w-full max-w-lg text-center">
-        {/* Icon */}
-        <div className={cn(
-          "mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border text-xl",
-          recipient.type === "agent"
-            ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
-            : "border-blue-500/20 bg-blue-500/10 text-blue-400"
-        )}>
-          {recipient.type === "agent" ? "⚡" : "✦"}
-        </div>
-
-        <h2 className="text-xl font-bold tracking-tight text-on-surface">
-          {recipient.type === "agent"
-            ? "Run it with an agent"
-            : recipient.type === "people"
-            ? "Pick a deal room from the sidebar"
-            : "What can I help with?"}
-        </h2>
-        <p className="mt-2 text-sm text-on-surface-variant">Ask AI, Hire People, Run Agents</p>
-        <div className="mt-4 flex items-center justify-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onSelectRecipientType("people")}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold transition",
-              recipient.type === "people"
-                ? "bg-surface-container-high text-on-surface"
-                : "text-on-surface-variant hover:text-on-surface"
-            )}
-          >
-            People
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectRecipientType("ai")}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold transition",
-              recipient.type === "ai"
-                ? "bg-surface-container-high text-on-surface"
-                : "text-on-surface-variant hover:text-on-surface"
-            )}
-          >
-            AI Models
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectRecipientType("agent")}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold transition",
-              recipient.type === "agent"
-                ? "bg-surface-container-high text-on-surface"
-                : "text-on-surface-variant hover:text-on-surface"
-            )}
-          >
-            AI Agents
-          </button>
-        </div>
-
-        <div className="mt-8 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-            {recipient.type === "people" ? "People chats" : "Feature locked"}
+      <div className="w-full max-w-5xl text-center">
+        <div className="rounded-3xl border border-outline-variant bg-gradient-to-br from-surface-container-low via-surface to-surface-container-low px-6 py-9 shadow-sm">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+            World of professional
+          </div>
+          <h2 className="text-4xl font-bold tracking-tight text-on-surface">Your professional operating system</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-on-surface-variant">
+            Connect with experts, post requests, offer services, and close deals in one unified flow.
           </p>
-          {recipient.type === "people" ? (
-            <p className="mt-2 text-sm text-on-surface-variant">
-              Start a new conversation from <strong className="text-on-surface">New Chat</strong> or reopen a thread
-              from chat history in the sidebar.
-            </p>
-          ) : (
-            <>
-              <p className="mt-2 text-sm font-semibold text-on-surface">AI Models and AI Agents are under development.</p>
-              <p className="mt-1 text-xs text-on-surface-variant">
-                Messaging is currently disabled in this mode while core features are being finalized.
-              </p>
-            </>
-          )}
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:opacity-95"
+            >
+              ↑ Import your profile
+            </button>
+          </div>
+        </div>
+        <div className="mt-6">
+          <p className="mb-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">Get started</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <a href="/marketplace" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
+              <p className="text-sm font-semibold text-on-surface">Browse Marketplace</p>
+              <p className="mt-1 text-xs text-on-surface-variant">Find and bid on projects</p>
+            </a>
+            <a href="/requests/new" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
+              <p className="text-sm font-semibold text-on-surface">Post a Request</p>
+              <p className="mt-1 text-xs text-on-surface-variant">Get proposals from pros</p>
+            </a>
+            <a href="/services/new" className="rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-left transition hover:border-outline">
+              <p className="text-sm font-semibold text-on-surface">Offer a Service</p>
+              <p className="mt-1 text-xs text-on-surface-variant">List what you do best</p>
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-outline-variant/60 bg-surface-container-low p-2">
+          <div className="grid grid-cols-3 gap-1">
+            {(["people", "ai", "agent"] as RecipientType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onSelectRecipientType(type)}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-sm font-semibold transition",
+                  recipient.type === type ? "bg-surface-container-high text-on-surface" : "text-on-surface-variant hover:text-on-surface"
+                )}
+              >
+                {type === "people" ? "People" : type === "ai" ? "AI Models" : "AI Agents"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+      {importOpen ? (
+        <div
+          className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 px-4"
+          onMouseDown={(e) => e.currentTarget === e.target && !submittingImport && setImportOpen(false)}
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-outline-variant bg-surface p-4 text-left">
+            <p className="text-lg font-semibold text-on-surface">Import profile from social</p>
+            <p className="mt-1 text-xs text-on-surface-variant">Paste 1-3 links. We auto-fill your profile draft.</p>
+            <div className="mt-3 space-y-2">
+              {(["linkedin", "x", "github", "website", "instagram"] as const).map((k) => (
+                <input
+                  key={k}
+                  value={String(form[k] || "")}
+                  onChange={(e) => setForm((prev) => ({ ...prev, [k]: e.target.value }))}
+                  placeholder={`${k} URL or handle`}
+                  className="input"
+                />
+              ))}
+              <input
+                value={String(form.focus || "")}
+                onChange={(e) => setForm((prev) => ({ ...prev, focus: e.target.value }))}
+                placeholder="Primary focus (e.g. UI/UX, Growth, Fullstack)"
+                className="input"
+              />
+            </div>
+            {importErr ? <p className="mt-2 text-xs text-error">{importErr}</p> : null}
+            <div className="mt-4 flex justify-end gap-2">
+              <button className="btn-ghost px-4 py-2 text-sm" disabled={submittingImport} onClick={() => setImportOpen(false)}>
+                Cancel
+              </button>
+              <button
+                className="btn-primary px-4 py-2 text-sm"
+                disabled={submittingImport}
+                onClick={async () => {
+                  setImportErr(null);
+                  setSubmittingImport(true);
+                  try {
+                    await onImportProfile(form);
+                    setImportOpen(false);
+                    setForm({});
+                  } catch (e) {
+                    setImportErr(e instanceof Error ? e.message : "Import failed");
+                  } finally {
+                    setSubmittingImport(false);
+                  }
+                }}
+              >
+                {submittingImport ? "Importing..." : "Import profile"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -955,6 +1002,17 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     }
   }, [activeThreadId, accessToken]);
 
+  const importProfileFromSocial = useCallback(
+    async (payload: SocialImportPayload) => {
+      if (!accessToken) {
+        router.push(`/login?next=${encodeURIComponent("/chat")}`);
+        return;
+      }
+      await apiMutateJson("/api/profile/import-social", "POST", payload, accessToken);
+    },
+    [accessToken, router],
+  );
+
   const refreshCurrentThread = useCallback(() => {
     if (!activeThreadId || !accessToken) return;
     void (async () => {
@@ -1079,6 +1137,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             <EmptyState
               recipient={recipient}
               onSelectRecipientType={selectRecipientType}
+              onImportProfile={importProfileFromSocial}
             />
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
