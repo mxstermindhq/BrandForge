@@ -12,7 +12,8 @@
     "dev:clean": "npm run clean && npx next dev -p 3001",
     "build": "npx next build --no-lint",
     "cf:build": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js build",
-    "cf:deploy": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js build && node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js deploy",
+    "cf:deploy": "node ./scripts/cf-deploy-notify.mjs",
+    "cf:deploy:raw": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js build && node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js deploy",
     "start": "npx next start -p 3001",
     "lint": "npx next lint",
     "generate:public-assets": "node ./scripts/generate-public-assets.mjs"

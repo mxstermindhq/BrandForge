@@ -11,22 +11,26 @@
 
 ## Pricing posture (strategic)
 
-| Tier | Job-to-be-done |
-|------|----------------|
-| **Free / Explorer** | Get listed, bid, message, complete first deals; hooks to upgrade on limits. |
-| **Pro** | Volume sellers + buyers: more listings, boosts, lower effective fee or priority placement. |
-| **Enterprise** | Teams, compliance, SSO (later), contract routing—only when pipeline proves pull. |
+
+| Tier                | Job-to-be-done                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| **Free / Explorer** | Get listed, bid, message, complete first deals; hooks to upgrade on limits.                |
+| **Pro**             | Volume sellers + buyers: more listings, boosts, lower effective fee or priority placement. |
+| **Enterprise**      | Teams, compliance, SSO (later), contract routing—only when pipeline proves pull.           |
+
 
 **Rule:** fees and limits stay **predictable**—surprise charges destroy trust in B2B marketplaces.
 
 ## Growth loops
 
-| Loop | Mechanism |
-|------|-----------|
-| **Supply** | Public profiles by default + marketplace SEO + leaderboard visibility → inbound. |
-| **Demand** | Requests, bids, squads → specialists bring buyers; seasonal leaderboard for headlines. |
-| **Retention** | Deal rooms + Honor/Conquest + streaks → reason to return weekly. |
-| **Referral** | Share `/p/username` and deal outcomes; future formal referral credits. |
+
+| Loop          | Mechanism                                                                              |
+| ------------- | -------------------------------------------------------------------------------------- |
+| **Supply**    | Public profiles by default + marketplace SEO + leaderboard visibility → inbound.       |
+| **Demand**    | Requests, bids, squads → specialists bring buyers; seasonal leaderboard for headlines. |
+| **Retention** | Deal rooms + Honor/Conquest + streaks → reason to return weekly.                       |
+| **Referral**  | Share `/p/username` and deal outcomes; future formal referral credits.                 |
+
 
 ## GTM (near-term)
 

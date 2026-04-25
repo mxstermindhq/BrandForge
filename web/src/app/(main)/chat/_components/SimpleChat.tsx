@@ -10,15 +10,11 @@ import { cn } from "@/lib/cn";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { getSortedHumanThreads } from "@/lib/human-chat-threads";
 import { useAuth } from "@/providers/AuthProvider";
+import { ChatMessageEmbed } from "@/components/messages/ChatEmbeds";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type MessageRole = "user" | "peer" | "system" | "ai" | "agent";
-
-export type MessageEmbed = {
-  type: "bid" | "contract" | "deal_phase" | "service_offer" | "counter_offer";
-  data: Record<string, unknown>;
-};
 
 export type MessageRow = {
   id: string;
@@ -28,7 +24,7 @@ export type MessageRow = {
   senderId?: string | null;
   senderName?: string | null;
   senderAvatar?: string | null;
-  embed?: MessageEmbed | null;
+  embed?: Record<string, unknown> | null;
 };
 
 type RecipientType = "ai" | "agent" | "people";
@@ -114,9 +110,7 @@ function mapApiMessage(row: Record<string, unknown>): MessageRow {
     (row.sender as Record<string, unknown> | undefined)?.username;
   const senderAvatar = row.senderAvatar || row.sender_avatar ||
     (row.sender as Record<string, unknown> | undefined)?.avatarUrl;
-  const embed = row.embed
-    ? { type: String((row.embed as Record<string, unknown>).type || "deal_phase") as MessageEmbed["type"], data: row.embed as Record<string, unknown> }
-    : null;
+  const embed = row.embed && typeof row.embed === "object" ? (row.embed as Record<string, unknown>) : null;
   return {
     id, role, text, createdAt,
     senderId: senderId ? String(senderId) : null,
@@ -124,43 +118,6 @@ function mapApiMessage(row: Record<string, unknown>): MessageRow {
     senderAvatar: senderAvatar ? String(senderAvatar) : null,
     embed,
   };
-}
-
-// ─── Embed Card ───────────────────────────────────────────────────────────────
-
-function EmbedCard({ embed }: { embed: MessageEmbed }) {
-  const data = embed.data;
-
-  if (embed.type === "bid" || embed.type === "service_offer") {
-    const price = data.price != null ? Number(data.price) : null;
-    const title = String(data.requestTitle || data.serviceTitle || "Deal");
-    const proposer = data.proposer as { username?: string; fullName?: string } | undefined;
-    return (
-      <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container p-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
-          {embed.type === "bid" ? "Request Bid" : "Service Offer"}
-        </p>
-        <p className="mt-1 text-sm font-medium text-on-surface">{title}</p>
-        {price != null && <p className="text-base font-bold text-on-surface">${price.toLocaleString()}</p>}
-        {proposer && <p className="mt-1 text-xs text-on-surface-variant">From {proposer.fullName || proposer.username}</p>}
-      </div>
-    );
-  }
-
-  if (embed.type === "deal_phase") {
-    const phase = String(data.phase || "update");
-    const title = String(data.title || "Deal Update");
-    return (
-      <div className="mt-3 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
-          {phase.replace(/_/g, " ")}
-        </p>
-        <p className="mt-1 text-sm text-on-surface">{title}</p>
-      </div>
-    );
-  }
-
-  return null;
 }
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -195,7 +152,21 @@ function AvatarIcon({ role, senderName, senderAvatar }: { role: MessageRole; sen
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
 
-function MessageBubble({ message, isMine }: { message: MessageRow; isMine: boolean }) {
+function MessageBubble({
+  message,
+  isMine,
+  currentUserId,
+  accessToken,
+  threadId,
+  onRefresh,
+}: {
+  message: MessageRow;
+  isMine: boolean;
+  currentUserId: string | null | undefined;
+  accessToken: string | null | undefined;
+  threadId?: string;
+  onRefresh: () => void;
+}) {
   const isSystem = message.role === "system";
   const isAI     = message.role === "ai";
   const isAgent  = message.role === "agent";
@@ -234,7 +205,16 @@ function MessageBubble({ message, isMine }: { message: MessageRow; isMine: boole
             : "rounded-bl-[6px] border border-outline-variant/60 bg-surface-container-low text-on-surface"
         )}>
           {message.text}
-          {message.embed && <EmbedCard embed={message.embed} />}
+          {message.embed ? (
+            <ChatMessageEmbed
+              embed={message.embed}
+              currentUserId={currentUserId}
+              accessToken={accessToken}
+              onRefresh={onRefresh}
+              threadId={threadId}
+              transport="unified"
+            />
+          ) : null}
         </div>
 
         {/* Timestamp — always shown below */}
@@ -936,7 +916,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const messageBlob = useMemo(
     () =>
       messages
-        .map((m) => `${m.text} ${m.embed?.type ?? ""}`.toLowerCase())
+        .map((m) => `${m.text} ${m.embed && typeof m.embed.type === "string" ? m.embed.type : ""}`.toLowerCase())
         .join(" "),
     [messages],
   );
@@ -973,6 +953,24 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     } finally {
       setDepositBusy(false);
     }
+  }, [activeThreadId, accessToken]);
+
+  const refreshCurrentThread = useCallback(() => {
+    if (!activeThreadId || !accessToken) return;
+    void (async () => {
+      try {
+        const refreshed = await apiGetJson<{
+          activeChat?: { messages?: Array<Record<string, unknown>> };
+          messages?: Array<Record<string, unknown>>;
+        }>(`/api/chat/${encodeURIComponent(activeThreadId)}/messages?limit=80`, accessToken);
+        const raw = Array.isArray(refreshed.activeChat?.messages)
+          ? refreshed.activeChat?.messages
+          : refreshed.messages;
+        setMessages(Array.isArray(raw) ? raw.map(mapApiMessage) : []);
+      } catch {
+        // keep current stream
+      }
+    })();
   }, [activeThreadId, accessToken]);
 
   const onAttachFiles = useCallback(
@@ -1092,7 +1090,17 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             <div className="mx-auto max-w-2xl space-y-5">
               {messages.map(message => {
                 const isMine = message.role === "user" || String(message.senderId) === String(currentUserId);
-                return <MessageBubble key={message.id} message={message} isMine={isMine} />;
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isMine={isMine}
+                    currentUserId={currentUserId}
+                    accessToken={accessToken}
+                    threadId={activeThreadId || undefined}
+                    onRefresh={refreshCurrentThread}
+                  />
+                );
               })}
               {sending && (recipient.type === "ai" || recipient.type === "agent") && !hasThread && (
                 <TypingIndicator recipient={recipient} />

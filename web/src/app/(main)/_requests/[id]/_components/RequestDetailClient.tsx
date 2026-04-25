@@ -289,10 +289,10 @@ export function RequestDetailClient({ id }: { id: string }) {
 
   if (err || !request) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-rose-400 text-sm mb-4" role="alert">{err || "Request not found."}</p>
-          <Link href="/marketplace" className="text-zinc-400 hover:text-white text-sm flex items-center gap-2 justify-center">
+          <Link href="/marketplace" className="text-on-surface-variant hover:text-on-surface text-sm flex items-center gap-2 justify-center">
             <ArrowLeft size={14}/> Back to marketplace
           </Link>
         </div>
@@ -306,15 +306,18 @@ export function RequestDetailClient({ id }: { id: string }) {
   const dealLbl = formatDealRecordShort(request.ownerDealWins, request.ownerDealLosses);
   const repShow = request.ownerReputation != null && request.ownerReputation > 0;
 
-  const statusColor = open ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" : 
-    request.status === "awarded" ? "text-amber-400 bg-amber-500/10 border-amber-500/30" : "text-zinc-400 bg-zinc-800 border-zinc-700";
+  const statusColor = open
+    ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/30"
+    : request.status === "awarded"
+      ? "text-amber-500 bg-amber-500/10 border-amber-500/30"
+      : "text-on-surface-variant bg-surface-container-high border-outline-variant";
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-on-surface">
       {/* Header */}
-      <div className="border-b border-zinc-800">
+      <div className="border-b border-outline-variant">
         <div className="max-w-5xl mx-auto px-6 md:px-10 py-6">
-          <Link href="/marketplace" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm mb-4 transition">
+          <Link href="/marketplace" className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface text-sm mb-4 transition">
             <ArrowLeft size={14}/> Back to marketplace
           </Link>
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -327,16 +330,16 @@ export function RequestDetailClient({ id }: { id: string }) {
               </div>
               <h1 className="text-2xl md:text-3xl font-bold">{request.title}</h1>
               {repShow || dealLbl ? (
-                <p className="text-sm text-zinc-500 mt-2">
-                  {repShow && <>Poster reputation <span className="text-amber-400">{Math.round(Number(request.ownerReputation)).toLocaleString()}</span></>}
+                <p className="text-sm text-on-surface-variant mt-2">
+                  {repShow && <>Poster reputation <span className="text-primary">{Math.round(Number(request.ownerReputation)).toLocaleString()}</span></>}
                   {repShow && dealLbl && <> · {dealLbl}</>}
                   {!repShow && dealLbl && <>Deal record · {dealLbl}</>}
                 </p>
               ) : null}
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-amber-400">{formatRequestBudget(request)}</div>
-              <div className="flex items-center gap-3 text-sm text-zinc-500 mt-1">
+              <div className="text-2xl font-bold text-primary">{formatRequestBudget(request)}</div>
+              <div className="flex items-center gap-3 text-sm text-on-surface-variant mt-1">
                 {request.bids != null && <span>{request.bids} proposal{request.bids === 1 ? "" : "s"}</span>}
                 {request.days != null && request.days >= 0 && <><Clock size={12}/> {request.days}d</>}
                 {request.createdAt && <PostedAgo iso={request.createdAt} />}
@@ -354,7 +357,7 @@ export function RequestDetailClient({ id }: { id: string }) {
             {request.tags && request.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {request.tags.map((tag) => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400">
+                  <span key={tag} className="text-xs px-2 py-1 bg-surface-container-high border border-outline-variant rounded-lg text-on-surface-variant">
                     <Tag size={10} className="inline mr-1"/>{tag}
                   </span>
                 ))}
@@ -362,15 +365,15 @@ export function RequestDetailClient({ id }: { id: string }) {
             )}
 
             {/* Description */}
-            <div className="p-6 rounded-xl bg-zinc-900/30 border border-zinc-800">
-              <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div className="p-6 rounded-xl bg-surface-container-low border border-outline-variant">
+              <h2 className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-2">
                 <FileText size={14}/> Brief
               </h2>
-              <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{request.desc || "No description provided."}</p>
+              <p className="text-on-surface leading-relaxed whitespace-pre-wrap">{request.desc || "No description provided."}</p>
               {request.successCriteria && (
-                <div className="border-t border-zinc-800 pt-4 mt-4">
-                  <h3 className="text-sm font-semibold text-zinc-400 mb-2">Success criteria</h3>
-                  <p className="text-zinc-300">{request.successCriteria}</p>
+                <div className="border-t border-outline-variant pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-on-surface-variant mb-2">Success criteria</h3>
+                  <p className="text-on-surface">{request.successCriteria}</p>
                 </div>
               )}
             </div>
@@ -379,7 +382,7 @@ export function RequestDetailClient({ id }: { id: string }) {
             {showBidCta && (
               <div className="p-6 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                 <h3 className="font-semibold text-emerald-400 mb-2 flex items-center gap-2"><Gavel size={14}/> Submit a proposal</h3>
-                <p className="text-sm text-zinc-400 mb-4">Enter your price, delivery timeline, and proposal. This will open a message thread with the requester.</p>
+                <p className="text-sm text-on-surface-variant mb-4">Enter your price, delivery timeline, and proposal. This will open a message thread with the requester.</p>
                 <Link href={`/bid/request?id=${encodeURIComponent(id)}`} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black rounded-lg font-semibold hover:bg-emerald-400 transition">
                   Place Bid
                 </Link>
@@ -392,40 +395,40 @@ export function RequestDetailClient({ id }: { id: string }) {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-semibold flex items-center gap-2"><Edit size={14}/> Manage brief</h3>
-                    <p className="text-sm text-zinc-500">Edit or close this request</p>
+                    <p className="text-sm text-on-surface-variant">Edit or close this request</p>
                   </div>
-                  <button onClick={() => setManageOpen(!manageOpen)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition">
+                  <button onClick={() => setManageOpen(!manageOpen)} className="px-4 py-2 bg-surface-container-high hover:bg-surface-container rounded-lg text-sm transition">
                     {manageOpen ? <X size={14}/> : <Edit size={14}/>}
                   </button>
                 </div>
                 {manageOpen && (
-                  <form onSubmit={onSaveRequest} className="space-y-4 border-t border-zinc-800 pt-4">
+                  <form onSubmit={onSaveRequest} className="space-y-4 border-t border-outline-variant pt-4">
                     {saveErr && <p className="text-rose-400 text-sm">{saveErr}</p>}
                     <div>
-                      <label className="block text-xs text-zinc-500 mb-1">Title</label>
-                      <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm" required/>
+                      <label className="block text-xs text-on-surface-variant mb-1">Title</label>
+                      <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface" required/>
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-500 mb-1">Description</label>
-                      <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={4} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm resize-y" required/>
+                      <label className="block text-xs text-on-surface-variant mb-1">Description</label>
+                      <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={4} className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface resize-y" required/>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-zinc-500 mb-1">Budget</label>
-                        <input value={editBudget} onChange={e => setEditBudget(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm" required/>
+                        <label className="block text-xs text-on-surface-variant mb-1">Budget</label>
+                        <input value={editBudget} onChange={e => setEditBudget(e.target.value)} className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface" required/>
                       </div>
                       <div>
-                        <label className="block text-xs text-zinc-500 mb-1">Due date</label>
-                        <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"/>
+                        <label className="block text-xs text-on-surface-variant mb-1">Due date</label>
+                        <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface"/>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-500 mb-1">Tags (comma-separated)</label>
-                      <input value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="design, motion, web" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"/>
+                      <label className="block text-xs text-on-surface-variant mb-1">Tags (comma-separated)</label>
+                      <input value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="design, motion, web" className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface"/>
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-500 mb-1">Success criteria</label>
-                      <textarea value={editSuccess} onChange={e => setEditSuccess(e.target.value)} rows={3} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm resize-y"/>
+                      <label className="block text-xs text-on-surface-variant mb-1">Success criteria</label>
+                      <textarea value={editSuccess} onChange={e => setEditSuccess(e.target.value)} rows={3} className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-sm text-on-surface resize-y"/>
                     </div>
                     <div className="flex gap-3">
                       <button type="submit" disabled={saveBusy} className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-black rounded-lg font-semibold disabled:opacity-50">
@@ -442,25 +445,25 @@ export function RequestDetailClient({ id }: { id: string }) {
 
             {/* Proposals section for owner */}
             {isOwner && open && (
-              <div className="p-6 rounded-xl bg-zinc-900/30 border border-zinc-800">
-                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Proposals ({ownerBids.length})</h3>
+              <div className="p-6 rounded-xl bg-surface-container-low border border-outline-variant">
+                <h3 className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-4">Proposals ({ownerBids.length})</h3>
                 {bidActionErr && <p className="text-rose-400 text-sm mb-4">{bidActionErr}</p>}
                 {cryptoPanel && (
                   <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-4">
                     <p className="text-sm text-amber-400 mb-2 flex items-center gap-2"><AlertCircle size={14}/> Payment Required</p>
-                    <p className="text-sm text-zinc-400">Reference: <span className="font-mono text-white">{cryptoPanel.reference}</span> · {cryptoPanel.amountUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
+                    <p className="text-sm text-on-surface-variant">Reference: <span className="font-mono text-on-surface">{cryptoPanel.reference}</span> · {cryptoPanel.amountUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
                     {cryptoPanel.checkoutLink && (
                       <a href={cryptoPanel.checkoutLink} target="_blank" rel="noopener noreferrer" className="inline-flex mt-3 px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-semibold">
                         Open checkout
                       </a>
                     )}
-                    <button onClick={() => setCryptoPanel(null)} className="block mt-2 text-zinc-500 text-sm hover:text-white">Close</button>
+                    <button onClick={() => setCryptoPanel(null)} className="block mt-2 text-on-surface-variant text-sm hover:text-on-surface">Close</button>
                   </div>
                 )}
-                {ownerBidsLoading ? <p className="text-zinc-500">Loading…</p> :
+                {ownerBidsLoading ? <p className="text-on-surface-variant">Loading…</p> :
                   ownerBidsErr ? <p className="text-rose-400">{ownerBidsErr}</p> :
                   ownerBids.length === 0 ? (
-                    <div className="text-center py-8 text-zinc-500">
+                    <div className="text-center py-8 text-on-surface-variant">
                       <FileText size={32} className="mx-auto mb-2 opacity-30"/>
                       <p>No proposals yet</p>
                     </div>
@@ -469,20 +472,20 @@ export function RequestDetailClient({ id }: { id: string }) {
                       {ownerBids.map((b) => {
                         const canAct = b.status === "submitted" || b.status === "shortlisted";
                         return (
-                          <li key={b.id} className="p-4 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                          <li key={b.id} className="p-4 rounded-lg bg-surface-container border border-outline-variant">
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <p className="font-semibold">{b.bidderName || "Member"}</p>
-                                <p className="text-sm text-zinc-500">{b.price}{b.deliveryDays ? ` · ${b.deliveryDays}d delivery` : ""} · <span className="text-zinc-400 uppercase text-xs">{b.status}</span></p>
+                                <p className="text-sm text-on-surface-variant">{b.price}{b.deliveryDays ? ` · ${b.deliveryDays}d delivery` : ""} · <span className="text-on-surface uppercase text-xs">{b.status}</span></p>
                               </div>
                               {canAct && (
                                 <div className="flex gap-2">
                                   <button disabled={busyBidId === b.id} onClick={() => onAcceptBid(b.id)} className="px-3 py-1.5 bg-emerald-500 text-black rounded text-sm font-semibold disabled:opacity-50">Accept</button>
-                                  <button disabled={busyBidId === b.id} onClick={() => onRejectBid(b.id)} className="px-3 py-1.5 bg-zinc-800 text-zinc-400 rounded text-sm disabled:opacity-50">Reject</button>
+                                  <button disabled={busyBidId === b.id} onClick={() => onRejectBid(b.id)} className="px-3 py-1.5 bg-surface-container-high text-on-surface-variant rounded text-sm disabled:opacity-50">Reject</button>
                                 </div>
                               )}
                             </div>
-                            {b.proposal && <p className="text-sm text-zinc-400 mt-3 border-t border-zinc-800 pt-3">{b.proposal}</p>}
+                            {b.proposal && <p className="text-sm text-on-surface-variant mt-3 border-t border-outline-variant pt-3">{b.proposal}</p>}
                           </li>
                         );
                       })}
@@ -500,22 +503,22 @@ export function RequestDetailClient({ id }: { id: string }) {
                 Place Bid
               </Link>
             ) : isOwner ? (
-              <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-center">
+              <div className="p-4 rounded-xl bg-surface-container border border-outline-variant text-center">
                 <CheckCircle size={20} className="text-amber-400 mx-auto mb-2"/>
-                <p className="text-sm text-zinc-400">This is your request</p>
+                <p className="text-sm text-on-surface-variant">This is your request</p>
               </div>
             ) : null}
-            <div className="p-4 rounded-xl bg-zinc-900/30 border border-zinc-800">
-              <h3 className="text-sm font-semibold text-zinc-400 mb-3">Details</h3>
+            <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant">
+              <h3 className="text-sm font-semibold text-on-surface-variant mb-3">Details</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-zinc-500">Budget</span><span className="text-amber-400">{formatRequestBudget(request)}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Timeline</span><span>{request.days ? `${request.days} days` : "—"}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Proposals</span><span>{request.bids || 0}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Status</span><span className="capitalize">{request.status}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Budget</span><span className="text-primary">{formatRequestBudget(request)}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Timeline</span><span>{request.days ? `${request.days} days` : "—"}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Proposals</span><span>{request.bids || 0}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Status</span><span className="capitalize">{request.status}</span></div>
               </div>
             </div>
             {isOwner && (
-              <Link href="/requests/new" className="block w-full py-3 bg-zinc-900 border border-zinc-800 text-center text-sm rounded-xl hover:border-zinc-700 transition">
+              <Link href="/requests/new" className="block w-full py-3 bg-surface-container border border-outline-variant text-center text-sm rounded-xl hover:bg-surface-container-high transition">
                 Post another request
               </Link>
             )}

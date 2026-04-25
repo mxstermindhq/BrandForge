@@ -10,22 +10,26 @@
 
 ## Design system (non-negotiables)
 
-| Rule | Why |
-|------|-----|
-| Semantic tokens (`bg-background`, `text-on-surface`, `border-outline-variant`, `primary`) | Consistent light/dark and future theme tweaks |
-| `input-base` / `surface-card` for forms | Fewer bespoke borders; faster polish |
-| Focus visible on interactive controls | Accessibility and keyboard users |
-| Truncation + min-w-0 in flex rows | Sidebar, chat, marketplace cards don’t blow layouts |
+
+| Rule                                                                                      | Why                                                 |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Semantic tokens (`bg-background`, `text-on-surface`, `border-outline-variant`, `primary`) | Consistent light/dark and future theme tweaks       |
+| `input-base` / `surface-card` for forms                                                   | Fewer bespoke borders; faster polish                |
+| Focus visible on interactive controls                                                     | Accessibility and keyboard users                    |
+| Truncation + min-w-0 in flex rows                                                         | Sidebar, chat, marketplace cards don’t blow layouts |
+
 
 ## Information architecture
 
-| Zone | Role |
-|------|------|
-| **Marketplace** | Canonical discovery for services + requests (legacy `/services` / `/requests` index redirect here). |
-| **Chat / deal rooms** | Execution and negotiation; empty state drives requests, services, bids, squads. |
-| **Leaderboard** | Competitive loop; show **username only** (no full name stack), normal weight, no `@` prefix in list. |
-| **Profile** | Public by default at `/p/{username}` once a username exists; settings copy matches that. |
-| **Welcome** | Onboarding uses shared tokens (no orphan dark-only zinc pages). |
+
+| Zone                  | Role                                                                                                 |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Marketplace**       | Canonical discovery for services + requests (legacy `/services` / `/requests` index redirect here).  |
+| **Chat / deal rooms** | Execution and negotiation; empty state drives requests, services, bids, squads.                      |
+| **Leaderboard**       | Competitive loop; show **username only** (no full name stack), normal weight, no `@` prefix in list. |
+| **Profile**           | Public by default at `/p/{username}` once a username exists; settings copy matches that.             |
+| **Welcome**           | Onboarding uses shared tokens (no orphan dark-only zinc pages).                                      |
+
 
 ## UX backlog (prioritized)
 

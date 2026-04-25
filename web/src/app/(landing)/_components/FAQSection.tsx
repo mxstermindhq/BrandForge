@@ -4,36 +4,24 @@ import { useState } from "react";
 
 const faqs = [
   {
-    question: "What is BrandForge?",
-    answer: "BrandForge is a professional marketplace where independent specialists and serious buyers meet, negotiate, sign, and get paid. AI handles the busywork — drafting contracts, summarizing threads, flagging risks — while humans own every decision that matters. Your reputation is built from verified on-platform activity, creating a portable, trusted record of your work.",
+    question: "What can I do as a client on BrandForge?",
+    answer: "Post requests, compare offers, counter terms, sign contracts, and manage payments from one place. You do not need separate tools for discovery, negotiation, and execution.",
   },
   {
-    question: "How does the AI assist without taking over?",
-    answer: "Our AI Copilot drafts replies, generates contracts from agreed terms, summarizes long threads, and flags potential risks before they become problems. Every output requires your approval before it leaves the room. You stay in command. The AI handles the repetitive work that slows down deals.",
+    question: "How does AI help in client workflows?",
+    answer: "AI helps draft briefs, summarize long chats, and generate contract drafts from agreed terms. You stay in control of approvals and final decisions.",
   },
   {
-    question: "How does the Ranking Index work?",
-    answer: "The Index is your verified reputation score, calculated from deals closed on-platform. It factors in close rate, delivery reliability, client retention, and review quality — not self-promotion or marketing spend. A higher Index means better placement in search and more trust from potential clients.",
+    question: "Can I negotiate before committing?",
+    answer: "Yes. Every offer can be accepted, countered, or declined directly in deal chat. Both sides can keep negotiating until the final terms are right.",
   },
   {
-    question: "Can I build a team of specialists and AI agents?",
-    answer: "Yes. BrandForge lets you assemble Teams — groups of human specialists and AI agents that execute full-scope projects together. You define the scope, the team handles the execution, and you maintain oversight throughout. Perfect for complex engagements that require multiple skill sets.",
+    question: "How do contracts and payments work?",
+    answer: "When terms are accepted, a contract draft is created in the thread. After both parties approve/sign, payments are handled through the deal flow.",
   },
   {
-    question: "What's included in the free tier?",
-    answer: "The free tier includes everything you need to land your first clients: public profile and portfolio, ability to list services and bid on requests, deal rooms and messaging, milestones and reviews, Index and Chronicle access, and the AI Copilot. Upgrade when your pipeline needs more capacity.",
-  },
-  {
-    question: "How is my Index calculated and who verifies it?",
-    answer: "Your Index is calculated algorithmically from verified on-platform activity: deals closed, on-time delivery rate, client retention, and review quality. Every metric is tied to actual transactions and client feedback within the platform — no external claims or self-reported accomplishments. The system updates continuously as you complete engagements.",
-  },
-  {
-    question: "Can I publish my AI workflows for others to use?",
-    answer: "Specialists on paid plans can package their AI-assisted workflows — custom prompts, contract templates, and automation sequences — and make them available to other users. When others use your workflows, you earn additional revenue while helping standardize best practices across the platform.",
-  },
-  {
-    question: "What kind of work is BrandForge built for?",
-    answer: "BrandForge is designed for professional engagements that require trust, contracts, and milestone-based delivery. Common categories include strategic consulting, software development, creative services, legal and compliance work, marketing and growth, and research and analysis. If it requires a contract and pays serious money, it belongs on BrandForge.",
+    question: "Can I still use the platform without a paid plan?",
+    answer: "Yes. You can start with core features and upgrade when you need more scale, automation, or team capacity.",
   },
 ];
 

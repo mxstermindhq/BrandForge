@@ -59,6 +59,9 @@ function getEnv() {
     /** Optional: protect POST /api/cron/decay-* (Bearer or JSON body.secret). Set in host env, not committed. */
     cronSecret: process.env.CRON_SECRET || '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+    discordDealsWebhookUrl: process.env.DISCORD_DEALS_WEBHOOK_URL || '',
+    telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
+    telegramChatId: process.env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_DEALS_CHAT_ID || '',
   };
 }
 

@@ -573,6 +573,7 @@ function BidProposalEmbed({
   const [acceptBusy, setAcceptBusy] = useState(false);
   const [acceptErr, setAcceptErr] = useState<string | null>(null);
   const [bidAccepted, setBidAccepted] = useState(false);
+  const [rejectBusy, setRejectBusy] = useState(false);
   const [counterOpen, setCounterOpen] = useState(false);
   const [counterBusy, setCounterBusy] = useState(false);
   const [counterErr, setCounterErr] = useState<string | null>(null);
@@ -629,6 +630,20 @@ function BidProposalEmbed({
       setCounterErr(e instanceof Error ? e.message : "Could not send counter");
     } finally {
       setCounterBusy(false);
+    }
+  }
+
+  async function onRejectBid() {
+    if (!accessToken || !bidId) return;
+    setAcceptErr(null);
+    setRejectBusy(true);
+    try {
+      await apiMutateJson(`/api/bids/${encodeURIComponent(bidId)}/reject`, "POST", {}, accessToken);
+      onRefresh?.();
+    } catch (e) {
+      setAcceptErr(e instanceof Error ? e.message : "Could not reject");
+    } finally {
+      setRejectBusy(false);
     }
   }
 
@@ -729,13 +744,20 @@ function BidProposalEmbed({
             </DealEmbedActionButton>
             <DealEmbedActionButton
               type="button"
-              disabled={acceptBusy || bidAccepted || counterBusy || !convId}
+              disabled={acceptBusy || rejectBusy || bidAccepted || counterBusy || !convId}
               onClick={() => {
                 setCounterErr(null);
                 setCounterOpen(true);
               }}
             >
               Counter offer
+            </DealEmbedActionButton>
+            <DealEmbedActionButton
+              type="button"
+              disabled={acceptBusy || rejectBusy || bidAccepted}
+              onClick={() => void onRejectBid()}
+            >
+              {rejectBusy ? "…" : "Decline"}
             </DealEmbedActionButton>
           </div>
           <p className="text-on-surface-variant text-[11px] font-light leading-snug">
@@ -800,6 +822,8 @@ function ServiceOfferEmbed({
   const [acceptBusy, setAcceptBusy] = useState(false);
   const [acceptErr, setAcceptErr] = useState<string | null>(null);
   const [acceptOk, setAcceptOk] = useState<string | null>(null);
+  const [declineBusy, setDeclineBusy] = useState(false);
+  const [declineErr, setDeclineErr] = useState<string | null>(null);
 
   async function submitCounter(v: { price: number; deliveryDays: number | null; proposal: string }) {
     if (!accessToken || !serviceId || !convId || !buyerId) return;
@@ -887,6 +911,30 @@ function ServiceOfferEmbed({
       setAcceptErr(e instanceof Error ? e.message : "Could not accept");
     } finally {
       setAcceptBusy(false);
+    }
+  }
+
+  async function onDeclineServiceDeal() {
+    if (!accessToken || !serviceId || !convId || !buyerId) return;
+    setDeclineErr(null);
+    setDeclineBusy(true);
+    try {
+      await apiMutateJson(
+        `/api/services/${encodeURIComponent(serviceId)}/decline-deal`,
+        "POST",
+        {
+          conversationId: convId,
+          counterProposerId: buyerId,
+          reason: "Seller declined current terms",
+        },
+        accessToken,
+      );
+      setAcceptOk("Offer declined. Buyer can send a new offer card when ready.");
+      onRefresh?.();
+    } catch (e) {
+      setDeclineErr(e instanceof Error ? e.message : "Could not decline");
+    } finally {
+      setDeclineBusy(false);
     }
   }
 
@@ -989,16 +1037,25 @@ function ServiceOfferEmbed({
             </DealEmbedActionButton>
           ) : null}
           {isSeller ? (
-            <DealEmbedActionButton
-              type="button"
-              disabled={acceptBusy || counterBusy || !convId}
-              onClick={() => {
-                setCounterErr(null);
-                setCounterOpen(true);
-              }}
-            >
-              Counter
-            </DealEmbedActionButton>
+            <>
+              <DealEmbedActionButton
+                type="button"
+                disabled={acceptBusy || declineBusy || counterBusy || !convId}
+                onClick={() => {
+                  setCounterErr(null);
+                  setCounterOpen(true);
+                }}
+              >
+                Counter
+              </DealEmbedActionButton>
+              <DealEmbedActionButton
+                type="button"
+                disabled={acceptBusy || declineBusy || counterBusy || !convId}
+                onClick={() => void onDeclineServiceDeal()}
+              >
+                {declineBusy ? "…" : "Decline"}
+              </DealEmbedActionButton>
+            </>
           ) : null}
           {!isSeller && (
             <span className="text-on-surface-variant/60 text-[10px]">Waiting for seller response...</span>
@@ -1006,6 +1063,11 @@ function ServiceOfferEmbed({
           {acceptErr ? (
             <p className="text-error text-xs" role="alert">
               {acceptErr}
+            </p>
+          ) : null}
+          {declineErr ? (
+            <p className="text-error text-xs" role="alert">
+              {declineErr}
             </p>
           ) : null}
           {acceptOk ? (

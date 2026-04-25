@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
 import {
   LandingHero,
-  FeaturesGrid,
-  HowItWorks,
-  WorldOfBrandForge,
-  FinalCTA,
-  AskAICards,
   PlansShowcase,
+  FAQSection,
+  LandingFooter,
 } from "./_components";
 import { DealRoomShowcase } from "@/components/landing/DealRoomShowcase";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
-  title: "World of BrandForge — AI-Powered Professional Marketplace",
+  title: "BrandForge — Client-First Hiring Marketplace",
   description:
-    "Enter the World of BrandForge. AI agents, deal rooms, smart matching, and a competitive ranking system. " +
-    "Execute projects end-to-end with human and AI squads.",
+    "Hire proven specialists faster. Run offers, counters, contracts, and payments in one client-first flow with AI support.",
   keywords: [
     "AI marketplace",
     "professional services",
@@ -56,7 +52,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "World of BrandForge",
+  name: "BrandForge",
   url: "https://brandforge.gg",
   description: "AI-powered professional marketplace with deal rooms, smart matching, and competitive ranking.",
   potentialAction: {
@@ -76,46 +72,23 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
-        {/* HERO - Main value proposition */}
+      <main className="min-h-screen bg-background text-on-surface">
         <section id="hero" className="relative">
           <LandingHero />
         </section>
 
-        {/* DEAL ROOM SHOWCASE - Product demo */}
-        <section className="relative border-t border-zinc-800">
+        <section id="flow" className="relative border-t border-outline-variant">
           <DealRoomShowcase />
         </section>
 
-        {/* PRICING - Plans */}
-        <section id="pricing" className="relative border-t border-zinc-800">
+        <section id="pricing" className="relative border-t border-outline-variant">
           <PlansShowcase />
         </section>
 
-        {/* PRODUCT - Core offering */}
-        <section id="product" className="relative border-t border-zinc-800">
-          <WorldOfBrandForge />
+        <section id="faq" className="relative border-t border-outline-variant">
+          <FAQSection />
         </section>
-
-        {/* SOLUTION - Features */}
-        <section id="solution" className="relative border-t border-zinc-800">
-          <FeaturesGrid />
-        </section>
-
-        {/* SOCIAL PROOF - Ask AI */}
-        <section className="relative border-t border-zinc-800">
-          <AskAICards />
-        </section>
-
-        {/* HOW IT WORKS - Step by step */}
-        <section id="how-it-works" className="relative border-t border-zinc-800">
-          <HowItWorks />
-        </section>
-
-        {/* CTA - Final call to action */}
-        <section className="relative border-t border-zinc-800">
-          <FinalCTA />
-        </section>
+        <LandingFooter />
       </main>
     </>
   );

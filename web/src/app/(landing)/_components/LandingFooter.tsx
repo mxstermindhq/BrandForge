@@ -66,19 +66,17 @@ export function LandingFooter() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-8 lg:mb-0">
             <Link href="/" className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shadow-lg">
-              <img 
-                src="/brandforge-logo-full.png" 
-                alt="BrandForge" 
-                className="w-full h-full object-contain scale-125"
-              />
+            <div className="w-12 h-12 rounded-xl bg-primary/15 border border-primary/40 flex items-center justify-center shadow-lg">
+              <span className="material-symbols-outlined text-primary text-[24px]" aria-hidden>
+                star
+              </span>
             </div>
             <span className="text-xl font-headline font-bold text-on-surface">
               BrandForge
             </span>
           </Link>
             <p className="text-sm text-on-surface-variant mb-6 max-w-xs">
-              The professional OS for independent specialists. Verified work. Portable reputation. Built for serious engagements.
+              Client-first hiring, negotiation, and contracts in one flow. Move from brief to signed deal faster.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4">

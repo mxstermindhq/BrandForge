@@ -6,53 +6,63 @@
 
 - **Now:** next 2 weeks  
 - **Next:** weeks 3–6  
-- **Then:** weeks 7–12  
+- **Then:** weeks 7–12
 
 ---
 
 ## Pillar A — Trust & activation
 
-| ID | Task | Horizon | Owner hint | Depends on |
-|----|------|---------|------------|------------|
-| A1 | Harden welcome → home path; measure drop-off | Now | Web + API | Auth/bootstrap |
-| A2 | Profile `/p/{username}` + settings copy always aligned | Now | Web | API profile fields |
-| A3 | Marketplace empty states → single clear CTA per role | Next | Web | — |
-| A4 | Email/support paths audited (`hello@brandforge.gg`) | Now | Content | — |
+
+| ID  | Task                                                   | Horizon | Owner hint | Depends on         |
+| --- | ------------------------------------------------------ | ------- | ---------- | ------------------ |
+| A1  | Harden welcome → home path; measure drop-off           | Now     | Web + API  | Auth/bootstrap     |
+| A2  | Profile `/p/{username}` + settings copy always aligned | Now     | Web        | API profile fields |
+| A3  | Marketplace empty states → single clear CTA per role   | Next    | Web        | —                  |
+| A4  | Email/support paths audited (`hello@brandforge.gg`)    | Now     | Content    | —                  |
+
 
 ## Pillar B — Liquidity (marketplace)
 
-| ID | Task | Horizon | Owner hint | Depends on |
-|----|------|---------|------------|------------|
-| B1 | Search/filter UX + URL state for marketplace | Now | Web | — |
-| B2 | Listing quality: trust row, delivery/price clarity | Next | Web + API | Bootstrap data shape |
-| B3 | Bid/offer flows instrumented (funnel events) | Next | Web + API | — |
-| B4 | Pagination / API limits on heavy lists | Next | API | DB indexes |
+
+| ID  | Task                                               | Horizon | Owner hint | Depends on           |
+| --- | -------------------------------------------------- | ------- | ---------- | -------------------- |
+| B1  | Search/filter UX + URL state for marketplace       | Now     | Web        | —                    |
+| B2  | Listing quality: trust row, delivery/price clarity | Next    | Web + API  | Bootstrap data shape |
+| B3  | Bid/offer flows instrumented (funnel events)       | Next    | Web + API  | —                    |
+| B4  | Pagination / API limits on heavy lists             | Next    | API        | DB indexes           |
+
 
 ## Pillar C — Deal execution (chat & deals)
 
-| ID | Task | Horizon | Owner hint | Depends on |
-|----|------|---------|------------|------------|
-| C1 | Chat reliability + optimistic UI review | Now | Web | API messages |
-| C2 | Attachments strategy (size, types, storage) | Next | API + Web | Supabase storage |
-| C3 | Realtime MVP (chat or notifications) | Then | Full stack | Supabase Realtime |
-| C4 | Contract/checkout: one vertical slice end-to-end | Then | API + integrations | Stripe/rules |
+
+| ID  | Task                                             | Horizon | Owner hint         | Depends on        |
+| --- | ------------------------------------------------ | ------- | ------------------ | ----------------- |
+| C1  | Chat reliability + optimistic UI review          | Now     | Web                | API messages      |
+| C2  | Attachments strategy (size, types, storage)      | Next    | API + Web          | Supabase storage  |
+| C3  | Realtime MVP (chat or notifications)             | Then    | Full stack         | Supabase Realtime |
+| C4  | Contract/checkout: one vertical slice end-to-end | Then    | API + integrations | Stripe/rules      |
+
 
 ## Pillar D — AI & agents (differentiation)
 
-| ID | Task | Horizon | Owner hint | Depends on |
-|----|------|---------|------------|------------|
-| D1 | One provider adapter + env-driven model pick | Now | API | Secrets |
-| D2 | Brief generator: structured output stored on profile/project | Next | Web + API | — |
-| D3 | Agent run: observable job status + user-visible errors | Next | API + infra | Runner host |
-| D4 | Reduce stubs (`completeMxAgentChat`-class) behind flags | Then | API | D1 |
+
+| ID  | Task                                                         | Horizon | Owner hint  | Depends on  |
+| --- | ------------------------------------------------------------ | ------- | ----------- | ----------- |
+| D1  | One provider adapter + env-driven model pick                 | Now     | API         | Secrets     |
+| D2  | Brief generator: structured output stored on profile/project | Next    | Web + API   | —           |
+| D3  | Agent run: observable job status + user-visible errors       | Next    | API + infra | Runner host |
+| D4  | Reduce stubs (`completeMxAgentChat`-class) behind flags      | Then    | API         | D1          |
+
 
 ## Pillar E — Competition layer
 
-| ID | Task | Horizon | Owner hint | Depends on |
-|----|------|---------|------------|------------|
-| E1 | Leaderboard data accuracy vs API payloads | Now | Web + API | `/api/leaderboard/*` |
-| E2 | Season prizes/Rules UX synchronized with backend | Next | Web + API | Season config |
-| E3 | Anti-gaming basics (rate limits, anomaly logs) | Then | API | — |
+
+| ID  | Task                                             | Horizon | Owner hint | Depends on           |
+| --- | ------------------------------------------------ | ------- | ---------- | -------------------- |
+| E1  | Leaderboard data accuracy vs API payloads        | Now     | Web + API  | `/api/leaderboard/`* |
+| E2  | Season prizes/Rules UX synchronized with backend | Next    | Web + API  | Season config        |
+| E3  | Anti-gaming basics (rate limits, anomaly logs)   | Then    | API        | —                    |
+
 
 ## Dependency chain (critical path)
 

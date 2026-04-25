@@ -4,13 +4,15 @@
 
 ## Strategy docs (start here)
 
-| Doc | Topics |
-|-----|--------|
-| [docs/strategy/01-product-design-ux.md](docs/strategy/01-product-design-ux.md) | Design system, UX, IA, metrics |
-| [docs/strategy/02-engineering-platform.md](docs/strategy/02-engineering-platform.md) | Architecture, repo map, tech debt, deploy |
-| [docs/strategy/03-monetization-growth.md](docs/strategy/03-monetization-growth.md) | Revenue, pricing posture, GTM loops |
-| [docs/strategy/04-market-leadership.md](docs/strategy/04-market-leadership.md) | Positioning, differentiation, “win” definition |
-| [docs/strategy/05-execution-roadmap.md](docs/strategy/05-execution-roadmap.md) | Pillars, ordered tasks, weekly rhythm |
+
+| Doc                                                                                  | Topics                                         |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| [docs/strategy/01-product-design-ux.md](docs/strategy/01-product-design-ux.md)       | Design system, UX, IA, metrics                 |
+| [docs/strategy/02-engineering-platform.md](docs/strategy/02-engineering-platform.md) | Architecture, repo map, tech debt, deploy      |
+| [docs/strategy/03-monetization-growth.md](docs/strategy/03-monetization-growth.md)   | Revenue, pricing posture, GTM loops            |
+| [docs/strategy/04-market-leadership.md](docs/strategy/04-market-leadership.md)       | Positioning, differentiation, “win” definition |
+| [docs/strategy/05-execution-roadmap.md](docs/strategy/05-execution-roadmap.md)       | Pillars, ordered tasks, weekly rhythm          |
+
 
 ## Stack (short)
 
@@ -39,6 +41,6 @@ npm run dev:all
 ## Contact
 
 - **Site:** [brandforge.gg](https://brandforge.gg)  
-- **Email:** hello@brandforge.gg  
+- **Email:** [hello@brandforge.gg](mailto:hello@brandforge.gg)
 
 Private repository — all rights reserved © 2026 BrandForge.

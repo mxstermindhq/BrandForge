@@ -420,6 +420,143 @@ async function createPlatformRepository(previewRepository) {
     }
   }
 
+  function normalizeDealUrl(pathOrUrl) {
+    const raw = String(pathOrUrl || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const base = String(env.publicWebOrigin || '').replace(/\/+$/, '');
+    if (!base) return raw;
+    return `${base}${raw.startsWith('/') ? raw : `/${raw}`}`;
+  }
+
+  async function postJson(url, payload) {
+    const u = String(url || '').trim();
+    if (!u) return;
+    try {
+      const res = await fetch(u, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.warn('[deal-webhook] non-2xx', res.status, body.slice(0, 800));
+      }
+    } catch (e) {
+      console.warn('[deal-webhook]', e.message || e);
+    }
+  }
+
+  function tgEscapeHtml(input) {
+    return String(input || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  async function publishDealChannels(event) {
+    const title = String(event?.title || 'Deal update').trim();
+    const message = String(event?.message || '').trim();
+    const detailUrl = normalizeDealUrl(event?.url || '');
+    const kind = String(event?.kind || 'deal').trim();
+    const card = event?.card && typeof event.card === 'object' ? event.card : null;
+    const actionsRaw = Array.isArray(event?.actions) ? event.actions : [];
+    const actions = actionsRaw
+      .map((a) => {
+        if (!a || typeof a !== 'object') return null;
+        const label = String(a.label || '').trim();
+        const url = normalizeDealUrl(a.url || '');
+        if (!label || !url) return null;
+        return { label, url };
+      })
+      .filter(Boolean);
+    const content = [title, message, detailUrl, ...actions.map((a) => `${a.label}: ${a.url}`)].filter(Boolean).join('\n');
+    const colorByKind = {
+      listing: 0x2563eb,
+      request: 0x7c3aed,
+      offer: 0x059669,
+      bid: 0x0284c7,
+      counter: 0xf59e0b,
+      accepted: 0x10b981,
+      declined: 0xef4444,
+      changelog: 0x8b5cf6,
+      deal: 0x3b82f6,
+    };
+    const discordColor = colorByKind[kind] || colorByKind.deal;
+
+    const discordWebhook = String(process.env.DISCORD_DEALS_WEBHOOK_URL || '').trim();
+    if (discordWebhook) {
+      await postJson(discordWebhook, {
+        content: title || 'Update',
+        embeds: [
+          {
+            title,
+            description: message || undefined,
+            url: detailUrl || undefined,
+            color: discordColor,
+            fields: card
+              ? Object.entries(card)
+                  .slice(0, 10)
+                  .map(([k, v]) => ({
+                    name: String(k).slice(0, 256),
+                    value: String(v ?? '—').slice(0, 1024),
+                    inline: true,
+                  }))
+              : undefined,
+          },
+        ],
+        components: actions.length
+          ? [
+              {
+                type: 1,
+                components: actions.slice(0, 5).map((a) => ({
+                  type: 2,
+                  style: 5,
+                  label: a.label.slice(0, 80),
+                  url: a.url,
+                })),
+              },
+            ]
+          : undefined,
+      });
+    }
+
+    const telegramToken = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+    const telegramChatId = String(process.env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_DEALS_CHAT_ID || '').trim();
+    if (telegramToken && telegramChatId) {
+      const url = `https://api.telegram.org/bot${telegramToken}/sendMessage`;
+      const fieldLines = card
+        ? Object.entries(card)
+            .slice(0, 12)
+            .map(([k, v]) => `• <b>${tgEscapeHtml(k)}</b>: ${tgEscapeHtml(String(v ?? '—'))}`)
+        : [];
+      const actionLines = actions.length ? actions.map((a) => `• <a href="${a.url}">${a.label}</a>`) : [];
+      const tgLines = [
+        `📣 <b>${tgEscapeHtml(title)}</b>`,
+        message ? `${tgEscapeHtml(message)}` : '',
+        ...fieldLines,
+        detailUrl ? `\n<a href="${detailUrl}">Open details</a>` : '',
+        ...actionLines,
+      ].filter(Boolean);
+      await postJson(url, {
+        chat_id: telegramChatId,
+        text: tgLines.join('\n'),
+        parse_mode: 'HTML',
+        disable_web_page_preview: false,
+        reply_markup: actions.length
+          ? {
+              inline_keyboard: [
+                actions.slice(0, 3).map((a) => ({
+                  text: a.label.slice(0, 64),
+                  url: a.url,
+                })),
+              ],
+            }
+          : undefined,
+      });
+    }
+  }
+
   async function readPreview() {
     return preview.read();
   }
@@ -998,6 +1135,30 @@ async function createPlatformRepository(previewRepository) {
       .select('*')
       .single();
     if (error) throw error;
+    const { data: ownerProfile } = await client
+      .from('profiles')
+      .select('username, full_name')
+      .eq('id', user.id)
+      .maybeSingle();
+    const ownerLabel = ownerProfile?.username || ownerProfile?.full_name || user.email?.split('@')[0] || 'seller';
+    await publishDealChannels({
+      kind: 'listing',
+      title: 'New service listing',
+      message: `${ownerLabel} published “${data.title}”.`,
+      url: `/services/${data.id}`,
+      card: {
+        Type: 'Service',
+        Title: data.title,
+        Category: data.category || 'General',
+        Price: `$${Number(data.base_price || 0).toLocaleString()}`,
+        Delivery: `${Number(data.delivery_days || 0)} days`,
+        By: ownerLabel,
+      },
+      actions: [
+        { label: 'View service', url: `/services/${data.id}` },
+        { label: 'Make offer', url: `/bid/service?id=${data.id}` },
+      ],
+    });
     try {
       if (currencyService) {
         await currencyService.awardHonor(user.id, 50, 'listing_published', 'service_packages', data.id);
@@ -1107,6 +1268,32 @@ async function createPlatformRepository(previewRepository) {
       .select('*')
       .single();
     if (error) throw error;
+    const { data: ownerProfile } = await client
+      .from('profiles')
+      .select('username, full_name')
+      .eq('id', user.id)
+      .maybeSingle();
+    const ownerLabel = ownerProfile?.username || ownerProfile?.full_name || user.email?.split('@')[0] || 'client';
+    const budgetText = budget.min != null || budget.max != null
+      ? `$${Number(budget.min || 0).toLocaleString()} - $${Number(budget.max || budget.min || 0).toLocaleString()}`
+      : 'Not set';
+    await publishDealChannels({
+      kind: 'request',
+      title: 'New client request',
+      message: `${ownerLabel} posted “${data.title}”.`,
+      url: `/requests/${data.id}`,
+      card: {
+        Type: 'Request',
+        Title: data.title,
+        Category: data.category || 'General',
+        Budget: budgetText,
+        By: ownerLabel,
+      },
+      actions: [
+        { label: 'View request', url: `/requests/${data.id}` },
+        { label: 'Place bid', url: `/bid/request?id=${data.id}` },
+      ],
+    });
     
     // Award Honor for posting a request
     try {
@@ -1251,6 +1438,63 @@ async function createPlatformRepository(previewRepository) {
         related_type: 'request',
       });
     }
+    const { data: bidderProf } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+    const { data: ownerProf } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .eq('id', request.owner_id)
+      .maybeSingle();
+    const preview = proposal.length > 240 ? `${proposal.slice(0, 237)}...` : proposal;
+    const chat = await createUnifiedChat(user.id, {
+      type: 'human',
+      title: `Bid · ${request.title || 'Request'}`,
+      subtitle: `$${price.toLocaleString()} · ${ownerProf?.username || 'client'}`,
+      metadata: {
+        requestId,
+        requestTitle: request.title || null,
+        chatType: 'request_bid',
+        requestOwnerId: String(request.owner_id || ''),
+        bidId: data.id,
+      },
+    });
+    const embed = {
+      type: 'bid_proposal',
+      proposer: profileSnapFromRow(bidderProf),
+      counterparty: profileSnapFromRow(ownerProf),
+      price,
+      deliveryDays: Number.isFinite(deliveryDays) && deliveryDays > 0 ? Math.round(deliveryDays) : null,
+      proposalText: proposal,
+      proposalPreview: preview,
+      requestTitle: request.title || null,
+      requestId,
+      bidId: data.id,
+      conversationId: chat.id,
+    };
+    await addUnifiedMessage(user.id, chat.id, {
+      contentType: 'embed',
+      content: preview || 'Request bid',
+      embed,
+    });
+    await publishDealChannels({
+      kind: 'bid',
+      title: 'New request bid',
+      message: `${bidderProf?.username || bidderProf?.full_name || 'A specialist'} sent a request bid on “${request.title || 'a request'}” for $${price.toLocaleString()}.`,
+      url: `/chat/${chat.id}`,
+      card: {
+        Type: 'Request bid',
+        Request: request.title || 'Request',
+        Price: `$${price.toLocaleString()}`,
+        Delivery: Number.isFinite(deliveryDays) && deliveryDays > 0 ? `${Math.round(deliveryDays)} days` : 'Not set',
+      },
+      actions: [
+        { label: 'Open deal chat', url: `/chat/${chat.id}` },
+        { label: 'View request', url: `/requests/${request.id}` },
+      ],
+    });
     try {
       if (currencyService) {
         await currencyService.awardHonor(user.id, 25, 'bid_placed', 'bids', data.id);
@@ -1261,7 +1505,7 @@ async function createPlatformRepository(previewRepository) {
     } catch (e) {
       console.warn('[honor] bid_placed hook:', e.message);
     }
-    return data;
+    return { bid: data, conversationId: chat.id };
   }
 
   async function createConversation(user, payload) {
@@ -2053,6 +2297,13 @@ async function createPlatformRepository(previewRepository) {
         related_type: 'request',
       });
     }
+    await publishDealChannels({
+      kind: 'declined',
+      title: 'Bid declined',
+      message: `A bid was declined on “${request.title || 'a request'}”.`,
+      url: `/requests/${request.id}`,
+      actions: [{ label: 'Browse request', url: `/requests/${request.id}` }],
+    });
 
     return mapBid({ ...bid, status: 'rejected' });
   }
@@ -3302,6 +3553,23 @@ async function createPlatformRepository(previewRepository) {
       content: preview || 'Buyer offer',
       embed,
     });
+    await publishDealChannels({
+      kind: 'offer',
+      title: 'New service offer',
+      message: `${bidderProf?.username || bidderProf?.full_name || 'A buyer'} sent an offer on “${row.title || 'a service'}” for $${price.toLocaleString()}.`,
+      url: `/chat/${chat.id}`,
+      card: {
+        Type: 'Service offer',
+        Service: row.title || 'Service',
+        Price: `$${price.toLocaleString()}`,
+        Delivery: Number.isFinite(deliveryDays) && deliveryDays > 0 ? `${Math.round(deliveryDays)} days` : 'Not set',
+      },
+      actions: [
+        { label: 'Open deal chat', url: `/chat/${chat.id}` },
+        { label: 'View service', url: `/services/${sid}` },
+        { label: 'Make offer', url: `/bid/service?id=${sid}` },
+      ],
+    });
 
     return { conversationId: chat.id };
   }
@@ -3630,6 +3898,18 @@ async function createPlatformRepository(previewRepository) {
       related_id: chatId,
       related_type: 'chat',
     });
+    await publishDealChannels({
+      kind: 'accepted',
+      title: 'Deal accepted',
+      message: `Terms were accepted on “${projTitle}”. Contract draft is ready for both parties.`,
+      url: `/chat/${chatId}`,
+      card: {
+        Type: 'Accepted deal',
+        Project: projTitle,
+        Amount: `$${agreedPrice.toLocaleString()}`,
+      },
+      actions: [{ label: 'Open contract chat', url: `/chat/${chatId}` }],
+    });
 
     await recordWorkflowEvent({
       projectId: project.id,
@@ -3727,6 +4007,19 @@ async function createPlatformRepository(previewRepository) {
         related_id: chatId,
         related_type: 'chat',
       });
+      await publishDealChannels({
+        kind: 'counter',
+        title: 'Service counter offer',
+        message: `${proposerProf?.username || proposerProf?.full_name || 'A user'} countered terms on “${svc.title || 'a service'}”.`,
+        url: `/chat/${chatId}`,
+        card: {
+          Type: 'Service counter',
+          Service: svc.title || 'Service',
+          Price: `$${price.toLocaleString()}`,
+          Delivery: deliveryDays ? `${deliveryDays} days` : 'Not set',
+        },
+        actions: [{ label: 'Respond in chat', url: `/chat/${chatId}` }],
+      });
 
       return { ok: true };
     }
@@ -3797,11 +4090,104 @@ async function createPlatformRepository(previewRepository) {
         related_id: chatId,
         related_type: 'chat',
       });
+      await publishDealChannels({
+        kind: 'counter',
+        title: 'Request counter offer',
+        message: `${proposerProf?.username || proposerProf?.full_name || 'A user'} countered terms on “${request.title || 'a request'}”.`,
+        url: `/chat/${chatId}`,
+        card: {
+          Type: 'Request counter',
+          Request: request.title || 'Request',
+          Price: `$${price.toLocaleString()}`,
+          Delivery: deliveryDays ? `${deliveryDays} days` : 'Not set',
+        },
+        actions: [{ label: 'Respond in chat', url: `/chat/${chatId}` }],
+      });
 
       return { ok: true };
     }
 
     throw new Error('Unsupported counter basis');
+  }
+
+  async function declineServicePackageDeal(user, serviceId, body) {
+    if (!client) throw new Error('Supabase is not configured');
+    const sid = String(serviceId || '').trim();
+    const chatId = String(body?.conversationId || '').trim();
+    const offerProposerId = String(body?.counterProposerId || '').trim();
+    const reason = String(body?.reason || 'Offer declined').trim();
+    if (!sid) throw new Error('Service id is required');
+    if (!chatId) throw new Error('conversationId is required');
+    if (!offerProposerId) throw new Error('counterProposerId is required');
+    if (String(offerProposerId) === String(user.id)) throw new Error('You cannot decline your own offer');
+    await assertUnifiedChatAccess(user.id, chatId);
+
+    const { data: svc, error: svcErr } = await client.from('service_packages').select('*').eq('id', sid).maybeSingle();
+    if (svcErr) throw svcErr;
+    if (!svc) throw new Error('Service not found');
+    if (String(svc.owner_id) !== String(user.id)) throw new Error('Only the service owner can decline this offer');
+
+    const [{ data: actorProf }, { data: proposerProf }] = await Promise.all([
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', user.id).maybeSingle(),
+      client.from('profiles').select('id, full_name, username, avatar_url').eq('id', offerProposerId).maybeSingle(),
+    ]);
+
+    const declineEmbed = {
+      type: 'deal_phase',
+      phase: 'service_negotiation',
+      tone: 'warning',
+      title: 'Offer declined',
+      subtitle: `${actorProf?.username || actorProf?.full_name || 'Seller'} declined this offer.`,
+      detail: reason,
+      serviceId: sid,
+      conversationId: chatId,
+      proposer: profileSnapFromRow(proposerProf),
+      counterparty: profileSnapFromRow(actorProf),
+    };
+    await addUnifiedMessage(user.id, chatId, {
+      contentType: 'embed',
+      content: reason || 'Offer declined',
+      embed: declineEmbed,
+    });
+
+    await notifyInsert({
+      user_id: offerProposerId,
+      type: 'message',
+      title: 'Offer declined',
+      message: `Your offer on “${svc.title || 'a service'}” was declined. Open chat to revise terms.`,
+      related_id: chatId,
+      related_type: 'chat',
+    });
+    await publishDealChannels({
+      kind: 'declined',
+      title: 'Service offer declined',
+      message: `${actorProf?.username || actorProf?.full_name || 'Seller'} declined an offer on “${svc.title || 'a service'}”.`,
+      url: `/chat/${chatId}`,
+      actions: [
+        { label: 'Open deal chat', url: `/chat/${chatId}` },
+        { label: 'Send new offer', url: `/bid/service?id=${sid}` },
+      ],
+    });
+
+    return { ok: true };
+  }
+
+  async function sendChannelTest(user, payload = {}) {
+    const label = String(payload?.label || '').trim();
+    const actor = user?.email || user?.id || 'user';
+    await publishDealChannels({
+      kind: 'changelog',
+      title: 'Channel test ping',
+      message: `${label ? `${label} · ` : ''}Triggered by ${actor}.`,
+      url: '/marketplace',
+      card: {
+        Type: 'Manual test',
+        Actor: actor,
+        Time: new Date().toISOString(),
+      },
+      actions: [{ label: 'Open marketplace', url: '/marketplace' }],
+    });
+    return { ok: true };
   }
 
   async function leaveUnifiedChat(userId, chatId) {
@@ -4885,6 +5271,8 @@ async function createPlatformRepository(previewRepository) {
     getServiceById,
     submitServicePackageBid,
     acceptServicePackageDeal,
+    declineServicePackageDeal,
+    sendChannelTest,
     submitDealCounterOffer,
     getProjectRequestById,
     updateSettings,

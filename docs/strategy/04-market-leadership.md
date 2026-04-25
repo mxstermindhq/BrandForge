@@ -8,20 +8,24 @@ BrandForge is a **competitive professional marketplace + deal OS**: discovery (m
 
 ## Differentiation pillars
 
-| Pillar | Proof we must show in-product |
-|--------|-------------------------------|
-| **One deal thread** | Chat, offers, and milestones feel native—not email exported. |
-| **Earned rank** | Leaderboard and tiers tied to real outcomes, not vanity badges. |
+
+| Pillar                | Proof we must show in-product                                          |
+| --------------------- | ---------------------------------------------------------------------- |
+| **One deal thread**   | Chat, offers, and milestones feel native—not email exported.           |
+| **Earned rank**       | Leaderboard and tiers tied to real outcomes, not vanity badges.        |
 | **AI as accelerator** | Tools reduce time to brief/proposal/contract; humans stay accountable. |
-| **Squads + agents** | Teams scale delivery without losing a single accountable thread. |
+| **Squads + agents**   | Teams scale delivery without losing a single accountable thread.       |
+
 
 ## Competitive landscape (strategic, not exhaustive)
 
-| Type | Risk | Our angle |
-|------|------|-----------|
-| Large freelance marketplaces | Liquidity | Deeper deal workflow + reputation game + AI workflow |
-| Vertical SaaS (e.g. agency tools) | Feature depth | Cross-category marketplace + competition layer |
-| Chat-first collab | Stickiness | Money + contract path integrated |
+
+| Type                              | Risk          | Our angle                                            |
+| --------------------------------- | ------------- | ---------------------------------------------------- |
+| Large freelance marketplaces      | Liquidity     | Deeper deal workflow + reputation game + AI workflow |
+| Vertical SaaS (e.g. agency tools) | Feature depth | Cross-category marketplace + competition layer       |
+| Chat-first collab                 | Stickiness    | Money + contract path integrated                     |
+
 
 ## “Leading market” definition (12 months)
 

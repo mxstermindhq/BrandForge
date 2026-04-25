@@ -1228,6 +1228,22 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  const serviceDeclineDealMatch = pathname.match(/^\/api\/services\/([^/]+)\/decline-deal\/?$/);
+  if (serviceDeclineDealMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const serviceId = serviceDeclineDealMatch[1];
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.declineServicePackageDeal(user, serviceId, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not decline deal' });
+    }
+    return true;
+  }
+
   if (pathname === '/api/deals/counter-offer' && method === 'POST') {
     const user = await requireUser(req, res);
     if (!user) return true;
@@ -1238,6 +1254,20 @@ async function routeApi(req, res, pathname) {
       sendJson(res, 200, out);
     } catch (error) {
       sendJson(res, 400, { error: error.message || 'Could not send counter offer' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/channels/test' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    const payload = await parseBody(req);
+    try {
+      const out = await platformRepository.sendChannelTest(user, payload);
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Could not send channel test' });
     }
     return true;
   }
@@ -1328,8 +1358,8 @@ async function routeApi(req, res, pathname) {
       sendJson(res, 400, { error: 'requestId, price, and proposal are required' });
       return true;
     }
-    const bid = await platformRepository.createBid(user, payload);
-    sendJson(res, 201, { bid });
+    const out = await platformRepository.createBid(user, payload);
+    sendJson(res, 201, out);
     return true;
   }
 

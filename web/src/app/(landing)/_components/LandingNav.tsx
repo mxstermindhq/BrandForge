@@ -19,9 +19,9 @@ function scrollToAndFocusEmail() {
 }
 
 const navItems = [
+  { href: "#flow", label: "How It Works" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#how-it-works", label: "How It Works" },
-  { href: "#explore-world", label: "Explore the World" },
+  { href: "#faq", label: "FAQ" },
 ];
 
 function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
@@ -53,12 +53,10 @@ export function LandingNav() {
       <div className="flex items-center justify-between h-16 px-4 lg:px-8 max-w-7xl mx-auto">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center shadow-lg">
-            <img 
-              src="/brandforge-logo-full.png" 
-              alt="BrandForge" 
-              className="w-full h-full object-contain scale-125"
-            />
+          <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/40 flex items-center justify-center shadow-lg">
+            <span className="material-symbols-outlined text-primary text-[20px]" aria-hidden>
+              star
+            </span>
           </div>
           <span className="font-headline font-bold text-lg text-on-surface group-hover:text-primary transition-colors">
             BrandForge

@@ -94,30 +94,28 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto text-center pt-20">
-        {/* Badge */}
         <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-surface-container-high border border-primary/30 mb-10 mt-8">
-          <span className="material-symbols-outlined text-primary text-sm">⚔️</span>
+          <span className="material-symbols-outlined text-primary text-sm">star</span>
           <span className="text-sm font-body text-primary">
-            The Professional OS for the AI Era
+            Client-first project execution
           </span>
         </div>
 
-        {/* Headline - WoW Style */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-headline font-bold text-on-surface mb-6 tracking-tight drop-shadow-lg">
-          <span className="text-transparent bg-clip-text bg-gradient-to-b from-[#f5e6bc] via-[#d4af37] to-[#8b6914]">
-            World of BrandForge
+          <span className="text-transparent bg-clip-text bg-gradient-to-b from-[#dbeafe] via-[#60a5fa] to-[#1d4ed8]">
+            Hire faster. Sign faster. Ship faster.
           </span>
         </h1>
 
         {/* Subheadline */}
         <p className="text-xl sm:text-2xl text-on-surface-variant max-w-2xl mx-auto mb-4 font-body">
-          AI agents, deal rooms, and smart matching.
+          Write the brief, receive offers, negotiate in chat, and sign contracts in one place.
           <br />
-          Execute projects end-to-end with human and AI squads.
+          AI copilots help your team move from request to delivery without chaos.
         </p>
 
         <p className="text-lg text-on-surface-variant/70 max-w-xl mx-auto mb-8">
-          Enter a competitive marketplace where reputation matters. Rank up from Challenger to Undisputed.
+          Built for clients who care about speed, quality, and clear accountability.
         </p>
 
         {/* Try BrandForge Button */}
@@ -125,7 +123,7 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
           onClick={scrollToAndFocusEmail}
           className="group relative px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 text-on-primary rounded-xl hover:shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all duration-300 flex items-center gap-3 mx-auto mb-16"
         >
-          <span>Try BrandForge</span>
+          <span>Start a project</span>
           <span className="material-symbols-outlined group-hover:translate-y-1 transition-transform">arrow_downward</span>
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -137,10 +135,10 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
         <div id="auth-section" className="max-w-md mx-auto">
           <div className="surface-card p-8 sm:p-10">
             <h2 className="text-xl font-headline font-semibold text-on-surface mb-2">
-              Enter the Arena
+              Start with your client account
             </h2>
             <p className="text-sm text-on-surface-variant mb-6">
-              Sign in with Google or email to start your journey
+              Access marketplace, AI tools, and deal rooms in one workspace.
             </p>
 
             {/* Google Sign In */}
