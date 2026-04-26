@@ -23,8 +23,6 @@ function scrollToAuthEmail() {
 
 const navItems = [
   { href: "#pricing", label: "Pricing" },
-  { href: "#features", label: "Features" },
-  { href: "#flow", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
 ];
 

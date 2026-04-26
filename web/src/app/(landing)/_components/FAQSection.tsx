@@ -1,27 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 const faqs = [
   {
-    question: "What can I do as a client on BrandForge?",
-    answer: "Post requests, compare offers, counter terms, sign contracts, and manage payments from one place. You do not need separate tools for discovery, negotiation, and execution.",
+    question: "What is BrandForge and how does it work?",
+    answer: (
+      <>
+        BrandForge is a professional marketplace, trained on three years of real deal-making to be fast,
+        accountable, and chaos-free — the trusted platform for clients and builders to do their best work
+        together.
+        <br />
+        <br />
+        You can use BrandForge solo or bring your whole team. Brief, negotiate, sign, and ship — all in one place.{" "}
+        <Link href="/product/overview" className="text-primary hover:underline">
+          Learn more about BrandForge
+        </Link>
+        .
+      </>
+    ),
   },
   {
-    question: "How does AI help in client workflows?",
-    answer: "AI helps draft briefs, summarize long chats, and generate contract drafts from agreed terms. You stay in control of approvals and final decisions.",
+    question: "What should I use BrandForge for?",
+    answer:
+      "If you can brief it, BrandForge can help you build it. Design, development, AI, Web3, marketing, automation — bring your idea and receive vetted offers from specialists who actually ship. AI copilots handle the admin so you can focus on what matters.",
   },
   {
-    question: "Can I negotiate before committing?",
-    answer: "Yes. Every offer can be accepted, countered, or declined directly in deal chat. Both sides can keep negotiating until the final terms are right.",
-  },
-  {
-    question: "How do contracts and payments work?",
-    answer: "When terms are accepted, a contract draft is created in the thread. After both parties approve/sign, payments are handled through the deal flow.",
-  },
-  {
-    question: "Can I still use the platform without a paid plan?",
-    answer: "Yes. You can start with core features and upgrade when you need more scale, automation, or team capacity.",
+    question: "How much does it cost?",
+    answer: (
+      <>
+        BrandForge has three plans — Free, Pro ($13/mo), and Agency ($29/mo). The Free plan gets you full
+        access to deals, contracts, escrow, and the AI copilot with no payment required.{" "}
+        <a href="#pricing" className="text-primary hover:underline">
+          See pricing
+        </a>
+        .
+      </>
+    ),
   },
 ];
 
@@ -29,7 +45,7 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+    <section className="px-4 py-20 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-headline font-bold text-on-surface mb-4">
@@ -59,25 +75,13 @@ export function FAQSection() {
               </button>
               {openIndex === index && (
                 <div className="px-6 pb-6">
-                  <p className="text-on-surface-variant leading-relaxed">
+                  <div className="text-on-surface-variant leading-relaxed text-left">
                     {faq.answer}
-                  </p>
+                  </div>
                 </div>
               )}
             </div>
           ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <p className="text-on-surface-variant">
-            Still have questions?{" "}
-            <a
-              href="mailto:support@brandforge.ai"
-              className="text-primary hover:underline font-medium"
-            >
-              Contact our support team
-            </a>
-          </p>
         </div>
       </div>
     </section>
