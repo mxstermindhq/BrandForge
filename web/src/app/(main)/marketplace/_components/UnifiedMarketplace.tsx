@@ -306,13 +306,13 @@ export function UnifiedMarketplace() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:block hidden"/>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/10 blur-[120px] rounded-full dark:block hidden"/>
         
-        <div className="relative max-w-7xl mx-auto px-8 py-10">
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
           <div className="mb-2">
             <div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-2">
+              <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <Store size={12}/> Marketplace
               </div>
-              <h1 className="text-4xl font-bold">Browse opportunities</h1>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Browse opportunities</h1>
               {eco ? (
                 <div className="mt-4 flex flex-wrap gap-4 text-sm">
                   <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-2">
@@ -346,7 +346,7 @@ export function UnifiedMarketplace() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         {/* View toggle (Browse vs Smart Match) */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
@@ -606,7 +606,7 @@ export function UnifiedMarketplace() {
                 </div>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-border bg-muted/20">
+              <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/50 shadow-sm backdrop-blur-sm">
                 {combinedListings.items.map((item) => {
                   const isService = item._type === "service" || (!item._type && "price" in item);
                   const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
@@ -673,20 +673,25 @@ function MarketplaceRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-border last:border-b-0">
+    <div className="border-b border-border/60 last:border-b-0 last:rounded-b-2xl first:rounded-t-2xl">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted/40"
+        className="flex w-full items-start gap-3 px-4 py-4 text-left transition hover:bg-muted/30"
       >
-        <ChevronDown size={16} className={`shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-foreground">{heading}</p>
-          <p className="truncate text-xs text-muted-foreground">{subheading}</p>
+        <ChevronDown
+          size={18}
+          className={`mt-0.5 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+        <div className="min-w-0 flex-1 pr-2">
+          <p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{heading}</p>
+          <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{subheading}</p>
         </div>
-        <span className="shrink-0 text-xs font-semibold text-foreground">{rightMeta}</span>
+        <span className="shrink-0 text-right text-xs font-semibold tabular-nums text-primary">{rightMeta}</span>
       </button>
-      {expanded ? <div className="border-t border-border bg-background px-4 py-4">{children}</div> : null}
+      {expanded ? (
+        <div className="border-t border-border/60 bg-muted/10 px-4 py-4 sm:px-5">{children}</div>
+      ) : null}
     </div>
   );
 }

@@ -149,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ProfileSetupBanner />
           <EngagerGrowthBanner />
           <OnboardingProvider>
-            <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+            <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pt-10 pl-3 pr-3 sm:pl-4 sm:pr-4 md:pl-14 md:pt-12 md:pr-6">
               {children}
             </main>
           </OnboardingProvider>

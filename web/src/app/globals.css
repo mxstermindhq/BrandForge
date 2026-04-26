@@ -599,11 +599,11 @@ html.dark ::selection {
   }
 
   .page-content {
-    @apply max-w-[960px] mx-auto px-8 py-10;
+    @apply max-w-[960px] mx-auto px-4 py-8 sm:px-6 sm:py-10 md:px-8;
   }
 
   .page-content-sm {
-    @apply max-w-[720px] mx-auto px-8 py-10;
+    @apply max-w-[720px] mx-auto px-4 py-8 sm:px-6 sm:py-10 md:px-8;
   }
 
   .divider {

@@ -101,49 +101,22 @@ export function LandingNav() {
           ))}
         </nav>
 
-        {/* Actions */}
+        {/* Actions — single public CTA + app entry when signed in */}
         <div className="flex items-center gap-3">
+          <a
+            href="mailto:hello@brandforge.gg?subject=Start%20a%20project%20%E2%80%94%20BrandForge&body=Hi%20BrandForge%20team%2C%0A%0AI%27d%20like%20to%20start%20a%20project%3A%0A%0A"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary shadow-sm transition hover:opacity-90"
+          >
+            Start a project
+          </a>
           {session ? (
             <Link
               href="/chat"
-              className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity"
+              className="hidden text-sm font-medium text-on-surface-variant hover:text-on-surface sm:inline"
             >
-              Chat
+              App
             </Link>
-          ) : (
-            <>
-                  {/* Request Access CTA */}
-              <div className="relative group">
-                <Link
-                  href="/login#email"
-                  className="relative px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-primary to-primary/90 text-on-primary rounded-lg hover:shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all duration-200 flex items-center gap-2"
-                >
-                  Request access
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                  </span>
-                </Link>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                  <div className="bg-surface-container-high border border-outline-variant rounded-lg px-4 py-3 shadow-xl">
-                    <p className="text-xs text-on-surface-variant text-center">
-                      <span className="text-primary font-semibold">Built for specialists and buyers running serious engagements.</span> Free to join.
-                    </p>
-                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-surface-container-high border-t border-l border-outline-variant rotate-45"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sign In */}
-              <Link
-                href="/login#email"
-                className="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors hidden sm:block"
-              >
-                Sign In
-              </Link>
-            </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

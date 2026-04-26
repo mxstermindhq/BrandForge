@@ -96,8 +96,8 @@ export function PerformanceLeaderboard() {
   const entries = useMemo(() => rows.filter((u) => u.rank > 0), [rows]);
 
   return (
-    <div className="min-h-screen bg-background p-4 text-foreground sm:p-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="w-full bg-background pb-12 pt-0 text-foreground">
+      <div className="mx-auto max-w-5xl px-2 sm:px-0">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Leaderboard</p>
@@ -129,7 +129,7 @@ export function PerformanceLeaderboard() {
         </header>
 
         <div className="overflow-hidden rounded-xl border border-border">
-          <div className="hidden grid-cols-[48px_1fr_88px_88px_88px] gap-2 border-b border-border bg-muted/30 px-3 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
+          <div className="hidden grid-cols-[52px_minmax(12rem,1fr)_72px_72px_80px] gap-x-3 border-b border-border bg-muted/30 px-3 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
             <span>#</span>
             <span>Professional</span>
             <span className="text-right text-orange-500">Rating</span>
@@ -145,12 +145,12 @@ export function PerformanceLeaderboard() {
             entries.map((p) => (
               <div
                 key={p.userId}
-                className="grid grid-cols-1 gap-2 border-b border-border/60 px-3 py-4 last:border-0 sm:grid-cols-[48px_1fr_88px_88px_88px] sm:items-center"
+                className="grid grid-cols-1 gap-2 border-b border-border/60 px-3 py-4 last:border-0 sm:grid-cols-[52px_minmax(12rem,1fr)_72px_72px_80px] sm:items-start sm:gap-x-3"
               >
-                <div className="flex items-center gap-3 sm:block sm:text-center">
-                  <span className="font-mono text-sm text-muted-foreground sm:inline">#{p.rank}</span>
-                  <div className="min-w-0 flex-1 sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:text-left">
-                    <p className="truncate text-sm font-medium text-on-surface">
+                <div className="flex items-start gap-3 sm:contents">
+                  <span className="shrink-0 font-mono text-sm text-muted-foreground sm:pt-0.5">#{p.rank}</span>
+                  <div className="min-w-0 sm:pt-0.5 sm:text-left">
+                    <p className="break-words text-sm font-medium leading-snug text-on-surface">
                       {p.username ? (
                         <Link href={`/p/${encodeURIComponent(p.username)}`} className="hover:text-primary">
                           {p.displayName}
@@ -160,9 +160,9 @@ export function PerformanceLeaderboard() {
                       )}
                     </p>
                     {p.headline ? (
-                      <p className="truncate text-xs text-muted-foreground">{p.headline}</p>
+                      <p className="mt-0.5 break-words text-xs leading-snug text-muted-foreground">{p.headline}</p>
                     ) : p.username ? (
-                      <p className="truncate text-xs text-muted-foreground">@{p.username}</p>
+                      <p className="mt-0.5 break-all text-xs text-muted-foreground">@{p.username}</p>
                     ) : null}
                   </div>
                 </div>
