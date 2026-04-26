@@ -4,18 +4,21 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 
-function scrollToAndFocusEmail() {
-  // If not on login page, redirect to login
-  if (!window.location.pathname.includes('/login')) {
-    window.location.href = '/login#email';
+/** Scroll to home auth form and focus email (same intent as “Sign in to your workspace”). */
+function scrollToAuthEmail() {
+  const path = window.location.pathname;
+  const isHome = path === "/" || path === "";
+  if (!isHome) {
+    window.location.href = "/#auth-section";
     return;
   }
-  // If on login page, scroll to email
-  document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
-  setTimeout(() => {
-    const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
-    emailInput?.focus();
-  }, 500);
+  document.getElementById("auth-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => {
+    const el = document.querySelector(
+      "#auth-section input[type=\"email\"]",
+    ) as HTMLInputElement | null;
+    el?.focus({ preventScroll: true });
+  }, 450);
 }
 
 const navItems = [
@@ -103,12 +106,13 @@ export function LandingNav() {
 
         {/* Actions — single public CTA + app entry when signed in */}
         <div className="flex items-center gap-3">
-          <a
-            href="mailto:hello@brandforge.gg?subject=Start%20a%20project%20%E2%80%94%20BrandForge&body=Hi%20BrandForge%20team%2C%0A%0AI%27d%20like%20to%20start%20a%20project%3A%0A%0A"
+          <button
+            type="button"
+            onClick={scrollToAuthEmail}
             className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary shadow-sm transition hover:opacity-90"
           >
             Start a project
-          </a>
+          </button>
           {session ? (
             <Link
               href="/chat"

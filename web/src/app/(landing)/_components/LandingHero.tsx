@@ -39,12 +39,12 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
 
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-  function scrollToAndFocusEmail() {
-    document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => {
-      emailInputRef.current?.focus();
-    }, 500);
-  }
+  // Focus email when opening /#auth-section (e.g. from nav on another page)
+  useEffect(() => {
+    if (window.location.hash !== "#auth-section") return;
+    const t = window.setTimeout(() => emailInputRef.current?.focus({ preventScroll: true }), 100);
+    return () => window.clearTimeout(t);
+  }, []);
 
   async function onEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,7 +79,7 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
   }
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden px-4 sm:px-6 lg:px-8">
       {/* Animated background - WoW Fantasy Theme */}
       <div className="absolute inset-0 bg-background">
         {/* Deep blue mist (Alliance) */}
@@ -92,13 +92,11 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgb3BhY2l0eT0iMC4wMiI+PHBhdGggZD0iTTAgMGg2MHY2MEgwVjB6IiBmaWxsPSIjZDRhZjM3Ii8+PC9zdmc+')] opacity-50" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto text-center pt-20">
-        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-surface-container-high border border-primary/30 mb-10 mt-8">
-          <span className="material-symbols-outlined text-primary text-sm">star</span>
-          <span className="text-sm font-body text-primary">
-            Client-first project execution
-          </span>
+      {/* Content — pt clears fixed nav (h-16) with minimal extra gap */}
+      <div className="relative z-10 mx-auto max-w-5xl pt-20 text-center">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-surface-container-high px-4 py-2 sm:px-5 sm:py-2.5">
+          <span className="material-symbols-outlined text-sm text-primary">star</span>
+          <span className="text-sm font-body text-primary">Client-first project execution</span>
         </div>
 
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-headline font-bold text-on-surface mb-6 tracking-tight drop-shadow-lg">
@@ -114,25 +112,9 @@ export function LandingHero({ selectedPlan }: LandingHeroProps = {}) {
           AI copilots help your team move from request to delivery without chaos.
         </p>
 
-        <p className="text-lg text-on-surface-variant/70 max-w-xl mx-auto mb-8">
+        <p className="mx-auto mb-10 max-w-xl text-lg text-on-surface-variant/70 sm:mb-12">
           Built for clients who care about speed, quality, and clear accountability.
         </p>
-
-        <div className="mx-auto mb-10 flex max-w-md flex-col items-center gap-3 sm:mb-14">
-          <a
-            href="mailto:hello@brandforge.gg?subject=Start%20a%20project%20%E2%80%94%20BrandForge&body=Hi%20BrandForge%20team%2C%0A%0AI%27d%20like%20to%20start%20a%20project%3A%0A%0A"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-on-primary shadow-md transition hover:opacity-90"
-          >
-            Start a project
-          </a>
-          <button
-            type="button"
-            onClick={scrollToAndFocusEmail}
-            className="text-sm text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline"
-          >
-            Or sign in to your workspace
-          </button>
-        </div>
 
         {/* Auth Card */}
         <div id="auth-section" className="max-w-md mx-auto">
