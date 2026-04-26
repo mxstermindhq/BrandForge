@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   LandingHero,
   PlansShowcase,
+  FeaturesGrid,
   FAQSection,
   LandingFooter,
 } from "./_components";
@@ -77,12 +78,14 @@ export default function LandingPage() {
           <LandingHero />
         </section>
 
-        <section id="flow" className="relative border-t border-outline-variant">
-          <DealRoomShowcase />
-        </section>
-
         <section id="pricing" className="relative border-t border-outline-variant">
           <PlansShowcase />
+        </section>
+
+        <FeaturesGrid />
+
+        <section id="flow" className="relative border-t border-outline-variant">
+          <DealRoomShowcase />
         </section>
 
         <section id="faq" className="relative border-t border-outline-variant">

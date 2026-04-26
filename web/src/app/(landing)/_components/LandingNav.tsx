@@ -23,6 +23,7 @@ function scrollToAuthEmail() {
 
 const navItems = [
   { href: "#flow", label: "How It Works" },
+  { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -111,7 +112,7 @@ export function LandingNav() {
             onClick={scrollToAuthEmail}
             className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary shadow-sm transition hover:opacity-90"
           >
-            Start a project
+            Try BrandForge
           </button>
           {session ? (
             <Link

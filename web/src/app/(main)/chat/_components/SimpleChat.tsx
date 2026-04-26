@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { Send, Paperclip, ChevronDown, X, Mic, Upload, Sparkles } from "lucide-react";
+import { Send, Plus, ChevronDown, X, Mic, Upload, Sparkles, Store, FileText, Briefcase } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
@@ -419,21 +420,46 @@ function EmptyState({
             </p>
           </div>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col items-stretch justify-center">
-            <div className="rounded-2xl border border-outline-variant/80 bg-surface-container-low/60 p-5 text-center">
-              <h2 className="text-base font-semibold text-on-surface sm:text-lg">Welcome</h2>
-              <p className="mt-1.5 text-xs leading-relaxed text-on-surface-variant sm:text-sm">
-                Open a deal room from the sidebar, or import your profile to get discovered.
-              </p>
-              <button
-                type="button"
-                onClick={() => setImportOpen(true)}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-on-primary transition hover:opacity-90"
+          <div className="flex min-h-0 flex-1 flex-col items-stretch justify-center gap-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Link
+                href="/marketplace"
+                className="group flex flex-col rounded-2xl border border-outline-variant/80 bg-surface-container-low/60 p-4 text-left transition hover:border-primary/40 hover:bg-surface-container-high/80"
               >
-                <Upload className="h-4 w-4" aria-hidden />
-                Import profile
-              </button>
+                <Store className="mb-2 h-8 w-8 text-primary" aria-hidden />
+                <h3 className="text-sm font-semibold text-on-surface">Browse the marketplace</h3>
+                <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">
+                  Hire people and compare vetted specialists in one place.
+                </p>
+              </Link>
+              <Link
+                href="/requests/new"
+                className="group flex flex-col rounded-2xl border border-outline-variant/80 bg-surface-container-low/60 p-4 text-left transition hover:border-primary/40 hover:bg-surface-container-high/80"
+              >
+                <FileText className="mb-2 h-8 w-8 text-primary" aria-hidden />
+                <h3 className="text-sm font-semibold text-on-surface">Submit a request</h3>
+                <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">
+                  Reach hundreds of professionals in seconds with your brief.
+                </p>
+              </Link>
+              <Link
+                href="/services/new"
+                className="group flex flex-col rounded-2xl border border-outline-variant/80 bg-surface-container-low/60 p-4 text-left transition hover:border-primary/40 hover:bg-surface-container-high/80"
+              >
+                <Briefcase className="mb-2 h-8 w-8 text-primary" aria-hidden />
+                <h3 className="text-sm font-semibold text-on-surface">List a service</h3>
+                <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">
+                  Present your offer to multiple clients from one listing.
+                </p>
+              </Link>
             </div>
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              className="text-center text-xs text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline"
+            >
+              Import profile to get discovered
+            </button>
           </div>
         )}
       </div>
@@ -551,15 +577,24 @@ function DealRoomContextSidebar({
             Quick links
           </p>
           <div className="mt-2 space-y-1.5">
-            <a href="/requests/new" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+            <Link
+              href="/requests/new"
+              className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface"
+            >
               Create request
-            </a>
-            <a href="/services/new" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+            </Link>
+            <Link
+              href="/services/new"
+              className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface"
+            >
               Create service
-            </a>
-            <a href="/marketplace" className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface">
+            </Link>
+            <Link
+              href="/marketplace"
+              className="block rounded-md px-2 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface"
+            >
               Open marketplace
-            </a>
+            </Link>
             {onChatDeposit ? (
               <button
                 type="button"
@@ -681,10 +716,10 @@ function InputBar({
                   disabled={locked || attachDisabled}
                   onClick={() => onAttachClick?.()}
                   className="rounded-lg p-1.5 text-on-surface-variant/60 transition hover:bg-surface-container-high hover:text-on-surface disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label="Attach image or PDF"
+                  aria-label="Add image or PDF"
                   title={attachDisabled ? "Open a deal room to attach files" : "JPEG, PNG, GIF, WebP, or PDF (max ~4.5MB)"}
                 >
-                  <Paperclip className="h-4 w-4" />
+                  <Plus className="h-4 w-4" strokeWidth={2.25} />
                 </button>
                 {!hasThread && !(recipient.type === "people") && (
                   <button
@@ -707,8 +742,8 @@ function InputBar({
                 )}
               </div>
               <div className="flex-1" />
-              <span className="mr-2 text-[10px] text-on-surface-variant/40">
-                {sending ? "Sending…" : "↵ send  ⇧↵ newline"}
+              <span className="mr-1 min-w-0 max-w-[min(200px,46vw)] text-right text-[9px] leading-snug text-on-surface-variant/55 sm:mr-2 sm:max-w-none sm:text-[10px]">
+                {sending ? "Sending…" : "Chat history · AI models · AI agents"}
               </span>
               <button
                 type="button"
