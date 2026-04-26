@@ -12,7 +12,7 @@ import { PostedAgo } from "@/components/ui/PostedAgo";
 import { useAuth } from "@/providers/AuthProvider";
 import { SERVICE_LISTING_CATEGORIES } from "@/lib/service-categories";
 import { formatDealRecordShort } from "@/lib/deal-record";
-import { ArrowLeft, Edit, Trash2, Save, X, Clock, DollarSign, User, Star, CheckCircle, Package } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Save, X, Clock, Star, CheckCircle, Package, FileText } from "lucide-react";
 
 type Service = {
   id?: string;
@@ -33,6 +33,8 @@ type Service = {
   ownerReputation?: number | null;
   ownerDealWins?: number | null;
   ownerDealLosses?: number | null;
+  offers?: number | null;
+  sales?: number | null;
 };
 
 export function ServiceDetailClient({ id }: { id: string }) {
@@ -115,6 +117,7 @@ export function ServiceDetailClient({ id }: { id: string }) {
   const ownerUser = (service.ownerUsername || "").trim();
   const dealLbl = formatDealRecordShort(service.ownerDealWins, service.ownerDealLosses);
   const isOwner = Boolean(session?.user?.id && service.ownerId && String(session.user.id) === String(service.ownerId));
+  const offersCount = Number(service.offers ?? service.sales) || 0;
 
   async function onSaveEdits(e: React.FormEvent) {
     e.preventDefault();
@@ -158,47 +161,69 @@ export function ServiceDetailClient({ id }: { id: string }) {
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
-      {/* Hero cover */}
-      <div className="relative h-[40vh] min-h-[300px] w-full overflow-hidden">
-        {safeImageSrc(service.coverUrl) ? (
-          <Image src={safeImageSrc(service.coverUrl)!} alt="" fill className="object-cover" sizes="100vw" priority />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-surface-container-high to-surface-container" aria-hidden />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"/>
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="max-w-5xl mx-auto">
-            <Link href="/marketplace" className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface text-sm mb-4 transition">
-              <ArrowLeft size={14}/> Back to marketplace
-            </Link>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 text-xs text-primary uppercase tracking-wider mb-2">
-                  <Package size={12}/> {service.cat || "Service"}
-                </div>
-                <h1 className="text-3xl md:text-4xl font-bold">{service.title}</h1>
+      {safeImageSrc(service.coverUrl) ? (
+        <div className="relative h-36 w-full overflow-hidden sm:h-40">
+          <Image
+            src={safeImageSrc(service.coverUrl)!}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
+        </div>
+      ) : null}
+
+      <div className="border-b border-outline-variant">
+        <div className="mx-auto max-w-5xl px-6 py-6 md:px-10">
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center gap-2 text-sm text-on-surface-variant transition hover:text-on-surface"
+          >
+            <ArrowLeft size={14} /> Back to marketplace
+          </Link>
+          <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  open
+                </span>
+                <span className="flex items-center gap-1 text-xs text-on-surface-variant">
+                  <Package size={12} /> {service.cat || "Service"}
+                </span>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-primary">${service.price?.toLocaleString() || "—"}</div>
-                {service.deliveryDays && (
-                  <div className="flex items-center gap-1 text-on-surface-variant text-sm mt-1">
-                    <Clock size={12}/> {service.deliveryDays} days delivery
-                  </div>
-                )}
+              <h1 className="text-2xl font-bold md:text-3xl">{service.title}</h1>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-primary">${service.price?.toLocaleString() || "—"}</div>
+              <div className="mt-1 flex flex-wrap items-center justify-end gap-3 text-sm text-on-surface-variant">
+                <span>{offersCount} offers</span>
+                {service.deliveryDays != null ? (
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {service.deliveryDays}d
+                  </span>
+                ) : null}
+                {service.createdAt ? <PostedAgo iso={service.createdAt} /> : null}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 md:px-10 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
           {/* Main content */}
           <div className="space-y-6">
             {/* Provider info */}
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-surface-container-high to-surface-container flex items-center justify-center text-lg font-bold">
-                {avatar ? <Image src={avatar} alt="" fill className="object-cover rounded-full" sizes="56px" /> : (service.sel || "?").slice(0, 2).toUpperCase()}
+            <div className="flex items-center gap-4 rounded-xl border border-outline-variant bg-surface-container-low p-4">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-surface-container-high to-surface-container text-lg font-bold">
+                {avatar ? (
+                  <Image src={avatar} alt="" fill className="object-cover" sizes="56px" />
+                ) : (
+                  (service.sel || "?").slice(0, 2).toUpperCase()
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
@@ -228,10 +253,14 @@ export function ServiceDetailClient({ id }: { id: string }) {
               )}
             </div>
 
-            {/* Description */}
-            <div className="p-6 rounded-xl bg-surface-container-low border border-outline-variant">
-              <h2 className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-4">Description</h2>
-              <p className="text-on-surface leading-relaxed whitespace-pre-wrap">{service.description || "No description provided."}</p>
+            {/* Scope — mirrors request “Brief” block */}
+            <div className="rounded-xl border border-outline-variant bg-surface-container-low p-6">
+              <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+                <FileText size={14} /> Scope
+              </h2>
+              <p className="whitespace-pre-wrap leading-relaxed text-on-surface">
+                {service.description || "No description provided."}
+              </p>
             </div>
 
             {/* Owner management */}
@@ -292,8 +321,11 @@ export function ServiceDetailClient({ id }: { id: string }) {
           {/* Sidebar */}
           <div className="space-y-4">
             {!isOwner ? (
-              <Link href={`/bid/service?id=${encodeURIComponent(id)}`} className="block w-full py-4 bg-amber-500 hover:bg-amber-400 text-black text-center font-semibold rounded-xl transition">
-                Hire Us
+              <Link
+                href={`/bid/service?id=${encodeURIComponent(id)}`}
+                className="block w-full rounded-xl bg-amber-500 py-4 text-center font-semibold text-black transition hover:bg-amber-400"
+              >
+                Book this offer
               </Link>
             ) : (
               <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-center">
@@ -301,13 +333,29 @@ export function ServiceDetailClient({ id }: { id: string }) {
                 <p className="text-sm text-on-surface-variant">This is your listing</p>
               </div>
             )}
-            <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant">
-              <h3 className="text-sm font-semibold text-on-surface-variant mb-3">Details</h3>
+            <div className="rounded-xl border border-outline-variant bg-surface-container-low p-4">
+              <h3 className="mb-3 text-sm font-semibold text-on-surface-variant">Details</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-on-surface-variant">Category</span><span>{service.cat || "—"}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Price</span><span className="text-primary">${service.price?.toLocaleString() || "—"}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Delivery</span><span>{service.deliveryDays ? `${service.deliveryDays} days` : "—"}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Provider</span><span>@{ownerUser || "—"}</span></div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-on-surface-variant">Category</span>
+                  <span className="text-right">{service.cat || "—"}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-on-surface-variant">Price</span>
+                  <span className="text-right font-semibold text-primary">${service.price?.toLocaleString() || "—"}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-on-surface-variant">Delivery</span>
+                  <span className="text-right">{service.deliveryDays ? `${service.deliveryDays} days` : "—"}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-on-surface-variant">Offers</span>
+                  <span className="text-right tabular-nums">{offersCount}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-on-surface-variant">Provider</span>
+                  <span className="truncate text-right">@{ownerUser || "—"}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -1,242 +1,156 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface PlansShowcaseProps {
   selectedPlan?: string | null;
 }
 
-const tiers = [
+const mainPlans = [
   {
     id: "free",
     name: "Free",
     price: "$0",
-    period: "forever",
-    description: "Everything you need to land your first clients.",
-    features: [
-      "Public profile & portfolio",
-      "List services & bid on requests",
-      "Deal rooms & messaging",
-      "Milestones & reviews",
-      "Index & Chronicle access",
-      "AI Copilot",
-    ],
+    blurb: "Solo workspace",
+    features: ["Public profile", "List & bid", "Deal rooms"],
     cta: "Start free",
     popular: false,
   },
   {
     id: "starter",
-    name: "Solo",
+    name: "Pro",
     price: "$29",
-    period: "/month",
-    description: "For independent specialists with a steady pipeline.",
-    features: [
-      "Everything in Free",
-      "Priority listing placement",
-      "Weekly visibility boost",
-      "Email support",
-      "Higher AI copilot limits",
-      "Advanced analytics",
-    ],
-    cta: "Start Solo",
+    period: "/mo",
+    blurb: "Growing pipeline",
+    features: ["Everything in Free", "Higher AI limits", "Visibility boosts"],
+    cta: "Choose Pro",
     popular: false,
   },
   {
     id: "architect",
-    name: "Studio",
+    name: "Max",
     price: "$79",
-    period: "/month",
-    description: "For power sellers managing multiple active engagements.",
-    features: [
-      "Everything in Solo",
-      "Multi-seat team access",
-      "Priority support",
-      "Custom contract templates",
-      "Advanced AI features",
-      "Reduced platform fees",
-    ],
-    cta: "Start Studio",
+    period: "/mo",
+    blurb: "Power sellers",
+    features: ["Everything in Pro", "Team seats", "Priority support"],
+    cta: "Choose Max",
     popular: true,
   },
+];
+
+const orgPlans = [
   {
     id: "scale",
-    name: "Agency",
-    price: "$199",
-    period: "/month",
-    description: "For studios and agencies with procurement, compliance, and custom workflows.",
-    features: [
-      "Everything in Studio",
-      "Stripe escrow & crypto treasury",
-      "Admin & dispute tools",
-      "White-label options",
-      "API access",
-      "Dedicated account manager",
-    ],
-    cta: "Talk to sales",
-    popular: false,
+    name: "Team",
+    price: "Custom",
+    blurb: "Shared pipeline & roles",
+    features: ["Volume pricing", "Admin tools", "Slack-style handoffs"],
+    cta: "Talk to us",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "Custom",
+    blurb: "Compliance & procurement",
+    features: ["SSO / audit", "Custom contracts", "Dedicated CSM"],
+    cta: "Contact sales",
   },
 ];
 
 export function PlansShowcase({ selectedPlan }: PlansShowcaseProps = {}) {
-  const [annual, setAnnual] = useState(false);
   const [highlightedPlan, setHighlightedPlan] = useState<string | null>(null);
 
   useEffect(() => {
-    if (selectedPlan) {
-      setHighlightedPlan(selectedPlan);
-      // Scroll to the selected plan card
-      setTimeout(() => {
-        const planCard = document.getElementById(`plan-${selectedPlan}`);
-        if (planCard) {
-          planCard.scrollIntoView({ behavior: "smooth", block: "center" });
-          planCard.classList.add("ring-2", "ring-primary", "ring-offset-2");
-          setTimeout(() => {
-            planCard.classList.remove("ring-2", "ring-primary", "ring-offset-2");
-          }, 3000);
-        }
-      }, 500);
-    }
+    if (!selectedPlan) return;
+    setHighlightedPlan(selectedPlan);
+    const scrollTimer = window.setTimeout(() => {
+      const el = document.getElementById(`plan-${selectedPlan}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.classList.add("ring-2", "ring-primary", "ring-offset-2");
+      window.setTimeout(() => {
+        el?.classList.remove("ring-2", "ring-primary", "ring-offset-2");
+      }, 3000);
+    }, 400);
+    return () => window.clearTimeout(scrollTimer);
   }, [selectedPlan]);
 
-  const getPrice = (tier: typeof tiers[0]) => {
-    if (tier.id === "free") return "$0";
-    if (annual) {
-      const yearlyPrice = tier.id === "starter" ? 290 : tier.id === "architect" ? 790 : 1990;
-      return `$${Math.round(yearlyPrice / 12)}`;
-    }
-    return tier.price;
-  };
-
-  const getPeriod = (tier: typeof tiers[0]) => {
-    if (tier.id === "free") return "forever";
-    return annual ? "/month (billed annually)" : "/month";
-  };
+  function PlanCard({
+    tier,
+    compact,
+  }: {
+    tier: (typeof mainPlans)[0] | (typeof orgPlans)[0];
+    compact?: boolean;
+  }) {
+    const isOrg = !("popular" in tier);
+    return (
+      <div
+        id={`plan-${tier.id}`}
+        className={`relative rounded-xl border p-5 transition-all hover:shadow-md ${
+          !isOrg && "popular" in tier && tier.popular
+            ? "border-primary bg-surface-container-high shadow-md shadow-primary/10"
+            : "border-outline-variant bg-surface hover:border-outline"
+        } ${highlightedPlan === tier.id ? "ring-2 ring-primary ring-offset-2" : ""}`}
+      >
+        {!isOrg && "popular" in tier && tier.popular ? (
+          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+            <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold text-on-primary">Popular</span>
+          </div>
+        ) : null}
+        <h3 className="font-headline text-lg font-semibold text-on-surface">{tier.name}</h3>
+        <div className="mt-2 flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-on-surface">{tier.price}</span>
+          {"period" in tier && tier.period ? (
+            <span className="text-xs text-on-surface-variant">{tier.period}</span>
+          ) : null}
+        </div>
+        <p className="mt-2 text-xs text-on-surface-variant">{tier.blurb}</p>
+        <ul className={`mt-4 space-y-2 ${compact ? "text-xs" : "text-sm"}`}>
+          {tier.features.map((f, i) => (
+            <li key={i} className="flex gap-2 text-on-surface">
+              <span className="material-symbols-outlined shrink-0 text-sm text-success">check</span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href={tier.id === "enterprise" ? "mailto:hello@brandforge.gg?subject=Enterprise%20plan" : `/login?plan=${tier.id}`}
+          className={`mt-5 block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition ${
+            !isOrg && "popular" in tier && tier.popular ? "btn-primary" : "bg-surface-container-high text-on-surface hover:bg-surface-container-highest"
+          }`}
+        >
+          {tier.cta}
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <section className="py-28 px-6 sm:px-8 lg:px-12 bg-surface-container-low">
-      <div className="max-w-6xl mx-auto">
-        {/* Section Label */}
-        <div className="flex justify-center mb-8">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-xs font-medium text-on-surface-variant uppercase tracking-wider">
-            Pricing
-          </span>
+    <section className="bg-surface-container-low px-6 py-20 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 text-center">
+          <p className="section-label !mb-3">Explore Plans</p>
+          <h2 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">Individual, Team and Enterprise</h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-on-surface-variant">Free, Pro, and Max for individuals. Team and Enterprise when you scale.</p>
         </div>
 
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <p className="section-label !mb-6">Pricing</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-headline font-bold text-on-surface mb-6">
-            Pricing that scales with your practice.
-          </h2>
-          <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Start free. Upgrade when the volume justifies it. No per-transaction surprises.
-          </p>
-        </div>
-
-        {/* Billing Toggle */}
-        <div className="flex justify-center mb-12">
-          <div className="inline-flex items-center gap-3 bg-surface-container-high rounded-full p-1.5">
-            <button
-              onClick={() => setAnnual(false)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                !annual
-                  ? "bg-primary text-on-primary"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setAnnual(true)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                annual
-                  ? "bg-primary text-on-primary"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              Annual
-              <span className="ml-1.5 text-xs text-success">Save ~17%</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {tiers.map((tier) => (
-            <div
-              id={`plan-${tier.id}`}
-              key={tier.id}
-              className={`relative rounded-xl border p-6 transition-all hover:shadow-lg ${
-                tier.popular
-                  ? "bg-surface-container-high border-primary shadow-lg shadow-primary/10"
-                  : "bg-surface border-outline-variant hover:border-outline"
-              } ${highlightedPlan === tier.id ? "ring-2 ring-primary ring-offset-2" : ""}`}
-            >
-              {/* Popular Badge */}
-              {tier.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-on-primary">
-                    <span className="material-symbols-outlined text-sm">star</span>
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className="mb-6">
-                <h3 className="font-headline font-semibold text-on-surface mb-2">
-                  {tier.name}
-                </h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-on-surface">{getPrice(tier)}</span>
-                  <span className="text-sm text-on-surface-variant">{getPeriod(tier)}</span>
-                </div>
-                <p className="mt-3 text-sm text-on-surface-variant">{tier.description}</p>
-              </div>
-
-              {/* Features */}
-              <ul className="space-y-3 mb-6">
-                {tier.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-success text-sm mt-0.5">
-                      check
-                    </span>
-                    <span className="text-sm text-on-surface">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <Link
-                href={`/login?plan=${tier.id}`}
-                className={`block w-full text-center py-3 px-4 rounded-lg font-medium transition-all ${
-                  tier.popular
-                    ? "btn-primary"
-                    : "btn-secondary bg-surface-container-high hover:bg-surface-container-high"
-                }`}
-              >
-                {tier.cta}
-              </Link>
-            </div>
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          {mainPlans.map((tier) => (
+            <PlanCard key={tier.id} tier={tier} />
           ))}
         </div>
 
-        {/* Trust Badges */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-on-surface-variant">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">verified</span>
-            <span>No credit card required</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">sync</span>
-            <span>Cancel anytime</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-success">lock</span>
-            <span>Stripe-secured payments</span>
-          </div>
+        <p className="mb-4 text-center text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Team and Enterprise</p>
+        <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
+          {orgPlans.map((tier) => (
+            <PlanCard key={tier.id} tier={tier} compact />
+          ))}
         </div>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center text-[11px] leading-relaxed text-on-surface-variant/90">
+          *Usage limits apply. Prices shown don&apos;t include applicable tax. Prices and plans are subject to change at
+          BrandForge&apos;s discretion.
+        </p>
       </div>
     </section>
   );

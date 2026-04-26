@@ -633,12 +633,14 @@ async function routeApi(req, res, pathname) {
       const listingsActive = marketplaceStats.listingsActive ?? servicesCount + requestsCount;
       const volumeUsdEstimate = marketplaceStats.volumeUsdEstimate ?? 0;
       const registeredMembers = marketplaceStats.registeredMembers ?? 0;
+      const dealsClosed = Number(marketplaceStats.dealsClosed) || 0;
       sendJson(res, 200, {
         servicesCount,
         requestsCount,
         listingsActive,
         volumeUsdEstimate,
         registeredMembers,
+        dealsClosed,
       });
     } catch (error) {
       console.error('[API /api/marketplace/stats] error:', error);
@@ -648,6 +650,7 @@ async function routeApi(req, res, pathname) {
         listingsActive: 2630,
         volumeUsdEstimate: 0,
         registeredMembers: 0,
+        dealsClosed: 0,
       });
     }
     return true;

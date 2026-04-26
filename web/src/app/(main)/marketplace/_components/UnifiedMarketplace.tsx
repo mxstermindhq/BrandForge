@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBootstrap } from "@/hooks/useBootstrap";
 import { useAuth } from "@/providers/AuthProvider";
 import { apiGetJson } from "@/lib/api";
 import { SmartMatchEngine } from "@/components/marketplace/SmartMatchEngine";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
+import { PostedAgo } from "@/components/ui/PostedAgo";
 import { formatDealRecordShort } from "@/lib/deal-record";
 import { formatRequestBudget, requestTimelineLabel } from "@/lib/request-display";
 import {
@@ -194,7 +195,7 @@ export function UnifiedMarketplace() {
   const [eco, setEco] = useState<{
     listingsActive: number;
     volumeUsdEstimate: number;
-    registeredMembers: number;
+    dealsClosed: number;
   } | null>(null);
   const { data, err, loading } = useBootstrap();
   const { session } = useAuth();
@@ -206,13 +207,13 @@ export function UnifiedMarketplace() {
         const j = await apiGetJson<{
           listingsActive?: number;
           volumeUsdEstimate?: number;
-          registeredMembers?: number;
+          dealsClosed?: number;
         }>("/api/marketplace/stats", null);
         if (cancelled) return;
         setEco({
           listingsActive: Number(j.listingsActive) || 0,
           volumeUsdEstimate: Number(j.volumeUsdEstimate) || 0,
-          registeredMembers: Number(j.registeredMembers) || 0,
+          dealsClosed: Number(j.dealsClosed) || 0,
         });
       } catch {
         if (!cancelled) setEco(null);
@@ -333,10 +334,10 @@ export function UnifiedMarketplace() {
                   </div>
                   <div className="rounded-xl border border-violet-500/25 bg-violet-500/5 px-4 py-2">
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-600/90 dark:text-violet-300/90">
-                      Registered members
+                      Deals closed
                     </p>
                     <p className="font-mono text-lg font-bold tabular-nums text-violet-600 dark:text-violet-300">
-                      {eco.registeredMembers.toLocaleString()}
+                      {eco.dealsClosed.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -486,10 +487,12 @@ export function UnifiedMarketplace() {
             {/* Results meta */}
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm text-muted-foreground">
-                Showing <span className="text-foreground font-medium">{combinedListings.items.length}</span> of {totalListings} listings
+                <span className="font-medium text-foreground">{combinedListings.items.length}</span>
+                <span className="text-muted-foreground"> / {totalListings}</span>
+                <span className="hidden sm:inline"> offers and briefs</span>
               </div>
-              <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                <Bookmark size={12}/> Saved listings
+              <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                <Bookmark size={12} /> Saved
               </button>
             </div>
 
@@ -621,6 +624,22 @@ export function UnifiedMarketplace() {
                         heading={s.title || "Untitled service"}
                         subheading={`Offer · ${s.cat || "Service"}`}
                         rightMeta={`$${s.price?.toLocaleString() || "—"}`}
+                        compactMeta={
+                          <>
+                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                              open
+                            </span>
+                            <span>{s.offers || s.sales || 0} offers</span>
+                            <span className="opacity-40">·</span>
+                            <span>{s.deliveryDays != null ? `${s.deliveryDays}d` : "—"}</span>
+                            {s.createdAt ? (
+                              <>
+                                <span className="opacity-40">·</span>
+                                <PostedAgo iso={s.createdAt} />
+                              </>
+                            ) : null}
+                          </>
+                        }
                       >
                         <ServiceDetails service={s} session={session} />
                       </MarketplaceRow>
@@ -635,6 +654,22 @@ export function UnifiedMarketplace() {
                         heading={r.title || "Untitled request"}
                         subheading={`Request · ${r.category || "General"}`}
                         rightMeta={formatRequestBudget(r)}
+                        compactMeta={
+                          <>
+                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                              open
+                            </span>
+                            <span>{r.bids ?? 0} proposals</span>
+                            <span className="opacity-40">·</span>
+                            <span>{r.days != null && r.days >= 0 ? `${r.days}d` : "—"}</span>
+                            {r.createdAt ? (
+                              <>
+                                <span className="opacity-40">·</span>
+                                <PostedAgo iso={r.createdAt} />
+                              </>
+                            ) : null}
+                          </>
+                        }
                       >
                         <RequestDetails request={r} session={session} />
                       </MarketplaceRow>
@@ -646,8 +681,8 @@ export function UnifiedMarketplace() {
 
             {/* Load more */}
             <div className="flex justify-center mt-8">
-              <button className="px-6 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition">
-                Load more listings
+              <button type="button" className="rounded-xl border border-border bg-muted/50 px-6 py-3 text-sm transition hover:border-border/80">
+                Load more
               </button>
             </div>
           </>
@@ -663,6 +698,7 @@ function MarketplaceRow({
   heading,
   subheading,
   rightMeta,
+  compactMeta,
   children,
 }: {
   expanded: boolean;
@@ -670,14 +706,15 @@ function MarketplaceRow({
   heading: string;
   subheading: string;
   rightMeta: string;
-  children: React.ReactNode;
+  compactMeta?: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="border-b border-border/60 last:border-b-0 last:rounded-b-2xl first:rounded-t-2xl">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-start gap-3 px-4 py-4 text-left transition hover:bg-muted/30"
+        className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition hover:bg-muted/30 sm:py-4"
       >
         <ChevronDown
           size={18}
@@ -685,9 +722,14 @@ function MarketplaceRow({
         />
         <div className="min-w-0 flex-1 pr-2">
           <p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{heading}</p>
-          <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{subheading}</p>
+          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{subheading}</p>
+          {compactMeta ? (
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] tabular-nums text-muted-foreground">
+              {compactMeta}
+            </div>
+          ) : null}
         </div>
-        <span className="shrink-0 text-right text-xs font-semibold tabular-nums text-primary">{rightMeta}</span>
+        <span className="shrink-0 pt-0.5 text-right text-sm font-bold tabular-nums text-primary">{rightMeta}</span>
       </button>
       {expanded ? (
         <div className="border-t border-border/60 bg-muted/10 px-4 py-4 sm:px-5">{children}</div>
@@ -754,7 +796,7 @@ function ServiceDetails({ service, session }: { service: ServiceRow; session: Re
             ? "bg-muted text-foreground hover:bg-muted/80"
             : "bg-amber-500 text-black hover:bg-amber-400"
         }`}>
-          {isMine ? "Manage listing" : "Hire now"}
+          {isMine ? "Manage listing" : "Book offer"}
           <ArrowRight size={14}/>
         </button>
       </Link>

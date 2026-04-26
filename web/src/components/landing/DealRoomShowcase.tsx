@@ -258,43 +258,12 @@ export function DealRoomShowcase() {
           {/* CTA Overlay */}
           <div className="mt-8 text-center">
             <a
-              href="/signup"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              href="/#auth-section"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Try it on your next deal
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="h-4 w-4" />
             </a>
-          </div>
-        </div>
-
-        {/* Feature Row */}
-        <div className="grid sm:grid-cols-3 gap-6 mt-16">
-          <div className="text-center p-6">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-primary">100</span>
-            </div>
-            <h3 className="font-semibold mb-2">Free Premium AI Actions</h3>
-            <p className="text-sm text-muted-foreground">
-              Summarize, draft, generate proposals — 100 actions on us.
-            </p>
-          </div>
-          <div className="text-center p-6">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="font-semibold mb-2">Proposals, Summaries & Contracts</h3>
-            <p className="text-sm text-muted-foreground">
-              AI-generated artifacts you can copy, download, and send.
-            </p>
-          </div>
-          <div className="text-center p-6">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="font-semibold mb-2">One Thread Per Deal</h3>
-            <p className="text-sm text-muted-foreground">
-              No more scattered emails. One unified deal thread with full context.
-            </p>
           </div>
         </div>
       </div>

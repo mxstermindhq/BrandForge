@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGetJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
-import { Star, TrendingUp, Users, Handshake } from "lucide-react";
+import { Star, Users, Handshake } from "lucide-react";
 
 type LeaderMeta = {
   totalProfessionals: number;
@@ -19,6 +19,7 @@ type LbRow = {
   headline?: string | null;
   ratingAvg?: number | null;
   dealWins?: number;
+  dealLosses?: number;
   dealVolume?: number;
   avatarUrl?: string | null;
 };
@@ -49,6 +50,7 @@ function normalizeRows(payload: unknown): LbRow[] {
       headline: r.headline != null ? String(r.headline) : null,
       ratingAvg: r.ratingAvg != null && Number.isFinite(Number(r.ratingAvg)) ? Number(r.ratingAvg) : null,
       dealWins: Number(r.dealWins) || 0,
+      dealLosses: Number(r.dealLosses) || 0,
       dealVolume: Number(r.dealVolume) || 0,
       avatarUrl: r.avatarUrl != null ? String(r.avatarUrl) : null,
     });
@@ -103,14 +105,14 @@ export function PerformanceLeaderboard() {
             <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Leaderboard</p>
             <h1 className="mt-1 text-2xl font-bold text-on-surface sm:text-3xl">Top performers</h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Ranked by closed deals, lifetime marketplace volume, and public rating — no abstract ladders.
+              Ranked by on-platform wins, earnings score, and losses — plus public rating.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 rounded-2xl border border-border bg-muted/30 px-4 py-3 text-sm">
             <div className="flex min-w-[8rem] items-center gap-2">
               <Users className="h-4 w-4 text-sky-500" aria-hidden />
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Professionals</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Members</p>
                 <p className="font-mono text-lg font-semibold tabular-nums text-on-surface">
                   {loading ? "…" : meta.totalProfessionals.toLocaleString()}
                 </p>
@@ -129,12 +131,12 @@ export function PerformanceLeaderboard() {
         </header>
 
         <div className="overflow-hidden rounded-xl border border-border">
-          <div className="hidden grid-cols-[52px_minmax(12rem,1fr)_72px_72px_80px] gap-x-3 border-b border-border bg-muted/30 px-3 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
+          <div className="hidden grid-cols-[52px_minmax(12rem,1fr)_64px_72px_72px] gap-x-3 border-b border-border bg-muted/30 px-3 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
             <span>#</span>
-            <span>Professional</span>
+            <span>Member</span>
             <span className="text-right text-orange-500">Rating</span>
-            <span className="text-right text-emerald-600 dark:text-emerald-400">Deals</span>
-            <span className="text-right text-sky-600 dark:text-sky-400">Volume</span>
+            <span className="text-right text-sky-600 dark:text-sky-400">Earnings</span>
+            <span className="text-right text-rose-600 dark:text-rose-400">Burnings</span>
           </div>
 
           {loading ? (
@@ -145,7 +147,7 @@ export function PerformanceLeaderboard() {
             entries.map((p) => (
               <div
                 key={p.userId}
-                className="grid grid-cols-1 gap-2 border-b border-border/60 px-3 py-4 last:border-0 sm:grid-cols-[52px_minmax(12rem,1fr)_72px_72px_80px] sm:items-start sm:gap-x-3"
+                className="grid grid-cols-1 gap-2 border-b border-border/60 px-3 py-4 last:border-0 sm:grid-cols-[52px_minmax(12rem,1fr)_64px_72px_72px] sm:items-start sm:gap-x-3"
               >
                 <div className="flex items-start gap-3 sm:contents">
                   <span className="shrink-0 font-mono text-sm text-muted-foreground sm:pt-0.5">#{p.rank}</span>
@@ -175,16 +177,15 @@ export function PerformanceLeaderboard() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-sm sm:block sm:text-right">
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500 sm:hidden" aria-hidden />
-                    <span className="text-muted-foreground sm:hidden">Deals</span>
-                    <span className="font-mono font-semibold text-emerald-600 tabular-nums dark:text-emerald-400 sm:w-full sm:text-right">
-                      {p.dealWins?.toLocaleString() ?? "0"}
+                    <span className="text-muted-foreground sm:hidden">Earnings</span>
+                    <span className="font-mono font-semibold text-sky-600 tabular-nums dark:text-sky-400 sm:w-full sm:text-right">
+                      {formatVolumeScore(p.dealVolume ?? 0)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-sm sm:block sm:text-right">
-                    <span className="text-muted-foreground sm:hidden">Volume</span>
-                    <span className="font-mono font-semibold text-sky-600 tabular-nums dark:text-sky-400 sm:w-full sm:text-right">
-                      {formatVolumeScore(p.dealVolume ?? 0)}
+                    <span className="text-muted-foreground sm:hidden">Burnings</span>
+                    <span className="font-mono font-semibold text-rose-600 tabular-nums dark:text-rose-400 sm:w-full sm:text-right">
+                      {(p.dealLosses ?? 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -194,8 +195,7 @@ export function PerformanceLeaderboard() {
         </div>
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          Volume is a lifetime marketplace score derived from completed deal activity (not bank USD). Marketplace-wide
-          dollar estimates appear on the{" "}
+          Earnings score is a lifetime activity index (not bank USD). Marketplace-wide dollar estimates are on the{" "}
           <Link href="/marketplace" className="text-primary underline-offset-2 hover:underline">
             marketplace
           </Link>{" "}

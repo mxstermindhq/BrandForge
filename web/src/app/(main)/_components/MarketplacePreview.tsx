@@ -31,7 +31,7 @@ interface Stats {
   requestsCount: number;
   listingsActive?: number;
   volumeUsdEstimate?: number;
-  registeredMembers?: number;
+  dealsClosed?: number;
 }
 
 export function MarketplacePreview() {
@@ -42,7 +42,7 @@ export function MarketplacePreview() {
     requestsCount: 0,
     listingsActive: 0,
     volumeUsdEstimate: 0,
-    registeredMembers: 0,
+    dealsClosed: 0,
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"services" | "requests">("services");
@@ -63,14 +63,14 @@ export function MarketplacePreview() {
             requestsCount: statsRes.requestsCount ?? 0,
             listingsActive: statsRes.listingsActive ?? (statsRes.servicesCount ?? 0) + (statsRes.requestsCount ?? 0),
             volumeUsdEstimate: statsRes.volumeUsdEstimate ?? 0,
-            registeredMembers: statsRes.registeredMembers ?? 0,
+            dealsClosed: statsRes.dealsClosed ?? 0,
           });
         }
       } catch {
         // Silently fail - show empty state
         setServices([]);
         setRequests([]);
-        setStats({ servicesCount: 0, requestsCount: 0, listingsActive: 0, volumeUsdEstimate: 0, registeredMembers: 0 });
+        setStats({ servicesCount: 0, requestsCount: 0, listingsActive: 0, volumeUsdEstimate: 0, dealsClosed: 0 });
       } finally {
         setLoading(false);
       }
@@ -110,9 +110,9 @@ export function MarketplacePreview() {
                 <span className="text-zinc-600">·</span>
                 <span>
                   <span className="font-semibold text-violet-400 tabular-nums">
-                    {stats.registeredMembers?.toLocaleString() ?? "—"}
+                    {stats.dealsClosed?.toLocaleString() ?? "—"}
                   </span>{" "}
-                  members
+                  deals closed
                 </span>
               </div>
             </div>

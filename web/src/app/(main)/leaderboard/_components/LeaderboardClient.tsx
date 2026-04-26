@@ -186,7 +186,7 @@ export function LeaderboardClient() {
           <p className="text-[13px] font-body leading-[1.65] text-on-surface-variant">
             <span className="block font-600 text-on-surface">Neon Score = Honor + (Conquest × 10)</span>
             <span className="mt-2 block">
-              Honor (resets weekly) — listings +50 · bids +25 · deal messages +10
+              Honor (resets weekly) — bids +25 · deal messages +10 · profile milestones +50
             </span>
             <span className="mt-1 block">
               Conquest (permanent) — signed deals +250 · reviews received +100

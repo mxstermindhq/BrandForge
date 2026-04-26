@@ -619,6 +619,11 @@ async function createPlatformRepository(previewRepository) {
 
       const listingsActive = rows.length + openReqRows.length;
       const volumeUsdEstimate = Math.round(servicesVolumeUsd + openRequestBudgetSum);
+      const closedRequestDeals = rrows.filter((r) => {
+        const st = String(r.status || '').toLowerCase();
+        return st === 'closed' || st === 'awarded';
+      }).length;
+      const dealsClosed = closedRequestDeals + Math.round(Number(ordersSum) || 0);
 
       return {
         servicesPublished: rows.length,
@@ -634,6 +639,7 @@ async function createPlatformRepository(previewRepository) {
         listingsActive,
         volumeUsdEstimate,
         registeredMembers,
+        dealsClosed,
       };
     } catch (e) {
       console.warn('[bootstrap] marketplace stats:', e.message);
