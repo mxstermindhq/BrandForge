@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { buildDeploymentDiscordPayload } from "../../src/discord/payloads.js";
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -54,6 +55,31 @@ function tgEscapeHtml(input) {
     .replace(/>/g, "&gt;");
 }
 
+async function postDiscordViaBot({ token, channelId, payload }) {
+  const t = String(token || "").trim();
+  const c = String(channelId || "").trim();
+  if (!t || !c) return false;
+  try {
+    const res = await fetch(`https://discord.com/api/v10/channels/${encodeURIComponent(c)}/messages`, {
+      method: "POST",
+      headers: {
+        authorization: `Bot ${t}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.warn("[deploy-notify] discord bot non-2xx", res.status, body.slice(0, 800));
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn("[deploy-notify] discord bot error:", e?.message || e);
+    return false;
+  }
+}
+
 async function notifyChannels({ versionId, workerUrl }) {
   const compareUrl = normalizeUrl("/docs/strategy/05-execution-roadmap.md");
   const appUrl = normalizeUrl("/");
@@ -65,34 +91,20 @@ async function notifyChannels({ versionId, workerUrl }) {
     { label: "Changelog source", url: compareUrl },
   ];
 
+  const discordPayload = buildDeploymentDiscordPayload({ versionId, workerUrl });
+  const discordBotToken = String(process.env.DISCORD_BOT_TOKEN || "").trim();
+  const discordDealsChannelId = String(
+    process.env.DISCORD_DEALS_CHANNEL_ID || process.env.DISCORD_CHANNEL_ID || "",
+  ).trim();
+  const botSent = await postDiscordViaBot({
+    token: discordBotToken,
+    channelId: discordDealsChannelId,
+    payload: discordPayload,
+  });
+
   const discordWebhook = String(process.env.DISCORD_DEALS_WEBHOOK_URL || "").trim();
-  if (discordWebhook) {
-    await postJson(discordWebhook, {
-      content: title,
-      embeds: [
-        {
-          title,
-          description: message,
-          color: 0x8b5cf6,
-          fields: [
-            { name: "Version", value: versionId || "unknown", inline: true },
-            { name: "Site", value: appUrl, inline: false },
-          ],
-          url: appUrl,
-        },
-      ],
-      components: [
-        {
-          type: 1,
-          components: actions.slice(0, 5).map((a) => ({
-            type: 2,
-            style: 5,
-            label: a.label,
-            url: a.url,
-          })),
-        },
-      ],
-    });
+  if (!botSent && discordWebhook) {
+    await postJson(discordWebhook, discordPayload);
   }
 
   const telegramToken = String(process.env.TELEGRAM_BOT_TOKEN || "").trim();

@@ -33,6 +33,18 @@ npm run dev:all
 - API: `http://127.0.0.1:3000`  
 - Web: `http://localhost:3001`
 
+### Discord bot (optional)
+
+Set these env vars in root `.env`: `DISCORD_BOT_TOKEN`, `DISCORD_APP_ID`, and `DISCORD_DEALS_CHANNEL_ID` (optionally `DISCORD_GUILD_ID` for guild-scoped slash commands), then run:
+
+```bash
+npm run discord:bot
+```
+
+Bot commands:
+- `/ping` — health check
+- `/deploy_notify` — post a deployment embed with action buttons
+
 ## Deploy
 
 - **Worker (UI):** `cd web && npm run cf:deploy`
