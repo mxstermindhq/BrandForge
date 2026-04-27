@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { Send, Plus, ChevronDown, X, Mic, Upload, Sparkles, Store, FileText, Briefcase } from "lucide-react";
+import { Send, Plus, ChevronDown, X, Mic, Sparkles, Store, FileText, Briefcase } from "lucide-react";
 import { apiGetJson, apiMutateJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { cn } from "@/lib/cn";
@@ -1340,7 +1340,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     setShowDealContext(false);
   }, [activeThreadId]);
 
-  const enableRequestEntryFlow = process.env.NEXT_PUBLIC_CHAT_ENTRY_FLOW_V1 === "1";
+  const enableRequestEntryFlow = process.env.NEXT_PUBLIC_CHAT_ENTRY_FLOW_V1 !== "0";
 
   const createRequestFromChat = useCallback(
     async (payload: ChatRequestDraft) => {
@@ -1357,7 +1357,50 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           accessToken,
         );
         const newId = String(res?.request?.id || "").trim();
-        router.push(newId ? `/requests/${encodeURIComponent(newId)}` : "/marketplace");
+        if (!newId) {
+          router.push("/marketplace");
+          return;
+        }
+        try {
+          const chatRes = await apiMutateJson<{ id?: string; conversationId?: string }>(
+            "/api/chat",
+            "POST",
+            {
+              type: "human",
+              title: payload.title,
+              subtitle: "Request brief",
+              metadata: {
+                source: "chat-entry-flow-v2",
+                requestId: newId,
+                requestTitle: payload.title,
+                chatType: "request_brief",
+              },
+            },
+            accessToken,
+          );
+          const newChatId = String(chatRes?.id || chatRes?.conversationId || "").trim();
+          if (newChatId) {
+            const briefBody = [
+              `New brief: ${payload.title}`,
+              payload.desc,
+              `Budget: ${payload.budget}`,
+              payload.successCriteria ? `Success criteria: ${payload.successCriteria}` : "",
+            ]
+              .filter(Boolean)
+              .join("\n\n");
+            await apiMutateJson(
+              `/api/chats/${encodeURIComponent(newChatId)}/messages`,
+              "POST",
+              { content: briefBody },
+              accessToken,
+            );
+            router.push(`/chat/${encodeURIComponent(newChatId)}`);
+            return;
+          }
+        } catch {
+          // Fallback to request page if chat room could not be created.
+        }
+        router.push(`/requests/${encodeURIComponent(newId)}`);
       } finally {
         setCreatingRequest(false);
       }

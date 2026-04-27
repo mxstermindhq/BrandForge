@@ -447,6 +447,31 @@ async function createPlatformRepository(previewRepository) {
     }
   }
 
+  async function postDiscordViaBot(channelId, payload) {
+    const token = String(process.env.DISCORD_BOT_TOKEN || '').trim();
+    const cid = String(channelId || '').trim();
+    if (!token || !cid) return false;
+    try {
+      const res = await fetch(`https://discord.com/api/v10/channels/${encodeURIComponent(cid)}/messages`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bot ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.warn('[discord-bot-post] non-2xx', res.status, body.slice(0, 800));
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.warn('[discord-bot-post]', e.message || e);
+      return false;
+    }
+  }
+
   function tgEscapeHtml(input) {
     return String(input || '')
       .replace(/&/g, '&amp;')
@@ -483,42 +508,54 @@ async function createPlatformRepository(previewRepository) {
       deal: 0x3b82f6,
     };
     const discordColor = colorByKind[kind] || colorByKind.deal;
+    const discordPayload = {
+      content: title || 'Update',
+      embeds: [
+        {
+          title,
+          description: message || undefined,
+          url: detailUrl || undefined,
+          color: discordColor,
+          fields: card
+            ? Object.entries(card)
+                .slice(0, 10)
+                .map(([k, v]) => ({
+                  name: String(k).slice(0, 256),
+                  value: String(v ?? '—').slice(0, 1024),
+                  inline: true,
+                }))
+            : undefined,
+        },
+      ],
+      components: actions.length
+        ? [
+            {
+              type: 1,
+              components: actions.slice(0, 5).map((a) => ({
+                type: 2,
+                style: 5,
+                label: a.label.slice(0, 80),
+                url: a.url,
+              })),
+            },
+          ]
+        : undefined,
+    };
+
+    const dealsChannel = String(process.env.DISCORD_DEALS_CHANNEL_ID || '').trim();
+    const changelogChannel = String(process.env.DISCORD_CHANGELOG_CHANNEL_ID || '').trim();
+    const statusChannel = String(process.env.DISCORD_STATUS_CHANNEL_ID || '').trim();
+    const botChannelId =
+      kind === 'changelog'
+        ? (changelogChannel || dealsChannel)
+        : kind === 'accepted' || kind === 'declined'
+          ? (statusChannel || dealsChannel)
+          : dealsChannel;
+    const postedViaBot = await postDiscordViaBot(botChannelId, discordPayload);
 
     const discordWebhook = String(process.env.DISCORD_DEALS_WEBHOOK_URL || '').trim();
-    if (discordWebhook) {
-      await postJson(discordWebhook, {
-        content: title || 'Update',
-        embeds: [
-          {
-            title,
-            description: message || undefined,
-            url: detailUrl || undefined,
-            color: discordColor,
-            fields: card
-              ? Object.entries(card)
-                  .slice(0, 10)
-                  .map(([k, v]) => ({
-                    name: String(k).slice(0, 256),
-                    value: String(v ?? '—').slice(0, 1024),
-                    inline: true,
-                  }))
-              : undefined,
-          },
-        ],
-        components: actions.length
-          ? [
-              {
-                type: 1,
-                components: actions.slice(0, 5).map((a) => ({
-                  type: 2,
-                  style: 5,
-                  label: a.label.slice(0, 80),
-                  url: a.url,
-                })),
-              },
-            ]
-          : undefined,
-      });
+    if (!postedViaBot && discordWebhook) {
+      await postJson(discordWebhook, discordPayload);
     }
 
     const telegramToken = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
