@@ -46,6 +46,13 @@ type SocialImportPayload = {
   focus?: string;
 };
 
+type ChatRequestDraft = {
+  title: string;
+  desc: string;
+  budget: string;
+  successCriteria?: string;
+};
+
 const AI_MODELS: Recipient[] = [
   { type: "ai", id: "sonnet-4-6",  label: "Claude Sonnet 4.6", sublabel: "Fast · balanced" },
   { type: "ai", id: "opus-4-6",    label: "Claude Opus 4.6",   sublabel: "Powerful · Think mode" },
@@ -373,16 +380,189 @@ function HubTabBar({
   );
 }
 
+function RequestEntryFlow({
+  onSubmitRequest,
+  submitting,
+}: {
+  onSubmitRequest: (payload: ChatRequestDraft) => Promise<void>;
+  submitting: boolean;
+}) {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [brief, setBrief] = useState("");
+  const [title, setTitle] = useState("");
+  const [budget, setBudget] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [successCriteria, setSuccessCriteria] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+
+  const canContinueFromBrief = brief.trim().length >= 12;
+  const canContinueFromDetails = title.trim() && budget.trim();
+
+  const suggestTitle = useCallback((text: string) => {
+    const sentence = text
+      .replace(/\s+/g, " ")
+      .trim()
+      .split(/[.!?\n]/)[0]
+      ?.trim();
+    if (!sentence) return "New project request";
+    return sentence.length > 80 ? `${sentence.slice(0, 77)}...` : sentence;
+  }, []);
+
+  return (
+    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low/60 p-4 sm:p-5">
+      <div className="mb-4 flex items-center gap-2">
+        {[1, 2, 3].map((idx) => (
+          <div key={idx} className="flex items-center gap-2">
+            <div
+              className={cn(
+                "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold",
+                idx <= step ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant",
+              )}
+            >
+              {idx}
+            </div>
+            {idx < 3 ? <div className="h-px w-5 bg-outline-variant/60" /> : null}
+          </div>
+        ))}
+      </div>
+
+      {step === 1 ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-on-surface">Describe what you need built</h3>
+          <textarea
+            value={brief}
+            onChange={(e) => {
+              const value = e.target.value;
+              setBrief(value);
+              if (!title.trim()) setTitle(suggestTitle(value));
+            }}
+            rows={5}
+            placeholder="Example: Build a CRM dashboard for a health company with auth, analytics, and clean UX."
+            className="input min-h-[120px] w-full resize-y rounded-xl px-3 py-2.5"
+          />
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] text-on-surface-variant">Write a short, clear brief to match faster.</p>
+            <button
+              type="button"
+              disabled={!canContinueFromBrief}
+              onClick={() => setStep(2)}
+              className="btn-primary px-4 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {step === 2 ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-on-surface">Add deal details</h3>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Project title"
+            className="input w-full"
+          />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+              placeholder="Budget (e.g. $3,000)"
+              className="input w-full"
+            />
+            <input
+              value={timeline}
+              onChange={(e) => setTimeline(e.target.value)}
+              placeholder="Timeline (e.g. 3 weeks)"
+              className="input w-full"
+            />
+          </div>
+          <textarea
+            value={successCriteria}
+            onChange={(e) => setSuccessCriteria(e.target.value)}
+            rows={3}
+            placeholder="Success criteria (optional)"
+            className="input min-h-[86px] w-full resize-y rounded-xl px-3 py-2.5"
+          />
+          <div className="flex items-center justify-between">
+            <button type="button" onClick={() => setStep(1)} className="btn-ghost px-4 py-2 text-xs">
+              Back
+            </button>
+            <button
+              type="button"
+              disabled={!canContinueFromDetails}
+              onClick={() => setStep(3)}
+              className="btn-primary px-4 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Review
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {step === 3 ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-on-surface">Review and publish</h3>
+          <div className="space-y-2 rounded-xl border border-outline-variant/70 bg-surface px-3 py-3 text-xs">
+            <p><span className="text-on-surface-variant">Title:</span> {title || "-"}</p>
+            <p><span className="text-on-surface-variant">Budget:</span> {budget || "-"}</p>
+            <p><span className="text-on-surface-variant">Timeline:</span> {timeline || "-"}</p>
+            <p className="whitespace-pre-wrap"><span className="text-on-surface-variant">Brief:</span> {brief || "-"}</p>
+            {successCriteria.trim() ? (
+              <p className="whitespace-pre-wrap"><span className="text-on-surface-variant">Success:</span> {successCriteria}</p>
+            ) : null}
+          </div>
+          {err ? <p className="text-xs text-error">{err}</p> : null}
+          <div className="flex items-center justify-between">
+            <button type="button" onClick={() => setStep(2)} className="btn-ghost px-4 py-2 text-xs">
+              Back
+            </button>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={async () => {
+                setErr(null);
+                try {
+                  const description = timeline.trim()
+                    ? `${brief.trim()}\n\nTimeline: ${timeline.trim()}`
+                    : brief.trim();
+                  await onSubmitRequest({
+                    title: title.trim(),
+                    desc: description,
+                    budget: budget.trim(),
+                    successCriteria: successCriteria.trim() || undefined,
+                  });
+                } catch (e) {
+                  setErr(e instanceof Error ? e.message : "Could not create request");
+                }
+              }}
+              className="btn-primary px-4 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {submitting ? "Publishing..." : "Publish request"}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 function EmptyState({
   recipient,
   onSelectRecipientType,
   onImportProfile,
+  enableRequestEntryFlow,
+  onCreateRequestFromChat,
+  creatingRequest,
 }: {
   recipient: Recipient;
   onSelectRecipientType: (type: RecipientType) => void;
   onImportProfile: (payload: SocialImportPayload) => Promise<void>;
+  enableRequestEntryFlow: boolean;
+  onCreateRequestFromChat: (payload: ChatRequestDraft) => Promise<void>;
+  creatingRequest: boolean;
 }) {
   const [importOpen, setImportOpen] = useState(false);
   const [submittingImport, setSubmittingImport] = useState(false);
@@ -421,6 +601,9 @@ function EmptyState({
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-stretch justify-center gap-4">
+            {enableRequestEntryFlow ? (
+              <RequestEntryFlow onSubmitRequest={onCreateRequestFromChat} submitting={creatingRequest} />
+            ) : null}
             <div className="grid gap-3 sm:grid-cols-3">
               <Link
                 href="/marketplace"
@@ -790,6 +973,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [sending,   setSending]   = useState(false);
   const [recipient, setRecipient] = useState<Recipient>(DEFAULT_PEOPLE_RECIPIENT);
   const [showDealContext, setShowDealContext] = useState(false);
+  const [creatingRequest, setCreatingRequest] = useState(false);
 
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
@@ -1156,6 +1340,31 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     setShowDealContext(false);
   }, [activeThreadId]);
 
+  const enableRequestEntryFlow = process.env.NEXT_PUBLIC_CHAT_ENTRY_FLOW_V1 === "1";
+
+  const createRequestFromChat = useCallback(
+    async (payload: ChatRequestDraft) => {
+      if (!accessToken) {
+        router.push(`/login?next=${encodeURIComponent("/chat")}`);
+        return;
+      }
+      setCreatingRequest(true);
+      try {
+        const res = await apiMutateJson<{ request?: { id?: string } }>(
+          "/api/requests",
+          "POST",
+          payload,
+          accessToken,
+        );
+        const newId = String(res?.request?.id || "").trim();
+        router.push(newId ? `/requests/${encodeURIComponent(newId)}` : "/marketplace");
+      } finally {
+        setCreatingRequest(false);
+      }
+    },
+    [accessToken, router],
+  );
+
   return (
     <div className="page-root relative flex min-h-0 flex-1 text-on-surface">
       <input
@@ -1194,6 +1403,9 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
               recipient={recipient}
               onSelectRecipientType={selectRecipientType}
               onImportProfile={importProfileFromSocial}
+              enableRequestEntryFlow={enableRequestEntryFlow}
+              onCreateRequestFromChat={createRequestFromChat}
+              creatingRequest={creatingRequest}
             />
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
