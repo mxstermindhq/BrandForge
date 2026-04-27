@@ -9,7 +9,8 @@
     "dev:all": "concurrently -n api,web -c blue,green \"npm run dev\" \"npm run dev --prefix web\"",
     "cf:build": "npm ci --prefix web --include=dev && npm run cf:build --prefix web",
     "cf:deploy": "npm run cf:build && cp -r web/.open-next .open-next",
-    "discord:bot": "node scripts/discord-bot.mjs"
+    "discord:bot": "node --env-file=.env scripts/discord-bot.mjs",
+    "discord:listings": "node --env-file=.env scripts/discord-post-current-listings.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",

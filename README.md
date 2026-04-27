@@ -42,8 +42,10 @@ npm run discord:bot
 ```
 
 Bot commands:
+
 - `/ping` — health check
 - `/deploy_notify` — post a deployment embed with action buttons
+- `npm run discord:listings` — post current services/requests snapshot to `DISCORD_DEALS_CHANNEL_ID`
 
 ## Deploy
 
