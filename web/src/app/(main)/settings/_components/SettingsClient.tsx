@@ -11,7 +11,6 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { safeImageSrc } from "@/lib/image-url";
-import { publicSiteOrigin } from "@/lib/auth-public-url";
 import { SettingsSocialPanel } from "./SettingsSocialPanel";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
 
@@ -26,6 +25,7 @@ type ProfileRow = {
   role?: string | null;
   top_member?: boolean | null;
   location?: string | null;
+  banner_url?: string | null;
   updated_at?: string | null;
 };
 
@@ -41,6 +41,7 @@ type FormBaseline = {
   bio: string;
   headline: string;
   location: string;
+  bannerUrl: string;
 };
 
 function snapshotFromProfile(p: ProfileRow | null): FormBaseline | null {
@@ -51,6 +52,7 @@ function snapshotFromProfile(p: ProfileRow | null): FormBaseline | null {
     bio: p.bio || "",
     headline: hl,
     location: p.location || "",
+    bannerUrl: p.banner_url || "",
   };
 }
 
@@ -85,6 +87,7 @@ export function SettingsClient() {
   const [bio, setBio] = useState("");
   const [headline, setHeadline] = useState("");
   const [location, setLocation] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
   const [baseline, setBaseline] = useState<FormBaseline | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
@@ -110,9 +113,6 @@ export function SettingsClient() {
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
       ? `/p/${encodeURIComponent(username.trim())}`
       : null;
-  const siteOrigin = publicSiteOrigin().replace(/\/+$/, "");
-  const publicProfileShareUrl =
-    publicProfileHref && siteOrigin ? `${siteOrigin}${publicProfileHref}` : publicProfileHref ? publicProfileHref : null;
 
   useEffect(() => {
     const t = searchParams.get("tab");
@@ -138,6 +138,7 @@ export function SettingsClient() {
     setBio(snap.bio);
     setHeadline(snap.headline);
     setLocation(snap.location);
+    setBannerUrl(snap.bannerUrl);
     setBaseline(snap);
   }, [
     profile?.username,
@@ -155,9 +156,10 @@ export function SettingsClient() {
       username !== baseline.username ||
       bio !== baseline.bio ||
       headline !== baseline.headline ||
-      location !== baseline.location
+      location !== baseline.location ||
+      bannerUrl !== baseline.bannerUrl
     );
-  }, [baseline, username, bio, headline, location]);
+  }, [baseline, username, bio, headline, location, bannerUrl]);
 
   const getToken = useCallback(async () => {
     const supabase = getSupabaseBrowser();
@@ -192,6 +194,7 @@ export function SettingsClient() {
           bio: bio.trim() || null,
           headline: headline.trim() || null,
           location: location.trim() || null,
+          banner_url: bannerUrl.trim() || null,
         },
         t,
       );
@@ -211,6 +214,7 @@ export function SettingsClient() {
     setBio(baseline.bio);
     setHeadline(baseline.headline);
     setLocation(baseline.location);
+    setBannerUrl(baseline.bannerUrl);
     setSaveErr(null);
     setSaveMsg(null);
   }
@@ -316,8 +320,8 @@ export function SettingsClient() {
                         {avatarUrl ? (
                           <Image src={avatarUrl} alt="" fill className="object-cover" sizes="128px" unoptimized />
                         ) : (
-                          <span className="text-amber-500 flex h-full items-center justify-center text-[22px] font-bold">
-                            {(username || "?").replace(/^@/, "").slice(0, 2).toUpperCase()}
+                          <span className="bg-primary/10 text-primary flex h-full items-center justify-center">
+                            <span className="material-symbols-outlined text-[38px]">star</span>
                           </span>
                         )}
                         {avatarBusy ? (
@@ -329,9 +333,9 @@ export function SettingsClient() {
                           type="button"
                           aria-label="Change avatar"
                           onClick={() => fileRef.current?.click()}
-                          className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-md border border-outline bg-surface-container-high text-on-surface transition-colors hover:border-amber-500/50 hover:text-amber-500"
+                          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-outline bg-surface text-on-surface transition-colors hover:border-primary/50 hover:text-primary"
                         >
-                          <span className="material-symbols-outlined text-[18px]">photo_camera</span>
+                          <span className="material-symbols-outlined text-[16px]">photo_camera</span>
                         </button>
                       </div>
                       <input
@@ -351,12 +355,9 @@ export function SettingsClient() {
                         <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-medium">{badge}</span>
                       </div>
                       <p className="text-[13px] text-on-surface-variant leading-[1.5] mt-2">
-                        {[headline, location].filter(Boolean).join(" · ") || "Add a title and location below."}
+                        {[headline, location].filter(Boolean).join(" · ") || "Public profile preview"}
                       </p>
                       <div className="mt-5 flex flex-wrap gap-3">
-                        <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition min-h-[44px]">
-                          Edit avatar
-                        </button>
                         {publicProfileHref ? (
                           <a
                             href={publicProfileHref}
@@ -374,37 +375,7 @@ export function SettingsClient() {
                             View public profile
                           </span>
                         )}
-                        <button
-                          type="button"
-                          disabled={!publicProfileShareUrl}
-                          onClick={() => {
-                            if (!publicProfileShareUrl) return;
-                            void navigator.clipboard.writeText(publicProfileShareUrl);
-                            setSaveMsg("Public profile link copied.");
-                          }}
-                          className="inline-flex min-h-[44px] items-center rounded-lg border border-outline-variant px-4 py-2 text-on-surface transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Share public link
-                        </button>
                       </div>
-                      <p className="mt-3 text-xs text-on-surface-variant">
-                        With a username, your public profile uses the path pattern{" "}
-                        <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px] text-on-surface">
-                          /p/yourhandle
-                        </code>{" "}
-                        (slash{" "}
-                        <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px]">p</code> slash
-                        handle). Yours:{" "}
-                        {publicProfileHref ? (
-                          <code className="rounded bg-surface-container-high px-1 py-0.5 text-[11px] text-on-surface">
-                            {publicProfileHref}
-                          </code>
-                        ) : (
-                          <span className="text-on-surface-variant/80">set a username to preview the exact URL.</span>
-                        )}{" "}
-                        It is public by default so people can verify you from marketplace links; copy the full HTTPS link
-                        above to share off-platform.
-                      </p>
                     </div>
                   </div>
                 </section>
@@ -480,6 +451,18 @@ export function SettingsClient() {
                       <input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="input" />
                     </div>
                     <div className="md:col-span-2">
+                      <label htmlFor="banner_url" className="input-label">
+                        Banner image URL
+                      </label>
+                      <input
+                        id="banner_url"
+                        value={bannerUrl}
+                        onChange={(e) => setBannerUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="input"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
                       <label htmlFor="bio" className="input-label">
                         Bio
                       </label>
@@ -508,22 +491,26 @@ export function SettingsClient() {
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                           <p className="text-[15px] font-headline font-600 tracking-[-0.01em] text-on-surface">
-                            {hasPaidPlan ? "Enterprise Pro" : "Explorer"}
+                            {hasPaidPlan ? "Pro plan" : "Free plan"}
                           </p>
                           <p className="text-[13px] font-body text-on-surface-variant leading-[1.5] mt-1">
-                            {hasPaidPlan ? "$149/mo · Renews when Stripe billing is connected" : "Free tier · Upgrade for compute & pro tools"}
+                            {hasPaidPlan
+                              ? "Paid plan active. Manage pricing and limits from Plans."
+                              : "You are on Free. Upgrade when you need more capacity and premium tools."}
                           </p>
                         </div>
                       </div>
                       <div className="mt-6">
                         <div className="text-[11px] font-headline font-600 tracking-[0.06em] uppercase text-on-surface-variant mb-2 flex justify-between">
-                          <span>Compute usage</span>
-                          <span className="text-on-surface font-body normal-case tracking-normal">{hasPaidPlan ? "84%" : "12%"}</span>
+                          <span>Plan status</span>
+                          <span className="text-on-surface font-body normal-case tracking-normal">
+                            {hasPaidPlan ? "Active" : "Free"}
+                          </span>
                         </div>
                         <div className="bg-surface-container-high h-2 overflow-hidden rounded-full">
                           <div
                             className="from-primary to-secondary h-full rounded-full bg-gradient-to-r"
-                            style={{ width: hasPaidPlan ? "84%" : "12%" }}
+                            style={{ width: hasPaidPlan ? "100%" : "35%" }}
                           />
                         </div>
                       </div>
@@ -531,8 +518,12 @@ export function SettingsClient() {
                     <div className="flex flex-col gap-4">
                       <div className="border border-outline-variant/60 flex flex-1 flex-col rounded-xl bg-surface-container-low p-4 transition-colors hover:border-outline-variant">
                         <span className="material-symbols-outlined text-primary mb-2 text-[22px]">bolt</span>
-                        <p className="text-[13px] font-headline font-600 text-on-surface">Boost capacity</p>
-                        <p className="text-[12px] font-body text-on-surface-variant mt-1 leading-[1.5]">Add compute when billing is live.</p>
+                        <p className="text-[13px] font-headline font-600 text-on-surface">
+                          {hasPaidPlan ? "Manage plan" : "Upgrade"}
+                        </p>
+                        <p className="text-[12px] font-body text-on-surface-variant mt-1 leading-[1.5]">
+                          {hasPaidPlan ? "Review limits and billing options." : "Unlock advanced tools and more usage."}
+                        </p>
                       </div>
                       <div className="rounded-xl border border-critical/30 bg-critical-container/30 p-4">
                         <span className="material-symbols-outlined mb-2 text-[22px] text-critical">cancel</span>

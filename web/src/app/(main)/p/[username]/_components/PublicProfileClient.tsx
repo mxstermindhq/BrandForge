@@ -7,7 +7,6 @@ import { apiGetJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
-import { TrustChipsRow } from "@/components/trust/TrustChipsRow";
 import { useAuth } from "@/providers/AuthProvider";
 
 function responseTimeLabel(availability?: string | null): string {
@@ -80,6 +79,7 @@ type PublicProfile = {
   username?: string | null;
   bio?: string | null;
   avatar_url?: string | null;
+  banner_url?: string | null;
   role?: string | null;
   skills?: string[] | null;
   reputation?: number | null;
@@ -156,15 +156,6 @@ export function PublicProfileClient({ username }: { username: string }) {
     };
   }, [load]);
 
-  const ratingSnap = data?.ratingSnapshot as
-    | {
-        deal_wins?: number;
-        deal_losses?: number;
-        winRate?: number;
-      }
-    | null
-    | undefined;
-
   if (loading) {
     return <PageRouteLoading title="Loading profile" variant="inline" />;
   }
@@ -205,9 +196,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   const viewerId = session?.user?.id ? String(session.user.id) : null;
   const profileId = data.id ? String(data.id) : null;
   const isSelf = Boolean(viewerId && profileId && viewerId === profileId);
-  const dealWins = Number(ratingSnap?.deal_wins ?? data.dealWins) || 0;
-  const dealLosses = Number(ratingSnap?.deal_losses ?? data.dealLosses) || 0;
-  const ratingAvg = data.rating_avg != null ? Number(data.rating_avg) : null;
+  const dealWins = Number(data.dealWins) || 0;
   const kycVerified = String(data.kyc_status || "").toLowerCase() === "verified" || Boolean(data.is_verified);
   const bioText = String(data.bio || "").trim();
   const BIO_COLLAPSE_AT = 320;
@@ -215,14 +204,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   const bioDisplay =
     bioLong && !bioExpanded ? `${bioText.slice(0, BIO_COLLAPSE_AT).trimEnd()}…` : bioText;
 
-  const winRate =
-    ratingSnap?.winRate != null
-      ? Number(ratingSnap.winRate)
-      : dealWins + dealLosses > 0
-        ? Math.round((dealWins / (dealWins + dealLosses)) * 1000) / 10
-        : 0;
   const completedProjects = Number(data.completed_projects_count) || 0;
-  const volumeLifetime = Number(data.currencySnapshot?.total_conquest_earned) || 0;
   const creditsUsd = data.credits != null && Number.isFinite(Number(data.credits)) ? Number(data.credits) : null;
 
   const services = data.publicServices || [];
@@ -237,13 +219,18 @@ export function PublicProfileClient({ username }: { username: string }) {
 
   return (
     <article className="min-h-screen bg-surface text-on-surface max-w-6xl mx-auto px-6 py-8 pb-24">
+      {data.banner_url ? (
+        <div className="mb-6 h-40 w-full overflow-hidden rounded-2xl border border-outline-variant/60">
+          <Image src={data.banner_url} alt="" width={1400} height={400} className="h-full w-full object-cover" />
+        </div>
+      ) : null}
       <header className="flex flex-wrap items-start gap-6">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-outline-variant/80">
           {av ? (
             <Image src={av} alt="" fill className="object-cover" sizes="64px" />
           ) : (
-            <span className="bg-surface-container-high text-primary flex h-full items-center justify-center text-lg font-headline font-700">
-              {handle.slice(0, 2).toUpperCase() || "?"}
+            <span className="bg-primary/10 text-primary flex h-full items-center justify-center">
+              <span className="material-symbols-outlined text-[24px]">star</span>
             </span>
           )}
         </div>
@@ -264,15 +251,7 @@ export function PublicProfileClient({ username }: { username: string }) {
             <p className="text-on-surface-variant mt-2 text-[14px] leading-[1.6]">{titleLine}</p>
           ) : null}
 
-          <TrustChipsRow
-            className="mt-4"
-            rating={ratingAvg}
-            kycVerified={kycVerified}
-            dealWins={dealWins}
-            dealLosses={dealLosses}
-          />
-
-          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
             <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3">
               <dt className="stat-label !text-[10px] text-sky-600 dark:text-sky-400">Projects</dt>
               <dd className="stat-number mt-1 tabular-nums text-on-surface">{completedProjects.toLocaleString()}</dd>
@@ -281,24 +260,6 @@ export function PublicProfileClient({ username }: { username: string }) {
               <dt className="stat-label !text-[10px] text-emerald-600 dark:text-emerald-400">Deals won</dt>
               <dd className="stat-number mt-1 tabular-nums text-emerald-600 dark:text-emerald-400">
                 {dealWins.toLocaleString()}
-              </dd>
-            </div>
-            <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3">
-              <dt className="stat-label !text-[10px] text-amber-600 dark:text-amber-400">Rating</dt>
-              <dd className="stat-number mt-1 tabular-nums text-amber-600 dark:text-amber-400">
-                {ratingAvg != null ? ratingAvg.toFixed(1) : "—"}
-              </dd>
-            </div>
-            <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3">
-              <dt className="stat-label !text-[10px] text-violet-600 dark:text-violet-400">Volume score</dt>
-              <dd className="stat-number mt-1 tabular-nums text-violet-600 dark:text-violet-400">
-                {volumeLifetime.toLocaleString()}
-              </dd>
-            </div>
-            <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3">
-              <dt className="stat-label !text-[10px] text-rose-600 dark:text-rose-400">Win rate</dt>
-              <dd className="stat-number mt-1 tabular-nums text-rose-600 dark:text-rose-400">
-                {dealWins + dealLosses > 0 ? `${winRate}%` : "—"}
               </dd>
             </div>
             <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3">
@@ -332,7 +293,7 @@ export function PublicProfileClient({ username }: { username: string }) {
             [
               ["about", "About"],
               ["services", `Services · Requests`],
-              ["reviews", `Reviews (${reviews.length})`],
+              ["reviews", `Feedback (${reviews.length})`],
               ["portfolio", `Portfolio (${portfolios.length})`],
             ] as const
           ).map(([id, label]) => (
@@ -477,13 +438,13 @@ export function PublicProfileClient({ username }: { username: string }) {
           {profileTab === "reviews" ? (
             <section>
               {reviews.length === 0 ? (
-                <p className="text-sm text-on-surface-variant">No reviews yet.</p>
+                <p className="text-sm text-on-surface-variant">No feedback yet.</p>
               ) : (
                 <ul className="space-y-4">
                   {reviews.map((r) => (
                     <li key={r.id} className="rounded-xl border border-outline-variant bg-surface-container p-4">
                       <p className="text-[12px] text-on-surface-variant">
-                        <span className="text-amber-500">{r.rating}★</span> · @
+                        @
                         {r.reviewerUsername || r.reviewerName?.replace(/\s+/g, "").toLowerCase() || "member"}
                       </p>
                       <p className="mt-2 text-[13px] leading-snug text-on-surface-variant">{r.body}</p>

@@ -131,7 +131,7 @@ export function PlansClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white" data-plans-entry={plansEntry}>
+    <div className="min-h-screen bg-background text-on-surface" data-plans-entry={plansEntry}>
       <div className="max-w-6xl mx-auto px-6 py-8 pb-16">
         {paidReturn === "1" ? (
           <p className="border-emerald-500/50 bg-emerald-500/10 text-emerald-400 mb-6 rounded-xl border px-4 py-3 text-center text-sm">
@@ -139,7 +139,7 @@ export function PlansClient() {
           </p>
         ) : null}
         {paidReturn === "cancel" ? (
-          <p className="border-zinc-700 bg-zinc-900 text-zinc-400 mb-6 rounded-xl border px-4 py-3 text-center text-sm">
+          <p className="mb-6 rounded-xl border border-outline-variant bg-surface-container text-on-surface-variant px-4 py-3 text-center text-sm">
             Checkout was cancelled. You can try again when you are ready.
           </p>
         ) : null}
@@ -156,17 +156,17 @@ export function PlansClient() {
                 : "You opened Plans from the floating Plans button."}
             </p>
           ) : null}
-          <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider mb-2 justify-center">Plans</div>
+          <div className="mb-2 flex items-center justify-center gap-2 text-xs uppercase tracking-wider text-on-surface-variant">Plans</div>
           <h1 className="text-4xl font-bold tracking-tight" {...(plansEntry !== "direct" ? { "aria-describedby": "plans-entry-attribution" } : {})}>
             Simple pricing. No surprises.
           </h1>
-          <p className="text-zinc-400 mx-auto mt-3 max-w-2xl text-sm font-light leading-relaxed">
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-on-surface-variant">
             Free to start. Upgrade when you need more.
           </p>
 
-          <div className="relative mx-auto mt-10 h-12 w-[280px] rounded-full border border-zinc-700 bg-zinc-900 p-1 flex">
+          <div className="relative mx-auto mt-10 flex h-12 w-[280px] rounded-full border border-outline-variant bg-surface-container p-1">
             <span
-              className={`pointer-events-none absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+              className={`pointer-events-none absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 annual ? "left-[calc(50%+2px)]" : "left-1"
               }`}
               aria-hidden
@@ -175,7 +175,7 @@ export function PlansClient() {
               type="button"
               onClick={() => setAnnual(false)}
               className={`relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                !annual ? "text-black" : "text-zinc-400 hover:text-white"
+                !annual ? "text-on-primary" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
               Monthly
@@ -184,7 +184,7 @@ export function PlansClient() {
               type="button"
               onClick={() => setAnnual(true)}
               className={`relative z-10 flex-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                annual ? "text-black" : "text-zinc-400 hover:text-white"
+                annual ? "text-on-primary" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
               Yearly
@@ -198,18 +198,18 @@ export function PlansClient() {
             return (
               <li
                 key={t.id}
-                className={`relative flex flex-col rounded-2xl border bg-zinc-900 p-6 transition-all duration-300 hover:border-zinc-700 ${
+                className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-300 hover:border-outline ${
                   isFeatured
-                    ? "border-amber-500/50 ring-2 ring-amber-500/20 md:scale-[1.02]"
-                    : "border-zinc-800"
+                    ? "border-primary/50 ring-2 ring-primary/20 md:scale-[1.02] bg-surface-container"
+                    : "border-outline-variant bg-surface-container-low"
                 }`}
               >
               {t.popular ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-black">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-on-primary">
                   Most popular
                 </span>
               ) : null}
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
                 {t.name}
               </p>
               {t.isFree ? (
@@ -217,14 +217,14 @@ export function PlansClient() {
               ) : (
                 <p className="mt-3 text-3xl font-bold tabular-nums">
                   ${t.displayPrice}
-                  <span className="text-zinc-500 text-base font-normal">{t.suffix}</span>
+                  <span className="text-base font-normal text-on-surface-variant">{t.suffix}</span>
                 </p>
               )}
-              <p className="text-zinc-400 mt-2 text-sm font-light leading-relaxed">{t.blurb}</p>
-              <ul className="text-zinc-400 mt-6 flex-1 space-y-2 text-sm font-light">
+              <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{t.blurb}</p>
+              <ul className="mt-6 flex-1 space-y-2 text-sm text-on-surface-variant">
                 {t.highlights.map((h) => (
                   <li key={h} className="flex gap-2">
-                    <span className="text-amber-400 font-bold">✓</span>
+                    <span className="font-bold text-primary">✓</span>
                     {h}
                   </li>
                 ))}
@@ -232,7 +232,7 @@ export function PlansClient() {
               {t.isFree ? (
                 <Link
                   href="/login"
-                  className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-zinc-700 text-white hover:bg-zinc-800 px-4 text-sm font-bold transition-all duration-300"
+                  className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-outline-variant px-4 text-sm font-bold text-on-surface transition-all duration-300 hover:bg-surface-container"
                 >
                   Start free
                 </Link>
@@ -244,15 +244,15 @@ export function PlansClient() {
                     onClick={() => void startPlanCryptoCheckout(t.id)}
                     className={`inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 disabled:opacity-60 ${
                       isFeatured
-                        ? "bg-amber-500 text-black hover:bg-amber-400"
-                        : "border border-zinc-700 text-white hover:bg-zinc-800"
+                        ? "bg-primary text-on-primary hover:opacity-90"
+                        : "border border-outline-variant text-on-surface hover:bg-surface-container"
                     }`}
                   >
                     {planCheckoutTierId === t.id ? "Opening checkout…" : "Pay with crypto"}
                   </button>
                   <Link
                     href="/settings"
-                    className="text-zinc-500 hover:text-white text-center text-xs font-medium underline-offset-2 hover:underline"
+                    className="text-center text-xs font-medium text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline"
                   >
                     Billing &amp; account settings
                   </Link>
@@ -262,8 +262,8 @@ export function PlansClient() {
                   href="/login?next=/plans"
                   className={`mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-bold transition-all duration-300 ${
                     isFeatured
-                      ? "bg-amber-500 text-black hover:bg-amber-400"
-                      : "border border-zinc-700 text-white hover:bg-zinc-800"
+                      ? "bg-primary text-on-primary hover:opacity-90"
+                      : "border border-outline-variant text-on-surface hover:bg-surface-container"
                   }`}
                 >
                   Sign in to upgrade
@@ -276,15 +276,15 @@ export function PlansClient() {
 
       <PlansFaq />
 
-      <div className="border-zinc-800 bg-zinc-900/50 mt-12 rounded-2xl border p-8 text-center transition-all duration-300 hover:border-zinc-700">
+      <div className="mt-12 rounded-2xl border border-outline-variant bg-surface-container-low p-8 text-center transition-all duration-300 hover:border-outline">
         <p className="text-lg font-semibold">Ready when you are</p>
-        <p className="text-zinc-400 mx-auto mt-2 max-w-md text-sm font-light leading-relaxed">
+        <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-on-surface-variant">
           Earn trust and deals on Free first; when Checkout lands, upgrading stays on the same account and keeps your
           reputation and project history intact.
         </p>
         <Link
           href={session ? "/services/new" : "/"}
-          className="bg-amber-500 text-black mt-6 inline-flex min-h-[44px] items-center rounded-xl px-5 text-sm font-bold transition-all duration-300 hover:bg-amber-400"
+          className="btn-primary mt-6 inline-flex min-h-[44px] items-center rounded-xl px-5 text-sm font-bold transition-all duration-300"
         >
           {session ? "List a service" : "Explore the marketplace"}
         </Link>
