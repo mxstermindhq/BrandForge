@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const mainNav = [
+  { href: "/feed", label: "Feed", icon: "dynamic_feed" },
   { href: "/marketplace", label: "Marketplace", icon: "storefront" },
   { href: "/chat", label: "Chat", icon: "chat" },
   { href: "/leaderboard", label: "Leaderboard", icon: "trophy" },
