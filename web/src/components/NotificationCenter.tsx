@@ -390,3 +390,7 @@ export function NotificationBell() {
     </div>
   );
 }
+
+export default function NotificationCenter() {
+  return <NotificationBell />;
+}

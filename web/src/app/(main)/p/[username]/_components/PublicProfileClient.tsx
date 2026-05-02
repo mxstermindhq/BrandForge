@@ -8,6 +8,8 @@ import { safeImageSrc } from "@/lib/image-url";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { useAuth } from "@/providers/AuthProvider";
+import { FollowSaveButton } from "@/components/FollowSaveButton";
+import { SkillEndorsements } from "@/components/SkillEndorsements";
 
 function responseTimeLabel(availability?: string | null): string {
   const a = String(availability || "available").toLowerCase();
@@ -284,6 +286,12 @@ export function PublicProfileClient({ username }: { username: string }) {
               <span className="text-amber-500 font-semibold">→</span>
             </Link>
           ) : null}
+
+          {!isSelf && data.id && data.username ? (
+            <div className="mt-4">
+              <FollowSaveButton targetUserId={data.id} username={data.username} />
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -334,19 +342,9 @@ export function PublicProfileClient({ username }: { username: string }) {
                   <p className="text-sm text-on-surface-variant">No bio yet.</p>
                 )}
               </div>
-              {sk.length > 0 ? (
+              {data.id && data.username ? (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Keywords</p>
-                  <ul className="flex flex-wrap gap-2">
-                    {sk.map((s, i) => (
-                      <li
-                        key={`${i}-${s}`}
-                        className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-200"
-                      >
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
+                  <SkillEndorsements profileId={data.id} username={data.username} skills={sk} isOwnProfile={isSelf} />
                 </div>
               ) : null}
               <section>

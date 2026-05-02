@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NotificationBell } from "@/components/NotificationCenter";
 
 const mainNav = [
   { href: "/feed", label: "Feed", icon: "dynamic_feed" },
@@ -116,15 +117,7 @@ export function TopNavBar() {
           {session ? (
             <>
               {/* Notifications */}
-              <Link
-                href="/inbox"
-                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-surface-container-high transition-colors relative"
-              >
-                <span className="material-symbols-outlined text-on-surface-variant text-lg">
-                  notifications
-                </span>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
-              </Link>
+              <NotificationBell />
 
               {/* User Menu */}
               <Link
