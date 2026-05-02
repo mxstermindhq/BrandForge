@@ -2703,6 +2703,164 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // Feed API
+  if (pathname === '/api/feed' && method === 'GET') {
+    const u = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
+    const filter = u.searchParams.get('filter') || 'all';
+    const page = Number(u.searchParams.get('page')) || 1;
+    const limit = Number(u.searchParams.get('limit')) || 20;
+    const offset = (page - 1) * limit;
+    
+    try {
+      const client = platformRepository.client;
+      if (!client) {
+        sendJson(res, 200, { items: [], hasMore: false });
+        return true;
+      }
+      
+      let query = client
+        .from('feed_items')
+        .select(`
+          id,
+          type,
+          actor_id,
+          payload,
+          created_at,
+          profiles!feed_items_actor_id_fkey (
+            id,
+            username,
+            full_name,
+            avatar_url,
+            tier
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      
+      // Apply filter
+      if (filter === 'briefs') {
+        query = query.eq('type', 'BRIEF_POSTED');
+      } else if (filter === 'wins') {
+        query = query.eq('type', 'DEAL_CLOSED');
+      } else if (filter === 'available') {
+        query = query.eq('type', 'OPEN_FOR_WORK');
+      } else if (filter === 'collabs') {
+        query = query.eq('type', 'COLLAB_WANTED');
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('Feed query error:', error);
+        sendJson(res, 200, { items: [], hasMore: false });
+        return true;
+      }
+      
+      const items = (data || []).map((item) => ({
+        id: item.id,
+        type: item.type,
+        actor: {
+          id: item.profiles?.id,
+          username: item.profiles?.username,
+          full_name: item.profiles?.full_name,
+          avatar_url: item.profiles?.avatar_url,
+          tier: item.profiles?.tier,
+        },
+        payload: item.payload || {},
+        created_at: item.created_at,
+        engagement: {
+          likes_count: 0,
+          comments_count: 0,
+          has_liked: false,
+        },
+      }));
+      
+      const hasMore = (data || []).length === limit;
+      
+      sendJson(res, 200, { items, hasMore });
+    } catch (error) {
+      console.error('Feed error:', error);
+      sendJson(res, 200, { items: [], hasMore: false });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/feed/post' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    
+    const payload = await parseBody(req);
+    const { content, type } = payload;
+    
+    try {
+      const client = platformRepository.client;
+      if (!client) {
+        sendJson(res, 503, { error: 'Database not available' });
+        return true;
+      }
+      
+      const feedPayload = {};
+      let feedType = 'PORTFOLIO_POST';
+      
+      if (type === 'available') {
+        feedType = 'OPEN_FOR_WORK';
+      } else if (type === 'collab') {
+        feedType = 'COLLAB_WANTED';
+        feedPayload.role_needed = 'Collaborator';
+        feedPayload.project_type = content || 'General';
+      } else {
+        feedPayload.portfolio_title = content || 'New post';
+      }
+      
+      const { data, error } = await client
+        .from('feed_items')
+        .insert({
+          type: feedType,
+          actor_id: user.id,
+          payload: feedPayload,
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Feed post error:', error);
+        sendJson(res, 400, { error: error.message });
+        return true;
+      }
+      
+      sendJson(res, 201, { item: data });
+    } catch (error) {
+      console.error('Feed post error:', error);
+      sendJson(res, 500, { error: 'Failed to create post' });
+    }
+    return true;
+  }
+
+  const feedLikeMatch = pathname.match(/^\/api\/feed\/([^/]+)\/like$/);
+  if (feedLikeMatch && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    
+    const itemId = feedLikeMatch[1];
+    
+    try {
+      const client = platformRepository.client;
+      if (!client) {
+        sendJson(res, 503, { error: 'Database not available' });
+        return true;
+      }
+      
+      // Toggle like (simplified - in production you'd have a separate likes table)
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      console.error('Feed like error:', error);
+      sendJson(res, 500, { error: 'Failed to like post' });
+    }
+    return true;
+  }
+
   return false;
 }
 

@@ -15,6 +15,11 @@ export type PublicProfileMeta = {
   username?: string | null;
   bio?: string | null;
   avatar_url?: string | null;
+  deals_count?: number | null;
+  rating?: number | null;
+  tier?: string | null;
+  skills?: string[] | null;
+  twitter_handle?: string | null;
 };
 
 export async function fetchPublicProfileForMetadata(username: string): Promise<PublicProfileMeta | null> {

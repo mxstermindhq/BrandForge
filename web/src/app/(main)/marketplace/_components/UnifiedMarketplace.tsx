@@ -12,14 +12,15 @@ import { PostedAgo } from "@/components/ui/PostedAgo";
 import { formatDealRecordShort } from "@/lib/deal-record";
 import { formatRequestBudget, requestTimelineLabel } from "@/lib/request-display";
 import {
-  Store, Sparkles, Grid3X3, Briefcase, FileText, Search, SlidersHorizontal,
+  Store, Sparkles, Grid3X3, Briefcase, FileText, Search,
   Clock, ChevronDown, Plus, ArrowRight, Eye,
-  Bookmark, MessageSquare, Star, Tag
+  Bookmark, MessageSquare
 } from "lucide-react";
 
 type ListingType = "all" | "services" | "requests";
 type ViewMode = "browse" | "smart-match";
 type SortOption = "trending" | "newest" | "price-low" | "price-high";
+type MarketCollection = "all" | "featured" | "new";
 
 type ServiceRow = {
   _type?: "service";
@@ -181,6 +182,27 @@ function parseSort(raw: string | null): SortOption {
   return "trending";
 }
 
+function parseCollection(raw: string | null): MarketCollection {
+  const c = (raw || "").toLowerCase();
+  if (c === "featured" || c === "new") return c;
+  return "all";
+}
+
+function isNewListing(item: ServiceRow | Req): boolean {
+  if (!item.createdAt) return false;
+  const ageMs = Date.now() - new Date(item.createdAt).getTime();
+  return Number.isFinite(ageMs) && ageMs <= 14 * 24 * 60 * 60 * 1000;
+}
+
+function isFeaturedListing(item: ServiceRow | Req): boolean {
+  const maybeService = item as ServiceRow;
+  const maybeRequest = item as Req;
+  if (maybeService._type === "service" || (!maybeRequest._type && "price" in item)) {
+    return isPro(maybeService) || Number(maybeService.offers || maybeService.sales || 0) > 0;
+  }
+  return maybeRequest.band === "urgent" || maybeRequest.band === "enterprise" || Number(maybeRequest.bids || 0) > 0;
+}
+
 export function UnifiedMarketplace() {
   const params = useSearchParams();
   const pathname = usePathname();
@@ -189,6 +211,7 @@ export function UnifiedMarketplace() {
   const listingType = parseListingTab(params.get("tab"));
   const viewMode = parseViewMode(params.get("view"));
   const sortBy = parseSort(params.get("sort"));
+  const collection = parseCollection(params.get("collection"));
   const [searchDraft, setSearchDraft] = useState(qFromUrl);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -276,6 +299,15 @@ export function UnifiedMarketplace() {
     return { items: mixed, type: "mixed" as const };
   }, [services, requests, listingType]);
 
+  const visibleListings = useMemo(() => {
+    if (collection === "featured") return combinedListings.items.filter(isFeaturedListing);
+    if (collection === "new") return combinedListings.items.filter(isNewListing);
+    return combinedListings.items;
+  }, [combinedListings.items, collection]);
+
+  const featuredCount = useMemo(() => combinedListings.items.filter(isFeaturedListing).length, [combinedListings.items]);
+  const newCount = useMemo(() => combinedListings.items.filter(isNewListing).length, [combinedListings.items]);
+
   const listServiceHref = session ? "/services/new" : `/login?next=${encodeURIComponent("/services/new")}`;
   const listRequestHref = session ? "/requests/new" : `/login?next=${encodeURIComponent("/requests/new")}`;
   const loginBrowseHref = `/login?next=${encodeURIComponent("/marketplace")}`;
@@ -314,6 +346,9 @@ export function UnifiedMarketplace() {
                 <Store size={12}/> Marketplace
               </div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Browse opportunities</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Hire fast or get hired faster. Every live request and service is listed here and broadcast through configured Discord and Telegram matching channels.
+              </p>
               {eco ? (
                 <div className="mt-4 flex flex-wrap gap-4 text-sm">
                   <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-2">
@@ -349,8 +384,8 @@ export function UnifiedMarketplace() {
 
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         {/* View toggle (Browse vs Smart Match) */}
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
+        <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1 lg:w-auto">
             <button
               type="button"
               onClick={() =>
@@ -377,11 +412,11 @@ export function UnifiedMarketplace() {
               <span className="rounded bg-black/20 px-1.5 py-0.5 text-[10px] dark:bg-white/20">AI</span>
             </button>
           </div>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href={listRequestHref} className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-2.5 text-sm transition hover:border-border/80">
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:ml-auto lg:w-auto">
+            <Link href={listRequestHref} className="flex items-center justify-center gap-2 rounded-lg border border-border bg-muted px-4 py-2.5 text-sm transition hover:border-border/80">
               <Plus size={14}/> Request Service
             </Link>
-            <Link href={listServiceHref} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+            <Link href={listServiceHref} className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
               <Briefcase size={14}/> Offer Service
             </Link>
           </div>
@@ -397,9 +432,58 @@ export function UnifiedMarketplace() {
         {/* Browse View */}
         {viewMode === "browse" && (
           <>
+            <div className="mb-5 grid gap-2 sm:grid-cols-3">
+              {[
+                {
+                  id: "featured",
+                  label: "Featured",
+                  count: featuredCount,
+                  note: "Active bids, proven sellers, urgent briefs",
+                  className: "border-purple-500/25 bg-purple-500/10 text-purple-700 dark:text-purple-300",
+                },
+                {
+                  id: "new",
+                  label: "New",
+                  count: newCount,
+                  note: "Fresh listings from the last 14 days",
+                  className: "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+                },
+                {
+                  id: "all",
+                  label: "All live",
+                  count: totalListings,
+                  note: "BrandForge plus Discord and Telegram reach",
+                  className: "border-orange-500/25 bg-orange-500/10 text-orange-700 dark:text-orange-300",
+                },
+              ].map((c) => {
+                const active = collection === c.id || (collection === "all" && c.id === "all");
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() =>
+                      replaceQuery(u => {
+                        if (c.id === "all") u.delete("collection");
+                        else u.set("collection", c.id);
+                      })
+                    }
+                    className={`rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${
+                      active ? c.className : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold">{c.label}</span>
+                      <span className="font-mono text-lg font-black tabular-nums">{c.count}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-snug opacity-80">{c.note}</p>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Search + filters row */}
-            <div className="flex items-center gap-3 mb-5">
-              <div className="flex-1 relative">
+            <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16}/>
                 <input
                   value={searchDraft}
@@ -410,7 +494,7 @@ export function UnifiedMarketplace() {
                 />
               </div>
               
-              <div className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl">
+              <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1">
                 {[
                   { id: "all", label: "All", icon: Grid3X3 },
                   { id: "services", label: "Services", icon: Briefcase },
@@ -441,7 +525,7 @@ export function UnifiedMarketplace() {
                 <button
                   type="button"
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center gap-2 px-4 py-3 bg-muted/50 border border-border rounded-xl text-sm hover:border-border/80 transition"
+                  className="flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm transition hover:border-border/80 lg:w-auto"
                 >
                   Sort: <span className="text-primary">
                     {sortBy === "trending" ? "Trending" : 
@@ -487,7 +571,7 @@ export function UnifiedMarketplace() {
             {/* Results meta */}
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{combinedListings.items.length}</span>
+                <span className="font-medium text-foreground">{visibleListings.length}</span>
                 <span className="text-muted-foreground"> / {totalListings}</span>
                 <span className="hidden sm:inline"> offers and briefs</span>
               </div>
@@ -497,7 +581,7 @@ export function UnifiedMarketplace() {
             </div>
 
             {/* Listings grid */}
-            {combinedListings.items.length === 0 ? (
+            {visibleListings.length === 0 ? (
               <div className="py-16 text-center">
                 <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mx-auto mb-4">
                   <Briefcase size={24} className="text-muted-foreground/60"/>
@@ -610,7 +694,7 @@ export function UnifiedMarketplace() {
               </div>
             ) : (
               <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/50 shadow-sm backdrop-blur-sm">
-                {combinedListings.items.map((item) => {
+                {visibleListings.map((item) => {
                   const isService = item._type === "service" || (!item._type && "price" in item);
                   const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
                   const expanded = expandedKey === rowKey;
@@ -679,11 +763,8 @@ export function UnifiedMarketplace() {
               </div>
             )}
 
-            {/* Load more */}
-            <div className="flex justify-center mt-8">
-              <button type="button" className="rounded-xl border border-border bg-muted/50 px-6 py-3 text-sm transition hover:border-border/80">
-                Load more
-              </button>
+            <div className="mt-8 text-center text-xs text-muted-foreground">
+              New listings sync here and to the configured Discord and Telegram channels as they are posted.
             </div>
           </>
         )}
@@ -757,6 +838,12 @@ function ServiceDetails({ service, session }: { service: ServiceRow; session: Re
             {tag}
           </span>
         ))}
+        <span className="text-[10px] px-2 py-1 rounded border border-purple-500/25 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+          Discord
+        </span>
+        <span className="text-[10px] px-2 py-1 rounded border border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
+          Telegram
+        </span>
       </div>
       <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
         <span className="font-medium text-foreground">{dealLbl ?? "No closed deals yet"}</span>
@@ -777,6 +864,9 @@ function ServiceDetails({ service, session }: { service: ServiceRow; session: Re
           <Briefcase size={12}/> {service.offers || service.sales || 0} offers
         </div>
       </div>
+      <p className="mb-3 rounded-lg border border-orange-500/20 bg-orange-500/5 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+        Listed on BrandForge and broadcast to configured Discord and Telegram matching channels for faster buyer discovery.
+      </p>
       <div className="mb-4 grid grid-cols-2 gap-2">
         <div className="p-3 bg-muted/50 border border-border rounded-xl">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Starting at</div>
@@ -821,6 +911,12 @@ function RequestDetails({ request, session }: { request: Req; session: ReturnTyp
             {tag}
           </span>
         ))}
+        <span className="text-[10px] px-2 py-1 rounded border border-purple-500/25 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+          Discord
+        </span>
+        <span className="text-[10px] px-2 py-1 rounded border border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
+          Telegram
+        </span>
       </div>
       <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
         <span className="font-medium text-foreground">{dealLbl ?? "No deal history yet"}</span>
@@ -837,6 +933,9 @@ function RequestDetails({ request, session }: { request: Req; session: ReturnTyp
           <MessageSquare size={12}/> {request.bids || 0} bids
         </div>
       </div>
+      <p className="mb-3 rounded-lg border border-orange-500/20 bg-orange-500/5 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+        Posted on BrandForge and broadcast to configured Discord and Telegram matching channels so freelancers can respond faster.
+      </p>
       <div className="mb-4 grid grid-cols-2 gap-2">
         <div className="p-3 bg-muted/50 border border-border rounded-xl">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Budget</div>
