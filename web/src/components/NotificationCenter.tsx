@@ -92,13 +92,17 @@ export function NotificationBell() {
 
       const { data, error } = await supabase
         .from("notifications")
-        .select("*, actor:actor_id(id, username, full_name, avatar_url)")
+        .select("*")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (error) {
+        console.warn("Notifications query failed:", error);
+        return;
+      }
 
+      // Fetch actor details separately if needed
       const formattedNotifications: Notification[] = (data || []).map((n) => ({
         id: n.id,
         type: n.type,
@@ -108,12 +112,13 @@ export function NotificationBell() {
         is_read: n.is_read,
         created_at: n.created_at,
         action_url: n.action_url,
-        actor: n.actor
+        // Actor info stored in data JSONB field
+        actor: n.data?.actor
           ? {
-              id: n.actor.id,
-              username: n.actor.username,
-              full_name: n.actor.full_name,
-              avatar_url: n.actor.avatar_url,
+              id: n.data.actor.id || n.actor_id,
+              username: n.data.actor.username || "user",
+              full_name: n.data.actor.full_name || "User",
+              avatar_url: n.data.actor.avatar_url,
             }
           : undefined,
       }));
