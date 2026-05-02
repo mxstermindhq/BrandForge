@@ -127,58 +127,20 @@ export function NotificationBell() {
     }
   }, [session]);
 
-  // Real-time subscription - handle React 18 Strict Mode
+  // Real-time subscription - disabled for now due to React 18 Strict Mode issues
+  // Notifications still work via API polling
   useEffect(() => {
     if (!session?.user) return;
-
+    
+    // Just load notifications via API - no realtime subscription
     loadNotifications();
-
-    const supabase = getSupabaseBrowser();
-    if (!supabase) return;
-
-    // Use a flag to prevent double subscription in Strict Mode
-    let isSubscribed = false;
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-
-    try {
-      channel = supabase
-        .channel(`notifications:${session.user.id}`, {
-          config: {
-            broadcast: { self: false },
-          },
-        })
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${session.user.id}`,
-          },
-          () => {
-            loadNotifications();
-          }
-        );
-
-      // Subscribe only once
-      if (!isSubscribed) {
-        channel.subscribe((status) => {
-          if (status === "SUBSCRIBED") {
-            isSubscribed = true;
-          }
-        });
-      }
-    } catch (error) {
-      // Silent fail - notifications will still work via polling
-      console.warn("Realtime subscription failed, using polling mode");
-    }
-
-    return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-        isSubscribed = false;
-      }
-    };
+    
+    // Optional: Set up polling every 30 seconds as fallback
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, [session, loadNotifications]);
 
   // Close dropdown on click outside
