@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { apiMutateJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import { AuthWall } from "@/components/ui/AuthWall";
 
 interface GeneratedBrief {
   title: string;
@@ -21,11 +22,12 @@ interface AIBriefGeneratorProps {
 }
 
 export function AIBriefGenerator({ onBriefGenerated, onPublish }: AIBriefGeneratorProps) {
-  const { accessToken } = useAuth();
+  const { session, accessToken } = useAuth();
   const [input, setInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedBrief, setGeneratedBrief] = useState<GeneratedBrief | null>(null);
+  const [shouldShowWall, setShouldShowWall] = useState(false);
   const recognitionRef = useRef<{ stop: () => void } | null>(null);
 
   async function startVoiceInput() {
@@ -74,6 +76,13 @@ export function AIBriefGenerator({ onBriefGenerated, onPublish }: AIBriefGenerat
 
   async function generateBrief() {
     if (!input.trim()) return;
+
+    // Trigger auth wall for guests after typing
+    if (!session) {
+      setShouldShowWall(true);
+      return;
+    }
+
     setIsGenerating(true);
 
     try {
@@ -94,7 +103,7 @@ export function AIBriefGenerator({ onBriefGenerated, onPublish }: AIBriefGenerat
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Input Section */}
+      {/* Input Section - Always visible */}
       <div className="surface-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -143,114 +152,164 @@ export function AIBriefGenerator({ onBriefGenerated, onPublish }: AIBriefGenerat
         </button>
       </div>
 
-      {/* Generated Brief Preview */}
+      {/* Generated Brief - Wrapped with AuthWall */}
       {generatedBrief && (
-        <div className="surface-card p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-2xl">description</span>
-              <h3 className="text-lg font-headline font-semibold text-on-surface">Generated Brief</h3>
-            </div>
-            <span className="px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-xs font-medium">
-              AI Generated
-            </span>
-          </div>
-
-          <div className="space-y-6">
-            {/* Title */}
-            <div>
-              <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Project Title</label>
-              <h4 className="text-xl font-headline font-bold text-on-surface mt-1">{generatedBrief.title}</h4>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Description</label>
-              <p className="text-on-surface mt-1 leading-relaxed">{generatedBrief.description}</p>
-            </div>
-
-            {/* Two Column Layout */}
-            <div className="grid sm:grid-cols-2 gap-6">
-              {/* Requirements */}
-              <div>
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Requirements</label>
-                <ul className="mt-2 space-y-2">
-                  {generatedBrief.requirements.map((req, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-success text-sm mt-0.5">check_circle</span>
-                      <span className="text-sm text-on-surface">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Deliverables */}
-              <div>
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Deliverables</label>
-                <ul className="mt-2 space-y-2">
-                  {generatedBrief.deliverables.map((del, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-primary text-sm mt-0.5">inventory</span>
-                      <span className="text-sm text-on-surface">{del}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Timeline & Budget */}
-            <div className="grid sm:grid-cols-3 gap-4 p-4 rounded-lg bg-surface-container-low">
-              <div>
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Timeline</label>
-                <p className="text-lg font-semibold text-on-surface">{generatedBrief.timeline}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Budget Range</label>
-                <p className="text-lg font-semibold text-on-surface">
-                  ${generatedBrief.budget.min.toLocaleString()} - ${generatedBrief.budget.max.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Category</label>
-                <p className="text-lg font-semibold text-on-surface">{generatedBrief.category}</p>
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div>
-              <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Required Skills</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {generatedBrief.skills.map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-medium"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-outline-variant">
-              <button
-                onClick={() => onPublish?.(generatedBrief)}
-                className="flex-1 btn-primary"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined">publish</span>
-                  Publish Request
+        <AuthWall
+          feature="AI Brief Generator"
+          ctaText="Sign in to get your full brief"
+          preview={
+            <div className="surface-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary text-2xl">description</span>
+                  <h3 className="text-lg font-headline font-semibold text-on-surface">Generated Brief Preview</h3>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-xs font-medium">
+                  AI Generated
                 </span>
-              </button>
-              <button
-                onClick={() => setGeneratedBrief(null)}
-                className="btn-secondary px-6"
-              >
-                Edit
-              </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Title */}
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Project Title</label>
+                  <h4 className="text-xl font-headline font-bold text-on-surface mt-1">{generatedBrief.title}</h4>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Description</label>
+                  <p className="text-on-surface mt-1 leading-relaxed">{generatedBrief.description}</p>
+                </div>
+
+                {/* Timeline & Budget */}
+                <div className="grid sm:grid-cols-3 gap-4 p-4 rounded-lg bg-surface-container-low">
+                  <div>
+                    <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Timeline</label>
+                    <p className="text-lg font-semibold text-on-surface">{generatedBrief.timeline}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Budget Range</label>
+                    <p className="text-lg font-semibold text-on-surface">
+                      ${generatedBrief.budget.min.toLocaleString()} - ${generatedBrief.budget.max.toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Category</label>
+                    <p className="text-lg font-semibold text-on-surface">{generatedBrief.category}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <div className="surface-card p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary text-2xl">description</span>
+                <h3 className="text-lg font-headline font-semibold text-on-surface">Generated Brief</h3>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-xs font-medium">
+                AI Generated
+              </span>
+            </div>
+
+            <div className="space-y-6">
+              {/* Title */}
+              <div>
+                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Project Title</label>
+                <h4 className="text-xl font-headline font-bold text-on-surface mt-1">{generatedBrief.title}</h4>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Description</label>
+                <p className="text-on-surface mt-1 leading-relaxed">{generatedBrief.description}</p>
+              </div>
+
+              {/* Two Column Layout */}
+              <div className="grid sm:grid-cols-2 gap-6">
+                {/* Requirements */}
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Requirements</label>
+                  <ul className="mt-2 space-y-2">
+                    {generatedBrief.requirements.map((req, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="material-symbols-outlined text-success text-sm mt-0.5">check_circle</span>
+                        <span className="text-sm text-on-surface">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Deliverables */}
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Deliverables</label>
+                  <ul className="mt-2 space-y-2">
+                    {generatedBrief.deliverables.map((del, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="material-symbols-outlined text-primary text-sm mt-0.5">inventory</span>
+                        <span className="text-sm text-on-surface">{del}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Timeline & Budget */}
+              <div className="grid sm:grid-cols-3 gap-4 p-4 rounded-lg bg-surface-container-low">
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Timeline</label>
+                  <p className="text-lg font-semibold text-on-surface">{generatedBrief.timeline}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Budget Range</label>
+                  <p className="text-lg font-semibold text-on-surface">
+                    ${generatedBrief.budget.min.toLocaleString()} - ${generatedBrief.budget.max.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Category</label>
+                  <p className="text-lg font-semibold text-on-surface">{generatedBrief.category}</p>
+                </div>
+              </div>
+
+              {/* Skills */}
+              <div>
+                <label className="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Required Skills</label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {generatedBrief.skills.map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-medium"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t border-outline-variant">
+                <button
+                  onClick={() => onPublish?.(generatedBrief)}
+                  className="flex-1 btn-primary"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined">publish</span>
+                    Publish Request
+                  </span>
+                </button>
+                <button
+                  onClick={() => setGeneratedBrief(null)}
+                  className="btn-secondary px-6"
+                >
+                  Edit
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </AuthWall>
       )}
     </div>
   );

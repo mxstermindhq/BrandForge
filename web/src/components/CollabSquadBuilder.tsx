@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Users, Plus, X, Wallet, Split, Crown, UserPlus, MessageSquare } from "lucide-react";
@@ -475,5 +475,99 @@ export function SquadQuickActions({ squadId, isOwner }: { squadId: string; isOwn
         Squad Chat
       </button>
     </div>
+  );
+}
+
+// Main Squad Builder Component
+export function CollabSquadBuilder() {
+  const { session } = useAuth();
+  const [squads, setSquads] = useState<Squad[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadSquads() {
+      if (!session) return;
+      try {
+        const supabase = getSupabaseBrowser();
+        if (!supabase) return;
+
+        const { data, error } = await supabase
+          .from("squads")
+          .select(`
+            *,
+            squad_members (
+              *,
+              profiles (
+                username,
+                full_name,
+                avatar_url
+              )
+            )
+          `)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setSquads((data || []) as Squad[]);
+      } catch (error) {
+        console.error("Failed to load squads:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSquads();
+  }, [session]);
+
+  const handleCreateSuccess = useCallback((newSquad: Squad) => {
+    setSquads([newSquad, ...squads]);
+    setShowCreate(false);
+  }, [squads]);
+
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Squads</h1>
+            <p className="text-muted-foreground mt-2">Build teams and collaborate on projects</p>
+          </div>
+          <button
+            onClick={() => setShowCreate(!showCreate)}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Create Squad
+          </button>
+        </div>
+
+        {showCreate && (
+          <div className="mb-8">
+            <CreateSquadForm onSuccess={handleCreateSuccess} />
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-12 text-muted-foreground">Loading squads...</div>
+        ) : squads.length === 0 ? (
+          <div className="rounded-xl border border-outline-variant bg-surface-container p-12 text-center">
+            <Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">No squads yet</h3>
+            <p className="text-muted-foreground mb-4">Create your first squad to start collaborating</p>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary/90"
+            >
+              Create Squad
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {squads.map((squad) => (
+              <SquadCard key={squad.id} squad={squad} />
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

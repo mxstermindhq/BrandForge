@@ -7,6 +7,7 @@ import { apiGetJson } from "@/lib/api";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { safeImageSrc } from "@/lib/image-url";
 import { useAuth } from "@/providers/AuthProvider";
+import { AuthWall } from "@/components/ui/AuthWall";
 
 // Feed item types
 export type FeedItemType =
@@ -560,7 +561,49 @@ export function WorkFeedClient() {
             </p>
           </div>
         ) : (
-          items.map((item) => <FeedItemCard key={item.id} item={item} onLike={handleLike} />)
+          <>
+            {items.map((item, index) => {
+              // For guests, show first 3 items fully, then AuthWall for rest
+              const shouldShowAuthWall = !session && index >= 3;
+              
+              return (
+                <AuthWall
+                  key={item.id}
+                  feature="Work Feed"
+                  ctaText="Join to see the full feed and post updates"
+                  preview={
+                    <div className="rounded-xl border border-outline-variant bg-surface-container p-4 opacity-30">
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-surface-container-high" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 rounded bg-surface-container-high" />
+                          <div className="h-3 w-24 rounded bg-surface-container-high" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 w-full rounded bg-surface-container-high" />
+                        <div className="h-4 w-3/4 rounded bg-surface-container-high" />
+                      </div>
+                    </div>
+                  }
+                >
+                  <FeedItemCard item={item} onLike={handleLike} />
+                </AuthWall>
+              );
+            })}
+            
+            {!session && items.length > 3 && (
+              <AuthWall
+                feature="Work Feed"
+                ctaText="Join to see the full feed and post updates"
+                preview={<div />}
+              >
+                <div className="text-center text-sm text-muted-foreground">
+                  Showing 3 of {items.length} posts
+                </div>
+              </AuthWall>
+            )}
+          </>
         )}
 
         {/* Load more trigger */}

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { OutcomeSquads } from "@/components/squads/OutcomeSquads";
+import { CollabSquadBuilder } from "@/components/CollabSquadBuilder";
 
 export const metadata: Metadata = {
-  title: "Outcome Squads | BrandForge",
-  description: "Assemble human and AI agents into powerful squads. Execute projects end-to-end with your dream team.",
+  title: "Squads | BrandForge",
+  description: "Build teams and collaborate on projects with the BrandForge squad system.",
   openGraph: { url: "https://brandforge.gg/squads" },
 };
 
 export default function SquadsPage() {
-  return <OutcomeSquads />;
+  return <CollabSquadBuilder />;
 }

@@ -9,7 +9,6 @@ import { useAuth } from "@/providers/AuthProvider";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { PostedAgo } from "@/components/ui/PostedAgo";
 import { formatRequestBudget, requestTimelineLabel } from "@/lib/request-display";
-import { MemberJourneyStrip } from "@/components/journey/MemberJourneyStrip";
 import { formatDealRecordShort } from "@/lib/deal-record";
 import { formatEventAgo } from "@/lib/relative-time";
 import { OnlinePresenceDot } from "@/components/ui/OnlinePresenceDot";
@@ -349,8 +348,6 @@ export function ExploreClient({ compactHero = false }: { compactHero?: boolean }
           </div>
         </section>
       )}
-
-      {!compactHero ? <MemberJourneyStrip /> : null}
 
       {hasQ ? (
         <section className="px-6 pb-8 md:px-12" aria-live="polite">

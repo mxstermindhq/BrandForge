@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { useMemo } from "react";
 import { NAV } from "@/config/sidebar-nav";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { NotificationBell } from "@/components/NotificationCenter";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { useBootstrap } from "@/hooks/useBootstrap";
@@ -56,7 +57,7 @@ export function Sidebar({
       )}
     >
       <div className="shrink-0 px-4 py-6">
-        <div className="mb-2 hidden items-start md:flex">
+        <div className="mb-2 hidden items-start justify-between md:flex">
           <Link
             href="/"
             className="group flex min-w-0 items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -78,6 +79,7 @@ export function Sidebar({
               </span>
             </div>
           </Link>
+          {session && <NotificationBell />}
         </div>
         <div className="mb-4 flex items-center justify-between px-2 md:hidden">
           <Link
@@ -96,14 +98,17 @@ export function Sidebar({
               BrandForge
             </span>
           </Link>
-          <button
-            type="button"
-            className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label="Close menu"
-            onClick={onNavigate}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {session && <NotificationBell />}
+            <button
+              type="button"
+              className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              aria-label="Close menu"
+              onClick={onNavigate}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
 

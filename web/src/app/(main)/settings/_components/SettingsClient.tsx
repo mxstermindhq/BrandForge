@@ -12,9 +12,11 @@ import { useAuthMe } from "@/hooks/useAuthMe";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { safeImageSrc } from "@/lib/image-url";
 import { SettingsSocialPanel } from "./SettingsSocialPanel";
+import { AvailabilityToggle, type AvailabilityStatus } from "@/components/AvailabilityToggle";
+import { ReferralSystem } from "@/components/ReferralSystem";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
 
-type TabId = "account" | "billing" | "notifications" | "social" | "api";
+type TabId = "account" | "billing" | "notifications" | "social" | "api" | "referral";
 
 type ProfileRow = {
   full_name?: string | null;
@@ -27,6 +29,8 @@ type ProfileRow = {
   location?: string | null;
   banner_url?: string | null;
   updated_at?: string | null;
+  availability_status?: AvailabilityStatus | null;
+  available_from?: string | null;
 };
 
 function mergeProfile(boot: unknown, meProf: unknown): ProfileRow | null {
@@ -61,6 +65,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "billing", label: "Billing" },
   { id: "notifications", label: "Notifications" },
   { id: "social", label: "Social media" },
+  { id: "referral", label: "Referral" },
   { id: "api", label: "API Keys" },
 ];
 
@@ -116,7 +121,7 @@ export function SettingsClient() {
 
   useEffect(() => {
     const t = searchParams.get("tab");
-    if (t === "social" || t === "account" || t === "billing" || t === "notifications" || t === "api") {
+    if (t === "social" || t === "account" || t === "billing" || t === "notifications" || t === "api" || t === "referral") {
       setTab(t as TabId);
     }
     const ok = searchParams.get("ok");
@@ -473,6 +478,20 @@ export function SettingsClient() {
                         </p>
                       ) : null}
                     </div>
+                    <div className="md:col-span-2">
+                      <label className="input-label">
+                        Availability Status
+                      </label>
+                      <div className="mt-2">
+                        <AvailabilityToggle
+                          currentStatus={profile?.availability_status || "BOOKED"}
+                          availableFrom={profile?.available_from || undefined}
+                        />
+                      </div>
+                      <p className="text-[12px] font-body text-on-surface-variant leading-[1.5] mt-2">
+                        Let others know when you're available for new work. This is displayed on your profile.
+                      </p>
+                    </div>
                   </div>
                   {saveErr ? <p className="text-critical mt-6 text-[13px] font-body">{saveErr}</p> : null}
                   {saveMsg ? <p className="text-primary mt-6 text-[13px] font-body font-500">{saveMsg}</p> : null}
@@ -636,6 +655,13 @@ export function SettingsClient() {
                   <code className="text-primary bg-surface-container-high rounded-md px-1.5 py-0.5 text-[12px] font-mono">Bearer</code>{" "}
                   tokens from Supabase session where the API allows.
                 </p>
+              </section>
+            ) : null}
+
+            {tab === "referral" ? (
+              <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 md:p-6">
+                <p className="section-label !mb-4">Referral Program</p>
+                <ReferralSystem />
               </section>
             ) : null}
 

@@ -9,6 +9,7 @@ import { apiGetJson } from "@/lib/api";
 import { SmartMatchEngine } from "@/components/marketplace/SmartMatchEngine";
 import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { PostedAgo } from "@/components/ui/PostedAgo";
+import { AuthWall } from "@/components/ui/AuthWall";
 import { formatDealRecordShort } from "@/lib/deal-record";
 import { formatRequestBudget, requestTimelineLabel } from "@/lib/request-display";
 import {
@@ -693,74 +694,124 @@ export function UnifiedMarketplace() {
                 </div>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/50 shadow-sm backdrop-blur-sm">
-                {visibleListings.map((item) => {
-                  const isService = item._type === "service" || (!item._type && "price" in item);
-                  const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
-                  const expanded = expandedKey === rowKey;
-                  if (isService) {
-                    const s = item as ServiceRow;
-                    return (
-                      <MarketplaceRow
-                        key={rowKey}
-                        expanded={expanded}
-                        onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
-                        heading={s.title || "Untitled service"}
-                        subheading={`Offer · ${s.cat || "Service"}`}
-                        rightMeta={`$${s.price?.toLocaleString() || "—"}`}
-                        compactMeta={
-                          <>
-                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                              open
-                            </span>
-                            <span>{s.offers || s.sales || 0} offers</span>
-                            <span className="opacity-40">·</span>
-                            <span>{s.deliveryDays != null ? `${s.deliveryDays}d` : "—"}</span>
-                            {s.createdAt ? (
+              <>
+                <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/50 shadow-sm backdrop-blur-sm">
+                  {visibleListings.map((item, index) => {
+                    const isService = item._type === "service" || (!item._type && "price" in item);
+                    const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
+                    const expanded = expandedKey === rowKey;
+                    
+                    // For guests, show first 6 items, then AuthWall for rest
+                    const shouldShowAuthWall = !session && index >= 6;
+                    
+                    if (isService) {
+                      const s = item as ServiceRow;
+                      return (
+                        <AuthWall
+                          key={rowKey}
+                          feature="Marketplace"
+                          ctaText={`Sign in to see all ${visibleListings.length} specialists`}
+                          preview={
+                            <div className="border-b border-border/60 px-4 py-3.5 sm:py-4 opacity-30">
+                              <div className="flex items-start gap-3">
+                                <div className="h-12 w-12 rounded bg-muted" />
+                                <div className="flex-1 space-y-2">
+                                  <div className="h-4 w-3/4 rounded bg-muted" />
+                                  <div className="h-3 w-1/2 rounded bg-muted" />
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        >
+                          <MarketplaceRow
+                            expanded={expanded}
+                            onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
+                            heading={s.title || "Untitled service"}
+                            subheading={`Offer · ${s.cat || "Service"}`}
+                            rightMeta={`$${s.price?.toLocaleString() || "—"}`}
+                            compactMeta={
                               <>
+                                <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                                  open
+                                </span>
+                                <span>{s.offers || s.sales || 0} offers</span>
                                 <span className="opacity-40">·</span>
-                                <PostedAgo iso={s.createdAt} />
+                                <span>{s.deliveryDays != null ? `${s.deliveryDays}d` : "—"}</span>
+                                {s.createdAt ? (
+                                  <>
+                                    <span className="opacity-40">·</span>
+                                    <PostedAgo iso={s.createdAt} />
+                                  </>
+                                ) : null}
                               </>
-                            ) : null}
-                          </>
-                        }
-                      >
-                        <ServiceDetails service={s} session={session} />
-                      </MarketplaceRow>
-                    );
-                  } else {
-                    const r = item as Req;
-                    return (
-                      <MarketplaceRow
-                        key={rowKey}
-                        expanded={expanded}
-                        onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
-                        heading={r.title || "Untitled request"}
-                        subheading={`Request · ${r.category || "General"}`}
-                        rightMeta={formatRequestBudget(r)}
-                        compactMeta={
-                          <>
-                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                              open
-                            </span>
-                            <span>{r.bids ?? 0} proposals</span>
-                            <span className="opacity-40">·</span>
-                            <span>{r.days != null && r.days >= 0 ? `${r.days}d` : "—"}</span>
-                            {r.createdAt ? (
+                            }
+                          >
+                            <ServiceDetails service={s} session={session} />
+                          </MarketplaceRow>
+                        </AuthWall>
+                      );
+                    } else {
+                      const r = item as Req;
+                      return (
+                        <AuthWall
+                          key={rowKey}
+                          feature="Marketplace"
+                          ctaText={`Sign in to see all ${visibleListings.length} requests`}
+                          preview={
+                            <div className="border-b border-border/60 px-4 py-3.5 sm:py-4 opacity-30">
+                              <div className="flex items-start gap-3">
+                                <div className="h-12 w-12 rounded bg-muted" />
+                                <div className="flex-1 space-y-2">
+                                  <div className="h-4 w-3/4 rounded bg-muted" />
+                                  <div className="h-3 w-1/2 rounded bg-muted" />
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        >
+                          <MarketplaceRow
+                            expanded={expanded}
+                            onToggle={() => setExpandedKey(prev => (prev === rowKey ? null : rowKey))}
+                            heading={r.title || "Untitled request"}
+                            subheading={`Request · ${r.category || "General"}`}
+                            rightMeta={formatRequestBudget(r)}
+                            compactMeta={
                               <>
+                                <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                                  open
+                                </span>
+                                <span>{r.bids ?? 0} proposals</span>
                                 <span className="opacity-40">·</span>
-                                <PostedAgo iso={r.createdAt} />
+                                <span>{r.days != null && r.days >= 0 ? `${r.days}d` : "—"}</span>
+                                {r.createdAt ? (
+                                  <>
+                                    <span className="opacity-40">·</span>
+                                    <PostedAgo iso={r.createdAt} />
+                                  </>
+                                ) : null}
                               </>
-                            ) : null}
-                          </>
-                        }
-                      >
-                        <RequestDetails request={r} session={session} />
-                      </MarketplaceRow>
-                    );
-                  }
-                })}
-              </div>
+                            }
+                          >
+                            <RequestDetails request={r} session={session} />
+                          </MarketplaceRow>
+                        </AuthWall>
+                      );
+                    }
+                  })}
+                </div>
+
+                {!session && visibleListings.length > 6 && (
+                  <AuthWall
+                    feature="Marketplace"
+                    ctaText={`Sign in to see all ${visibleListings.length} specialists`}
+                    preview={<div />}
+                  >
+                    <div className="mt-4 text-center text-sm text-muted-foreground">
+                      Showing 6 of {visibleListings.length} listings
+                    </div>
+                  </AuthWall>
+                )}
+              </>
             )}
 
             <div className="mt-8 text-center text-xs text-muted-foreground">

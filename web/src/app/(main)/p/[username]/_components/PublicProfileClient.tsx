@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { Upload } from "lucide-react";
 import { apiGetJson } from "@/lib/api";
 import { safeImageSrc } from "@/lib/image-url";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
@@ -10,6 +11,9 @@ import { PageRouteLoading } from "@/components/ui/PageRouteLoading";
 import { useAuth } from "@/providers/AuthProvider";
 import { FollowSaveButton } from "@/components/FollowSaveButton";
 import { SkillEndorsements } from "@/components/SkillEndorsements";
+import { AvailabilityBadge, type AvailabilityStatus } from "@/components/AvailabilityToggle";
+import { PortfolioUploader, type PortfolioItem } from "@/components/PortfolioUploader";
+import { OpenToOffersToggle } from "@/components/OpenToOffersToggle";
 
 function responseTimeLabel(availability?: string | null): string {
   const a = String(availability || "available").toLowerCase();
@@ -64,7 +68,7 @@ type ReviewCard = {
   reviewerUsername?: string | null;
 };
 
-type PortfolioItem = {
+type PortfolioItemCard = {
   id: string;
   title?: string | null;
   description?: string | null;
@@ -92,18 +96,14 @@ type PublicProfile = {
   is_verified?: boolean | null;
   created_at?: string | null;
   availability?: string | null;
+  availability_status?: AvailabilityStatus | null;
+  available_from?: string | null;
   completed_projects_count?: number | null;
   credits?: number | null;
   publicServices?: ServiceCard[];
   openRequests?: RequestCard[];
   recentContracts?: ContractCard[];
-  portfolios?: PortfolioItem[];
-  currencySnapshot?: {
-    honor_points: number;
-    conquest_points: number;
-    neonScore: number;
-    total_conquest_earned?: number;
-  } | null;
+  portfolios?: PortfolioItemCard[];
   ratingSnapshot?: Record<string, unknown> | null;
   reviews?: ReviewCard[];
 };
@@ -126,6 +126,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [bioExpanded, setBioExpanded] = useState(false);
   const [profileTab, setProfileTab] = useState<"about" | "services" | "reviews" | "portfolio">("about");
+  const [showUploader, setShowUploader] = useState(false);
 
   const load = useCallback(async () => {
     const t = await getAccessToken();
@@ -135,6 +136,31 @@ export function PublicProfileClient({ username }: { username: string }) {
     );
     return json.profile || null;
   }, [username]);
+
+  const handlePortfolioUpload = useCallback(async (item: PortfolioItem) => {
+    const supabase = getSupabaseBrowser();
+    if (!supabase || !session?.user) return;
+
+    try {
+      const { error } = await supabase.from("portfolios").insert({
+        user_id: session.user.id,
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        thumbnail_url: item.thumbnail_url,
+        content_url: item.content_url,
+        skills: item.skills,
+      });
+
+      if (error) throw error;
+      setShowUploader(false);
+      // Reload profile to show new portfolio item
+      const p = await load();
+      setData(p);
+    } catch (error) {
+      console.error("Failed to save portfolio item:", error);
+    }
+  }, [session, load]);
 
   useEffect(() => {
     let cancelled = false;
@@ -244,6 +270,12 @@ export function PublicProfileClient({ username }: { username: string }) {
                 Verified
               </span>
             ) : null}
+            {data.availability_status && (
+              <AvailabilityBadge
+                status={data.availability_status}
+                availableFrom={data.available_from || undefined}
+              />
+            )}
           </div>
           <p className="text-on-surface-variant mt-1 text-[13px]">
             @{handle}
@@ -269,6 +301,12 @@ export function PublicProfileClient({ username }: { username: string }) {
               <dd className="mt-1 text-[12px] font-medium leading-snug text-on-surface">{responseTimeLabel(data.availability)}</dd>
             </div>
           </dl>
+
+          {data.id && (
+            <div className="mt-6">
+              <OpenToOffersToggle profileId={data.id} isOwnProfile={isSelf} />
+            </div>
+          )}
 
           {creditsUsd != null && creditsUsd > 0 ? (
             <p className="text-on-surface-variant mt-3 text-[12px]">
@@ -455,6 +493,24 @@ export function PublicProfileClient({ username }: { username: string }) {
 
           {profileTab === "portfolio" ? (
             <section>
+              {isSelf && (
+                <div className="mb-6">
+                  {!showUploader ? (
+                    <button
+                      onClick={() => setShowUploader(true)}
+                      className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary/90"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Add Portfolio Work
+                    </button>
+                  ) : (
+                    <PortfolioUploader
+                      onUpload={handlePortfolioUpload}
+                      onCancel={() => setShowUploader(false)}
+                    />
+                  )}
+                </div>
+              )}
               {portfolios.length === 0 ? (
                 <p className="text-sm text-on-surface-variant">No portfolio pieces published yet.</p>
               ) : (

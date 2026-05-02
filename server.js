@@ -16,6 +16,7 @@ const { getClientIp } = require('./src/server/http-guards');
 const { getStripeClient, createSimpleUsdCheckoutSession } = require('./src/server/stripe-payments');
 const { computeEscrowQuote } = require('./src/server/marketplace-fees');
 const { generateOpenAiImage, resolveOpenAiImageKey } = require('./src/server/ai-image');
+const { generateBriefWithAI, generateProposalWithAI, generateCareerAdvice } = require('./src/server/ai-content-generator');
 
 const env = getEnv();
 const pkg = require('./package.json');
@@ -2585,28 +2586,100 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  // AI Tools - Generate content
+  // AI Tools - Generate content with Groq API
   if (pathname === '/api/ai/generate' && method === 'POST') {
     const user = await requireUser(req, res);
     if (!user) return true;
     await ensureProfileForUser(user).catch(() => null);
     try {
       const { tool, input } = await parseBody(req);
-      let result = '';
+      
+      // Check if LLM is configured
+      const hasLlm = hasConfiguredLlm(env);
       
       if (tool === 'brief') {
-        result = generateBrief(input);
+        if (hasLlm) {
+          // Use Groq/AI API for smart generation
+          const brief = await generateBriefWithAI(input, env);
+          sendJson(res, 200, { 
+            brief,
+            suggestedCategory: brief.category,
+            confidence: 0.85 
+          });
+        } else {
+          // Fallback to template
+          sendJson(res, 200, { 
+            brief: {
+              title: 'AI Brief (Template Mode)',
+              description: generateBrief(input),
+              requirements: ['Requirement 1', 'Requirement 2'],
+              deliverables: ['Deliverable 1'],
+              timeline: '2-4 weeks',
+              budget: { min: 1000, max: 5000, currency: 'USD' },
+              skills: ['React', 'Node.js'],
+              category: 'Development',
+            },
+            suggestedCategory: 'Development',
+            confidence: 0.5,
+            notice: 'Set GROQ_API_KEY for AI-powered generation'
+          });
+        }
       } else if (tool === 'proposal') {
-        result = generateProposal(input);
+        if (hasLlm) {
+          // Use Groq/AI API for smart generation
+          const proposal = await generateProposalWithAI(input, env);
+          sendJson(res, 200, { proposal });
+        } else {
+          // Fallback to template
+          sendJson(res, 200, { 
+            proposal: generateProposal(input),
+            notice: 'Set GROQ_API_KEY for AI-powered generation'
+          });
+        }
       } else if (tool === 'contract') {
-        result = generateContractReview(input);
+        // Contract review uses templates for now
+        sendJson(res, 200, { 
+          review: generateContractReview(input) 
+        });
       } else {
-        result = 'Unknown tool';
+        sendJson(res, 400, { error: 'Unknown tool' });
+      }
+    } catch (error) {
+      console.error('AI generation error:', error);
+      sendJson(res, 500, { error: error.message || 'Failed to generate' });
+    }
+    return true;
+  }
+
+  // AI Career Assistant - Get career advice
+  if (pathname === '/api/ai/career-advice' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    
+    const hasLlm = hasConfiguredLlm(env);
+    if (!hasLlm) {
+      sendJson(res, 503, { 
+        error: 'AI Career Assistant requires GROQ_API_KEY to be configured',
+        advice: 'Please set up your Groq API key to use the AI Career Assistant feature.'
+      });
+      return true;
+    }
+    
+    try {
+      const { question } = await parseBody(req);
+      if (!question || typeof question !== 'string') {
+        sendJson(res, 400, { error: 'Question is required' });
+        return true;
       }
       
-      sendJson(res, 200, { result });
+      // Get user profile for context
+      const profile = await platformRepository.getProfile?.(user.id) || null;
+      
+      const advice = await generateCareerAdvice(question, profile, env);
+      sendJson(res, 200, { advice });
     } catch (error) {
-      sendJson(res, 400, { error: error.message || 'Failed to generate' });
+      console.error('Career advice error:', error);
+      sendJson(res, 500, { error: error.message || 'Failed to generate advice' });
     }
     return true;
   }

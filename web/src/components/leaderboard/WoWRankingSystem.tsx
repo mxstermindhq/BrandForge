@@ -5,6 +5,7 @@ import Link from "next/link";
 import { apiGetJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { Star, Users, Handshake } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type LeaderMeta = {
   totalProfessionals: number;
@@ -60,7 +61,8 @@ function normalizeRows(payload: unknown): LbRow[] {
 
 /** Deal-economy leaderboard: closed deals, lifetime volume score, public rating. */
 export function PerformanceLeaderboard() {
-  const { accessToken } = useAuth();
+  const { session, accessToken } = useAuth();
+  const router = useRouter();
   const [rows, setRows] = useState<LbRow[]>([]);
   const [meta, setMeta] = useState<LeaderMeta>({ totalProfessionals: 0, totalDealsClosed: 0 });
   const [loading, setLoading] = useState(true);
@@ -129,6 +131,24 @@ export function PerformanceLeaderboard() {
             </div>
           </div>
         </header>
+
+        {/* CTA Banner for Guests */}
+        {!session && (
+          <div className="mb-6 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold text-on-surface">See your rank on the leaderboard</p>
+                <p className="text-sm text-muted-foreground">Sign in to track your position and join the competition</p>
+              </div>
+              <button
+                onClick={() => router.push(`/login?next=/leaderboard`)}
+                className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="hidden grid-cols-[52px_minmax(12rem,1fr)_64px_72px_72px] gap-x-3 border-b border-border bg-muted/30 px-3 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
