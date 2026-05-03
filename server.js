@@ -2684,6 +2684,123 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // AI Generate Brief
+  if (pathname === '/api/ai/generate-brief' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const { input } = await parseBody(req);
+      
+      const hasLlm = hasConfiguredLlm(env);
+      
+      if (hasLlm) {
+        const brief = await generateBriefWithAI(input, env);
+        sendJson(res, 200, { 
+          brief,
+          suggestedCategory: brief.category,
+          confidence: 0.85 
+        });
+      } else {
+        sendJson(res, 200, { 
+          brief: {
+            title: 'AI Brief (Template Mode)',
+            description: generateBrief(input),
+            requirements: ['Requirement 1', 'Requirement 2'],
+            deliverables: ['Deliverable 1'],
+            timeline: '2-4 weeks',
+            budget: { min: 1000, max: 5000, currency: 'USD' },
+            skills: ['React', 'Node.js'],
+            category: 'Development',
+          },
+          suggestedCategory: 'Development',
+          confidence: 0.5,
+          notice: 'Set GROQ_API_KEY for AI-powered generation'
+        });
+      }
+    } catch (error) {
+      console.error('AI brief generation error:', error);
+      sendJson(res, 500, { error: error.message || 'Failed to generate brief' });
+    }
+    return true;
+  }
+
+  // AI Generate Proposal
+  if (pathname === '/api/ai/generate-proposal' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const { input } = await parseBody(req);
+      
+      const hasLlm = hasConfiguredLlm(env);
+      
+      if (hasLlm) {
+        const proposal = await generateProposalWithAI(input, env);
+        sendJson(res, 200, { proposal });
+      } else {
+        sendJson(res, 200, { 
+          proposal: generateProposal(input),
+          notice: 'Set GROQ_API_KEY for AI-powered generation'
+        });
+      }
+    } catch (error) {
+      console.error('AI proposal generation error:', error);
+      sendJson(res, 500, { error: error.message || 'Failed to generate proposal' });
+    }
+    return true;
+  }
+
+  // AI Deal Assistant
+  if (pathname === '/api/ai/deal-assistant' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const { message, context } = await parseBody(req);
+      
+      const hasLlm = hasConfiguredLlm(env);
+      if (!hasLlm) {
+        sendJson(res, 503, { 
+          error: 'AI Deal Assistant requires LLM configuration',
+          advice: 'Please configure AI_API_KEY or provider keys.'
+        });
+        return true;
+      }
+      
+      // For now, use general chat with deal mode
+      const reply = await completeMxAgentChat({
+        env,
+        mode: 'general',
+        messages: [{ role: 'user', content: `Deal context: ${context || 'General deal assistance'}\n\nUser: ${message}` }],
+      });
+      
+      sendJson(res, 200, { reply: reply.reply });
+    } catch (error) {
+      console.error('Deal assistant error:', error);
+      sendJson(res, 500, { error: error.message || 'Failed to assist with deal' });
+    }
+    return true;
+  }
+
+  // Settings Notifications
+  if (pathname === '/api/settings/notifications' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      // For now, return default settings
+      sendJson(res, 200, { 
+        emailNotifications: true,
+        pushNotifications: true,
+        dealUpdates: true,
+        marketplaceAlerts: true 
+      });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to get notification settings' });
+    }
+    return true;
+  }
+
   // Public Profile
   if (pathname.startsWith('/api/profiles/') && pathname.endsWith('/public') && method === 'GET') {
     const username = pathname.slice('/api/profiles/'.length, -'/public'.length);

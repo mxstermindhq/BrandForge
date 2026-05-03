@@ -22,6 +22,104 @@ function resolveProviderId(explicit, fallbackInfer) {
   return fallbackInfer;
 }
 
+function providerFromModel(model) {
+  const m = String(model || '').toLowerCase();
+  if (m.includes('claude') || m.includes('sonnet') || m.includes('opus') || m.includes('haiku')) return 'anthropic';
+  if (m.includes('gpt')) return 'openai';
+  if (m.includes('gemini')) return 'gemini';
+  if (m.includes('llama')) return 'groq'; // or together
+  if (m.includes('grok')) return 'xai';
+  if (m.includes('mistral')) return 'mistral';
+  if (m.includes('openrouter')) return 'openrouter';
+  return null;
+}
+
+function resolveLlmCredentialsForProvider(env, provider) {
+  const legacy = String(env.aiApiKey || '').trim();
+  const anthropicKey = String(env.anthropicApiKey || '').trim();
+  const openaiKey = String(env.openaiApiKey || '').trim();
+  const groqKey = String(env.groqApiKey || '').trim();
+  const openrouterKey = String(env.openrouterApiKey || '').trim();
+  const mistralKey = String(env.mistralApiKey || '').trim();
+  const togetherKey = String(env.togetherApiKey || '').trim();
+  const xaiKey = String(env.xaiApiKey || '').trim();
+  const geminiKey = String(env.geminiApiKey || '').trim();
+
+  if (provider === 'anthropic') {
+    return {
+      kind: anthropicKey ? 'anthropic' : 'none',
+      apiKey: anthropicKey,
+      providerId: 'anthropic',
+      baseUrl: null,
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'openai') {
+    return {
+      kind: openaiKey ? 'openai' : 'none',
+      apiKey: openaiKey,
+      providerId: 'openai',
+      baseUrl: OPENAI_DEFAULT_BASE,
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'groq') {
+    return {
+      kind: groqKey ? 'groq' : 'none',
+      apiKey: groqKey,
+      providerId: 'groq',
+      baseUrl: 'https://api.groq.com/openai/v1',
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'openrouter') {
+    return {
+      kind: openrouterKey ? 'openrouter' : 'none',
+      apiKey: openrouterKey,
+      providerId: 'openrouter',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'mistral') {
+    return {
+      kind: mistralKey ? 'mistral' : 'none',
+      apiKey: mistralKey,
+      providerId: 'mistral',
+      baseUrl: 'https://api.mistral.ai/v1',
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'together') {
+    return {
+      kind: togetherKey ? 'together' : 'none',
+      apiKey: togetherKey,
+      providerId: 'together',
+      baseUrl: 'https://api.together.xyz/v1',
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'xai') {
+    return {
+      kind: xaiKey ? 'xai' : 'none',
+      apiKey: xaiKey,
+      providerId: 'xai',
+      baseUrl: 'https://api.x.ai/v1',
+      extraHeaders: null,
+    };
+  }
+  if (provider === 'gemini') {
+    return {
+      kind: geminiKey ? 'gemini' : 'none',
+      apiKey: geminiKey,
+      providerId: 'gemini',
+      baseUrl: null,
+      extraHeaders: null,
+    };
+  }
+  return { kind: 'none', apiKey: '', providerId: null, baseUrl: null, extraHeaders: null };
+}
+
 /**
  * Pick credentials from env. Does not read filesystem — pass getEnv() result.
  */
@@ -277,22 +375,29 @@ async function completeMxAgentChat(opts) {
   if (!normalized.length) throw new Error('At least one message is required');
 
   const system = buildSystemPrompt(mode);
-  const providerId = creds.providerId || 'openai';
+  const modelProvider = providerFromModel(modelOverride);
+  const providerId = modelProvider || creds.providerId || 'openai';
   const model = defaultModelForProvider(providerId, modelOverride || env.aiModel);
 
-  if (creds.kind === 'anthropic') {
-    return anthropicComplete({ apiKey: creds.apiKey, model, system, messages: normalized });
+  // Get creds for the specific provider
+  const providerCreds = modelProvider ? resolveLlmCredentialsForProvider(env, modelProvider) : creds;
+  if (providerCreds.kind === 'none' || !providerCreds.apiKey) {
+    throw new Error(`No API key configured for provider ${modelProvider}`);
   }
-  if (creds.kind === 'gemini') {
-    return geminiComplete({ apiKey: creds.apiKey, model, system, messages: normalized });
+
+  if (providerCreds.kind === 'anthropic') {
+    return anthropicComplete({ apiKey: providerCreds.apiKey, model, system, messages: normalized });
+  }
+  if (providerCreds.kind === 'gemini') {
+    return geminiComplete({ apiKey: providerCreds.apiKey, model, system, messages: normalized });
   }
   return openaiCompatibleComplete({
-    apiKey: creds.apiKey,
-    baseUrl: creds.baseUrl,
+    apiKey: providerCreds.apiKey,
+    baseUrl: providerCreds.baseUrl,
     model,
     system,
     messages: normalized,
-    extraHeaders: creds.extraHeaders,
+    extraHeaders: providerCreds.extraHeaders,
   });
 }
 
@@ -319,4 +424,6 @@ module.exports = {
   hasConfiguredLlm,
   buildSystemPrompt,
   getMxAgentRuntimeInfo,
+  defaultModelForProvider,
+  providerFromModel,
 };
