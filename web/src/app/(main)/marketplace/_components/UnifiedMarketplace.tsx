@@ -173,8 +173,8 @@ function parseListingTab(raw: string | null): ListingType {
 
 function parseViewMode(raw: string | null): ViewMode {
   const v = (raw || "").toLowerCase();
-  if (v === "smart-match") return "smart-match";
-  return "browse";
+  if (v === "browse") return "browse";
+  return "smart-match";
 }
 
 function parseSort(raw: string | null): SortOption {
@@ -346,9 +346,9 @@ export function UnifiedMarketplace() {
               <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <Store size={12}/> Marketplace
               </div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Browse opportunities</h1>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Find the right work faster</h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Hire fast or get hired faster. Every live request and service is listed here and broadcast through configured Discord and Telegram matching channels.
+                Discover AI-matched briefs and specialists first, then browse every live request and service from BrandForge and our matching network.
               </p>
               {eco ? (
                 <div className="mt-4 flex flex-wrap gap-4 text-sm">

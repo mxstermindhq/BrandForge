@@ -105,6 +105,81 @@ function FeedItemCard({ item, onLike }: { item: FeedItem; onLike?: (id: string) 
   const tierBadge = getTierBadge(item.actor.tier);
   const av = safeImageSrc(item.actor.avatar_url);
 
+  const renderActionButtons = () => {
+    const actions: JSX.Element[] = [];
+    if (item.type === "BRIEF_POSTED" && item.id) {
+      actions.push(
+        <Link
+          key="view-brief"
+          href={`/requests/${encodeURIComponent(item.id)}`}
+          className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15"
+        >
+          View brief
+        </Link>,
+      );
+      actions.push(
+        <Link
+          key="submit-proposal"
+          href={`/requests/${encodeURIComponent(item.id)}`}
+          className="rounded-full border border-primary/20 bg-surface-container px-3 py-1.5 text-xs font-semibold text-on-surface transition hover:bg-surface-container-high"
+        >
+          Submit proposal
+        </Link>,
+      );
+    } else if (item.type === "OPEN_FOR_WORK") {
+      actions.push(
+        <Link
+          key="view-profile"
+          href={`/u/${encodeURIComponent(item.actor.username)}`}
+          className="rounded-full bg-surface-container px-3 py-1.5 text-xs font-semibold text-on-surface transition hover:bg-surface-container-high"
+        >
+          View profile
+        </Link>,
+      );
+      actions.push(
+        <Link
+          key="find-match"
+          href="/marketplace?view=smart-match"
+          className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15"
+        >
+          Find match
+        </Link>,
+      );
+    } else if (item.type === "COLLAB_WANTED") {
+      actions.push(
+        <Link
+          key="view-match"
+          href="/marketplace?view=smart-match"
+          className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15"
+        >
+          View match
+        </Link>,
+      );
+    } else if (item.type === "PORTFOLIO_POST") {
+      actions.push(
+        <Link
+          key="view-portfolio"
+          href={`/u/${encodeURIComponent(item.actor.username)}`}
+          className="rounded-full bg-surface-container px-3 py-1.5 text-xs font-semibold text-on-surface transition hover:bg-surface-container-high"
+        >
+          View portfolio
+        </Link>,
+      );
+    } else {
+      actions.push(
+        <Link
+          key="browse-marketplace"
+          href="/marketplace?view=smart-match"
+          className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15"
+        >
+          Browse listings
+        </Link>,
+      );
+    }
+
+    return actions.length > 0 ? <div className="mt-4 flex flex-wrap gap-2">{actions}</div> : null;
+  };
+
   const renderContent = () => {
     switch (item.type) {
       case "DEAL_CLOSED":
@@ -283,6 +358,7 @@ function FeedItemCard({ item, onLike }: { item: FeedItem; onLike?: (id: string) 
 
       {/* Content */}
       <div className="mb-3">{renderContent()}</div>
+      {renderActionButtons()}
 
       {/* Actions */}
       <div className="flex items-center gap-4 border-t border-outline-variant/50 pt-3">
@@ -613,6 +689,14 @@ export function WorkFeedClient() {
           )}
         </div>
       </div>
+      {session ? (
+        <Link
+          href="/requests/new"
+          className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-on-primary shadow-2xl shadow-primary/20 transition hover:bg-primary/90"
+        >
+          Post request
+        </Link>
+      ) : null}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { useBootstrap } from "@/hooks/useBootstrap";
 import { getSortedHumanThreads } from "@/lib/human-chat-threads";
 import { useAuth } from "@/providers/AuthProvider";
 import { ChatMessageEmbed } from "@/components/messages/ChatEmbeds";
+import { AIAssistantPanel } from "@/components/deal-rooms/AIAssistantPanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -774,6 +775,8 @@ function DealRoomContextSidebar({
   progress,
   onChatDeposit,
   depositBusy,
+  chatId,
+  dealContext,
 }: {
   recipientLabel: string;
   messageCount: number;
@@ -781,6 +784,12 @@ function DealRoomContextSidebar({
   progress: Array<{ id: string; label: string; done: boolean }>;
   onChatDeposit?: () => void;
   depositBusy?: boolean;
+  chatId?: string;
+  dealContext?: {
+    type: "service";
+    title: string;
+    parties: Array<{ id: string; name: string; role: string }>;
+  };
 }) {
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col border-l border-outline-variant bg-surface-container-low">
@@ -880,6 +889,17 @@ function DealRoomContextSidebar({
             ) : null}
           </div>
         </div>
+        {chatId ? (
+          <div className="mt-4 rounded-xl border border-outline-variant bg-surface-container p-3">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-on-surface-variant">Deal Room AI</p>
+              <span className="text-[10px] text-success">Ready</span>
+            </div>
+            <div className="h-[420px] overflow-hidden rounded-2xl border border-outline-variant">
+              <AIAssistantPanel chatId={chatId} dealContext={dealContext} />
+            </div>
+          </div>
+        ) : null}
       </div>
     </aside>
   );
@@ -1291,6 +1311,20 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
     () => peopleRecipients.find((p) => String(p.id) === String(activeThreadId)),
     [peopleRecipients, activeThreadId],
   );
+  const dealContext = useMemo(
+    () => ({
+      type: "service" as const,
+      title: activeHumanRecipient?.label || "Deal room",
+      parties: [
+        {
+          id: String(currentUserId || ""),
+          name: "You",
+          role: "buyer",
+        },
+      ],
+    }),
+    [activeHumanRecipient?.label, currentUserId],
+  );
   const messageBlob = useMemo(
     () =>
       messages
@@ -1600,6 +1634,8 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
           progress={dealProgress}
           onChatDeposit={startChatDeposit}
           depositBusy={depositBusy}
+          chatId={activeThreadId || undefined}
+          dealContext={dealContext}
         />
       ) : null}
     </div>

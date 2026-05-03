@@ -6,6 +6,7 @@ import { apiGetJson } from "@/lib/api";
 import { MarketplacePreview } from "./MarketplacePreview";
 import { LiveStats } from "@/app/(landing)/_components/LiveStats";
 import { ActivityFeed } from "@/app/(landing)/_components/ActivityFeed";
+import { useAuthMe } from "@/hooks/useAuthMe";
 import { MessageSquare, PlusCircle, Users, Handshake, Trophy, Zap, TrendingUp, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
 type NetworkStats = {
@@ -105,10 +106,13 @@ function SeasonCountdownCard() {
 }
 
 export function HomeHubClient() {
+  const { me, loading: meLoading } = useAuthMe();
   const [data, setData] = useState<NetworkStats | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const userName = me?.profile?.full_name || me?.profile?.username || "there";
 
   const fetchStats = useCallback(async () => {
     try {
@@ -161,6 +165,9 @@ export function HomeHubClient() {
         <h1 className="text-4xl md:text-5xl font-bold max-w-[600px] mb-4 leading-tight">
           Deal rooms, marketplace, and live pulse — one home.
         </h1>
+        <p className="text-zinc-400 max-w-[480px] text-lg mb-2">
+          Welcome back{meLoading ? "" : ", " + userName}. Your smart marketplace and AI tools are ready.
+        </p>
         <p className="text-zinc-400 max-w-[480px] text-lg mb-8">
           Negotiate in chat. Sign contracts. Escrow payments. All in one thread.
         </p>
@@ -170,12 +177,14 @@ export function HomeHubClient() {
           <Link href="/chat" className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20">
             <MessageSquare size={18}/> Open a Chat
           </Link>
+          <Link href="/marketplace?view=smart-match" className="flex items-center gap-2 px-6 py-3 bg-sky-500 text-black rounded-xl font-semibold hover:bg-sky-400 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/20">
+            <Sparkles size={18}/> Smart Match
+          </Link>
+          <Link href="/ai" className="flex items-center gap-2 px-6 py-3 border border-zinc-700 text-white rounded-xl hover:bg-zinc-800 transition-all duration-300 hover:border-zinc-600">
+            <PlusCircle size={18}/> AI Hub
+          </Link>
           <Link href="/requests/new" className="flex items-center gap-2 px-6 py-3 border border-zinc-700 text-white rounded-xl hover:bg-zinc-800 transition-all duration-300 hover:border-zinc-600">
             <PlusCircle size={18}/> Post a Brief
-          </Link>
-          <Link href="/marketplace" className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-all duration-300 group">
-            <TrendingUp size={18}/> Browse Marketplace
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
           </Link>
         </div>
       </div>
