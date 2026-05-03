@@ -6,7 +6,7 @@
     "node": ">=20.0.0 <22.0.0"
   },
   "scripts": {
-    "prebuild": "node -e \"const n=+process.versions.node.split('.')[0];if(n<20){console.error('\\n[!] Node 20+ required (you have '+process.version+'). Install Node 20 LTS and run `node -v` — see web/.nvmrc / web/.node-version.\\n');process.exit(1)}if(n>=22){console.error('\\n[!] Node 22+ breaks Next 15.5 production build (WebpackError / minify). Use Node 20 LTS.\\n');process.exit(1)}\"",
+    "prebuild": "node -e \"const n=+process.versions.node.split('.')[0];if(n<20){console.error('\\n[!] Node 20+ required (you have '+process.version+'). Install Node 20 LTS and run `node -v` — see web/.nvmrc / web/.node-version.\\n');process.exit(1)}if(n>=26){console.error('\\n[!] Node 26+ breaks Next 15.5 production build (WebpackError / minify). Use Node 20 LTS.\\n');process.exit(1)}\"",
     "clean": "node -e \"const fs=require('fs');['.next','node_modules/.cache','.vercel/output','.open-next'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true});}catch(e){}});\"",
     "dev": "npx next dev -p 3001",
     "dev:clean": "npm run clean && npx next dev -p 3001",
