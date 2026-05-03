@@ -6,6 +6,7 @@ import { apiGetJson } from "@/lib/api";
 import { MarketplacePreview } from "./MarketplacePreview";
 import { LiveStats } from "@/app/(landing)/_components/LiveStats";
 import { ActivityFeed } from "@/app/(landing)/_components/ActivityFeed";
+import { WorkFeedClient } from "@/app/(main)/feed/_components/WorkFeedClient";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { MessageSquare, PlusCircle, Users, Handshake, Trophy, Zap, TrendingUp, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
@@ -219,6 +220,15 @@ export function HomeHubClient() {
       </div>
 
       {err ? <p className="text-rose-400 mb-6 text-sm" role="alert">{err}</p> : null}
+
+      {/* Feed Section */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span>Recent Activity</span>
+          <TrendingUp size={20} className="text-amber-400"/>
+        </h2>
+        <WorkFeedClient />
+      </div>
 
       {/* Two Column Layout */}
       <div className="grid lg:grid-cols-3 gap-6 mb-12">

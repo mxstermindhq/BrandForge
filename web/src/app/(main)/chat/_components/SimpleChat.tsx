@@ -307,7 +307,7 @@ function TypingIndicator({ recipient }: { recipient: Recipient }) {
 
 // ─── Recipient Picker ─────────────────────────────────────────────────────────
 
-type PickerCategory = "people" | "models" | "agents";
+type PickerCategory = "people" | "models";
 
 function RecipientPicker({
   value,
@@ -322,7 +322,6 @@ function RecipientPicker({
 }) {
   const initialTab = useMemo<PickerCategory>(() => {
     if (value.type === "people") return "people";
-    if (value.type === "agent") return "agents";
     return "models";
   }, [value.type]);
 
@@ -334,7 +333,6 @@ function RecipientPicker({
   const tabs: { id: PickerCategory; label: string; items: Recipient[] }[] = [
     { id: "people", label: "People", items: peopleRecipients },
     { id: "models", label: "Models", items: AI_MODELS },
-    { id: "agents", label: "Agents", items: AI_AGENTS },
   ];
 
   const activeItems = tabs.find(t => t.id === tab)?.items ?? [];
