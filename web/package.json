@@ -24,6 +24,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.102.1",
     "@tanstack/react-virtual": "^3.13.23",
+    "@vercel/og": "^0.11.1",
     "framer-motion": "^11.0.0",
     "geist": "^1.7.0",
     "lenis": "^1.1.0",
