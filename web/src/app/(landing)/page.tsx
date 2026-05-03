@@ -5,6 +5,7 @@ import {
   FAQSection,
   LandingFooter,
 } from "./_components";
+import { AuthRedirect } from "./_components/AuthRedirect";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
@@ -67,6 +68,7 @@ const jsonLd = {
 export default function LandingPage() {
   return (
     <>
+      <AuthRedirect />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

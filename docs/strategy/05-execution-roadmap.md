@@ -2,6 +2,8 @@
 
 **Purpose:** A **single ordered plan**—what to ship next, why, and dependencies. Adjust dates in planning meetings; keep this file the source of truth for priorities.
 
+> See `docs/strategy/00-landing-audit-roadmap.md` for a landing audit and conversion path, and `docs/strategy/06-app-audit.md` for the authenticated product / AI experience audit and fast logged-in roadmap.
+
 ## Horizon legend
 
 - **Now:** next 2 weeks  

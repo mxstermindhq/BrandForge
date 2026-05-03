@@ -19,6 +19,7 @@ export const NAV: NavSection[] = [
   {
     section: null,
     items: [
+      { label: "Home", href: "/dashboard", materialIcon: "home" },
       { label: "Feed", href: "/feed", materialIcon: "feed" },
       { label: "Chat", href: "/chat", materialIcon: "chat" },
       { label: "Marketplace", href: "/marketplace", materialIcon: "storefront" },

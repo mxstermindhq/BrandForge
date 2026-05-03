@@ -7,6 +7,8 @@
 
 | Doc                                                                                  | Topics                                         |
 | ------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| [docs/strategy/00-landing-audit-roadmap.md](docs/strategy/00-landing-audit-roadmap.md) | Landing audit, conversion, production path     |
+| [docs/strategy/06-app-audit.md](docs/strategy/06-app-audit.md) | Authenticated app audit, AI product roadmap    |
 | [docs/strategy/01-product-design-ux.md](docs/strategy/01-product-design-ux.md)       | Design system, UX, IA, metrics                 |
 | [docs/strategy/02-engineering-platform.md](docs/strategy/02-engineering-platform.md) | Architecture, repo map, tech debt, deploy      |
 | [docs/strategy/03-monetization-growth.md](docs/strategy/03-monetization-growth.md)   | Revenue, pricing posture, GTM loops            |

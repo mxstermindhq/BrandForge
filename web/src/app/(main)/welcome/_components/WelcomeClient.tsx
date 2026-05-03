@@ -104,7 +104,7 @@ export function WelcomeClient() {
         () => {},
       );
       await reloadMe();
-      router.replace("/");
+      router.replace("/dashboard");
     } catch (e2) {
       setErr(e2 instanceof Error ? e2.message : "Could not save");
     } finally {
