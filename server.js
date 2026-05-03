@@ -2696,21 +2696,78 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  // AI Models
+  // AI Models - with availability status
   if (pathname === '/api/ai-models' && method === 'GET') {
-    const models = await platformRepository.getAIModels();
-    sendJson(res, 200, { models });
+    const groqKey = env.GROQ_API_KEY || env.grok_api_key || '';
+    const xaiKey = env.XAI_API_KEY || env.xai_api_key || '';
+    const openRouterKey = env.OPENROUTER_API_KEY || env.openrouter_api_key || '';
+    const geminiKey = env.GEMINI_API_KEY || env.gemini_api_key || '';
+    const anthropicKey = env.ANTHROPIC_API_KEY || env.anthropic_api_key || '';
+    
+    const hasGroq = groqKey.length > 10;
+    const hasXAI = xaiKey.length > 10;
+    const hasOpenRouter = openRouterKey.length > 10;
+    const hasGemini = geminiKey.length > 10;
+    const hasAnthropic = anthropicKey.length > 10;
+    
+    const models = [
+      // Groq - Fast and affordable
+      { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', provider: 'Groq', available: hasGroq, fast: true },
+      { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'Groq', available: hasGroq, fast: true },
+      { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'Groq', available: hasGroq, fast: true },
+      
+      // xAI - Premium
+      { id: 'grok-2', name: 'Grok 2', provider: 'xAI', available: hasXAI, fast: false },
+      { id: 'grok-2-vision', name: 'Grok 2 Vision', provider: 'xAI', available: hasXAI, fast: false },
+      
+      // OpenRouter - Aggregator
+      { id: 'openrouter/anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'OpenRouter', available: hasOpenRouter, fast: false },
+      { id: 'openrouter/meta-llama/llama-3.3-70b', name: 'Llama 3.3 70B (OR)', provider: 'OpenRouter', available: hasOpenRouter, fast: true },
+      
+      // Gemini
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Gemini', available: hasGemini, fast: true },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'Gemini', available: hasGemini, fast: true },
+      
+      // Anthropic - Needs credits (marked separately)
+      { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', available: hasAnthropic, fast: false, needsCredits: true },
+      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', provider: 'Anthropic', available: hasAnthropic, fast: false, needsCredits: true },
+    ];
+    
+    const configured = hasGroq || hasXAI || hasOpenRouter || hasGemini || hasAnthropic;
+    
+    sendJson(res, 200, { 
+      models,
+      configured,
+      providers: {
+        Groq: hasGroq,
+        xAI: hasXAI,
+        OpenRouter: hasOpenRouter,
+        Gemini: hasGemini,
+        Anthropic: hasAnthropic,
+      }
+    });
     return true;
   }
 
   if (pathname === '/api/ai/status' && method === 'GET') {
     const rt = getMxAgentRuntimeInfo(env);
+    const groqKey = env.GROQ_API_KEY || env.grok_api_key || '';
+    const xaiKey = env.XAI_API_KEY || env.xai_api_key || '';
+    const openRouterKey = env.OPENROUTER_API_KEY || env.openrouter_api_key || '';
+    const geminiKey = env.GEMINI_API_KEY || env.gemini_api_key || '';
+    
     sendJson(res, 200, {
       chat: {
-        configured: rt.configured,
-        providerId: rt.providerId,
-        model: rt.model,
-        aiProviderEnv: rt.aiProviderEnv,
+        configured: rt.configured || groqKey.length > 10 || xaiKey.length > 10,
+        providerId: rt.providerId || (groqKey.length > 10 ? 'groq' : xaiKey.length > 10 ? 'xai' : 'default'),
+        model: rt.model || 'llama-3.3-70b-versatile',
+        aiProviderEnv: rt.aiProviderEnv || 'multi',
+      },
+      providers: {
+        Groq: groqKey.length > 10,
+        xAI: xaiKey.length > 10,
+        OpenRouter: openRouterKey.length > 10,
+        Gemini: geminiKey.length > 10,
       },
       image: { configured: Boolean(resolveOpenAiImageKey(env)) },
     });

@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from "react";
 import Image from "next/image";
-import { Upload, X, Image as ImageIcon, Link2, FileText } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Link2, FileText, Sparkles } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
+import { SmartLinkInput } from "./SmartLinkInput";
 
 export interface PortfolioItem {
   id?: string;
@@ -109,13 +110,37 @@ export function PortfolioUploader({ onUpload, onCancel }: PortfolioUploaderProps
     }
   }, [item, thumbnail, onUpload]);
 
+  const handleSmartLink = (url: string, metadata: { title: string; description: string }) => {
+    setItem({
+      ...item,
+      title: metadata.title,
+      description: metadata.description,
+      content_url: url,
+    });
+  };
+
   return (
     <div className="rounded-xl border border-outline-variant bg-surface-container p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-on-surface">Add Portfolio Work</h3>
-        <button onClick={onCancel} className="rounded p-1 text-on-surface-variant hover:bg-surface-container-high">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-on-surface">Add Portfolio Item</h3>
+        <button
+          onClick={onCancel}
+          className="rounded-full p-1 text-on-surface-variant transition hover:bg-surface-container-high"
+        >
           <X className="h-5 w-5" />
         </button>
+      </div>
+
+      {/* Smart Link Import */}
+      <div className="mb-6 rounded-lg bg-primary/5 p-4">
+        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-on-surface">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Smart Import
+        </label>
+        <SmartLinkInput onAdd={handleSmartLink} disabled={uploading} />
+        <p className="mt-2 text-xs text-on-surface-variant">
+          Paste a link to auto-fill project details
+        </p>
       </div>
 
       {/* Thumbnail Upload */}
