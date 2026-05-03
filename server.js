@@ -799,6 +799,55 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // Sitemap endpoints for SEO
+  if (pathname === '/api/sitemap/profiles' && method === 'GET') {
+    try {
+      // Get public profiles for sitemap
+      const profiles = await platformRepository.getPublicProfilesForSitemap?.() || [];
+      sendJson(res, 200, { profiles });
+    } catch (error) {
+      console.error('Sitemap profiles error:', error);
+      sendJson(res, 200, { profiles: [] });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/sitemap/services' && method === 'GET') {
+    try {
+      // Get public services for sitemap
+      const services = await platformRepository.getPublicServicesForSitemap?.() || [];
+      sendJson(res, 200, { services });
+    } catch (error) {
+      console.error('Sitemap services error:', error);
+      sendJson(res, 200, { services: [] });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/sitemap/requests' && method === 'GET') {
+    try {
+      // Get public requests for sitemap
+      const requests = await platformRepository.getPublicRequestsForSitemap?.() || [];
+      sendJson(res, 200, { requests });
+    } catch (error) {
+      console.error('Sitemap requests error:', error);
+      sendJson(res, 200, { requests: [] });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/sitemap/squads' && method === 'GET') {
+    try {
+      // Get public squads for sitemap
+      const squads = await platformRepository.getPublicSquadsForSitemap?.() || [];
+      sendJson(res, 200, { squads });
+    } catch (error) {
+      console.error('Sitemap squads error:', error);
+      sendJson(res, 200, { squads: [] });
+    }
+    return true;
+  }
+
   if (pathname === '/api/activity/recent' && method === 'GET') {
     try {
       // Fetch recent activity from various sources

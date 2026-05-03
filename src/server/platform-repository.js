@@ -5499,6 +5499,11 @@ async function createPlatformRepository(previewRepository) {
     disbandSquad,
     countUserSquads,
     canCreateSquad,
+    // Sitemap methods
+    getPublicProfilesForSitemap,
+    getPublicServicesForSitemap,
+    getPublicRequestsForSitemap,
+    getPublicSquadsForSitemap,
   };
 
   // User Agents functions
@@ -5818,6 +5823,73 @@ async function createPlatformRepository(previewRepository) {
     const planTier = settings?.settings?.plan_tier || 'free';
     // Free users cannot create squads
     return planTier !== 'free';
+  }
+
+  // Sitemap methods
+  async function getPublicProfilesForSitemap() {
+    if (!client) return [];
+    try {
+      const { data, error } = await client
+        .from('profiles')
+        .select('id, username, updated_at')
+        .eq('privacy_settings->>isPublic', 'true')
+        .not('username', 'is', null)
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('[getPublicProfilesForSitemap]', e.message);
+      return [];
+    }
+  }
+
+  async function getPublicServicesForSitemap() {
+    if (!client) return [];
+    try {
+      const { data, error } = await client
+        .from('services')
+        .select('id, updated_at')
+        .eq('status', 'published')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('[getPublicServicesForSitemap]', e.message);
+      return [];
+    }
+  }
+
+  async function getPublicRequestsForSitemap() {
+    if (!client) return [];
+    try {
+      const { data, error } = await client
+        .from('project_requests')
+        .select('id, updated_at')
+        .eq('status', 'open')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('[getPublicRequestsForSitemap]', e.message);
+      return [];
+    }
+  }
+
+  async function getPublicSquadsForSitemap() {
+    if (!client) return [];
+    try {
+      const { data, error } = await client
+        .from('squads')
+        .select('id, updated_at')
+        .eq('status', 'active')
+        .eq('visibility', 'public')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('[getPublicSquadsForSitemap]', e.message);
+      return [];
+    }
   }
 }
 
