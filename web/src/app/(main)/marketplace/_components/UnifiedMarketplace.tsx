@@ -697,6 +697,7 @@ export function UnifiedMarketplace() {
               <>
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/50 shadow-sm backdrop-blur-sm">
                   {visibleListings.map((item, index) => {
+                    if (!item) return null;
                     const isService = item._type === "service" || (!item._type && "price" in item);
                     const rowKey = isService ? `svc-${(item as ServiceRow).id || "unknown"}` : `req-${(item as Req).id || "unknown"}`;
                     const expanded = expandedKey === rowKey;

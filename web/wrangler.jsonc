@@ -11,9 +11,9 @@
   // Worker vars: `wrangler deploy` overwrites dashboard-only vars — keep production values here so CLI + Git builds match.
   // NEXT_PUBLIC_SUPABASE_ANON_KEY is the public anon key (same as in the browser bundle); never put service_role here.
   "vars": {
-    "NEXT_PUBLIC_APP_URL": "https://brandforge.gg",
-    "NEXT_PUBLIC_API_URL": "https://brandforge-production-e488.up.railway.app",
-    "API_PROXY_DESTINATION": "https://brandforge-production-e488.up.railway.app",
+    "NEXT_PUBLIC_APP_URL": "https://brandforge.mxstermind-com.workers.dev",
+    "NEXT_PUBLIC_API_URL": "https://brandforge.mxstermind-com.workers.dev",
+    "API_PROXY_DESTINATION": "https://brandforge.mxstermind-com.workers.dev",
     "NEXT_PUBLIC_SUPABASE_URL": "https://vtctturtitstcljvkcsa.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0Y3R0dXJ0aXRzdGNsanZrY3NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDAyNzUsImV4cCI6MjA5MDcxNjI3NX0.iKi3_XuYPXmQwCsDOVau2HLDQdm2dm4kqUjbmkBSC2E"
   }

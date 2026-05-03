@@ -95,25 +95,21 @@ export function AIHubClient() {
         {[
           {
             title: "Brief Generator",
-            description: "Turn your idea into a polished project brief in seconds.",
             icon: FileText,
             href: "/ai/brief-generator",
           },
           {
             title: "Proposal Writer",
-            description: "Generate client-ready proposals with pricing, timelines, and scope.",
             icon: TrendingUp,
             href: "/ai/proposal-writer",
           },
           {
             title: "Career Assistant",
-            description: "Get career advice, profile polish, and positioning feedback.",
             icon: Lightbulb,
             href: "/ai/career-assistant",
           },
           {
             title: "AI Chat",
-            description: "Ask the AI anything about briefs, deals, or next steps.",
             icon: MessageCircle,
             href: "/ai/chat",
           },
@@ -127,7 +123,6 @@ export function AIHubClient() {
               <tool.icon className="h-5 w-5" />
             </div>
             <h2 className="mt-4 text-lg font-semibold text-on-surface">{tool.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{tool.description}</p>
             <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-primary">
               <span>Open tool</span>
               <ArrowRight className="h-4 w-4" />

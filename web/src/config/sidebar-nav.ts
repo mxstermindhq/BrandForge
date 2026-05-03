@@ -33,7 +33,6 @@ export const NAV: NavSection[] = [
     section: "Community",
     items: [
       { label: "Leaderboard", href: "/leaderboard", materialIcon: "leaderboard" },
-      { label: "Chat History", href: "/messages", materialIcon: "history" },
     ],
   },
   {
