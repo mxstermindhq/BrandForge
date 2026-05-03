@@ -248,7 +248,7 @@ export function HomeHubClient() {
                 <span className="text-zinc-300">List a service</span>
                 <ArrowRight size={14} className="text-zinc-500"/>
               </Link>
-              <Link href="/agents" className="flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800 transition text-sm">
+              <Link href="/ai/agents" className="flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800 transition text-sm">
                 <span className="text-zinc-300">Deploy AI agent</span>
                 <Sparkles size={14} className="text-amber-400"/>
               </Link>

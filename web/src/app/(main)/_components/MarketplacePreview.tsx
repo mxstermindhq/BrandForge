@@ -216,10 +216,10 @@ export function MarketplacePreview() {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-semibold text-amber-400">${service.price}</p>
+                      <p className="font-semibold text-amber-400">${service.price ?? 0}</p>
                       <p className="text-[10px] text-zinc-500 flex items-center gap-0.5">
                         <Clock size={10} />
-                        {service.deliveryDays === 1 ? "1 day" : `${service.deliveryDays} days`}
+                        {service.deliveryDays === 1 ? "1 day" : `${service.deliveryDays ?? 0} days`}
                       </p>
                     </div>
                   </div>

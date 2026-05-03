@@ -303,6 +303,8 @@ async function anthropicComplete({ apiKey, model, system, messages }) {
 }
 
 async function openaiCompatibleComplete({ apiKey, baseUrl, model, system, messages, extraHeaders = {} }) {
+  if (!baseUrl) throw new Error('OpenAI-compatible baseUrl is required');
+  if (!apiKey) throw new Error('OpenAI-compatible apiKey is required');
   const apiMessages = [{ role: 'system', content: system }, ...messages];
   const url = `${baseUrl}/chat/completions`;
   const res = await fetch(url, {
