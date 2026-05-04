@@ -48,11 +48,11 @@ type ChatRequestDraft = {
 };
 
 const AI_MODELS: Recipient[] = [
-  { type: "ai", id: "sonnet-4-6",  label: "Claude Sonnet 4.6", sublabel: "Fast · balanced" },
-  { type: "ai", id: "opus-4-6",    label: "Claude Opus 4.6",   sublabel: "Powerful · Think mode" },
-  { type: "ai", id: "haiku-4-5",   label: "Claude Haiku 4.5",  sublabel: "Quick · lightweight" },
-  { type: "ai", id: "gpt-4o",      label: "GPT-4o",            sublabel: "OpenAI" },
-  { type: "ai", id: "gemini-25",   label: "Gemini 2.5 Pro",    sublabel: "Google" },
+  { type: "ai", id: "gpt-4o-mini", label: "GPT-4o Mini",               sublabel: "OpenAI · Free", tier: "free", icon: "free" },
+  { type: "ai", id: "gpt-4o",      label: "GPT-4o",                    sublabel: "OpenAI · Paid", tier: "paid", icon: "paid" },
+  { type: "ai", id: "grok-2",      label: "Grok 2",                    sublabel: "xAI · Paid", tier: "paid", icon: "paid" },
+  { type: "ai", id: "gemini-2.0-flash", label: "Gemini 2.0 Flash",      sublabel: "Google · Paid", tier: "paid", icon: "paid" },
+  { type: "ai", id: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet", sublabel: "Anthropic · Paid", tier: "paid", icon: "paid" },
 ];
 
 type AIModel = {
@@ -433,12 +433,15 @@ function HubTabBar({
           key={t}
           type="button"
           onClick={() => onSelectRecipientType(t)}
+          disabled={t === "agent"}
+          title={t === "agent" ? "AI Worker is locked for now" : undefined}
           className={cn(
             "flex-1 whitespace-nowrap rounded-lg px-2 py-1.5 text-[11px] font-semibold transition sm:flex-none sm:px-4 sm:text-sm",
             recipient.type === t ? "bg-surface-container-high text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface",
+            t === "agent" ? "opacity-40 cursor-not-allowed" : ""
           )}
         >
-          {t === "people" ? "Deal Rooms" : t === "ai" ? "AI Models" : "AI Agents"}
+          {t === "people" ? "Deal Rooms" : t === "ai" ? "AI Assistant" : "AI Worker"}
         </button>
       ))}
     </div>
