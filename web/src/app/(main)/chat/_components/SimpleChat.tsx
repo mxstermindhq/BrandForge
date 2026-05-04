@@ -36,6 +36,8 @@ type Recipient = {
   id: string;
   label: string;
   sublabel?: string;
+  tier?: 'free' | 'paid';
+  icon?: 'free' | 'paid';
 };
 
 type ChatRequestDraft = {
@@ -52,6 +54,21 @@ const AI_MODELS: Recipient[] = [
   { type: "ai", id: "gpt-4o",      label: "GPT-4o",            sublabel: "OpenAI" },
   { type: "ai", id: "gemini-25",   label: "Gemini 2.5 Pro",    sublabel: "Google" },
 ];
+
+type AIModel = {
+  id: string;
+  name: string;
+  provider: string;
+  available: boolean;
+  tier: 'free' | 'paid';
+  icon: 'free' | 'paid';
+};
+
+type AIModelsResponse = {
+  models: AIModel[];
+  configured: boolean;
+  providers: Record<string, boolean>;
+};
 
 const AI_AGENTS: Recipient[] = [
   { type: "agent", id: "marketing", label: "Marketing Agent", sublabel: "Copy · campaigns · GTM" },
@@ -312,11 +329,13 @@ type PickerCategory = "people" | "models";
 function RecipientPicker({
   value,
   peopleRecipients,
+  aiModels,
   onChange,
   onClose,
 }: {
   value: Recipient;
   peopleRecipients: Recipient[];
+  aiModels: Recipient[];
   onChange: (r: Recipient) => void;
   onClose: () => void;
 }) {
@@ -332,7 +351,7 @@ function RecipientPicker({
 
   const tabs: { id: PickerCategory; label: string; items: Recipient[] }[] = [
     { id: "people", label: "People", items: peopleRecipients },
-    { id: "models", label: "Models", items: AI_MODELS },
+    { id: "models", label: "Models", items: aiModels },
   ];
 
   const activeItems = tabs.find(t => t.id === tab)?.items ?? [];
@@ -377,7 +396,17 @@ function RecipientPicker({
                 <p className="truncate text-xs font-medium text-on-surface">{item.label}</p>
                 {item.sublabel && <p className="text-[10px] text-on-surface-variant">{item.sublabel}</p>}
               </div>
-              {value.id === item.id && <span className="text-xs text-blue-400">✓</span>}
+              <div className="flex items-center gap-1">
+                {item.tier && (
+                  <span className={cn(
+                    "text-xs",
+                    item.tier === "free" ? "text-green-500" : "text-amber-500"
+                  )}>
+                    {item.tier === "free" ? "🆓" : "💰"}
+                  </span>
+                )}
+                {value.id === item.id && <span className="text-xs text-blue-400">✓</span>}
+              </div>
             </button>
           ))
         ) : (
@@ -914,6 +943,7 @@ function InputBar({
   inputRef,
   recipient,
   peopleRecipients,
+  aiModels,
   onChangeRecipient,
   isHumanThread,
   locked,
@@ -930,6 +960,7 @@ function InputBar({
   inputRef: React.RefObject<HTMLTextAreaElement>;
   recipient: Recipient;
   peopleRecipients: Recipient[];
+  aiModels: Recipient[];
   onChangeRecipient: (r: Recipient) => void;
   isHumanThread: boolean;
   locked: boolean;
@@ -1007,6 +1038,7 @@ function InputBar({
                   <RecipientPicker
                     value={recipient}
                     peopleRecipients={peopleRecipients}
+                    aiModels={aiModels}
                     onChange={onChangeRecipient}
                     onClose={() => setPickerOpen(false)}
                   />
@@ -1092,7 +1124,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
   const [showDealContext, setShowDealContext] = useState(false);
   const [creatingRequest, setCreatingRequest] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
-
+  const [aiModels, setAiModels] = useState<Recipient[]>(AI_MODELS);
   const streamRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
   const attachRef = useRef<HTMLInputElement>(null);
@@ -1160,6 +1192,29 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       streamRef.current.scrollTop = streamRef.current.scrollHeight;
     }
   }, [messages.length]);
+
+  // Load AI models
+  useEffect(() => {
+    const fetchAiModels = async () => {
+      try {
+        const data = await apiGetJson<AIModelsResponse>("/api/ai-models", accessToken);
+        if (data.models) {
+          const models: Recipient[] = data.models.map(model => ({
+            type: "ai" as const,
+            id: model.id,
+            label: model.name,
+            sublabel: model.provider,
+            tier: model.tier,
+            icon: model.icon,
+          }));
+          setAiModels(models);
+        }
+      } catch (error) {
+        console.warn("Failed to fetch AI models, using defaults:", error);
+      }
+    };
+    fetchAiModels();
+  }, []);
 
   // Send message
   const sendMessage = async () => {
@@ -1297,7 +1352,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
       setRecipient(AI_AGENTS[0]);
       return;
     }
-    setRecipient(AI_MODELS[0]);
+    setRecipient(aiModels[0] || AI_MODELS[0]);
   };
   const handleRecipientChange = (next: Recipient) => {
     setRecipient(next);
@@ -1613,6 +1668,7 @@ export function SimpleChat({ threadId: initialThreadId }: { threadId?: string })
             inputRef={inputRef}
             recipient={recipient}
             peopleRecipients={peopleRecipients}
+            aiModels={aiModels}
             onChangeRecipient={handleRecipientChange}
             isHumanThread={isHumanThread}
             locked={lockedComposer}
