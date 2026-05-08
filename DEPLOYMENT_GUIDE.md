@@ -1,5 +1,7 @@
 # BrandForge Deployment Guide
 
+**Last Updated:** May 8, 2026
+
 ## Quick Deploy Commands
 
 ### 1. Web (Cloudflare Pages)
@@ -46,8 +48,11 @@ Run Supabase migrations:
 supabase migration up
 ```
 
-Or apply manually from:
-- `supabase/migrations/20260502_social_features.sql`
+Or apply manually from Supabase SQL Editor:
+1. `supabase/migrations/20260503a_fix_profiles.sql` - Add profile columns
+2. `supabase/migrations/20260503b_social_tables_simple.sql` - Create social tables
+3. `supabase/migrations/20260503d_fix_existing_tables.sql` - Fix columns and add RLS
+4. `supabase/migrations/20260503e_storage_bucket.sql` - Add storage bucket
 
 ### Step 3: Build Web App
 

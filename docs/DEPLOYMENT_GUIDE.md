@@ -1,13 +1,17 @@
 # BrandForge Deployment Guide
 
+**Last Updated:** May 8, 2026
+
+Complete guide for deploying BrandForge to production.
+
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 20+ LTS (see `web/.nvmrc`)
 - npm or pnpm
 - Supabase account and project
-- Cloudflare account
+- Cloudflare account with Workers plan
 - Domain configured in Cloudflare
-- API keys for AI providers (Anthropic, OpenAI, etc.)
+- API keys for AI providers (Groq, xAI, OpenRouter, Gemini, Anthropic)
 
 ## Environment Setup
 
@@ -23,50 +27,58 @@ npm install
 ```
 
 ### 3. Environment Variables
-Create `.env` file with required variables:
 
+#### Root `.env`
 ```env
 # Database
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Authentication
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=https://yourdomain.com
-
-# AI Providers
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
+# AI Providers (at least one required)
 GROQ_API_KEY=gsk_...
-GEMINI_API_KEY=...
 XAI_API_KEY=xai-...
+OPENROUTER_API_KEY=...
+GEMINI_API_KEY=...
+ANTHROPIC_API_KEY=sk-ant-...
 
-# Payments
-STRIPE_PUBLISHABLE_KEY=pk_...
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+# Payments (NowPayments)
+NOWPAYMENTS_API_KEY=...
+NOWPAYMENTS_IPN_SECRET=...
 
 # Email
 RESEND_API_KEY=re_...
 
 # Platform
 NODE_ENV=production
-AI_MODEL=gemini-2.0-flash
 ```
 
-### 4. Supabase Setup
-```bash
-# Install Supabase CLI
-npm install -g supabase
-
-# Login and link project
-supabase login
-supabase link --project-ref your-project-ref
-
-# Push schema
-supabase db push
+#### Web `.env.local`
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+### 4. Supabase Database Setup
+
+Run migrations in order via Supabase SQL Editor:
+
+```sql
+-- Step 1: Fix profiles table columns
+\i supabase/migrations/20260503a_fix_profiles.sql
+
+-- Step 2: Create social tables (if not exists)
+-- Note: If tables already exist, skip to Step 3
+\i supabase/migrations/20260503b_social_tables_simple.sql
+
+-- Step 3: Fix existing tables and add policies
+\i supabase/migrations/20260503d_fix_existing_tables.sql
+
+-- Step 4: Add storage bucket
+\i supabase/migrations/20260503e_storage_bucket.sql
+```
+
+**Note:** If `supabase db push` is not available, run SQL files directly in Supabase Dashboard → SQL Editor.
 
 ## Build Process
 

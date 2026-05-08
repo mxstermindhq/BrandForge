@@ -1,6 +1,16 @@
-# BrandForge (World of BrandForge)
+# BrandForge
 
 **Professional marketplace + deal OS** — specialists, buyers, AI-assisted workflows, and competitive reputation on **[brandforge.gg](https://brandforge.gg)**.
+
+[![Deploy Status](https://img.shields.io/badge/deploy-cloudflare-orange)](https://brandforge.gg)
+[![Database](https://img.shields.io/badge/database-supabase-blue)](https://supabase.com)
+[![Framework](https://img.shields.io/badge/framework-next.js-black)](https://nextjs.org)
+
+## Quick Links
+
+- **Live Site:** [brandforge.gg](https://brandforge.gg)
+- **Docs:** [docs/](./docs/)
+- **API:** Node.js server with Supabase backend
 
 ## Strategy docs (start here)
 
@@ -16,11 +26,39 @@
 | [docs/strategy/05-execution-roadmap.md](docs/strategy/05-execution-roadmap.md)       | Pillars, ordered tasks, weekly rhythm          |
 
 
-## Stack (short)
+## Features
 
-- **Frontend:** Next.js 15 (`web/`), Tailwind, Cloudflare Workers (OpenNext).
-- **API:** Node (`server.js`, `src/server/`), Supabase (Postgres + Auth).
-- **Node:** 20 LTS — see `web/.nvmrc`.
+### For Specialists
+- **Public Profiles** - Showcase skills, portfolio, and availability
+- **AI Career Assistant** - AI-powered career guidance and content generation
+- **Portfolio Upload** - Smart link import from GitHub, Figma, Dribbble, etc.
+- **Open to Offers** - Toggle availability and set preferences
+- **Social Features** - Follow/save other specialists, skill endorsements
+
+### For Buyers
+- **Service Marketplace** - Browse and hire top specialists
+- **Deal Rooms** - Secure collaboration spaces with contracts
+- **AI Brief Generator** - AI-assisted project brief creation
+- **Payment Integration** - Secure escrow and payments (NowPayments)
+
+### Platform Features
+- **AI Models** - Multi-provider AI (Groq, xAI, OpenRouter, Gemini, Anthropic)
+- **Social Login** - Google, LinkedIn, GitHub, Discord, Telegram
+- **Notifications** - Real-time notification center
+- **Activity Feed** - Platform-wide activity feed
+- **Discord Bot** - Automated listings and deployment notifications
+
+## Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15, Tailwind CSS, Cloudflare Workers (OpenNext) |
+| **API** | Node.js (`server.js`, `src/server/`) |
+| **Database** | Supabase (PostgreSQL + Auth + Realtime) |
+| **AI** | Groq, xAI, OpenRouter, Gemini, Anthropic |
+| **Storage** | Supabase Storage |
+| **Payments** | NowPayments (crypto) |
+| **Node** | 20 LTS (see `web/.nvmrc`)
 
 ## Local dev
 
@@ -54,9 +92,40 @@ Bot commands:
 - **Worker (UI):** `cd web && npm run cf:deploy`
 - **API:** redeploy the Node host when `server.js` / `src/server/` changes.
 
-## Contact
+## Environment Setup
 
-- **Site:** [brandforge.gg](https://brandforge.gg)  
-- **Email:** [hello@brandforge.gg](mailto:hello@brandforge.gg)
+```bash
+# Root .env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-key
+SUPABASE_ANON_KEY=your-anon-key
+GROQ_API_KEY=your-groq-key
+XAI_API_KEY=your-xai-key
+OPENROUTER_API_KEY=your-openrouter-key
+GEMINI_API_KEY=your-gemini-key
+ANTHROPIC_API_KEY=your-anthropic-key
+
+# Web .env.local
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [PROJECT_AUDIT.md](./PROJECT_AUDIT.md) | Complete feature audit and status |
+| [FINAL_SUMMARY.md](./FINAL_SUMMARY.md) | Implementation summary and roadmap |
+| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | Deployment instructions |
+| [docs/DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md) | Detailed deployment guide |
+| [docs/PRODUCT_OVERVIEW.md](./docs/PRODUCT_OVERVIEW.md) | Product features overview |
+| [docs/TECHNICAL_ARCHITECTURE.md](./docs/TECHNICAL_ARCHITECTURE.md) | Technical architecture |
+
+## License
 
 Private repository — all rights reserved © 2026 BrandForge.
+
+## Contact
+
+- **Site:** [brandforge.gg](https://brandforge.gg)
+- **Email:** [hello@brandforge.gg](mailto:hello@brandforge.gg)
