@@ -66,8 +66,17 @@ const apiRewriteRules = [{ source: "/api/:path*", destination: `${backendBase}/a
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  distDir: ".next",
   // Keep tracing scoped to `web/` so `output: standalone` lays out `.next/standalone/.next/...` (OpenNext expects this). A repo-root tracing root nests `standalone/web/.next` and breaks @opennextjs/cloudflare on Windows/CI.
   outputFileTracingRoot: __dirname,
+  // Windows compatibility: ensure routes-manifest is generated
+  generateBuildId: async () => "build",
+  onDemandEntries: {
+    // period of time in ms where a page is kept in memory
+    maxInactiveAge: 60 * 1000,
+    // number of pages that are kept in memory
+    pagesBufferLength: 5,
+  },
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
