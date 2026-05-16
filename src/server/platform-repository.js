@@ -1008,6 +1008,19 @@ async function createPlatformRepository(previewRepository) {
         : String(payload.skills).split(/[,|\n]/).map((s) => s.trim()).filter(Boolean);
       nextProfile.skills = arr.slice(0, 15);
     }
+    if (payload.location !== undefined) nextProfile.location = payload.location || null;
+    if (payload.banner_url !== undefined) nextProfile.banner_url = payload.banner_url || null;
+    if (payload.directory_category !== undefined) {
+      const c = String(payload.directory_category || '').trim();
+      nextProfile.directory_category = c || null;
+    }
+    if (payload.rate_label !== undefined) nextProfile.rate_label = payload.rate_label || null;
+    if (payload.min_budget !== undefined) {
+      const n = payload.min_budget === '' || payload.min_budget == null ? null : Number(payload.min_budget);
+      nextProfile.min_budget = n != null && Number.isFinite(n) ? Math.round(n) : null;
+    }
+    if (payload.remote_only !== undefined) nextProfile.remote_only = Boolean(payload.remote_only);
+    if (payload.open_to_offers !== undefined) nextProfile.open_to_offers = Boolean(payload.open_to_offers);
     const { data, error } = await client
       .from('profiles')
       .update(nextProfile)
@@ -4938,6 +4951,175 @@ async function createPlatformRepository(previewRepository) {
     return data;
   }
 
+  const TALENT_DIRECTORY_CATEGORIES = [
+    'AI & Automation',
+    'Content & Social',
+    'Web & Apps',
+    'Growth & Ads',
+    'Branding',
+    'Video Editing',
+  ];
+
+  function inferTalentCategory(row, services) {
+    const explicit = String(row?.directory_category || '').trim();
+    if (explicit && TALENT_DIRECTORY_CATEGORIES.includes(explicit)) return explicit;
+    const svcCat = String(services?.[0]?.category || '').toLowerCase();
+    const headline = `${row?.headline || ''} ${row?.bio || ''}`.toLowerCase();
+    const blob = `${svcCat} ${headline}`;
+    if (/ai|automation|agent|n8n|chatbot|llm/.test(blob)) return 'AI & Automation';
+    if (/content|social|tiktok|ugc|creator|copy/.test(blob)) return 'Content & Social';
+    if (/video|edit|premiere|capcut|youtube/.test(blob)) return 'Video Editing';
+    if (/growth|ads|meta|funnel|marketing|seo|email/.test(blob)) return 'Growth & Ads';
+    if (/brand|design|figma|logo/.test(blob)) return 'Branding';
+    if (/dev|web|app|saas|next|shopify|code/.test(blob)) return 'Web & Apps';
+    if (svcCat.includes('ai')) return 'AI & Automation';
+    if (svcCat.includes('content') || svcCat.includes('marketing')) return 'Content & Social';
+    if (svcCat.includes('video') || svcCat.includes('audio')) return 'Video Editing';
+    if (svcCat.includes('design') || svcCat.includes('strategy')) return 'Branding';
+    if (svcCat.includes('development')) return 'Web & Apps';
+    return 'Web & Apps';
+  }
+
+  function mapTalentAvailability(av) {
+    const a = String(av || 'available').toLowerCase();
+    if (a === 'busy') return 'limited';
+    if (a === 'unavailable') return 'waitlist';
+    return 'available';
+  }
+
+  function buildTalentPreferences(row) {
+    const prefs = [];
+    if (row?.remote_only) prefs.push('Remote');
+    if (row?.open_to_offers) prefs.push('Open to offers');
+    const dur = String(row?.preferred_duration || '').trim();
+    if (dur) prefs.push(dur);
+    const notice = String(row?.notice_period || '').trim();
+    if (notice) prefs.push(notice);
+    const types = Array.isArray(row?.preferred_offer_types) ? row.preferred_offer_types : [];
+    for (const t of types.slice(0, 2)) {
+      const s = String(t || '').trim();
+      if (s) prefs.push(s);
+    }
+    if (row?.willing_to_relocate) prefs.push('Relocation OK');
+    if (!prefs.length) prefs.push('Remote', 'Project-based');
+    return prefs.slice(0, 5);
+  }
+
+  function formatTalentRateLabel(row, services) {
+    const custom = String(row?.rate_label || '').trim();
+    if (custom) return custom;
+    const minB = row?.min_budget != null ? Number(row.min_budget) : null;
+    if (minB != null && minB > 0) return `from €${minB.toLocaleString('en-US')}`;
+    const prices = (services || []).map((s) => Number(s.base_price)).filter((n) => n > 0);
+    if (prices.length) {
+      const min = Math.min(...prices);
+      return `from $${min.toLocaleString('en-US')}`;
+    }
+    return 'Rate on request';
+  }
+
+  function yearsOnPlatform(row) {
+    const yos = row?.years_of_service != null ? Number(row.years_of_service) : 0;
+    if (yos > 0) return yos;
+    const created = row?.created_at ? new Date(row.created_at) : null;
+    if (!created || Number.isNaN(created.getTime())) return 1;
+    return Math.max(1, Math.floor((Date.now() - created.getTime()) / (365.25 * 24 * 60 * 60 * 1000)));
+  }
+
+  function mapTalentDirectoryEntry(row, services, privacySettings) {
+    const discoverable = privacySettings?.discoverable !== false;
+    if (!discoverable || row?.is_public === false) return null;
+    const username = String(row?.username || '').trim();
+    if (!username) return null;
+
+    const name = String(row.full_name || username).trim() || username;
+    const tools = Array.isArray(row.skills)
+      ? row.skills.map((s) => String(s).trim()).filter(Boolean).slice(0, 12)
+      : [];
+    const published = (services || []).filter((s) => String(s.status || '') === 'published');
+
+    return {
+      id: row.id,
+      username,
+      name,
+      role: String(row.headline || 'Operator').trim() || 'Operator',
+      category: inferTalentCategory(row, published),
+      yearsExp: yearsOnPlatform(row),
+      memberSince: row.created_at || null,
+      tools,
+      preferences: buildTalentPreferences(row),
+      rateLabel: formatTalentRateLabel(row, published),
+      availability: mapTalentAvailability(row.availability),
+      highlight: String(row.bio || '').trim().slice(0, 160) || null,
+      avatarUrl: row.avatar_url || null,
+      location: row.location || null,
+      topMember: Boolean(row.top_member),
+      rating: row.rating_avg != null ? Number(row.rating_avg) : null,
+      jobs: row.completed_projects_count != null ? Number(row.completed_projects_count) : 0,
+      services: published.slice(0, 4).map((s) => ({
+        id: s.id,
+        title: s.title,
+        category: s.category,
+        price: Number(s.base_price) || 0,
+        slug: s.slug || null,
+      })),
+      profileUrl: `/u/${encodeURIComponent(username)}`,
+    };
+  }
+
+  /** Public talent directory — registered members with usernames. */
+  async function listTalentDirectory({ category } = {}) {
+    if (!client) return { members: [], total: 0 };
+    const { data: rows, error } = await client
+      .from('profiles')
+      .select(
+        'id, username, full_name, avatar_url, headline, bio, skills, availability, created_at, years_of_service, min_budget, remote_only, open_to_offers, preferred_duration, notice_period, preferred_offer_types, willing_to_relocate, directory_category, rate_label, location, top_member, rating_avg, completed_projects_count, onboarding_completed_at, is_public',
+      )
+      .not('username', 'is', null)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+
+    const profileRows = rows || [];
+    const ids = profileRows.map((r) => r.id).filter(Boolean);
+    if (!ids.length) return { members: [], total: 0 };
+
+    const [{ data: svcRows }, { data: settingsRows }] = await Promise.all([
+      client
+        .from('service_packages')
+        .select('id, owner_id, title, category, base_price, slug, status')
+        .in('owner_id', ids)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false }),
+      client.from('user_settings').select('user_id, privacy_settings').in('user_id', ids),
+    ]);
+
+    const servicesByOwner = new Map();
+    for (const s of svcRows || []) {
+      if (!s.owner_id) continue;
+      const list = servicesByOwner.get(s.owner_id) || [];
+      list.push(s);
+      servicesByOwner.set(s.owner_id, list);
+    }
+    const privacyByUser = new Map(
+      (settingsRows || []).map((s) => [s.user_id, s.privacy_settings || {}]),
+    );
+
+    let members = profileRows
+      .map((row) =>
+        mapTalentDirectoryEntry(row, servicesByOwner.get(row.id) || [], privacyByUser.get(row.id)),
+      )
+      .filter(Boolean);
+
+    const cat = String(category || '').trim();
+    if (cat && cat !== 'All' && TALENT_DIRECTORY_CATEGORIES.includes(cat)) {
+      members = members.filter((m) => m.category === cat);
+    }
+
+    return { members, total: members.length };
+  }
+
   // Public Profile
   async function getPublicProfile(username) {
     if (!client) throw new Error('Supabase is not configured');
@@ -5479,6 +5661,7 @@ async function createPlatformRepository(previewRepository) {
     getPortfolio,
     // Public Profile
     getPublicProfile,
+    listTalentDirectory,
     // AI Models
     getAIModels,
     // User Agents

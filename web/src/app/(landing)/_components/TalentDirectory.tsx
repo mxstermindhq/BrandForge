@@ -1,35 +1,72 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CATEGORIES, CONTACT, contactMessage, type TalentCategory } from "@/content/landing-directory";
+import { useAuth } from "@/providers/AuthProvider";
+import { useAuthMe } from "@/hooks/useAuthMe";
+import { safeImageSrc } from "@/lib/image-url";
 import {
-  CATEGORIES,
-  TALENT,
-  type TalentCategory,
-  type TalentProfile,
-} from "@/content/landing-directory";
-import { ContactCTA } from "./ContactCTA";
+  formatMemberSince,
+  talentAccent,
+  talentInitials,
+  type TalentAvailability,
+  type TalentMember,
+} from "@/lib/talent-types";
+import { useLandingUI } from "./LandingUIProvider";
 
-const AVAILABILITY: Record<TalentProfile["availability"], { label: string; className: string }> = {
+const AVAILABILITY: Record<TalentAvailability, { label: string; className: string }> = {
   available: { label: "Available", className: "bg-success/15 text-success border-success/30" },
   limited: { label: "Limited slots", className: "bg-warning/15 text-warning border-warning/30" },
   waitlist: { label: "Waitlist", className: "bg-on-surface-variant/15 text-on-surface-variant border-outline-variant" },
 };
 
-function TalentCard({ person }: { person: TalentProfile }) {
+function TalentCard({
+  person,
+  isOwn,
+  onEdit,
+}: {
+  person: TalentMember;
+  isOwn?: boolean;
+  onEdit?: () => void;
+}) {
   const avail = AVAILABILITY[person.availability];
-  const subject = `Hire ${person.name} — ${person.role}`;
+  const accent = talentAccent(person.username);
+  const avatar = safeImageSrc(person.avatarUrl);
+  const since = formatMemberSince(person.memberSince);
+  const tg = contactMessage(`Hire ${person.name} — ${person.role}`);
 
   return (
-    <article className="group surface-card flex flex-col overflow-hidden rounded-xl border border-outline-variant/60 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
-      <div className={`bg-gradient-to-br ${person.accent} p-5`}>
+    <article
+      className={`group surface-card flex flex-col overflow-hidden rounded-xl border transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 ${
+        isOwn ? "border-primary/50 ring-1 ring-primary/20" : "border-outline-variant/60"
+      }`}
+    >
+      <div className={`bg-gradient-to-br ${accent} p-5`}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-outline-variant/50 bg-surface/80 font-headline text-sm font-bold text-on-surface backdrop-blur">
-              {person.initials}
-            </div>
+            <Link href={person.profileUrl} className="shrink-0">
+              {avatar ? (
+                <Image
+                  src={avatar}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 rounded-xl border border-outline-variant/50 object-cover"
+                />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-outline-variant/50 bg-surface/80 font-headline text-sm font-bold text-on-surface backdrop-blur">
+                  {talentInitials(person.name)}
+                </div>
+              )}
+            </Link>
             <div>
-              <h3 className="font-headline text-base font-semibold text-on-surface">{person.name}</h3>
+              <Link href={person.profileUrl} className="hover:text-primary">
+                <h3 className="font-headline text-base font-semibold text-on-surface">{person.name}</h3>
+              </Link>
               <p className="text-sm font-medium text-primary">{person.role}</p>
+              {since ? <p className="text-[10px] text-on-surface-variant">Member since {since}</p> : null}
             </div>
           </div>
           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${avail.className}`}>
@@ -48,21 +85,43 @@ function TalentCard({ person }: { person: TalentProfile }) {
           </span>
           <span className="text-on-surface-variant">{person.yearsExp}+ yrs</span>
           <span className="font-semibold text-on-surface">{person.rateLabel}</span>
+          {person.location ? <span className="text-on-surface-variant">· {person.location}</span> : null}
         </div>
 
-        <div>
-          <p className="section-label !mb-2 !text-[10px]">Tools</p>
-          <div className="flex flex-wrap gap-1.5">
-            {person.tools.map((t) => (
-              <span
-                key={t}
-                className="rounded border border-outline-variant/60 bg-surface-container-low px-2 py-0.5 text-[11px] text-on-surface-variant"
-              >
-                {t}
-              </span>
-            ))}
+        {person.services.length > 0 ? (
+          <div>
+            <p className="section-label !mb-2 !text-[10px]">Services</p>
+            <ul className="space-y-1.5">
+              {person.services.map((svc) => (
+                <li key={svc.id}>
+                  <Link
+                    href={`/services/${svc.id}`}
+                    className="flex items-center justify-between gap-2 rounded-md border border-outline-variant/50 bg-surface-container-low px-2 py-1.5 text-[11px] transition hover:border-primary/40"
+                  >
+                    <span className="truncate font-medium text-on-surface">{svc.title}</span>
+                    <span className="shrink-0 text-primary">${svc.price.toLocaleString()}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        ) : null}
+
+        {person.tools.length > 0 ? (
+          <div>
+            <p className="section-label !mb-2 !text-[10px]">Tools</p>
+            <div className="flex flex-wrap gap-1.5">
+              {person.tools.map((t) => (
+                <span
+                  key={t}
+                  className="rounded border border-outline-variant/60 bg-surface-container-low px-2 py-0.5 text-[11px] text-on-surface-variant"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div>
           <p className="section-label !mb-2 !text-[10px]">Preferences</p>
@@ -75,8 +134,21 @@ function TalentCard({ person }: { person: TalentProfile }) {
           </div>
         </div>
 
-        <div className="mt-auto pt-2">
-          <ContactCTA subject={subject} label="Contact" variant="secondary" className="w-full [&_a]:flex-1 [&_a]:justify-center" />
+        <div className="mt-auto flex flex-wrap gap-2 pt-2">
+          {isOwn && onEdit ? (
+            <button type="button" onClick={onEdit} className="btn-primary min-h-10 flex-1 text-sm">
+              Edit profile
+            </button>
+          ) : (
+            <>
+              <a href={tg} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-10 flex-1 justify-center text-sm">
+                Contact
+              </a>
+              <Link href={person.profileUrl} className="btn-secondary min-h-10 flex-1 justify-center text-sm">
+                View profile
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </article>
@@ -85,22 +157,63 @@ function TalentCard({ person }: { person: TalentProfile }) {
 
 export function TalentDirectory() {
   const [category, setCategory] = useState<TalentCategory>("All");
+  const [members, setMembers] = useState<TalentMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { session } = useAuth();
+  const { me } = useAuthMe();
+  const { directoryVersion, openProfileEditor } = useLandingUI();
 
-  const filtered = useMemo(() => {
-    if (category === "All") return TALENT;
-    return TALENT.filter((t) => t.category === category);
+  const myUsername = me?.profile?.username?.toLowerCase() || "";
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const qs = category !== "All" ? `?category=${encodeURIComponent(category)}` : "";
+      const res = await fetch(`/api/talent${qs}`, { headers: { Accept: "application/json" } });
+      const data = (await res.json()) as { members?: TalentMember[]; error?: string };
+      if (!res.ok) throw new Error(data.error || "Failed to load");
+      setMembers(data.members || []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load directory");
+      setMembers([]);
+    } finally {
+      setLoading(false);
+    }
   }, [category]);
+
+  useEffect(() => {
+    void load();
+  }, [load, directoryVersion]);
+
+  const sorted = useMemo(() => {
+    if (!myUsername) return members;
+    const mine = members.filter((m) => m.username.toLowerCase() === myUsername);
+    const rest = members.filter((m) => m.username.toLowerCase() !== myUsername);
+    return [...mine, ...rest];
+  }, [members, myUsername]);
 
   return (
     <section id="talent" className="scroll-mt-24 border-t border-outline-variant bg-surface-container-lowest px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-10 max-w-2xl">
-          <p className="section-label">Talent Directory</p>
-          <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Hire vetted operators</h2>
-          <p className="mt-3 text-on-surface-variant">
-            Real skills, tools, and experience — ready for ambitious projects and partnerships. Contact any operator
-            through Telegram or Discord; {`mxstermind`} coordinates every intro.
-          </p>
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="section-label">Talent Directory</p>
+            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Hire vetted operators</h2>
+            <p className="mt-3 text-on-surface-variant">
+              Real registered members with skills, services, and experience. Contact via{" "}
+              <a href={CONTACT.telegram} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {CONTACT.telegramHandle}
+              </a>{" "}
+              — {CONTACT.guarantor} coordinates every intro.
+            </p>
+          </div>
+          {session ? (
+            <button type="button" onClick={openProfileEditor} className="btn-primary min-h-10 shrink-0 px-4 text-sm">
+              Complete your profile
+            </button>
+          ) : null}
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2">
@@ -120,15 +233,39 @@ export function TalentDirectory() {
           ))}
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((person) => (
-            <TalentCard key={person.id} person={person} />
-          ))}
-        </div>
-
-        {filtered.length === 0 ? (
-          <p className="py-12 text-center text-on-surface-variant">No operators in this category yet — check back soon.</p>
-        ) : null}
+        {loading ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-80 animate-pulse rounded-xl bg-surface-container-high" />
+            ))}
+          </div>
+        ) : error ? (
+          <p className="py-12 text-center text-critical">{error}</p>
+        ) : sorted.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-on-surface-variant">No members in this category yet.</p>
+            {session ? (
+              <button type="button" onClick={openProfileEditor} className="btn-primary mt-4 min-h-10">
+                Be the first — set up your profile
+              </button>
+            ) : (
+              <Link href="/login?next=/" className="btn-primary mt-4 inline-flex min-h-10">
+                Sign in to join the directory
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {sorted.map((person) => (
+              <TalentCard
+                key={person.id}
+                person={person}
+                isOwn={myUsername === person.username.toLowerCase()}
+                onEdit={openProfileEditor}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

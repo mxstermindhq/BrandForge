@@ -23,7 +23,7 @@ export default function LoginPage({
           <h2 className="mb-2 text-2xl font-bold">Sign in</h2>
           <p className="text-on-surface-variant mb-8 text-sm">Choose your preferred method to continue</p>
 
-          <SocialLoginButtons redirectTo="/marketplace" />
+          <SocialLoginButtons redirectTo="/" />
 
           <div className="my-6 flex items-center">
             <div className="flex-1 border-t border-outline-variant" />

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LandingNav } from "./_components/LandingNav";
+import { LandingUIProvider } from "./_components/LandingUIProvider";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 
 export const metadata: Metadata = {
@@ -16,12 +17,12 @@ export default function LandingLayout({
 }>) {
   return (
     <SmoothScrollProvider>
-      <div className="landing-layout">
-        <LandingNav />
-        <div className="pt-16">
-          {children}
+      <LandingUIProvider>
+        <div className="landing-layout">
+          <LandingNav />
+          <div className="pt-16">{children}</div>
         </div>
-      </div>
+      </LandingUIProvider>
     </SmoothScrollProvider>
   );
 }

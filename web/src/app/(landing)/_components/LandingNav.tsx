@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CONTACT } from "@/content/landing-directory";
-import { contactMessage } from "@/content/landing-directory";
+import { LandingProfileMenu } from "./LandingProfileMenu";
+import { useLandingUI } from "./LandingUIProvider";
 
 const navItems = [
   { href: "#talent", label: "Talent" },
@@ -22,7 +22,7 @@ function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
 }
 
 export function LandingNav() {
-  const tgBook = contactMessage("BrandForge — book a package");
+  const { openProfileEditor } = useLandingUI();
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
@@ -51,19 +51,7 @@ export function LandingNav() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <a
-            href={CONTACT.discord}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden rounded-lg border border-outline-variant px-3 py-2 text-sm font-medium text-on-surface-variant transition hover:text-on-surface sm:inline-flex"
-          >
-            Discord
-          </a>
-          <a href={tgBook} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-10 px-4 text-sm">
-            Book Package
-          </a>
-        </div>
+        <LandingProfileMenu onEditProfile={openProfileEditor} />
       </div>
     </header>
   );

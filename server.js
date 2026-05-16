@@ -2850,6 +2850,19 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
+  // Public talent directory (registered members)
+  if (pathname === '/api/talent' && method === 'GET') {
+    try {
+      const url = new URL(req.url || '', 'http://localhost');
+      const category = url.searchParams.get('category') || '';
+      const result = await platformRepository.listTalentDirectory({ category });
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load talent directory' });
+    }
+    return true;
+  }
+
   // Public Profile
   if (pathname.startsWith('/api/profiles/') && pathname.endsWith('/public') && method === 'GET') {
     const username = pathname.slice('/api/profiles/'.length, -'/public'.length);

@@ -15,6 +15,9 @@ import { SettingsSocialPanel } from "./SettingsSocialPanel";
 import { AvailabilityToggle, type AvailabilityStatus } from "@/components/AvailabilityToggle";
 import { ReferralSystem } from "@/components/ReferralSystem";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
+import { CATEGORIES } from "@/content/landing-directory";
+
+const DIRECTORY_CATEGORIES = CATEGORIES.filter((c) => c !== "All");
 
 type TabId = "account" | "billing" | "notifications" | "social" | "api" | "referral";
 
@@ -31,6 +34,13 @@ type ProfileRow = {
   updated_at?: string | null;
   availability_status?: AvailabilityStatus | null;
   available_from?: string | null;
+  skills?: string[] | null;
+  directory_category?: string | null;
+  rate_label?: string | null;
+  min_budget?: number | null;
+  remote_only?: boolean | null;
+  open_to_offers?: boolean | null;
+  created_at?: string | null;
 };
 
 function mergeProfile(boot: unknown, meProf: unknown): ProfileRow | null {
@@ -46,17 +56,30 @@ type FormBaseline = {
   headline: string;
   location: string;
   bannerUrl: string;
+  skillsText: string;
+  directoryCategory: string;
+  rateLabel: string;
+  minBudget: string;
+  remoteOnly: boolean;
+  openToOffers: boolean;
 };
 
 function snapshotFromProfile(p: ProfileRow | null): FormBaseline | null {
   if (!p) return null;
   const hl = p.headline && isProfessionalTitle(p.headline) ? p.headline : "";
+  const sk = Array.isArray(p.skills) ? p.skills.join(", ") : "";
   return {
     username: p.username || "",
     bio: p.bio || "",
     headline: hl,
     location: p.location || "",
     bannerUrl: p.banner_url || "",
+    skillsText: sk,
+    directoryCategory: String(p.directory_category || ""),
+    rateLabel: String(p.rate_label || ""),
+    minBudget: p.min_budget != null ? String(p.min_budget) : "",
+    remoteOnly: p.remote_only !== false,
+    openToOffers: p.open_to_offers !== false,
   };
 }
 
@@ -93,6 +116,12 @@ export function SettingsClient() {
   const [headline, setHeadline] = useState("");
   const [location, setLocation] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
+  const [skillsText, setSkillsText] = useState("");
+  const [directoryCategory, setDirectoryCategory] = useState("");
+  const [rateLabel, setRateLabel] = useState("");
+  const [minBudget, setMinBudget] = useState("");
+  const [remoteOnly, setRemoteOnly] = useState(true);
+  const [openToOffers, setOpenToOffers] = useState(true);
   const [baseline, setBaseline] = useState<FormBaseline | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
@@ -116,7 +145,7 @@ export function SettingsClient() {
 
   const publicProfileHref =
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
-      ? `/p/${encodeURIComponent(username.trim())}`
+      ? `/u/${encodeURIComponent(username.trim())}`
       : null;
 
   useEffect(() => {
@@ -144,6 +173,12 @@ export function SettingsClient() {
     setHeadline(snap.headline);
     setLocation(snap.location);
     setBannerUrl(snap.bannerUrl);
+    setSkillsText(snap.skillsText);
+    setDirectoryCategory(snap.directoryCategory);
+    setRateLabel(snap.rateLabel);
+    setMinBudget(snap.minBudget);
+    setRemoteOnly(snap.remoteOnly);
+    setOpenToOffers(snap.openToOffers);
     setBaseline(snap);
   }, [
     profile?.username,
@@ -152,6 +187,10 @@ export function SettingsClient() {
     profile?.location,
     profile?.avatar_url,
     profile?.updated_at,
+    profile?.skills,
+    profile?.directory_category,
+    profile?.rate_label,
+    profile?.min_budget,
   ]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
@@ -162,9 +201,15 @@ export function SettingsClient() {
       bio !== baseline.bio ||
       headline !== baseline.headline ||
       location !== baseline.location ||
-      bannerUrl !== baseline.bannerUrl
+      bannerUrl !== baseline.bannerUrl ||
+      skillsText !== baseline.skillsText ||
+      directoryCategory !== baseline.directoryCategory ||
+      rateLabel !== baseline.rateLabel ||
+      minBudget !== baseline.minBudget ||
+      remoteOnly !== baseline.remoteOnly ||
+      openToOffers !== baseline.openToOffers
     );
-  }, [baseline, username, bio, headline, location, bannerUrl]);
+  }, [baseline, username, bio, headline, location, bannerUrl, skillsText, directoryCategory, rateLabel, minBudget, remoteOnly, openToOffers]);
 
   const getToken = useCallback(async () => {
     const supabase = getSupabaseBrowser();
@@ -191,6 +236,11 @@ export function SettingsClient() {
     try {
       const t = await getToken();
       if (!t) throw new Error("Sign in required.");
+      const skills = skillsText
+        .split(/[,|\n]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 15);
       await apiMutateJson(
         "/api/profile",
         "PUT",
@@ -200,6 +250,13 @@ export function SettingsClient() {
           headline: headline.trim() || null,
           location: location.trim() || null,
           banner_url: bannerUrl.trim() || null,
+          skills,
+          directory_category: directoryCategory || null,
+          rate_label: rateLabel.trim() || null,
+          min_budget: minBudget.trim() === "" ? null : Number(minBudget),
+          remote_only: remoteOnly,
+          open_to_offers: openToOffers,
+          is_public: true,
         },
         t,
       );
@@ -220,6 +277,12 @@ export function SettingsClient() {
     setHeadline(baseline.headline);
     setLocation(baseline.location);
     setBannerUrl(baseline.bannerUrl);
+    setSkillsText(baseline.skillsText);
+    setDirectoryCategory(baseline.directoryCategory);
+    setRateLabel(baseline.rateLabel);
+    setMinBudget(baseline.minBudget);
+    setRemoteOnly(baseline.remoteOnly);
+    setOpenToOffers(baseline.openToOffers);
     setSaveErr(null);
     setSaveMsg(null);
   }
@@ -495,6 +558,84 @@ export function SettingsClient() {
                   </div>
                   {saveErr ? <p className="text-critical mt-6 text-[13px] font-body">{saveErr}</p> : null}
                   {saveMsg ? <p className="text-primary mt-6 text-[13px] font-body font-500">{saveMsg}</p> : null}
+                </section>
+
+                <section className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-5 md:p-6">
+                  <p className="section-label">Talent directory</p>
+                  <p className="mb-6 text-[13px] text-on-surface-variant leading-[1.6]">
+                    Shown on the homepage talent grid. Create services to list offers on your card.
+                  </p>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="md:col-span-1">
+                      <label htmlFor="directory_category" className="input-label">
+                        Directory category
+                      </label>
+                      <select
+                        id="directory_category"
+                        value={directoryCategory}
+                        onChange={(e) => setDirectoryCategory(e.target.value)}
+                        className="input min-h-[44px] cursor-pointer"
+                      >
+                        <option value="">Auto from bio & services</option>
+                        {DIRECTORY_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="md:col-span-1">
+                      <label htmlFor="rate_label" className="input-label">
+                        Rate label
+                      </label>
+                      <input
+                        id="rate_label"
+                        value={rateLabel}
+                        onChange={(e) => setRateLabel(e.target.value)}
+                        placeholder="€80–120/hr"
+                        className="input"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label htmlFor="skills" className="input-label">
+                        Tools & skills (comma-separated)
+                      </label>
+                      <input
+                        id="skills"
+                        value={skillsText}
+                        onChange={(e) => setSkillsText(e.target.value)}
+                        placeholder="n8n, Next.js, TikTok Ads"
+                        className="input"
+                      />
+                    </div>
+                    <div className="md:col-span-1">
+                      <label htmlFor="min_budget" className="input-label">
+                        Min budget (€)
+                      </label>
+                      <input
+                        id="min_budget"
+                        type="number"
+                        value={minBudget}
+                        onChange={(e) => setMinBudget(e.target.value)}
+                        className="input"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex flex-wrap gap-4 text-sm">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={remoteOnly} onChange={(e) => setRemoteOnly(e.target.checked)} />
+                        Remote only
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={openToOffers} onChange={(e) => setOpenToOffers(e.target.checked)} />
+                        Open to offers
+                      </label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <Link href="/services/new" className="text-primary text-sm font-medium hover:underline">
+                        + Create a service listing
+                      </Link>
+                    </div>
+                  </div>
                 </section>
 
                 {/* Subscription & usage */}

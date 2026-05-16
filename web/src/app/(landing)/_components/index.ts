@@ -1,5 +1,8 @@
 export { DirectoryHero } from "./DirectoryHero";
+export { LandingUIProvider, useLandingUI } from "./LandingUIProvider";
 export { TalentDirectory } from "./TalentDirectory";
+export { TalentProfileEditor } from "./TalentProfileEditor";
+export { LandingProfileMenu } from "./LandingProfileMenu";
 export { OfficialPackages } from "./OfficialPackages";
 export { GuarantorStrip } from "./GuarantorStrip";
 export { ContactCTA } from "./ContactCTA";
