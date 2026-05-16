@@ -1,50 +1,43 @@
 import type { Metadata } from "next";
 import {
-  LandingHero,
-  PlansShowcase,
+  DirectoryHero,
+  TalentDirectory,
+  OfficialPackages,
+  GuarantorStrip,
   FAQSection,
   LandingFooter,
 } from "./_components";
-import { AuthRedirect } from "./_components/AuthRedirect";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
-  title: "BrandForge — Client-First Hiring Marketplace",
+  title: "BrandForge — AI-Native Growth Operators & Builders",
   description:
-    "Hire proven specialists faster. Run offers, counters, contracts, and payments in one client-first flow with AI support.",
+    "Hire vetted AI automation engineers, content operators, developers, and growth specialists. Done-for-you packages for startups, creators, and online brands.",
   keywords: [
-    "AI marketplace",
-    "professional services",
-    "deal rooms",
-    "smart matching",
-    "AI agents",
-    "outcome squads",
+    "AI automation",
+    "growth operators",
+    "hire developers",
+    "UGC creators",
+    "startup MVP",
+    "TikTok growth",
+    "funnel builder",
     "BrandForge",
-    "contract generator",
-    "escrow marketplace",
-    "competitive ranking",
+    "professional directory",
   ],
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://brandforge.gg",
     siteName: "BrandForge",
-    title: "World of BrandForge — AI-Powered Professional Marketplace",
+    title: "BrandForge — AI-Native Operators for Modern Brands",
     description:
-      "Enter the World of BrandForge. AI agents, deal rooms, smart matching, and competitive ranking.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "World of BrandForge",
-      },
-    ],
+      "Curated talent + done-for-you packages. AI, growth, content, and automation — managed by mxstermind.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "BrandForge" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "World of BrandForge",
-    description: "AI agents, deal rooms, and competitive ranking for professionals.",
+    title: "BrandForge — AI-Native Operators",
+    description: "Hire vetted operators. Book outcome-focused packages.",
     images: ["/og-image.png"],
   },
 };
@@ -54,35 +47,20 @@ const jsonLd = {
   "@type": "WebSite",
   name: "BrandForge",
   url: "https://brandforge.gg",
-  description: "AI-powered professional marketplace with deal rooms, smart matching, and competitive ranking.",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: "https://brandforge.gg/services?q={search_term_string}",
-    },
-    "query-input": "required name=search_term_string",
-  },
+  description:
+    "Premium directory of AI-native growth operators and done-for-you packages for startups, creators, and online brands.",
 };
 
 export default function LandingPage() {
   return (
     <>
-      <AuthRedirect />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="min-h-screen bg-background text-on-surface">
-        <section id="hero" className="relative">
-          <LandingHero />
-        </section>
-
-        <section id="pricing" className="relative border-t border-outline-variant">
-          <PlansShowcase />
-        </section>
-
-        <section id="faq" className="relative border-t border-outline-variant">
+        <DirectoryHero />
+        <TalentDirectory />
+        <OfficialPackages />
+        <GuarantorStrip />
+        <section id="faq" className="border-t border-outline-variant">
           <FAQSection />
         </section>
         <LandingFooter />

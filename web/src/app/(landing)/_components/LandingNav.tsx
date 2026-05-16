@@ -1,125 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-
-/** Scroll to home auth form and focus email (same intent as “Sign in to your workspace”). */
-function scrollToAuthEmail() {
-  const path = window.location.pathname;
-  const isHome = path === "/" || path === "";
-  if (!isHome) {
-    window.location.href = "/#auth-section";
-    return;
-  }
-  document.getElementById("auth-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.setTimeout(() => {
-    const el = document.querySelector(
-      "#auth-section input[type=\"email\"]",
-    ) as HTMLInputElement | null;
-    el?.focus({ preventScroll: true });
-  }, 450);
-}
+import { CONTACT } from "@/content/landing-directory";
+import { contactMessage } from "@/content/landing-directory";
 
 const navItems = [
-  { href: "#pricing", label: "Pricing" },
+  { href: "#talent", label: "Talent" },
+  { href: "#packages", label: "Packages" },
   { href: "#faq", label: "FAQ" },
 ];
 
 function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
-  if (href.startsWith('#')) {
-    e.preventDefault();
-    // Check if we're on the home page (landing page)
-    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
-    
-    if (!isHomePage) {
-      // Redirect to home page with the hash
-      window.location.href = '/' + href;
-      return;
-    }
-    
-    // On home page, scroll to the section
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  if (!href.startsWith("#")) return;
+  e.preventDefault();
+  const isHome = window.location.pathname === "/" || window.location.pathname === "";
+  if (!isHome) {
+    window.location.href = "/" + href;
+    return;
   }
+  document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function LandingNav() {
-  const { session } = useAuth();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const tgBook = contactMessage("BrandForge — book a package");
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant">
-      <div className="flex items-center justify-between h-16 px-4 lg:px-8 max-w-7xl mx-auto">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/40 flex items-center justify-center shadow-lg">
-            <span className="material-symbols-outlined text-primary text-[20px]" aria-hidden>
-              star
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+        <Link href="/" className="group flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/15 shadow-lg">
+            <span className="material-symbols-outlined text-[20px] text-primary" aria-hidden>
+              bolt
             </span>
           </div>
-          <span className="font-headline font-bold text-lg text-on-surface group-hover:text-primary transition-colors">
+          <span className="font-headline text-lg font-bold text-on-surface transition-colors group-hover:text-primary">
             BrandForge
           </span>
         </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {/* Meet BrandForge Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              onMouseEnter={() => setDropdownOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors rounded-lg hover:bg-surface-container-high flex items-center gap-1"
-            >
-              Meet BrandForge
-              <span className="material-symbols-outlined text-sm">expand_more</span>
-            </button>
-            {dropdownOpen && (
-              <div
-                onMouseLeave={() => setDropdownOpen(false)}
-                className="absolute top-full left-0 mt-1 w-48 py-2 bg-surface rounded-lg shadow-lg border border-outline-variant z-50"
-              >
-                <Link
-                  href="/product/overview"
-                  className="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high transition-colors"
-                >
-                  Overview
-                </Link>
-              </div>
-            )}
-          </div>
+        <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={(e) => scrollToSection(e, item.href)}
-              className="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors rounded-lg hover:bg-surface-container-high"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        {/* Actions — single public CTA + app entry when signed in */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={scrollToAuthEmail}
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary shadow-sm transition hover:opacity-90"
+        <div className="flex items-center gap-2 sm:gap-3">
+          <a
+            href={CONTACT.discord}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden rounded-lg border border-outline-variant px-3 py-2 text-sm font-medium text-on-surface-variant transition hover:text-on-surface sm:inline-flex"
           >
-            Try BrandForge
-          </button>
-          {session ? (
-            <Link
-              href="/chat"
-              className="hidden text-sm font-medium text-on-surface-variant hover:text-on-surface sm:inline"
-            >
-              App
-            </Link>
-          ) : null}
+            Discord
+          </a>
+          <a href={tgBook} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-10 px-4 text-sm">
+            Book Package
+          </a>
         </div>
       </div>
     </header>
