@@ -5070,15 +5070,26 @@ async function createPlatformRepository(previewRepository) {
   /** Public talent directory — registered members with usernames. */
   async function listTalentDirectory({ category } = {}) {
     if (!client) return { members: [], total: 0 };
-    const { data: rows, error } = await client
+    let rows;
+  let error;
+  const fullSelect =
+      'id, username, full_name, avatar_url, headline, bio, skills, availability, created_at, years_of_service, min_budget, remote_only, open_to_offers, preferred_duration, notice_period, preferred_offer_types, willing_to_relocate, directory_category, rate_label, location, top_member, rating_avg, completed_projects_count, onboarding_completed_at, is_public';
+    ({ data: rows, error } = await client
       .from('profiles')
-      .select(
-        'id, username, full_name, avatar_url, headline, bio, skills, availability, created_at, years_of_service, min_budget, remote_only, open_to_offers, preferred_duration, notice_period, preferred_offer_types, willing_to_relocate, directory_category, rate_label, location, top_member, rating_avg, completed_projects_count, onboarding_completed_at, is_public',
-      )
+      .select(fullSelect)
       .not('username', 'is', null)
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .limit(200);
+      .limit(200));
+    if (error) {
+      ({ data: rows, error } = await client
+        .from('profiles')
+        .select('*')
+        .not('username', 'is', null)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(200));
+    }
     if (error) throw error;
 
     const profileRows = rows || [];
