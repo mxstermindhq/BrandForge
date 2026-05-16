@@ -5063,7 +5063,7 @@ async function createPlatformRepository(previewRepository) {
         price: Number(s.base_price) || 0,
         slug: s.slug || null,
       })),
-      profileUrl: `/u/${encodeURIComponent(username)}`,
+      profileUrl: `/${encodeURIComponent(username)}`,
     };
   }
 

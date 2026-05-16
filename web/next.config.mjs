@@ -96,6 +96,10 @@ const nextConfig = {
     return [
       { source: "/messages", destination: "/chat", permanent: true },
       { source: "/messages/:id", destination: "/chat/:id", permanent: true },
+      { source: "/p/:username", destination: "/:username", permanent: true },
+      { source: "/u/:username", destination: "/:username", permanent: true },
+      { source: "/u/:username/service/:id", destination: "/:username/service/:id", permanent: true },
+      { source: "/u/:username/request/:id", destination: "/:username/request/:id", permanent: true },
     ];
   },
   async rewrites() {

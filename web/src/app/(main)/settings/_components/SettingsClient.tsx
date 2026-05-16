@@ -16,6 +16,7 @@ import { AvailabilityToggle, type AvailabilityStatus } from "@/components/Availa
 import { ReferralSystem } from "@/components/ReferralSystem";
 import { PROFESSIONAL_TITLES, isProfessionalTitle } from "@/config/professional-titles";
 import { CATEGORIES } from "@/content/landing-directory";
+import { profilePath } from "@/lib/reserved-paths";
 
 const DIRECTORY_CATEGORIES = CATEGORIES.filter((c) => c !== "All");
 
@@ -66,7 +67,7 @@ type FormBaseline = {
 
 function snapshotFromProfile(p: ProfileRow | null): FormBaseline | null {
   if (!p) return null;
-  const hl = p.headline && isProfessionalTitle(p.headline) ? p.headline : "";
+  const hl = p.headline && isProfessionalTitle(p.headline) ? p.headline : String(p.headline || "");
   const sk = Array.isArray(p.skills) ? p.skills.join(", ") : "";
   return {
     username: p.username || "",
@@ -145,7 +146,7 @@ export function SettingsClient() {
 
   const publicProfileHref =
     username.trim() && /^[a-z0-9_-]+$/i.test(username.trim())
-      ? `/u/${encodeURIComponent(username.trim())}`
+      ? profilePath(username.trim())
       : null;
 
   useEffect(() => {

@@ -137,7 +137,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const profileUrls: MetadataRoute.Sitemap = profiles.map((profile) => {
     const updated = profile.updated_at ? new Date(profile.updated_at) : now;
     return {
-      url: `${base}/u/${encodeURIComponent(profile.username)}`,
+      url: `${base}/${encodeURIComponent(profile.username)}`,
       lastModified: updated,
       changeFrequency: "daily",
       priority: profile.tier && ["Elite", "Pro"].includes(profile.tier) ? 0.7 : 0.6,

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { TalentProfileEditor } from "./TalentProfileEditor";
+import { ProfileEditor } from "./ProfileEditor";
 
 type LandingUIContextValue = {
   openProfileEditor: () => void;
@@ -32,7 +32,7 @@ export function LandingUIProvider({ children }: { children: React.ReactNode }) {
   return (
     <LandingUIContext.Provider value={value}>
       {children}
-      <TalentProfileEditor
+      <ProfileEditor
         open={editorOpen}
         onClose={() => setEditorOpen(false)}
         onSaved={() => {

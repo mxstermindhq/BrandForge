@@ -14,6 +14,7 @@ import {
   type TalentAvailability,
   type TalentMember,
 } from "@/lib/talent-types";
+import { profilePath, profileServicePath } from "@/lib/reserved-paths";
 import { useLandingUI } from "./LandingUIProvider";
 
 const AVAILABILITY: Record<TalentAvailability, { label: string; className: string }> = {
@@ -46,7 +47,7 @@ function TalentCard({
       <div className={`bg-gradient-to-br ${accent} p-5`}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link href={person.profileUrl} className="shrink-0">
+            <Link href={profilePath(person.username)} className="shrink-0">
               {avatar ? (
                 <Image
                   src={avatar}
@@ -62,7 +63,7 @@ function TalentCard({
               )}
             </Link>
             <div>
-              <Link href={person.profileUrl} className="hover:text-primary">
+              <Link href={profilePath(person.username)} className="hover:text-primary">
                 <h3 className="font-headline text-base font-semibold text-on-surface">{person.name}</h3>
               </Link>
               <p className="text-sm font-medium text-primary">{person.role}</p>
@@ -95,7 +96,7 @@ function TalentCard({
               {person.services.map((svc) => (
                 <li key={svc.id}>
                   <Link
-                    href={`/services/${svc.id}`}
+                    href={profileServicePath(person.username, svc.id)}
                     className="flex items-center justify-between gap-2 rounded-md border border-outline-variant/50 bg-surface-container-low px-2 py-1.5 text-[11px] transition hover:border-primary/40"
                   >
                     <span className="truncate font-medium text-on-surface">{svc.title}</span>
@@ -144,7 +145,7 @@ function TalentCard({
               <a href={tg} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-10 flex-1 justify-center text-sm">
                 Contact
               </a>
-              <Link href={person.profileUrl} className="btn-secondary min-h-10 flex-1 justify-center text-sm">
+              <Link href={profilePath(person.username)} className="btn-secondary min-h-10 flex-1 justify-center text-sm">
                 View profile
               </Link>
             </>

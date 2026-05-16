@@ -13,6 +13,7 @@ export function metadataApiBase(): string {
 export type PublicProfileMeta = {
   full_name?: string | null;
   username?: string | null;
+  headline?: string | null;
   bio?: string | null;
   avatar_url?: string | null;
   deals_count?: number | null;

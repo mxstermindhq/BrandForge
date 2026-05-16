@@ -7,6 +7,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/hooks/useAuthMe";
 import { safeImageSrc } from "@/lib/image-url";
 import { talentInitials } from "@/lib/talent-types";
+import { profilePath } from "@/lib/reserved-paths";
 
 type LandingProfileMenuProps = {
   onEditProfile: () => void;
@@ -42,7 +43,7 @@ export function LandingProfileMenu({ onEditProfile }: LandingProfileMenuProps) {
     );
   }
 
-  const profileHref = username ? `/u/${encodeURIComponent(username)}` : "/settings";
+  const profileHref = username ? profilePath(username) : "/settings";
 
   return (
     <div className="relative" ref={ref}>

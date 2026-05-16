@@ -41,7 +41,7 @@ export async function generateMetadata({
   }
 
   const display = profile.full_name || profile.username || username;
-  const canonicalUrl = `https://brandforge.gg/u/${encodeURIComponent(username)}`;
+  const canonicalUrl = `https://brandforge.gg/${encodeURIComponent(username)}`;
 
   // This metadata is for the redirect page - it tells crawlers where to go
   return {
@@ -78,6 +78,5 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  // Permanent redirect to canonical /u/ URL
-  redirect(`/u/${encodeURIComponent(username)}`);
+  redirect(`/${encodeURIComponent(username)}`);
 }
