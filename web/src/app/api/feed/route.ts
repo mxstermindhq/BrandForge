@@ -1,17 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { proxyApiGet } from "@/lib/proxy-api-route";
 
 export async function GET(request: NextRequest) {
-  try {
-    const response = await fetch("https://brandforge-production-e488.up.railway.app/api/feed", {
-      method: "GET",
-      headers: {
-        ...Object.fromEntries(request.headers.entries()),
-      },
-    });
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error("Feed proxy error:", error);
-    return NextResponse.json({ items: [], total: 0, page: 1, limit: 20 }, { status: 500 });
-  }
+  return proxyApiGet(request, "/api/feed", { items: [], total: 0, page: 1, limit: 20 });
 }

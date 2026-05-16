@@ -1,17 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { proxyApiGet } from "@/lib/proxy-api-route";
 
 export async function GET(request: NextRequest) {
-  try {
-    const response = await fetch("https://brandforge-production-e488.up.railway.app/api/ai/status", {
-      method: "GET",
-      headers: {
-        ...Object.fromEntries(request.headers.entries()),
-      },
-    });
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error("AI status proxy error:", error);
-    return NextResponse.json({ status: "ok" }, { status: 500 });
-  }
+  return proxyApiGet(request, "/api/ai/status", { configured: false, providers: [] });
 }

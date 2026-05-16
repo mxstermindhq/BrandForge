@@ -12,10 +12,11 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-### 2. API Server (Railway/Render/Fly.io)
+### 2. API Server (Render — free tier)
 ```bash
-# Deploy server.js with environment variables
-# See server setup below
+# One-time: connect repo at render.com → New Blueprint → use render.yaml
+# Or: New Web Service, root dir ".", build `npm ci`, start `npm start`
+# Copy env vars from old Railway dashboard, then update web/wrangler.jsonc API URLs
 ```
 
 ---
@@ -77,18 +78,17 @@ npx wrangler pages deploy .open-next --project-name=brandforge
 
 ### Step 5: Deploy API Server
 
-#### Option A: Railway (Recommended)
-1. Connect GitHub repo to Railway
-2. Add environment variables in Railway dashboard
-3. Deploy
+#### Option A: Render (Recommended — free tier)
+1. [render.com](https://render.com) → **New** → **Blueprint** → connect this repo (`render.yaml` at root)
+2. Or **Web Service**: root `.`, build `npm ci`, start `npm start`, health check `/api/health`
+3. Paste env vars from your old Railway project (Supabase, GROQ/OpenAI, Resend, etc.)
+4. Note the service URL (e.g. `https://brandforge-api.onrender.com`)
+5. Set `NEXT_PUBLIC_API_URL` and `API_PROXY_DESTINATION` in `web/wrangler.jsonc` to that URL
+6. Redeploy web: `cd web && npm run cf:deploy`
 
-#### Option B: Render
-1. Create new Web Service
-2. Build Command: `npm install`
-3. Start Command: `node server.js`
-4. Add environment variables
+**Free tier note:** the API sleeps after ~15 minutes with no traffic; first request after idle may take 30–60s (cold start).
 
-#### Option C: Fly.io
+#### Option B: Fly.io
 ```bash
 flyctl launch
 flyctl deploy
