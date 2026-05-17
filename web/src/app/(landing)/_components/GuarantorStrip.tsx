@@ -17,10 +17,9 @@ export function GuarantorStrip() {
           <p className="mx-auto mt-3 max-w-xl text-on-surface-variant">{CONTACT.guarantorNote}</p>
         </div>
         <p className="text-sm text-on-surface-variant">
-          No in-app messaging noise — reach out on Telegram or Discord and we&apos;ll match you with the right operator
-          or package within 24h.
+          No noisy marketplace inbox. Reach out once, we scope the need, and introduce the right people fast.
         </p>
-        <ContactCTA subject="BrandForge — strategy call" label="Free strategy call" variant="primary" />
+        <ContactCTA subject="BrandForge — project intake" label="Start conversation" variant="primary" />
       </div>
     </section>
   );

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import {
   DirectoryHero,
+  OperationalPulse,
   TalentDirectory,
   OfficialPackages,
   GuarantorStrip,
+  TrustStandards,
   FAQSection,
   LandingFooter,
 } from "./_components";
@@ -57,9 +59,11 @@ export default function LandingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="min-h-screen bg-background text-on-surface">
         <DirectoryHero />
+        <OperationalPulse />
         <TalentDirectory />
         <OfficialPackages />
         <GuarantorStrip />
+        <TrustStandards />
         <section id="faq" className="border-t border-outline-variant">
           <FAQSection />
         </section>

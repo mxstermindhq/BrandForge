@@ -201,13 +201,13 @@ export function TalentDirectory() {
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <p className="section-label">Talent Directory</p>
-            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Hire vetted operators</h2>
+            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Hire from a verified shortlist</h2>
             <p className="mt-3 text-on-surface-variant">
-              Real registered members with skills, services, and experience. Contact via{" "}
+              This is a trust-first directory, not an open gig marketplace. Contact via{" "}
               <a href={CONTACT.telegram} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                 {CONTACT.telegramHandle}
               </a>{" "}
-              — {CONTACT.guarantor} coordinates every intro.
+              and {CONTACT.guarantor} coordinates fit, introductions, and next steps.
             </p>
           </div>
           {session ? (

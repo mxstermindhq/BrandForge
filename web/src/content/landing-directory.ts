@@ -106,6 +106,77 @@ export const PACKAGES: OfficialPackage[] = [
   },
 ];
 
+export type LiveActivityItem = {
+  id: string;
+  type: "service" | "request" | "match" | "deal";
+  title: string;
+  meta: string;
+  status: string;
+};
+
+export const LIVE_ACTIVITY: LiveActivityItem[] = [
+  {
+    id: "act-1",
+    type: "match",
+    title: "B2B SaaS founder matched with lifecycle operator",
+    meta: "2 min ago · Growth & Ads",
+    status: "In conversation",
+  },
+  {
+    id: "act-2",
+    type: "request",
+    title: "New request: Next.js product marketing site rebuild",
+    meta: "7 min ago · Web & Apps",
+    status: "Reviewing",
+  },
+  {
+    id: "act-3",
+    type: "service",
+    title: "Published service: TikTok Shop launch sprint",
+    meta: "13 min ago · Content & Social",
+    status: "Open slots",
+  },
+  {
+    id: "act-4",
+    type: "deal",
+    title: "Deal milestone approved: AI support agent rollout",
+    meta: "21 min ago · AI & Automation",
+    status: "Delivered",
+  },
+];
+
+export type LandingRequestPreview = {
+  id: string;
+  title: string;
+  category: Exclude<TalentCategory, "All">;
+  budget: string;
+  timeline: string;
+};
+
+export const REQUEST_PREVIEW: LandingRequestPreview[] = [
+  {
+    id: "rq-1",
+    title: "Need a senior design partner for SaaS onboarding flow",
+    category: "Branding",
+    budget: "€2,000 - €5,000",
+    timeline: "2-3 weeks",
+  },
+  {
+    id: "rq-2",
+    title: "Set up n8n + CRM lead routing + WhatsApp follow-up",
+    category: "AI & Automation",
+    budget: "€800 - €2,500",
+    timeline: "5-10 days",
+  },
+  {
+    id: "rq-3",
+    title: "Need a UGC editor for 20 short-form assets monthly",
+    category: "Video Editing",
+    budget: "€1,200 - €3,000",
+    timeline: "Monthly retainer",
+  },
+];
+
 export function contactMessage(subject: string): string {
   const text = encodeURIComponent(`Hi mxstermind — I'm interested in: ${subject}\n\nFrom brandforge.gg`);
   return `${CONTACT.telegram}?text=${text}`;

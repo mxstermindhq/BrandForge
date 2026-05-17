@@ -5,8 +5,10 @@ import { LandingProfileMenu } from "./LandingProfileMenu";
 import { useLandingUI } from "./LandingUIProvider";
 
 const navItems = [
-  { href: "#talent", label: "Talent" },
-  { href: "#packages", label: "Packages" },
+  { href: "#talent", label: "Directory" },
+  { href: "#packages", label: "Services" },
+  { href: "/requests", label: "Requests" },
+  { href: "#trust", label: "Trust" },
   { href: "#faq", label: "FAQ" },
 ];
 

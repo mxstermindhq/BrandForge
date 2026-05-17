@@ -9,11 +9,11 @@ export function OfficialPackages() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <p className="section-label">Official Packages</p>
-            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Done-for-you outcomes</h2>
+            <p className="section-label">Services Board</p>
+            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Targeted, outcome-first services</h2>
             <p className="mt-3 text-on-surface-variant">
-              People don&apos;t want to hire freelancers — they want leads, launches, growth, and automation. Pick a
-              package; mxstermind scopes delivery with the right operator.
+              Productized services with clear scope, timeline, and expected outcomes. Pick one and Brandforge handles
+              fit and execution routing.
             </p>
           </div>
           <p className="shrink-0 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
