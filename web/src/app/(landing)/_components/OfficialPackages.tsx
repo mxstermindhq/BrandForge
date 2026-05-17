@@ -39,6 +39,14 @@ export function OfficialPackages() {
               <h3 className="font-headline text-2xl font-semibold text-[#F5F0E8]">{pkg.name}</h3>
               <p className="mt-1 text-lg font-semibold text-[#C9A84C]">{pkg.price}</p>
               <p className="mt-2 text-sm text-[#C9BEAA]">{pkg.tagline}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full border border-[#C9A84C]/35 bg-[#0A0F1E] px-2.5 py-1 text-[10px] uppercase tracking-wide text-[#F5F0E8]">
+                  Transparent pricing
+                </span>
+                <span className="rounded-full border border-[#1A6B4A]/45 bg-[#1A6B4A]/20 px-2.5 py-1 text-[10px] uppercase tracking-wide text-[#AEEACD]">
+                  Clear scope
+                </span>
+              </div>
 
               <ul className="mt-5 grid gap-2 text-sm text-[#F5F0E8]">
                 {pkg.includes.slice(0, 3).map((item) => (
@@ -56,7 +64,7 @@ export function OfficialPackages() {
                   rel="noopener noreferrer"
                   className="btn-secondary min-h-11 w-full justify-center text-sm"
                 >
-                  Book via Discord
+                  Instant secure booking
                 </a>
               </div>
               <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition group-hover:opacity-100">
