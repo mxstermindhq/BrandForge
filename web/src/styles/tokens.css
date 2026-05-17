@@ -1,0 +1,112 @@
+:root {
+  /* Base */
+  --color-bg: #0a0f1e;
+  --color-surface: #0f1628;
+  --color-surface-2: #151e35;
+  --color-surface-3: #1c2640;
+
+  /* Gold accent system */
+  --color-gold: #c9a84c;
+  --color-gold-subtle: rgba(201, 168, 76, 0.08);
+  --color-gold-border: rgba(201, 168, 76, 0.2);
+  --color-gold-hover: rgba(201, 168, 76, 0.15);
+
+  /* Emerald trust system */
+  --color-emerald: #1a6b4a;
+  --color-emerald-subtle: rgba(26, 107, 74, 0.12);
+  --color-emerald-text: #4ade80;
+
+  /* Text */
+  --color-text-primary: #f5f0e8;
+  --color-text-secondary: #8a8070;
+  --color-text-muted: #4a4540;
+
+  /* Borders */
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(201, 168, 76, 0.25);
+
+  /* Semantic */
+  --color-success: #4ade80;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Typography */
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-enter: 600ms;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-headline {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+@keyframes bf-live-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes bf-shimmer {
+  from {
+    transform: translateX(-125%);
+  }
+  to {
+    transform: translateX(125%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

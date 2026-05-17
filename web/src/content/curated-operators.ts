@@ -1,3 +1,9 @@
+/**
+ * Deprecated runtime source.
+ * Curated operators now come from Supabase via `getCuratedOperators()`.
+ * This module intentionally re-exports only seed data for migration/seed scripts.
+ */
+export { OPERATOR_SEED } from "@/content/operator-seed";
 export type CuratedOperator = {
   username: string;
   name: string;

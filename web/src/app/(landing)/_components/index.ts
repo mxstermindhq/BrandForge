@@ -1,6 +1,8 @@
 export { DirectoryHero } from "./DirectoryHero";
 export { LandingUIProvider, useLandingUI } from "./LandingUIProvider";
 export { TalentDirectory } from "./TalentDirectory";
+export { OperatorCard } from "./OperatorCard";
+export { TalentFilterBar } from "./TalentFilterBar";
 export { ProfileEditor } from "./ProfileEditor";
 export { LandingProfileMenu } from "./LandingProfileMenu";
 export { OfficialPackages } from "./OfficialPackages";

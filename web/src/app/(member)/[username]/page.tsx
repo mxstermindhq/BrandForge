@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicMemberProfile } from "./_components/PublicMemberProfile";
 import { fetchPublicProfileForMetadata } from "@/lib/metadata-api";
-import { getCuratedOperatorByUsername } from "@/content/curated-operators";
+import { getCuratedOperatorByUsername } from "@/lib/operators.server";
 import { isReservedUsername } from "@/lib/reserved-paths";
 
 function decodeUsername(seg: string): string {
@@ -23,7 +23,7 @@ export async function generateMetadata({
   if (isReservedUsername(username)) {
     return { title: "Not found" };
   }
-  const curated = getCuratedOperatorByUsername(username);
+  const curated = await getCuratedOperatorByUsername(username);
   if (curated) {
     const url = `https://brandforge.gg/${encodeURIComponent(username)}`;
     return {
@@ -63,5 +63,6 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const { username: raw } = await params;
   const username = decodeUsername(raw);
   if (isReservedUsername(username)) notFound();
-  return <PublicMemberProfile username={username} />;
+  const curated = await getCuratedOperatorByUsername(username);
+  return <PublicMemberProfile username={username} curatedOperator={curated} />;
 }

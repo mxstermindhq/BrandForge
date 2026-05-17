@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import {
   DirectoryHero,
   OperationalPulse,
@@ -10,6 +11,7 @@ import {
   FAQSection,
   LandingFooter,
 } from "./_components";
+import { getCuratedOperators } from "@/lib/operators.server";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
@@ -54,7 +56,8 @@ const jsonLd = {
     "Premium directory of AI-native growth operators and done-for-you packages for startups, creators, and online brands.",
 };
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const operators = await getCuratedOperators();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -62,7 +65,9 @@ export default function LandingPage() {
         <DirectoryHero />
         <OperationalPulse />
         <OfficialPackages />
-        <TalentDirectory />
+        <Suspense fallback={<div className="px-4 py-16 text-sm text-[var(--color-text-secondary)]">Loading directory…</div>}>
+          <TalentDirectory operators={operators} />
+        </Suspense>
         <GuarantorStrip />
         <TrustStandards />
         <FooterBanner />
