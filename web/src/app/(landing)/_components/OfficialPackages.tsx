@@ -1,72 +1,68 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { PACKAGES } from "@/content/landing-directory";
-import { ContactCTA } from "./ContactCTA";
+import { CONTACT } from "@/content/landing-directory";
 
 export function OfficialPackages() {
   return (
-    <section id="packages" className="scroll-mt-24 border-t border-outline-variant px-4 py-16 sm:px-6 lg:px-8">
+    <section id="packages" className="scroll-mt-24 border-t border-[#C9A84C]/20 bg-[#0A0F1E] px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="section-label">Services Board</p>
-            <h2 className="font-headline text-3xl font-bold text-on-surface sm:text-4xl">Targeted, outcome-first services</h2>
-            <p className="mt-3 text-on-surface-variant">
-              Productized services with clear scope, timeline, and expected outcomes. Pick one and Brandforge handles
-              fit and execution routing.
-            </p>
-          </div>
-          <p className="shrink-0 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
-            Launch pricing · Limited slots
-          </p>
+        <div className="mb-10 max-w-3xl">
+          <p className="section-label text-[#C9A84C]">Services Board</p>
+          <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">Done-for-you. Scoped. Delivered.</h2>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {PACKAGES.map((pkg) => (
-            <article
+        <div className="grid gap-5 md:grid-cols-2">
+          {PACKAGES.map((pkg, idx) => (
+            <motion.article
               key={pkg.id}
-              className={`relative flex flex-col rounded-xl border p-5 transition hover:border-primary/40 ${
-                pkg.popular
-                  ? "border-primary/50 bg-surface-container-high shadow-lg shadow-primary/10"
-                  : "border-outline-variant bg-surface-container-low"
-              }`}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.42, delay: idx * 0.04 }}
+              className="group relative flex flex-col rounded-2xl border border-[#C9A84C]/20 bg-[#0F172B] p-6 transition duration-200 hover:-translate-y-1 hover:border-[#C9A84C]/55"
             >
-              {pkg.popular ? (
-                <span className="absolute -top-2.5 left-4 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase text-on-primary">
-                  Popular
-                </span>
-              ) : null}
-              {pkg.urgent && !pkg.popular ? (
-                <span className="absolute -top-2.5 left-4 rounded-full border border-warning/50 bg-warning/15 px-2.5 py-0.5 text-[10px] font-bold uppercase text-warning">
-                  High demand
-                </span>
-              ) : null}
+              <div className="mb-3 flex items-center gap-2">
+                {pkg.popular ? (
+                  <span className="rounded-full border border-[#1A6B4A] bg-[#1A6B4A]/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9FE3C2]">
+                    Popular
+                  </span>
+                ) : null}
+                {pkg.urgent ? (
+                  <span className="rounded-full border border-[#1A6B4A] bg-[#1A6B4A]/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9FE3C2]">
+                    High demand
+                  </span>
+                ) : null}
+              </div>
 
-              <h3 className="font-headline text-lg font-semibold text-on-surface">{pkg.name}</h3>
-              <p className="mt-1 text-xl font-bold text-primary">{pkg.price}</p>
-              <p className="mt-2 text-sm text-on-surface-variant">{pkg.tagline}</p>
+              <h3 className="font-headline text-2xl font-semibold text-[#F5F0E8]">{pkg.name}</h3>
+              <p className="mt-1 text-lg font-semibold text-[#C9A84C]">{pkg.price}</p>
+              <p className="mt-2 text-sm text-[#C9BEAA]">{pkg.tagline}</p>
 
-              <ul className="mt-4 flex-1 space-y-2 text-sm text-on-surface">
-                {pkg.includes.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span className="material-symbols-outlined shrink-0 text-sm text-success">check</span>
+              <ul className="mt-5 grid gap-2 text-sm text-[#F5F0E8]">
+                {pkg.includes.slice(0, 3).map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="text-[#C9A84C]">✓</span>
                     {item}
                   </li>
                 ))}
               </ul>
 
-              <p className="mt-3 text-[11px] text-on-surface-variant">For: {pkg.target}</p>
-
-              <div className="mt-5">
-                <ContactCTA
-                  subject={`Package: ${pkg.name}`}
-                  label="Book Package"
-                  variant={pkg.popular ? "primary" : "secondary"}
-                  className="w-full [&>a]:w-full [&>a]:justify-center"
-                  showDiscord
-                />
+              <div className="mt-6">
+                <a
+                  href={CONTACT.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary min-h-11 w-full justify-center text-sm"
+                >
+                  Book via Discord
+                </a>
               </div>
-            </article>
+              <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition group-hover:opacity-100">
+                <div className="absolute inset-0 rounded-2xl border border-[#C9A84C]/30 shadow-[0_0_28px_rgba(201,168,76,0.16)]" />
+              </div>
+            </motion.article>
           ))}
         </div>
       </div>

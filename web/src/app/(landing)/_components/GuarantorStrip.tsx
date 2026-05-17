@@ -1,25 +1,32 @@
 "use client";
 
 import { CONTACT } from "@/content/landing-directory";
-import { ContactCTA } from "./ContactCTA";
 
 export function GuarantorStrip() {
   return (
-    <section className="border-t border-outline-variant bg-gradient-to-r from-primary/10 via-surface-container to-tertiary/5 px-4 py-14 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/40 bg-primary/15 font-headline text-2xl font-bold text-primary">
+    <section className="border-t border-[#C9A84C]/20 bg-[#1A6B4A] px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[220px_1fr] md:items-center">
+        <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-[#C9A84C]/45 bg-[#0A0F1E]/25 font-headline text-5xl font-semibold text-[#F5F0E8]">
           M
         </div>
+
         <div>
-          <h2 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">
-            {CONTACT.guarantor} is your manager & guarantor
+          <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">
+            {CONTACT.guarantor} is your guarantor.
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-on-surface-variant">{CONTACT.guarantorNote}</p>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#EAF8F2]">
+            Every hire and every package is managed personally. I scope the need, vet the fit, and stand behind the
+            outcome. One conversation starts it all.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a href={CONTACT.telegram} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-6 text-sm">
+              Start conversation {CONTACT.telegramHandle} →
+            </a>
+            <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-11 px-6 text-sm">
+              Join Discord
+            </a>
+          </div>
         </div>
-        <p className="text-sm text-on-surface-variant">
-          No noisy marketplace inbox. Reach out once, we scope the need, and introduce the right people fast.
-        </p>
-        <ContactCTA subject="BrandForge — project intake" label="Start conversation" variant="primary" />
       </div>
     </section>
   );

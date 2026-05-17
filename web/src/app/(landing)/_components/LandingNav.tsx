@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { LandingProfileMenu } from "./LandingProfileMenu";
-import { useLandingUI } from "./LandingUIProvider";
+import { CONTACT } from "@/content/landing-directory";
 
 const navItems = [
-  { href: "#talent", label: "Directory" },
+  { href: "#talent", label: "Talent" },
   { href: "#packages", label: "Services" },
-  { href: "/requests", label: "Requests" },
+  { href: "#requests", label: "Requests" },
   { href: "#trust", label: "Trust" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -24,18 +23,14 @@ function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
 }
 
 export function LandingNav() {
-  const { openProfileEditor } = useLandingUI();
-
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#C9A84C]/20 bg-[#0A0F1E]/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <Link href="/" className="group flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/15 shadow-lg">
-            <span className="material-symbols-outlined text-[20px] text-primary" aria-hidden>
-              bolt
-            </span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C9A84C]/40 bg-[#C9A84C]/10 text-sm font-semibold text-[#F5F0E8]">
+            BF
           </div>
-          <span className="font-headline text-lg font-bold text-on-surface transition-colors group-hover:text-primary">
+          <span className="font-headline text-xl font-semibold text-[#F5F0E8] transition-colors group-hover:text-[#C9A84C]">
             BrandForge
           </span>
         </Link>
@@ -46,14 +41,21 @@ export function LandingNav() {
               key={item.href}
               href={item.href}
               onClick={(e) => scrollToSection(e, item.href)}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-[#C9BEAA] transition-colors hover:bg-[#101b32] hover:text-[#F5F0E8]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <LandingProfileMenu onEditProfile={openProfileEditor} />
+        <div className="hidden items-center gap-2 sm:flex">
+          <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-9 px-3 text-xs">
+            Discord
+          </a>
+          <a href={CONTACT.telegram} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-9 px-3 text-xs">
+            Start conversation
+          </a>
+        </div>
       </div>
     </header>
   );

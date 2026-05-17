@@ -17,19 +17,17 @@ const footerLinks = {
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-outline-variant bg-surface-container-low">
+    <footer className="border-t border-[#C9A84C]/20 bg-[#090F1D]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <Link href="/" className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/40 bg-primary/15">
-                <span className="material-symbols-outlined text-[24px] text-primary" aria-hidden>
-                  bolt
-                </span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#C9A84C]/40 bg-[#C9A84C]/10 font-headline text-sm font-semibold text-[#F5F0E8]">
+                BF
               </div>
-              <span className="font-headline text-xl font-bold text-on-surface">BrandForge</span>
+              <span className="font-headline text-xl font-semibold text-[#F5F0E8]">BrandForge</span>
             </Link>
-            <p className="mb-6 max-w-md text-sm text-on-surface-variant">
+            <p className="mb-6 max-w-md text-sm text-[#C9BEAA]">
               The operating system for modern internet brands — curated operators, done-for-you packages, managed by{" "}
               {CONTACT.guarantor}.
             </p>
@@ -46,7 +44,7 @@ export function LandingFooter() {
                 href={CONTACT.discord}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#5865F2]/40 bg-[#5865F2]/10 px-4 text-sm font-semibold text-on-surface transition hover:bg-[#5865F2]/20"
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#C9A84C]/35 bg-[#101b32] px-4 text-sm font-semibold text-[#F5F0E8] transition hover:border-[#C9A84C]/60"
               >
                 Discord
               </a>
@@ -54,11 +52,11 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-on-surface">Explore</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#F5F0E8]">Explore</h3>
             <ul className="space-y-3">
               {footerLinks.explore.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-on-surface-variant transition hover:text-primary">
+                  <Link href={link.href} className="text-sm text-[#C9BEAA] transition hover:text-[#C9A84C]">
                     {link.label}
                   </Link>
                 </li>
@@ -67,11 +65,11 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-on-surface">Legal</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#F5F0E8]">Legal</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-on-surface-variant transition hover:text-primary">
+                  <Link href={link.href} className="text-sm text-[#C9BEAA] transition hover:text-[#C9A84C]">
                     {link.label}
                   </Link>
                 </li>
@@ -80,11 +78,11 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-outline-variant/50 pt-8 md:flex-row">
-          <p className="text-sm text-on-surface-variant">© {new Date().getFullYear()} BrandForge. All rights reserved.</p>
-          <p className="text-sm text-on-surface-variant">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#C9A84C]/20 pt-8 md:flex-row">
+          <p className="text-sm text-[#C9BEAA]">© 2026 BrandForge. All rights reserved.</p>
+          <p className="text-sm text-[#C9BEAA]">
             Contact:{" "}
-            <a href={CONTACT.telegram} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+            <a href={CONTACT.telegram} className="text-[#C9A84C] hover:underline" target="_blank" rel="noopener noreferrer">
               {CONTACT.telegramHandle}
             </a>
           </p>

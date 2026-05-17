@@ -7,6 +7,8 @@ export { OfficialPackages } from "./OfficialPackages";
 export { OperationalPulse } from "./OperationalPulse";
 export { GuarantorStrip } from "./GuarantorStrip";
 export { TrustStandards } from "./TrustStandards";
+export { TargetedRequests } from "./TargetedRequests";
+export { FooterBanner } from "./FooterBanner";
 export { ContactCTA } from "./ContactCTA";
 export { FAQSection } from "./FAQSection";
 export { LandingFooter } from "./LandingFooter";

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import {
   DirectoryHero,
   OperationalPulse,
-  TalentDirectory,
   OfficialPackages,
+  TalentDirectory,
+  TargetedRequests,
   GuarantorStrip,
   TrustStandards,
+  FooterBanner,
   FAQSection,
   LandingFooter,
 } from "./_components";
@@ -60,10 +62,12 @@ export default function LandingPage() {
       <main className="min-h-screen bg-background text-on-surface">
         <DirectoryHero />
         <OperationalPulse />
-        <TalentDirectory />
         <OfficialPackages />
+        <TalentDirectory />
+        <TargetedRequests />
         <GuarantorStrip />
         <TrustStandards />
+        <FooterBanner />
         <section id="faq" className="border-t border-outline-variant">
           <FAQSection />
         </section>
