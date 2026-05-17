@@ -6,12 +6,12 @@ export function OperationalPulse() {
   const cards = [
     {
       title: "No bidding wars",
-      subtitle: "Adl · Fairness",
+      subtitle: "Fairness standard",
       body: "Introductions are made on fit and scope — not who paid to appear first. Every operator earns visibility through delivery, not ad spend.",
     },
     {
       title: "One thread, right team",
-      subtitle: "Amanah · Trust",
+      subtitle: "Trust standard",
       body: "Message mxstermind once. He qualifies the brief, selects the operator, and manages the relationship. You never chase strangers in a cold inbox again.",
     },
     {

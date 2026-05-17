@@ -171,7 +171,7 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
           <div>
             <h2 className="font-headline text-xl font-bold text-on-surface">Your profile</h2>
             <p className="mt-1 text-sm text-on-surface-variant">
-              Founders, creators, operators — advertise yourself, services & requests at brandforge.gg/
+              Founders, creators, operators — advertise yourself and your services at brandforge.gg/
               {username || "username"}
             </p>
           </div>

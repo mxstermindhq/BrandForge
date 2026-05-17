@@ -4,7 +4,6 @@ import {
   OperationalPulse,
   OfficialPackages,
   TalentDirectory,
-  TargetedRequests,
   GuarantorStrip,
   TrustStandards,
   FooterBanner,
@@ -64,7 +63,6 @@ export default function LandingPage() {
         <OperationalPulse />
         <OfficialPackages />
         <TalentDirectory />
-        <TargetedRequests />
         <GuarantorStrip />
         <TrustStandards />
         <FooterBanner />

@@ -880,7 +880,7 @@ body {
   border-radius: 1rem;
 }
 
-.islamic-pattern {
+.geometric-pattern {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220' fill='none'%3E%3Cg opacity='0.9'%3E%3Cpath d='M110 10L124 44L160 44L132 66L144 100L110 80L76 100L88 66L60 44L96 44L110 10Z' stroke='%23C9A84C' stroke-opacity='0.35' stroke-width='1'/%3E%3Cpath d='M55 120L69 154L105 154L77 176L89 210L55 190L21 210L33 176L5 154L41 154L55 120Z' stroke='%23C9A84C' stroke-opacity='0.22' stroke-width='1'/%3E%3Cpath d='M165 120L179 154L215 154L187 176L199 210L165 190L131 210L143 176L115 154L151 154L165 120Z' stroke='%23C9A84C' stroke-opacity='0.22' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 220px 220px;
   opacity: 0.08;

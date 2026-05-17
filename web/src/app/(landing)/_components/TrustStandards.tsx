@@ -11,7 +11,7 @@ const STANDARDS = [
   },
   {
     title: "Specific scope first",
-    body: "Services and requests must be explicit before intros. No vague briefs, no confusion.",
+    body: "Services and project scopes must be explicit before intros. No vague briefs, no confusion.",
   },
   {
     title: "Human trust layer",
@@ -26,7 +26,7 @@ export function TrustStandards() {
         <div className="mb-8 max-w-3xl">
           <p className="section-label text-[#C9A84C]">Trust Standards</p>
           <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">
-            Built on Amanah, Adl, and precise execution
+            Built on transparency, fairness, and precise execution
           </h2>
           <p className="mt-3 text-[#C9BEAA]">
             These aren't marketing words. They're the operating standards every operator and client is held to.

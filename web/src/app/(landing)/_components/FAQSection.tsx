@@ -22,17 +22,17 @@ const faqs = [
   {
     question: "What services do you focus on?",
     answer:
-      "Five verticals: AI & Automation, Web & Apps, Content & Social, Growth & Ads, and Branding. Every service has a fixed scope and a clear outcome. If your need doesn't fit a package, submit a request and we'll scope it from scratch.",
+      "Five verticals: AI & Automation, Web & Apps, Content & Social, Growth & Ads, and Branding. Every service has a fixed scope and a clear outcome. If your need doesn't fit a package, we'll scope a custom engagement from scratch.",
   },
   {
-    question: "What does the Amanah score mean?",
+    question: "What does the trust score mean?",
     answer:
-      "Amanah is the Arabic word for trustworthiness — keeping your word, delivering what you promised, being accountable when things go wrong. The Amanah score reflects an operator's delivery history, client feedback, and scope accuracy. It's not a star rating. It's a record of character.",
+      "The trust score reflects an operator's delivery history, client feedback, and scope accuracy. It's not a star rating — it's a practical record of reliability and professionalism.",
   },
   {
-    question: "Is this Shariah-compliant?",
+    question: "What standards do you follow?",
     answer:
-      "BrandForge is built on the same trade ethics found in Islamic commercial law — transparency, no deception, clear contracts, no exploitative pricing, and mutual benefit. Every scope and introduction follows these principles.",
+      "BrandForge follows strict professional standards: transparency, no deception, clear contracts, no exploitative pricing, and mutual benefit. Every scope and introduction follows these principles.",
   },
 ];
 

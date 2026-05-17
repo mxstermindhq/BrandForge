@@ -6,7 +6,6 @@ import { CONTACT } from "@/content/landing-directory";
 const navItems = [
   { href: "#talent", label: "Talent" },
   { href: "#packages", label: "Services" },
-  { href: "#requests", label: "Requests" },
   { href: "#trust", label: "Trust" },
   { href: "#faq", label: "FAQ" },
 ];

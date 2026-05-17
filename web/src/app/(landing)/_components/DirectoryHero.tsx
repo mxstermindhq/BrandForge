@@ -6,7 +6,7 @@ import { CONTACT } from "@/content/landing-directory";
 export function DirectoryHero() {
   const ticker = [
     "● Founder matched · lifecycle operator · 2 min ago",
-    "● New request: Next.js rebuild · Under review",
+    "● New scope: Next.js rebuild · Under review",
     "● Deal delivered: AI support agent · Approved",
     "● UGC retainer filled · 3 operators shortlisted",
   ];
@@ -14,7 +14,7 @@ export function DirectoryHero() {
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[#0A0F1E]" />
-      <div className="islamic-pattern pointer-events-none absolute inset-0" />
+      <div className="geometric-pattern pointer-events-none absolute inset-0" />
       <div className="pointer-events-none absolute -top-24 left-1/2 h-[500px] w-[720px] -translate-x-1/2 rounded-full bg-[#C9A84C]/10 blur-[130px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-[#1A6B4A]/20 blur-[120px]" />
 

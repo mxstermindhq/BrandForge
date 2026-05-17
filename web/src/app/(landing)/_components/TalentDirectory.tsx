@@ -120,7 +120,7 @@ export function TalentDirectory() {
 
               <div className="mt-4 rounded-lg border border-[#C9A84C]/20 bg-[#0A0F1E]/70 p-3">
                 <div className="mb-2 flex items-center justify-between text-[11px]">
-                  <span className="text-[#C9BEAA]">Amanah score</span>
+                  <span className="text-[#C9BEAA]">Trust score</span>
                   <span className="font-semibold text-[#F5F0E8]">{person.amanah}/100</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-[#152038]">
