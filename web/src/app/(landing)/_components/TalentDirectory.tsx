@@ -23,6 +23,47 @@ const AVAILABILITY: Record<TalentAvailability, { label: string; className: strin
   waitlist: { label: "Waitlist", className: "bg-on-surface-variant/15 text-on-surface-variant border-outline-variant" },
 };
 
+const LOW_SIGNAL = new Set(["lol", "bro", "gg", "any", "test", "none", "n/a", "na"]);
+const SHORT_ALLOW = new Set(["ui", "ux", "qa", "go", "ai"]);
+
+function cleanToken(raw: string): string | null {
+  const v = String(raw || "").trim();
+  if (!v) return null;
+  const lower = v.toLowerCase();
+  if (LOW_SIGNAL.has(lower)) return null;
+  if (lower.length < 3 && !SHORT_ALLOW.has(lower)) return null;
+  if (lower === "figna") return "Figma";
+  if (lower === "nextjs") return "Next.js";
+  return v;
+}
+
+function cleanTools(tools: string[]): string[] {
+  const out: string[] = [];
+  for (const t of tools) {
+    const c = cleanToken(t);
+    if (c && !out.some((x) => x.toLowerCase() === c.toLowerCase())) out.push(c);
+    if (out.length >= 8) break;
+  }
+  return out;
+}
+
+function cleanPreferences(prefs: string[]): string[] {
+  const out: string[] = [];
+  for (const p of prefs) {
+    const v = String(p || "").trim();
+    if (!v) continue;
+    const lower = v.toLowerCase();
+    if (LOW_SIGNAL.has(lower)) continue;
+    let next = v;
+    if (lower === "project") next = "Project-based";
+    if (lower === "immediately") next = "Immediate start";
+    if (lower === "open to offers") next = "Open to offers";
+    if (!out.some((x) => x.toLowerCase() === next.toLowerCase())) out.push(next);
+    if (out.length >= 4) break;
+  }
+  return out;
+}
+
 function TalentCard({
   person,
   isOwn,
@@ -37,10 +78,13 @@ function TalentCard({
   const avatar = safeImageSrc(person.avatarUrl);
   const since = formatMemberSince(person.memberSince);
   const tg = contactMessage(`Hire ${person.name} — ${person.role}`);
+  const tools = cleanTools(person.tools);
+  const preferences = cleanPreferences(person.preferences);
+  const displayRole = person.role?.trim() || "Operator";
 
   return (
     <article
-      className={`group surface-card flex flex-col overflow-hidden rounded-xl border transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 ${
+      className={`group surface-card flex flex-col overflow-hidden rounded-2xl border transition hover:-translate-y-0.5 hover:border-primary/40 ${
         isOwn ? "border-primary/50 ring-1 ring-primary/20" : "border-outline-variant/60"
       }`}
     >
@@ -62,11 +106,12 @@ function TalentCard({
                 </div>
               )}
             </Link>
-            <div>
+            <div className="min-w-0">
               <Link href={profilePath(person.username)} className="hover:text-primary">
-                <h3 className="font-headline text-base font-semibold text-on-surface">{person.name}</h3>
+                <h3 className="truncate font-headline text-base font-semibold text-on-surface">{person.name}</h3>
               </Link>
-              <p className="text-sm font-medium text-primary">{person.role}</p>
+              <p className="truncate text-sm font-medium text-primary">{displayRole}</p>
+              <p className="truncate text-[11px] text-on-surface-variant">@{person.username}</p>
               {since ? <p className="text-[10px] text-on-surface-variant">Member since {since}</p> : null}
             </div>
           </div>
@@ -108,14 +153,14 @@ function TalentCard({
           </div>
         ) : null}
 
-        {person.tools.length > 0 ? (
+        {tools.length > 0 ? (
           <div>
-            <p className="section-label !mb-2 !text-[10px]">Tools</p>
-            <div className="flex flex-wrap gap-1.5">
-              {person.tools.map((t) => (
+            <p className="section-label !mb-2 !text-[10px]">Skills</p>
+            <div className="flex flex-wrap gap-2">
+              {tools.map((t) => (
                 <span
                   key={t}
-                  className="rounded border border-outline-variant/60 bg-surface-container-low px-2 py-0.5 text-[11px] text-on-surface-variant"
+                  className="rounded-md border border-outline-variant/60 bg-surface-container-low px-2.5 py-1 text-[11px] text-on-surface-variant"
                 >
                   {t}
                 </span>
@@ -124,16 +169,21 @@ function TalentCard({
           </div>
         ) : null}
 
-        <div>
-          <p className="section-label !mb-2 !text-[10px]">Preferences</p>
-          <div className="flex flex-wrap gap-1.5">
-            {person.preferences.map((p) => (
-              <span key={p} className="text-[11px] text-on-surface-variant">
-                · {p}
-              </span>
-            ))}
+        {preferences.length > 0 ? (
+          <div>
+            <p className="section-label !mb-2 !text-[10px]">Preferences</p>
+            <div className="flex flex-wrap gap-2">
+              {preferences.map((p) => (
+                <span
+                  key={p}
+                  className="rounded-full border border-outline-variant/60 bg-surface-container-low px-2.5 py-1 text-[11px] text-on-surface-variant"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
           {isOwn && onEdit ? (
