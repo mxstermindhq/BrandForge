@@ -40,23 +40,23 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8">
+    <section className="bg-[#F8F6F1] px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">FAQ</h2>
-          <p className="text-lg text-[#8A8070]">How BrandForge works</p>
+          <h2 className="mb-4 font-headline text-4xl font-semibold text-[#1F2937] sm:text-5xl">FAQ</h2>
+          <p className="text-lg text-[#6B7280]">How BrandForge works</p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="surface-card overflow-hidden rounded-xl border border-[#C9A84C]/22 bg-[#0F172B]">
+            <div key={index} className="surface-card overflow-hidden rounded-xl border border-[#A67C2E]/18 bg-white">
               <button
                 type="button"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-[#111C35]"
+                className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-[#F7F3EA]"
               >
-                <span className="pr-4 text-lg font-semibold text-[#F5F0E8]">{faq.question}</span>
-                <span className="material-symbols-outlined shrink-0 text-[#8A8070]">
+                <span className="pr-4 text-lg font-semibold text-[#1F2937]">{faq.question}</span>
+                <span className="material-symbols-outlined shrink-0 text-[#6B7280]">
                   {openIndex === index ? "expand_less" : "expand_more"}
                 </span>
               </button>
@@ -71,7 +71,7 @@ export function FAQSection() {
                     className="overflow-hidden"
                   >
                     <div className="px-6 pb-6">
-                      <p className="text-left leading-relaxed text-[#8A8070]">{faq.answer}</p>
+                      <p className="text-left leading-relaxed text-[#6B7280]">{faq.answer}</p>
                     </div>
                   </motion.div>
                 ) : null}

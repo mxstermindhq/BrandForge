@@ -832,47 +832,47 @@ body {
   }
 }
 
-/* Landing skin: dark luxury editorial */
+/* Landing skin: light editorial */
 .landing-layout {
-  --color-background: #0a0f1e;
-  --color-surface: #0a0f1e;
-  --color-surface-container: #0f172b;
-  --color-surface-container-low: #0d1526;
-  --color-surface-container-lowest: #070b16;
-  --color-surface-container-high: #14203b;
-  --color-surface-container-highest: #1a2745;
-  --color-surface-variant: #273551;
-  --color-on-surface: #f5f0e8;
-  --color-on-surface-variant: #c9beaa;
-  --color-outline: color-mix(in srgb, #c9a84c 35%, transparent);
-  --color-outline-variant: color-mix(in srgb, #c9a84c 22%, transparent);
-  --color-primary: #c9a84c;
-  --color-on-primary: #0a0f1e;
-  --color-tertiary: #1a6b4a;
-  --color-on-tertiary: #eaf8f2;
-  --color-success: #1a6b4a;
-  --color-on-success: #f5f0e8;
+  --color-background: #f8f6f1;
+  --color-surface: #ffffff;
+  --color-surface-container: #ffffff;
+  --color-surface-container-low: #fcfaf5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #f5f2ea;
+  --color-surface-container-highest: #efe9dd;
+  --color-surface-variant: #ded7ca;
+  --color-on-surface: #1f2937;
+  --color-on-surface-variant: #6b7280;
+  --color-outline: color-mix(in srgb, #a67c2e 32%, transparent);
+  --color-outline-variant: color-mix(in srgb, #a67c2e 16%, transparent);
+  --color-primary: #a67c2e;
+  --color-on-primary: #ffffff;
+  --color-tertiary: #1f7a4d;
+  --color-on-tertiary: #eef9f2;
+  --color-success: #1f7a4d;
+  --color-on-success: #ffffff;
   --font-headline: var(--landing-font-headline);
   --font-body: var(--landing-font-body);
-  background: #0a0f1e;
-  color: #f5f0e8;
+  background: #f8f6f1;
+  color: #1f2937;
 }
 
 .landing-layout .btn-primary {
-  background: #c9a84c;
-  color: #0a0f1e;
+  background: #a67c2e;
+  color: #ffffff;
   border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, #c9a84c 80%, transparent);
+  border: 1px solid color-mix(in srgb, #a67c2e 70%, transparent);
 }
 
 .landing-layout .btn-primary:hover {
-  filter: brightness(0.97);
+  filter: brightness(0.95);
 }
 
 .landing-layout .btn-secondary {
-  background: color-mix(in srgb, #0a0f1e 85%, #ffffff);
-  color: #f5f0e8;
-  border: 1px solid color-mix(in srgb, #c9a84c 34%, transparent);
+  background: #ffffff;
+  color: #1f2937;
+  border: 1px solid color-mix(in srgb, #a67c2e 26%, transparent);
   border-radius: 0.75rem;
 }
 

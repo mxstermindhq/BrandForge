@@ -43,18 +43,18 @@ type PublicProfile = {
 function CuratedProfileFaq({ operator }: { operator: CuratedOperator }) {
   const [openFaq, setOpenFaq] = useState(0);
   return (
-    <section className="mt-8 rounded-2xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
-      <h2 className="font-headline text-2xl font-semibold text-[#F5F0E8]">Profile FAQ</h2>
+    <section className="mt-8 rounded-2xl border border-[#A67C2E]/16 bg-white p-5">
+      <h2 className="font-headline text-2xl font-semibold text-[#1F2937]">Profile FAQ</h2>
       <div className="mt-4 space-y-3">
         {operator.faq.map((item, idx) => (
-          <div key={item.question} className="rounded-lg border border-[#C9A84C]/18 bg-[#0B1326]">
+          <div key={item.question} className="rounded-lg border border-[#A67C2E]/16 bg-[#FCFAF5]">
             <button
               type="button"
               onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
               className="flex w-full items-center justify-between px-4 py-3 text-left"
             >
-              <span className="text-sm font-semibold text-[#F5F0E8]">{item.question}</span>
-              <span className="text-[#8A8070]">{openFaq === idx ? "−" : "+"}</span>
+              <span className="text-sm font-semibold text-[#1F2937]">{item.question}</span>
+              <span className="text-[#6B7280]">{openFaq === idx ? "−" : "+"}</span>
             </button>
             <AnimatePresence initial={false}>
               {openFaq === idx ? (
@@ -65,7 +65,7 @@ function CuratedProfileFaq({ operator }: { operator: CuratedOperator }) {
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <p className="px-4 pb-4 text-sm text-[#C9BEAA]">{item.answer}</p>
+                  <p className="px-4 pb-4 text-sm text-[#6B7280]">{item.answer}</p>
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -85,19 +85,19 @@ function CuratedProfileView({ operator }: { operator: CuratedOperator }) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="rounded-2xl border border-[#C9A84C]/25 bg-[#0F172B] p-6"
+        className="rounded-2xl border border-[#A67C2E]/18 bg-white p-6"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C9A84C]/35 bg-[#C9A84C]/10 text-lg font-semibold text-[#F5F0E8]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#A67C2E]/28 bg-[#A67C2E]/10 text-lg font-semibold text-[#5C4620]">
               {talentInitials(operator.name)}
             </div>
             <div>
-              <h1 className="font-headline text-3xl font-semibold text-[#F5F0E8]">{operator.name}</h1>
-              <p className="text-[#C9BEAA]">{operator.role}</p>
+              <h1 className="font-headline text-3xl font-semibold text-[#1F2937]">{operator.name}</h1>
+              <p className="text-[#6B7280]">{operator.role}</p>
               <div className="mt-1 flex flex-wrap gap-2 text-[11px] uppercase tracking-wide">
-                <span className="rounded-full border border-[#C9A84C]/35 px-2 py-0.5 text-[#F5F0E8]">Verified profile</span>
-                <span className="rounded-full border border-[#1A6B4A]/45 bg-[#1A6B4A]/20 px-2 py-0.5 text-[#9FE3C2]">
+                <span className="rounded-full border border-[#A67C2E]/28 px-2 py-0.5 text-[#8A6A27]">Verified profile</span>
+                <span className="rounded-full border border-[#1F7A4D]/35 bg-[#1F7A4D]/10 px-2 py-0.5 text-[#1F7A4D]">
                   {operator.availability === "limited" ? "Limited slots" : "Available"}
                 </span>
               </div>
@@ -117,20 +117,20 @@ function CuratedProfileView({ operator }: { operator: CuratedOperator }) {
           transition={{ duration: 0.4 }}
           className="space-y-4"
         >
-          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
-            <h2 className="font-headline text-2xl font-semibold text-[#F5F0E8]">About</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[#C9BEAA]">{operator.bio}</p>
+          <div className="rounded-xl border border-[#A67C2E]/16 bg-white p-5">
+            <h2 className="font-headline text-2xl font-semibold text-[#1F2937]">About</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">{operator.bio}</p>
           </div>
-          <div className="rounded-xl border border-[#1A6B4A]/35 bg-[#11251e] p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-[#9FE3C2]">Best result</p>
-            <p className="mt-1 text-sm text-[#EAF8F2]">{operator.bestResult}</p>
+          <div className="rounded-xl border border-[#1F7A4D]/28 bg-[#EEF7F1] p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-[#1F7A4D]">Best result</p>
+            <p className="mt-1 text-sm text-[#1F7A4D]">{operator.bestResult}</p>
           </div>
-          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-[#C9A84C]">Won't take</p>
-            <p className="mt-1 text-sm text-[#C9BEAA]">{operator.wontTake}</p>
+          <div className="rounded-xl border border-[#A67C2E]/16 bg-white p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-[#8A6A27]">Won't take</p>
+            <p className="mt-1 text-sm text-[#6B7280]">{operator.wontTake}</p>
           </div>
           {operator.status === "building" ? (
-            <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-4 text-sm text-[#C9BEAA]">
+            <div className="rounded-xl border border-[#A67C2E]/16 bg-[#FCFAF5] p-4 text-sm text-[#6B7280]">
               Profile being completed now. Core availability and experience are verified by {CONTACT.guarantor}.
             </div>
           ) : null}
@@ -143,20 +143,20 @@ function CuratedProfileView({ operator }: { operator: CuratedOperator }) {
           transition={{ duration: 0.45 }}
           className="space-y-4"
         >
-          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
-            <h3 className="font-headline text-xl font-semibold text-[#F5F0E8]">Stats</h3>
-            <ul className="mt-3 space-y-2 text-sm text-[#C9BEAA]">
+          <div className="rounded-xl border border-[#A67C2E]/16 bg-white p-5">
+            <h3 className="font-headline text-xl font-semibold text-[#1F2937]">Stats</h3>
+            <ul className="mt-3 space-y-2 text-sm text-[#6B7280]">
               <li>Experience: {operator.yearsExp} years</li>
               <li>Trust score: {operator.amanahScore}/100</li>
               <li>Completion rate: {operator.completionRate}%</li>
               <li>Pricing: {operator.startingPrice}</li>
             </ul>
           </div>
-          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
-            <h3 className="font-headline text-xl font-semibold text-[#F5F0E8]">Skills</h3>
+          <div className="rounded-xl border border-[#A67C2E]/16 bg-white p-5">
+            <h3 className="font-headline text-xl font-semibold text-[#1F2937]">Skills</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {operator.skills.map((skill) => (
-                <span key={skill} className="rounded-full border border-[#C9A84C]/30 bg-[#0A0F1E] px-2.5 py-1 text-[11px] text-[#F5F0E8]">
+                <span key={skill} className="rounded-full border border-[#A67C2E]/20 bg-[#F7F3EA] px-2.5 py-1 text-[11px] text-[#374151]">
                   {skill}
                 </span>
               ))}
