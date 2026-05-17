@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGetJson } from "@/lib/api";
 import { CONTACT, contactMessage } from "@/content/landing-directory";
+import { CuratedOperator, getCuratedOperatorByUsername } from "@/content/curated-operators";
 import { safeImageSrc } from "@/lib/image-url";
 import { talentInitials, formatMemberSince } from "@/lib/talent-types";
-import { profilePath, profileRequestPath, profileServicePath } from "@/lib/reserved-paths";
+import { profileServicePath } from "@/lib/reserved-paths";
 import { useAuth } from "@/providers/AuthProvider";
 import { useLandingUI } from "@/app/(landing)/_components/LandingUIProvider";
 import { ContactCTA } from "@/app/(landing)/_components/ContactCTA";
@@ -17,14 +19,6 @@ type ServiceCard = {
   title: string;
   category: string;
   base_price: number;
-  slug: string | null;
-};
-
-type RequestCard = {
-  id: string;
-  title: string;
-  budget_min: number | null;
-  budget_max: number | null;
 };
 
 type PublicProfile = {
@@ -44,26 +38,164 @@ type PublicProfile = {
   open_to_offers?: boolean | null;
   created_at?: string | null;
   publicServices?: ServiceCard[];
-  openRequests?: RequestCard[];
 };
 
+function CuratedProfileFaq({ operator }: { operator: CuratedOperator }) {
+  const [openFaq, setOpenFaq] = useState(0);
+  return (
+    <section className="mt-8 rounded-2xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
+      <h2 className="font-headline text-2xl font-semibold text-[#F5F0E8]">Profile FAQ</h2>
+      <div className="mt-4 space-y-3">
+        {operator.faq.map((item, idx) => (
+          <div key={item.question} className="rounded-lg border border-[#C9A84C]/18 bg-[#0B1326]">
+            <button
+              type="button"
+              onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-sm font-semibold text-[#F5F0E8]">{item.question}</span>
+              <span className="text-[#8A8070]">{openFaq === idx ? "−" : "+"}</span>
+            </button>
+            <AnimatePresence initial={false}>
+              {openFaq === idx ? (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <p className="px-4 pb-4 text-sm text-[#C9BEAA]">{item.answer}</p>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CuratedProfileView({ operator }: { operator: CuratedOperator }) {
+  const tg = contactMessage(`Profile inquiry: ${operator.name}`);
+
+  return (
+    <article className="mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6">
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+        className="rounded-2xl border border-[#C9A84C]/25 bg-[#0F172B] p-6"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C9A84C]/35 bg-[#C9A84C]/10 text-lg font-semibold text-[#F5F0E8]">
+              {talentInitials(operator.name)}
+            </div>
+            <div>
+              <h1 className="font-headline text-3xl font-semibold text-[#F5F0E8]">{operator.name}</h1>
+              <p className="text-[#C9BEAA]">{operator.role}</p>
+              <div className="mt-1 flex flex-wrap gap-2 text-[11px] uppercase tracking-wide">
+                <span className="rounded-full border border-[#C9A84C]/35 px-2 py-0.5 text-[#F5F0E8]">Verified profile</span>
+                <span className="rounded-full border border-[#1A6B4A]/45 bg-[#1A6B4A]/20 px-2 py-0.5 text-[#9FE3C2]">
+                  {operator.availability === "limited" ? "Limited slots" : "Available"}
+                </span>
+              </div>
+            </div>
+          </div>
+          <a href={tg} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-5 text-sm">
+            Start conversation →
+          </a>
+        </div>
+      </motion.section>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-4"
+        >
+          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
+            <h2 className="font-headline text-2xl font-semibold text-[#F5F0E8]">About</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[#C9BEAA]">{operator.bio}</p>
+          </div>
+          <div className="rounded-xl border border-[#1A6B4A]/35 bg-[#11251e] p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-[#9FE3C2]">Best result</p>
+            <p className="mt-1 text-sm text-[#EAF8F2]">{operator.bestResult}</p>
+          </div>
+          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-[#C9A84C]">Won't take</p>
+            <p className="mt-1 text-sm text-[#C9BEAA]">{operator.wontTake}</p>
+          </div>
+          {operator.status === "building" ? (
+            <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-4 text-sm text-[#C9BEAA]">
+              Profile being completed now. Core availability and experience are verified by {CONTACT.guarantor}.
+            </div>
+          ) : null}
+        </motion.section>
+
+        <motion.aside
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.45 }}
+          className="space-y-4"
+        >
+          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
+            <h3 className="font-headline text-xl font-semibold text-[#F5F0E8]">Stats</h3>
+            <ul className="mt-3 space-y-2 text-sm text-[#C9BEAA]">
+              <li>Experience: {operator.yearsExp} years</li>
+              <li>Trust score: {operator.amanahScore}/100</li>
+              <li>Completion rate: {operator.completionRate}%</li>
+              <li>Pricing: {operator.startingPrice}</li>
+            </ul>
+          </div>
+          <div className="rounded-xl border border-[#C9A84C]/22 bg-[#0F172B] p-5">
+            <h3 className="font-headline text-xl font-semibold text-[#F5F0E8]">Skills</h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {operator.skills.map((skill) => (
+                <span key={skill} className="rounded-full border border-[#C9A84C]/30 bg-[#0A0F1E] px-2.5 py-1 text-[11px] text-[#F5F0E8]">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.aside>
+      </div>
+
+      <CuratedProfileFaq operator={operator} />
+
+      <div className="mt-8 flex justify-center">
+        <a href={tg} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-8 text-sm">
+          Contact via mxstermind →
+        </a>
+      </div>
+    </article>
+  );
+}
+
 export function PublicMemberProfile({ username }: { username: string }) {
+  const curated = useMemo(() => getCuratedOperatorByUsername(username), [username]);
   const { session } = useAuth();
   const { openProfileEditor } = useLandingUI();
   const [data, setData] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [tab, setTab] = useState<"services" | "requests" | "about">("services");
+  const [tab, setTab] = useState<"services" | "about">("services");
 
   const load = useCallback(async () => {
-    const json = await apiGetJson<{ profile: PublicProfile }>(
-      `/api/profiles/${encodeURIComponent(username)}/public`,
-      null,
-    );
+    const json = await apiGetJson<{ profile: PublicProfile }>(`/api/profiles/${encodeURIComponent(username)}/public`, null);
     return json.profile || null;
   }, [username]);
 
   useEffect(() => {
+    if (curated) {
+      setLoading(false);
+      setErr(null);
+      return;
+    }
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -83,7 +215,11 @@ export function PublicMemberProfile({ username }: { username: string }) {
     return () => {
       cancelled = true;
     };
-  }, [load]);
+  }, [curated, load]);
+
+  if (curated) {
+    return <CuratedProfileView operator={curated} />;
+  }
 
   if (loading) {
     return (
@@ -111,17 +247,12 @@ export function PublicMemberProfile({ username }: { username: string }) {
   const viewerId = session?.user?.id ? String(session.user.id) : null;
   const isSelf = Boolean(viewerId && data.id && viewerId === data.id);
   const services = data.publicServices || [];
-  const requests = data.openRequests || [];
   const skills = Array.isArray(data.skills) ? data.skills : [];
   const since = formatMemberSince(data.created_at || null);
   const tg = contactMessage(`Hire ${display} on BrandForge`);
 
   const availLabel =
-    data.availability === "busy"
-      ? "Limited slots"
-      : data.availability === "unavailable"
-        ? "Fully booked"
-        : "Available";
+    data.availability === "busy" ? "Limited slots" : data.availability === "unavailable" ? "Fully booked" : "Available";
 
   return (
     <article className="mx-auto max-w-4xl px-4 pb-20 pt-6 sm:px-6">
@@ -174,7 +305,7 @@ export function PublicMemberProfile({ username }: { username: string }) {
           <div className="mt-4 flex flex-wrap gap-2 text-sm">
             {data.rate_label ? <span className="font-semibold text-on-surface">{data.rate_label}</span> : null}
             {data.min_budget != null && data.min_budget > 0 ? (
-              <span className="text-on-surface-variant">from €{Number(data.min_budget).toLocaleString()}</span>
+              <span className="text-on-surface-variant">from EUR {Number(data.min_budget).toLocaleString()}</span>
             ) : null}
             {data.location ? <span className="text-on-surface-variant">· {data.location}</span> : null}
             {data.remote_only ? <span className="text-on-surface-variant">· Remote</span> : null}
@@ -194,7 +325,7 @@ export function PublicMemberProfile({ username }: { username: string }) {
       </div>
 
       <div className="mt-8 flex gap-2 border-b border-outline-variant">
-        {(["services", "requests", "about"] as const).map((t) => (
+        {(["services", "about"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -205,7 +336,6 @@ export function PublicMemberProfile({ username }: { username: string }) {
           >
             {t}
             {t === "services" && services.length ? ` (${services.length})` : ""}
-            {t === "requests" && requests.length ? ` (${requests.length})` : ""}
           </button>
         ))}
       </div>
@@ -231,41 +361,7 @@ export function PublicMemberProfile({ username }: { username: string }) {
                   >
                     <p className="text-xs text-on-surface-variant">{svc.category}</p>
                     <p className="font-headline font-semibold text-on-surface">{svc.title}</p>
-                    <p className="mt-2 text-lg font-bold text-primary">${Number(svc.base_price).toLocaleString()}</p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
-
-        {tab === "requests" ? (
-          requests.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-outline-variant py-12 text-center">
-              <p className="text-on-surface-variant">No open requests.</p>
-              {isSelf ? (
-                <Link href="/requests/new" className="btn-primary mt-4 inline-flex min-h-10 text-sm">
-                  Post a request
-                </Link>
-              ) : null}
-            </div>
-          ) : (
-            <ul className="space-y-3">
-              {requests.map((req) => (
-                <li key={req.id}>
-                  <Link
-                    href={profileRequestPath(handle, req.id)}
-                    className="surface-card block rounded-xl border border-outline-variant/60 p-4 transition hover:border-primary/40"
-                  >
-                    <p className="font-headline font-semibold">{req.title}</p>
-                    <p className="mt-1 text-sm text-on-surface-variant">
-                      Budget:{" "}
-                      {req.budget_min != null && req.budget_max != null
-                        ? `$${req.budget_min}–$${req.budget_max}`
-                        : req.budget_min != null
-                          ? `$${req.budget_min}+`
-                          : "Open"}
-                    </p>
+                    <p className="mt-2 text-lg font-bold text-primary">EUR {Number(svc.base_price).toLocaleString()}</p>
                   </Link>
                 </li>
               ))}

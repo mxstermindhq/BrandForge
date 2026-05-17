@@ -1,83 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CONTACT, contactMessage } from "@/content/landing-directory";
+import Link from "next/link";
+import { CONTACT } from "@/content/landing-directory";
+import { CURATED_OPERATORS } from "@/content/curated-operators";
 import { talentInitials } from "@/lib/talent-types";
+import { profilePath } from "@/lib/reserved-paths";
 
-const TALENT = [
-  {
-    name: "Mxstermind",
-    role: "Founder / executive",
-    availability: "Available now",
-    skills: ["n8n", "Next.js", "Growth systems"],
-    pricing: "Fixed package / starts from €497",
-    amanah: 98,
-    completion: 97,
-    nicheYears: "6 years in niche",
-    bio: "The guarantor behind every deal on this platform. 6 years building brands and connecting serious founders with serious operators.",
-    span: "lg:col-span-6",
-  },
-  {
-    name: "Neil Evans",
-    role: "Software engineer",
-    availability: "Available",
-    skills: ["Next.js", "Supabase", "Architecture"],
-    pricing: "Starts from €1,200",
-    amanah: 94,
-    completion: 95,
-    nicheYears: "4 years in niche",
-    bio: "Full-stack engineer who ships. If you need it built properly - not patched - Neil is who mxstermind calls first.",
-    span: "lg:col-span-3",
-  },
-  {
-    name: "Eray Yildiz",
-    role: "Product designer",
-    availability: "Available",
-    skills: ["Figma", "Design systems", "SaaS UX"],
-    pricing: "Fixed package / starts from €900",
-    amanah: 96,
-    completion: 93,
-    nicheYears: "5 years in niche",
-    bio: "Product designer with a bias for clarity. SaaS flows, design systems, interfaces that convert.",
-    span: "lg:col-span-3",
-  },
-  {
-    name: "Seb Marlow",
-    role: "Data scientist",
-    availability: "Available",
-    skills: ["Analytics", "ML Ops", "Experimentation"],
-    pricing: "Starts from €1,500",
-    amanah: 92,
-    completion: 94,
-    nicheYears: "3 years in niche",
-    bio: "Makes the numbers tell the truth. Analytics, ML ops, and experimentation for growth-stage teams.",
-    span: "lg:col-span-4",
-  },
-  {
-    name: "Cardkh",
-    role: "Project manager",
-    availability: "Limited slots",
-    skills: ["Agile", "Scope planning", "Team orchestration"],
-    pricing: "Retainer / starts from €1,000",
-    amanah: 93,
-    completion: 96,
-    nicheYears: "5 years in niche",
-    bio: "The project manager who actually delivers on time. Clients who've worked with him don't work without him.",
-    span: "lg:col-span-4",
-  },
-  {
-    name: "Oliver Clegg",
-    role: "Founder / advisor",
-    availability: "Limited slots",
-    skills: ["Go-to-market", "Offer design", "Hiring"],
-    pricing: "Session + sprint packages",
-    amanah: 95,
-    completion: 91,
-    nicheYears: "7 years in niche",
-    bio: "7-year founder advisor. He's seen what fails early and what wins fast - and he'll tell you straight.",
-    span: "lg:col-span-12",
-  },
-];
+const SPANS = ["lg:col-span-6", "lg:col-span-3", "lg:col-span-3", "lg:col-span-4", "lg:col-span-4", "lg:col-span-4", "lg:col-span-6", "lg:col-span-6"];
 
 export function TalentDirectory() {
   return (
@@ -92,15 +22,17 @@ export function TalentDirectory() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-12">
-          {TALENT.map((person, idx) => (
+          {CURATED_OPERATORS.map((person, idx) => (
             <motion.article
-              key={person.name}
+              key={person.username}
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
               transition={{ duration: 0.4, delay: idx * 0.06 }}
-              className={`surface-card rounded-2xl border border-[#C9A84C]/25 bg-white/[0.03] p-5 backdrop-blur-md ${person.span}`}
+              whileHover={{ y: -4, scale: 1.01, boxShadow: "0 0 32px rgba(201,168,76,0.16)" }}
+              className={`surface-card rounded-2xl border border-[#C9A84C]/25 bg-white/[0.03] p-5 backdrop-blur-md ${SPANS[idx % SPANS.length]}`}
             >
+              <div className="mb-4 h-1 w-full rounded-full bg-[#C9A84C]/80" />
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#C9A84C]/35 bg-[#C9A84C]/10 text-sm font-semibold text-[#F5F0E8]">
@@ -109,28 +41,28 @@ export function TalentDirectory() {
                   <div className="min-w-0">
                     <h3 className="truncate font-headline text-xl font-semibold text-[#F5F0E8]">{person.name}</h3>
                     <p className="truncate text-xs text-[#C9BEAA]">{person.role}</p>
-                    <p className="mt-0.5 text-[11px] text-[#C9A84C]">{person.nicheYears}</p>
+                    <p className="mt-0.5 text-[11px] text-[#C9A84C]">{person.yearsExp} years in niche</p>
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full border border-[#1A6B4A]/50 bg-[#1A6B4A]/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#9FE3C2]">
-                  <span className={`h-1.5 w-1.5 rounded-full ${person.availability.includes("Limited") ? "bg-[#C9A84C]" : "bg-[#1A6B4A]"}`} />
-                  {person.availability}
+                  <span className={`h-1.5 w-1.5 rounded-full ${person.availability === "limited" ? "bg-[#C9A84C]" : "bg-[#1A6B4A]"}`} />
+                  {person.availability === "limited" ? "Limited slots" : "Available"}
                 </span>
               </div>
 
               <div className="mt-4 rounded-lg border border-[#C9A84C]/20 bg-[#0A0F1E]/70 p-3">
                 <div className="mb-2 flex items-center justify-between text-[11px]">
                   <span className="text-[#C9BEAA]">Trust score</span>
-                  <span className="font-semibold text-[#F5F0E8]">{person.amanah}/100</span>
+                  <span className="font-semibold text-[#F5F0E8]">{person.amanahScore}/100</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-[#152038]">
-                  <div className="h-full rounded-full bg-[#C9A84C]" style={{ width: `${person.amanah}%` }} />
+                  <div className="h-full rounded-full bg-[#C9A84C]" style={{ width: `${person.amanahScore}%` }} />
                 </div>
-                <p className="mt-2 text-[11px] text-[#C9BEAA]">Project completion rate: {person.completion}%</p>
+                <p className="mt-2 text-[11px] text-[#C9BEAA]">Project completion rate: {person.completionRate}%</p>
               </div>
 
               <p className="mt-3 line-clamp-2 text-sm text-[#8A8070]">{person.bio}</p>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#C9A84C]">{person.pricing}</p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#C9A84C]">{person.startingPrice}</p>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {person.skills.map((s) => (
@@ -140,14 +72,15 @@ export function TalentDirectory() {
                 ))}
               </div>
 
-              <a
-                href={contactMessage(`Connect me with ${person.name}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary mt-5 min-h-10 w-full justify-center text-xs"
-              >
-                Contact via mxstermind →
-              </a>
+              {person.status === "building" ? (
+                <div className="mt-5 rounded-lg border border-[#C9A84C]/20 bg-[#0A0F1E]/60 px-3 py-2 text-xs text-[#C9BEAA]">
+                  Profile being completed · {person.yearsExp} years experience.
+                </div>
+              ) : null}
+
+              <Link href={profilePath(person.username)} className="btn-secondary mt-5 min-h-10 w-full justify-center text-xs">
+                View profile →
+              </Link>
             </motion.article>
           ))}
         </div>
