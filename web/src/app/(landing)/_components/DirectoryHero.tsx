@@ -5,9 +5,10 @@ import { CONTACT } from "@/content/landing-directory";
 
 export function DirectoryHero() {
   const ticker = [
-    "● Match in progress · SaaS founder + lifecycle operator",
-    "● New request: Next.js rebuild · Reviewing",
-    "● Deal delivered: AI support agent rollout",
+    "● Founder matched · lifecycle operator · 2 min ago",
+    "● New request: Next.js rebuild · Under review",
+    "● Deal delivered: AI support agent · Approved",
+    "● UGC retainer filled · 3 operators shortlisted",
   ];
 
   return (
@@ -24,7 +25,7 @@ export function DirectoryHero() {
           transition={{ duration: 0.5 }}
           className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/35 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#F5F0E8]"
         >
-          Curated talent directory · managed by {CONTACT.guarantor}
+          Curated talent · Verified operators · Managed by {CONTACT.guarantor}
         </motion.p>
 
         <motion.h1
@@ -40,9 +41,19 @@ export function DirectoryHero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.16 }}
-          className="mt-8 max-w-3xl text-lg text-[#C9A84C] sm:text-xl"
+          className="mt-8 max-w-3xl text-lg text-[#8A8070] sm:text-xl"
         >
-          Curated operators. Done-for-you packages. One trusted conversation.
+          Most agencies waste your time with proposals. We waste nothing. One conversation with mxstermind routes you
+          to the right operator — scoped, trusted, and ready to execute.
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-4 text-xs uppercase tracking-[0.12em] text-[#C9A84C]/90"
+        >
+          No bidding. No spam briefs. No hidden fees. Your word is honoured here.
         </motion.p>
 
         <motion.div
@@ -55,7 +66,7 @@ export function DirectoryHero() {
             Start a conversation →
           </a>
           <a href="#talent" className="btn-secondary min-h-11 px-6 text-sm">
-            See the talent ↓
+            See who's available ↓
           </a>
         </motion.div>
 

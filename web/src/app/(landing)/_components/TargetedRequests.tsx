@@ -29,7 +29,10 @@ export function TargetedRequests() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 max-w-3xl">
           <p className="section-label text-[#C9A84C]">Requests Board</p>
-          <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">Serious clients. Real briefs.</h2>
+          <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">
+            Serious clients. Real budgets. No tyre-kickers.
+          </h2>
+          <p className="mt-3 text-[#C9BEAA]">Every brief has been reviewed by mxstermind before posting.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -48,14 +51,14 @@ export function TargetedRequests() {
                 rel="noopener noreferrer"
                 className="btn-secondary mt-5 min-h-10 w-full justify-center text-sm"
               >
-                Submit interest
+                Submit interest →
               </a>
             </article>
           ))}
         </div>
 
         <p className="mt-4 text-xs text-[#C9BEAA]">
-          Request routing and qualification managed by {CONTACT.guarantor}.
+          Request routing, qualification, and introductions managed personally by {CONTACT.guarantor}. No cold inbox, no chaos.
         </p>
       </div>
     </section>

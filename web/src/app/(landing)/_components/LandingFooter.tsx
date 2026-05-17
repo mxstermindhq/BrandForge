@@ -28,8 +28,7 @@ export function LandingFooter() {
               <span className="font-headline text-xl font-semibold text-[#F5F0E8]">BrandForge</span>
             </Link>
             <p className="mb-6 max-w-md text-sm text-[#C9BEAA]">
-              The operating system for modern internet brands — curated operators, done-for-you packages, managed by{" "}
-              {CONTACT.guarantor}.
+              The operating system for modern internet brands. One conversation. Right team. Real outcomes.
             </p>
             <div className="flex flex-wrap gap-3">
               <a

@@ -15,12 +15,13 @@ export function GuarantorStrip() {
             {CONTACT.guarantor} is your guarantor.
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#EAF8F2]">
-            Every hire and every package is managed personally. I scope the need, vet the fit, and stand behind the
-            outcome. One conversation starts it all.
+            In Islamic trade, your word is your bond — and every deal is witnessed. That's how this platform works. I
+            personally review every request, select every operator, and manage every introduction. If something's off,
+            I'm accountable — not a support ticket. One message starts it. I take it from there.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a href={CONTACT.telegram} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-6 text-sm">
-              Start conversation {CONTACT.telegramHandle} →
+              Message me → {CONTACT.telegramHandle}
             </a>
             <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-11 px-6 text-sm">
               Join Discord

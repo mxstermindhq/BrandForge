@@ -29,7 +29,7 @@ export function TrustStandards() {
             Built on Amanah, Adl, and precise execution
           </h2>
           <p className="mt-3 text-[#C9BEAA]">
-            A principled marketplace model: fairness, clarity, and accountable introductions for all serious builders.
+            These aren't marketing words. They're the operating standards every operator and client is held to.
           </p>
         </div>
 

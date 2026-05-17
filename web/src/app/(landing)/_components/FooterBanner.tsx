@@ -17,12 +17,13 @@ export function FooterBanner() {
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">Ready to build something real?</h2>
+        <p className="mt-3 text-lg text-[#8A8070]">One conversation. We handle the rest.</p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <a href={CONTACT.telegram} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-6 text-sm">
             Start a conversation →
           </a>
           <a href="#packages" className="btn-secondary min-h-11 px-6 text-sm">
-            Explore services ↓
+            Explore services ↑
           </a>
         </div>
       </div>

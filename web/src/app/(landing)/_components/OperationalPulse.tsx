@@ -7,24 +7,26 @@ export function OperationalPulse() {
     {
       title: "No bidding wars",
       subtitle: "Adl · Fairness",
-      body: "No race-to-bottom auction behavior. Scope and fit determine introductions.",
+      body: "Introductions are made on fit and scope — not who paid to appear first. Every operator earns visibility through delivery, not ad spend.",
     },
     {
       title: "One thread, right team",
       subtitle: "Amanah · Trust",
-      body: "One conversation with mxstermind routes you to the right operator set fast.",
+      body: "Message mxstermind once. He qualifies the brief, selects the operator, and manages the relationship. You never chase strangers in a cold inbox again.",
     },
     {
       title: "Verified operators only",
       subtitle: "Curation standard",
-      body: "Every visible profile is vetted before it enters the directory.",
+      body: "Every profile is manually reviewed before it enters the directory. You only see people who have proven they can execute — full stop.",
     },
   ];
 
   return (
     <section className="border-y border-[#C9A84C]/20 bg-[#0B1326] px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <p className="section-label text-[#C9A84C]">Why Brandforge</p>
+        <h2 className="mb-8 font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">
+          Three reasons serious builders choose us.
+        </h2>
         <div className="grid gap-4 md:grid-cols-3">
           {cards.map((card, idx) => (
             <motion.article
@@ -33,7 +35,7 @@ export function OperationalPulse() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.45, delay: idx * 0.08 }}
-              className="rounded-2xl border border-[#C9A84C]/25 bg-[#0E172B] p-6"
+              className="rounded-2xl border border-[#C9A84C]/25 bg-[#0E172B] p-8"
             >
               <div className="mb-4 h-8 w-1 rounded-full bg-[#C9A84C]" />
               <p className="text-xs uppercase tracking-[0.12em] text-[#C9A84C]/90">{card.subtitle}</p>

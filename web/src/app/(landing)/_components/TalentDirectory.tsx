@@ -7,14 +7,14 @@ import { talentInitials } from "@/lib/talent-types";
 const TALENT = [
   {
     name: "Mxstermind",
-    role: "Founder / operator",
+    role: "Founder / executive",
     availability: "Available now",
     skills: ["n8n", "Next.js", "Growth systems"],
     pricing: "Fixed package / starts from €497",
     amanah: 98,
     completion: 97,
     nicheYears: "6 years in niche",
-    badges: ["Verified identity", "Transparent scope", "Shariah-ready contracts"],
+    bio: "The guarantor behind every deal on this platform. 6 years building brands and connecting serious founders with serious operators.",
     span: "lg:col-span-6",
   },
   {
@@ -26,7 +26,7 @@ const TALENT = [
     amanah: 94,
     completion: 95,
     nicheYears: "4 years in niche",
-    badges: ["Verified delivery history", "No hidden fees"],
+    bio: "Full-stack engineer who ships. If you need it built properly - not patched - Neil is who mxstermind calls first.",
     span: "lg:col-span-3",
   },
   {
@@ -38,7 +38,7 @@ const TALENT = [
     amanah: 96,
     completion: 93,
     nicheYears: "5 years in niche",
-    badges: ["UX certification verified", "Milestone-first workflow"],
+    bio: "Product designer with a bias for clarity. SaaS flows, design systems, interfaces that convert.",
     span: "lg:col-span-3",
   },
   {
@@ -50,7 +50,7 @@ const TALENT = [
     amanah: 92,
     completion: 94,
     nicheYears: "3 years in niche",
-    badges: ["Peer-vetted portfolio", "Clear deliverables policy"],
+    bio: "Makes the numbers tell the truth. Analytics, ML ops, and experimentation for growth-stage teams.",
     span: "lg:col-span-4",
   },
   {
@@ -62,20 +62,20 @@ const TALENT = [
     amanah: 93,
     completion: 96,
     nicheYears: "5 years in niche",
-    badges: ["On-time specialist", "Contract clarity verified"],
+    bio: "The project manager who actually delivers on time. Clients who've worked with him don't work without him.",
     span: "lg:col-span-4",
   },
   {
     name: "Oliver Clegg",
-    role: "Founder advisor",
-    availability: "Available",
+    role: "Founder / advisor",
+    availability: "Limited slots",
     skills: ["Go-to-market", "Offer design", "Hiring"],
     pricing: "Session + sprint packages",
     amanah: 95,
     completion: 91,
     nicheYears: "7 years in niche",
-    badges: ["Founder-vetted", "Outcome-based scope"],
-    span: "lg:col-span-4",
+    bio: "7-year founder advisor. He's seen what fails early and what wins fast - and he'll tell you straight.",
+    span: "lg:col-span-12",
   },
 ];
 
@@ -87,7 +87,7 @@ export function TalentDirectory() {
           <p className="section-label text-[#C9A84C]">Talent Directory Preview</p>
           <h2 className="font-headline text-4xl font-semibold text-[#F5F0E8] sm:text-5xl">Meet the operators.</h2>
           <p className="mt-2 text-[#C9BEAA]">
-            Asymmetric bento layout designed for speed-scanning. Trust replaces vanity ratings.
+            Six verified builders. Real rates. Real track records. mxstermind has worked with every one of them personally.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export function TalentDirectory() {
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full border border-[#1A6B4A]/50 bg-[#1A6B4A]/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#9FE3C2]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#1A6B4A]" />
+                  <span className={`h-1.5 w-1.5 rounded-full ${person.availability.includes("Limited") ? "bg-[#C9A84C]" : "bg-[#1A6B4A]"}`} />
                   {person.availability}
                 </span>
               </div>
@@ -129,6 +129,7 @@ export function TalentDirectory() {
                 <p className="mt-2 text-[11px] text-[#C9BEAA]">Project completion rate: {person.completion}%</p>
               </div>
 
+              <p className="mt-3 line-clamp-2 text-sm text-[#8A8070]">{person.bio}</p>
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#C9A84C]">{person.pricing}</p>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -139,32 +140,20 @@ export function TalentDirectory() {
                 ))}
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {person.badges.map((badge) => (
-                  <span key={badge} className="rounded-full border border-[#1A6B4A]/35 bg-[#1A6B4A]/15 px-2.5 py-1 text-[10px] uppercase tracking-wide text-[#AEEACD]">
-                    {badge}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-lg border border-[#C9A84C]/15 bg-gradient-to-r from-[#0B1326] to-[#121D33] p-3 text-[11px] text-[#C9BEAA]">
-                Preview block: live portfolio loop / website snapshot on hover (stream-ready UI tile).
-              </div>
-
               <a
                 href={contactMessage(`Connect me with ${person.name}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary mt-5 min-h-10 w-full justify-center text-xs"
               >
-                Instant secure booking
+                Contact via mxstermind →
               </a>
             </motion.article>
           ))}
         </div>
 
         <div className="mt-6 rounded-xl border border-[#C9A84C]/30 bg-[#0F172B] px-4 py-3 text-sm text-[#F5F0E8]">
-          🔒 Verified-only. No open applications. Curated by {CONTACT.guarantor}.
+          🔒 Verified-only. No open applications. Every operator is manually whitelisted by {CONTACT.guarantor}.
         </div>
       </div>
     </section>
