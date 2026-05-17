@@ -64,6 +64,29 @@ function cleanPreferences(prefs: string[]): string[] {
   return out;
 }
 
+function completionScore(person: TalentMember): number {
+  let score = 35;
+  if (person.highlight) score += 15;
+  if (person.services.length > 0) score += 15;
+  if (person.tools.length > 0) score += 10;
+  if (person.location) score += 8;
+  if (person.rateLabel && person.rateLabel !== "Rate on request") score += 7;
+  if (person.preferences.length > 0) score += 6;
+  if (person.avatarUrl) score += 4;
+  return Math.min(100, score);
+}
+
+function matchScore(person: TalentMember): number {
+  let score = 0;
+  score += person.topMember ? 25 : 0;
+  score += Math.min(20, person.services.length * 5);
+  score += Math.min(16, person.tools.length * 2);
+  score += Math.min(12, person.jobs * 2);
+  score += person.rating != null ? Math.round(Math.min(20, person.rating * 4)) : 0;
+  score += person.highlight ? 5 : 0;
+  return score;
+}
+
 function TalentCard({
   person,
   isOwn,
@@ -81,10 +104,13 @@ function TalentCard({
   const tools = cleanTools(person.tools);
   const preferences = cleanPreferences(person.preferences);
   const displayRole = person.role?.trim() || "Operator";
+  const complete = completionScore(person);
+  const match = matchScore(person);
+  const isTopMatch = match >= 38;
 
   return (
     <article
-      className={`group surface-card flex flex-col overflow-hidden rounded-2xl border transition hover:-translate-y-0.5 hover:border-primary/40 ${
+      className={`group surface-card flex flex-col overflow-hidden rounded-2xl border transition duration-200 hover:-translate-y-1 hover:border-primary/40 ${
         isOwn ? "border-primary/50 ring-1 ring-primary/20" : "border-outline-variant/60"
       }`}
     >
@@ -115,9 +141,16 @@ function TalentCard({
               {since ? <p className="text-[10px] text-on-surface-variant">Member since {since}</p> : null}
             </div>
           </div>
-          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${avail.className}`}>
-            {avail.label}
-          </span>
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${avail.className}`}>
+              {avail.label}
+            </span>
+            {isTopMatch ? (
+              <span className="rounded-full border border-primary/40 bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                Top match
+              </span>
+            ) : null}
+          </div>
         </div>
         {person.highlight ? (
           <p className="mt-3 text-xs leading-relaxed text-on-surface-variant">{person.highlight}</p>
@@ -125,6 +158,16 @@ function TalentCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-5">
+        <div className="rounded-lg border border-outline-variant/60 bg-surface-container-low px-3 py-2">
+          <div className="mb-1 flex items-center justify-between text-[11px]">
+            <span className="font-medium text-on-surface-variant">Profile strength</span>
+            <span className="font-semibold text-on-surface">{complete}%</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-surface-container-high">
+            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${complete}%` }} />
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="rounded-md bg-surface-container-high px-2 py-1 font-medium text-on-surface-variant">
             {person.category}
@@ -242,6 +285,7 @@ export function TalentDirectory() {
     if (!myUsername) return members;
     const mine = members.filter((m) => m.username.toLowerCase() === myUsername);
     const rest = members.filter((m) => m.username.toLowerCase() !== myUsername);
+    rest.sort((a, b) => matchScore(b) - matchScore(a));
     return [...mine, ...rest];
   }, [members, myUsername]);
 
