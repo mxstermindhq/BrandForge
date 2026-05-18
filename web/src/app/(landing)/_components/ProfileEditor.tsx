@@ -28,6 +28,15 @@ function readProfile(boot: unknown, me: unknown): ProfileRow | null {
   return { ...b, ...a };
 }
 
+function normalizeUsername(input: string): string {
+  return String(input || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^@+/, "")
+    .replace(/[^a-z0-9_-]/g, "")
+    .slice(0, 30);
+}
+
 export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
   const { me, reload: reloadMe } = useAuthMe();
   const { data, reload: reloadBoot } = useBootstrap();
@@ -120,31 +129,40 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
     try {
       const t = await getToken();
       if (!t) throw new Error("Sign in required.");
+      const cleanUsername = normalizeUsername(username);
+      if (!cleanUsername) throw new Error("Username is required to publish your profile.");
+      if (cleanUsername.length < 3) throw new Error("Username must be at least 3 characters.");
       const skills = skillsText
         .split(/[,|\n]/)
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 15);
+      const parsedMinBudget = minBudget.trim() === "" ? null : Number(minBudget);
+      if (parsedMinBudget != null && !Number.isFinite(parsedMinBudget)) {
+        throw new Error("Min budget must be a valid number.");
+      }
       await apiMutateJson(
         "/api/profile",
         "PUT",
         {
-          username: username.trim() || null,
+          username: cleanUsername,
           bio: bio.trim() || null,
           headline: headline.trim() || null,
           location: location.trim() || null,
           skills,
           directory_category: directoryCategory || null,
           rate_label: rateLabel.trim() || null,
-          min_budget: minBudget.trim() === "" ? null : Number(minBudget),
+          min_budget: parsedMinBudget == null ? null : Math.round(parsedMinBudget),
           availability,
           remote_only: remoteOnly,
           open_to_offers: openToOffers,
           is_public: true,
+          onboarding_completed_at: new Date().toISOString(),
         },
         t,
       );
-      setMsg("Profile saved. You appear on the homepage directory.");
+      setUsername(cleanUsername);
+      setMsg("Profile saved and published. Directory listing updated.");
       await reloadBoot();
       await reloadMe();
       onSaved?.();

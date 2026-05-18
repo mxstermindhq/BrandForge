@@ -11,7 +11,7 @@ import {
   FAQSection,
   LandingFooter,
 } from "./_components";
-import { getCuratedOperators } from "@/lib/operators.server";
+import { getLandingOperators } from "@/lib/operators.server";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
@@ -57,7 +57,7 @@ const jsonLd = {
 };
 
 export default async function LandingPage() {
-  const operators = await getCuratedOperators();
+  const operators = await getLandingOperators();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

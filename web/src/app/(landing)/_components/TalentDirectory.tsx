@@ -1,13 +1,17 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 import { CONTACT } from "@/content/landing-directory";
+import { apiGetJson } from "@/lib/api";
+import type { TalentDirectoryResponse } from "@/lib/talent-types";
+import { mapTalentMemberToOperator } from "@/lib/operator-mappers";
 import { OperatorCard } from "./OperatorCard";
 import { TalentFilterBar } from "./TalentFilterBar";
 import { useTalentFilters, type AvailabilityFilter, type CategoryFilter, type SortFilter } from "./useTalentFilters";
+import { useLandingUI } from "./LandingUIProvider";
 
 type TalentDirectoryProps = {
   operators: CuratedOperator[];
@@ -51,7 +55,31 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
+  const { openProfileEditor, directoryVersion } = useLandingUI();
   const { category, availability, sort, setCategory, setAvailability, setSort, hydrate } = useTalentFilters();
+  const [liveOperators, setLiveOperators] = useState<CuratedOperator[]>(operators);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshFromRegisteredProfiles = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      const data = await apiGetJson<TalentDirectoryResponse>("/api/talent", null);
+      const mapped = (data.members || []).map((member, index) => mapTalentMemberToOperator(member, index));
+      if (mapped.length > 0) setLiveOperators(mapped);
+    } catch {
+      // Keep server-rendered operators as fallback.
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    setLiveOperators(operators);
+  }, [operators]);
+
+  useEffect(() => {
+    void refreshFromRegisteredProfiles();
+  }, [refreshFromRegisteredProfiles, directoryVersion]);
 
   useEffect(() => {
     const queryCategory = (searchParams.get("category") || "all") as CategoryFilter;
@@ -69,14 +97,14 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
   }, [availability, category, pathname, router, searchParams, sort]);
 
   const filtered = useMemo(() => {
-    let rows = [...operators];
+    let rows = [...liveOperators];
     if (category !== "all") rows = rows.filter((op) => classifyCategory(op) === category);
     if (availability !== "all") rows = rows.filter((op) => toAvailabilityFilter(op.availability) === availability);
     if (sort === "amanah") rows.sort((a, b) => b.amanahScore - a.amanahScore);
     if (sort === "years") rows.sort((a, b) => b.yearsExp - a.yearsExp);
     if (sort === "default") rows.sort((a, b) => a.displayOrder - b.displayOrder);
     return rows;
-  }, [availability, category, operators, sort]);
+  }, [availability, category, liveOperators, sort]);
 
   return (
     <section id="talent" className="scroll-mt-24 border-t px-4 py-16 sm:px-6 lg:px-8" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-bg)" }}>
@@ -85,8 +113,17 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
           <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-gold)]">Talent Directory Preview</p>
           <h2 className="mt-2 text-4xl font-semibold text-[var(--color-text-primary)] sm:text-5xl">Meet the operators.</h2>
           <p className="mt-2 text-[var(--color-text-secondary)]">
-            {operators.length} verified builders. Real rates. Real track records. {CONTACT.guarantor} has worked with every one of them personally.
+            {liveOperators.length} registered operators. Real rates. Real track records. {CONTACT.guarantor} coordinates fit, intros, and next steps.
           </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>
+            <span className="text-[var(--color-text-secondary)]">
+              Registered user? Complete your profile to be listed in the directory.
+            </span>
+            <button type="button" onClick={openProfileEditor} className="rounded-md border px-3 py-1 text-xs font-medium transition-colors hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]" style={{ borderColor: "var(--color-border)", color: "var(--color-text-primary)" }}>
+              Complete profile
+            </button>
+            {isRefreshing ? <span className="text-xs text-[var(--color-text-muted)]">Syncing…</span> : null}
+          </div>
         </div>
 
         <TalentFilterBar
@@ -117,7 +154,7 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
 
         {filtered.length === 0 ? (
           <div className="mt-6 rounded-xl border px-4 py-5 text-sm text-[var(--color-text-secondary)]" style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}>
-            No operators match your current filters. Try <button className="underline text-[var(--color-gold)]" onClick={() => hydrate({ category: "all", availability: "all", sort: "default" })}>resetting filters</button>.
+            No operators match your current filters. Try <button className="underline text-[var(--color-gold)]" onClick={() => hydrate({ category: "all", availability: "all", sort: "default" })}>resetting filters</button>, or <button className="underline text-[var(--color-gold)]" onClick={openProfileEditor}>complete your profile</button> to get listed.
           </div>
         ) : null}
       </div>
