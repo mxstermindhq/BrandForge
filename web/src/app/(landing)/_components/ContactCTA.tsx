@@ -36,9 +36,10 @@ export function ContactCTA({
           href={CONTACT.discord}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#5865F2]/40 bg-[#5865F2]/10 px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-[#5865F2]/20"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-[var(--color-gold-hover)]"
+          style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)", color: "var(--color-text-primary)" }}
         >
-          <DiscordIcon className="h-4 w-4 shrink-0 text-[#5865F2]" />
+          <DiscordIcon className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
           Discord
         </a>
       ) : null}

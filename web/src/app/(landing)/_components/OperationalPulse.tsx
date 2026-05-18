@@ -22,9 +22,9 @@ export function OperationalPulse() {
   ];
 
   return (
-    <section className="border-y border-[#A67C2E]/16 bg-[#FCFAF5] px-4 py-16 sm:px-6 lg:px-8">
+    <section className="border-y px-4 py-16 sm:px-6 lg:px-8" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-bg)" }}>
       <div className="mx-auto max-w-7xl">
-        <h2 className="mb-8 font-headline text-4xl font-semibold text-[#1F2937] sm:text-5xl">
+        <h2 className="mb-8 font-headline text-4xl font-semibold text-[var(--color-text-primary)] sm:text-5xl">
           Three reasons serious builders choose us.
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
@@ -35,12 +35,13 @@ export function OperationalPulse() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.45, delay: idx * 0.08 }}
-              className="rounded-2xl border border-[#A67C2E]/16 bg-white p-8"
+              className="rounded-2xl border p-8"
+              style={{ borderColor: "var(--color-gold-border)", background: "var(--color-surface)" }}
             >
-              <div className="mb-4 h-8 w-1 rounded-full bg-[#A67C2E]" />
-              <p className="text-xs uppercase tracking-[0.12em] text-[#8A6A27]">{card.subtitle}</p>
-              <h3 className="mt-2 font-headline text-2xl font-semibold text-[#1F2937]">{card.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">{card.body}</p>
+              <div className="mb-4 h-8 w-1 rounded-full bg-[var(--color-gold)]" />
+              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-gold)]">{card.subtitle}</p>
+              <h3 className="mt-2 font-headline text-2xl font-semibold text-[var(--color-text-primary)]">{card.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{card.body}</p>
             </motion.article>
           ))}
         </div>

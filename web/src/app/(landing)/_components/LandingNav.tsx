@@ -23,13 +23,13 @@ function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
 
 export function LandingNav() {
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#A67C2E]/16 bg-[#FCFAF5]/95 backdrop-blur-md">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b backdrop-blur-md" style={{ borderColor: "var(--color-gold-border)", background: "color-mix(in srgb, var(--color-bg) 92%, transparent)" }}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <Link href="/" className="group flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#A67C2E]/28 bg-[#A67C2E]/10 text-sm font-semibold text-[#5C4620]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-semibold" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)", color: "var(--color-gold)" }}>
             BF
           </div>
-          <span className="font-headline text-xl font-semibold text-[#1F2937] transition-colors group-hover:text-[#8A6A27]">
+          <span className="font-headline text-xl font-semibold text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--color-gold)]">
             BrandForge
           </span>
         </Link>
@@ -40,7 +40,7 @@ export function LandingNav() {
               key={item.href}
               href={item.href}
               onClick={(e) => scrollToSection(e, item.href)}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-[#6B7280] transition-colors hover:bg-[#F3EDE0] hover:text-[#1F2937]"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text-primary)]"
             >
               {item.label}
             </Link>

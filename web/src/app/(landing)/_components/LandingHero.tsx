@@ -87,7 +87,7 @@ export function LandingHero({ selectedPlan: _selectedPlan }: LandingHeroProps = 
 
       <div className="relative z-10 mx-auto max-w-5xl pt-20 text-center">
         <h1 className="mb-5 font-headline text-5xl font-bold tracking-tight text-on-surface drop-shadow-lg sm:text-6xl lg:text-7xl">
-          <span className="bg-gradient-to-b from-[#dbeafe] via-[#60a5fa] to-[#1d4ed8] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-b from-[var(--color-text-primary)] via-[var(--color-gold)] to-[var(--color-gold)] bg-clip-text text-transparent">
             Hire Fast. Build Faster.
           </span>
         </h1>
