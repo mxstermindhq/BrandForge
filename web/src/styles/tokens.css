@@ -1,32 +1,32 @@
 :root {
   /* Base */
-  --color-bg: #0a0f1e;
-  --color-surface: #0f1628;
-  --color-surface-2: #151e35;
-  --color-surface-3: #1c2640;
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-2: #f7f8fa;
+  --color-surface-3: #eef2f7;
 
-  /* Gold accent system */
-  --color-gold: #c9a84c;
-  --color-gold-subtle: rgba(201, 168, 76, 0.08);
-  --color-gold-border: rgba(201, 168, 76, 0.2);
-  --color-gold-hover: rgba(201, 168, 76, 0.15);
+  /* Accent system (blue, used sparingly) */
+  --color-gold: #2563eb;
+  --color-gold-subtle: rgba(37, 99, 235, 0.08);
+  --color-gold-border: rgba(37, 99, 235, 0.2);
+  --color-gold-hover: rgba(37, 99, 235, 0.14);
 
-  /* Emerald trust system */
-  --color-emerald: #1a6b4a;
-  --color-emerald-subtle: rgba(26, 107, 74, 0.12);
-  --color-emerald-text: #4ade80;
+  /* Trust/status accent */
+  --color-emerald: #2563eb;
+  --color-emerald-subtle: rgba(37, 99, 235, 0.1);
+  --color-emerald-text: #1d4ed8;
 
   /* Text */
-  --color-text-primary: #f5f0e8;
-  --color-text-secondary: #8a8070;
-  --color-text-muted: #4a4540;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
 
   /* Borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(201, 168, 76, 0.25);
+  --color-border: rgba(15, 23, 42, 0.1);
+  --color-border-hover: rgba(37, 99, 235, 0.25);
 
   /* Semantic */
-  --color-success: #4ade80;
+  --color-success: #2563eb;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
 

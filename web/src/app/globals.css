@@ -834,35 +834,35 @@ body {
 
 /* Landing skin: light editorial */
 .landing-layout {
-  --color-background: #f8f6f1;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
   --color-surface-container: #ffffff;
-  --color-surface-container-low: #fcfaf5;
+  --color-surface-container-low: #f7f8fa;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #f5f2ea;
-  --color-surface-container-highest: #efe9dd;
-  --color-surface-variant: #ded7ca;
-  --color-on-surface: #1f2937;
-  --color-on-surface-variant: #6b7280;
-  --color-outline: color-mix(in srgb, #a67c2e 32%, transparent);
-  --color-outline-variant: color-mix(in srgb, #a67c2e 16%, transparent);
-  --color-primary: #a67c2e;
+  --color-surface-container-high: #f3f6fb;
+  --color-surface-container-highest: #eaf0f9;
+  --color-surface-variant: #dbe5f3;
+  --color-on-surface: #0f172a;
+  --color-on-surface-variant: #475569;
+  --color-outline: color-mix(in srgb, #2563eb 30%, transparent);
+  --color-outline-variant: color-mix(in srgb, #2563eb 16%, transparent);
+  --color-primary: #2563eb;
   --color-on-primary: #ffffff;
-  --color-tertiary: #1f7a4d;
-  --color-on-tertiary: #eef9f2;
-  --color-success: #1f7a4d;
+  --color-tertiary: #2563eb;
+  --color-on-tertiary: #eff6ff;
+  --color-success: #2563eb;
   --color-on-success: #ffffff;
   --font-headline: var(--landing-font-headline);
   --font-body: var(--landing-font-body);
-  background: #f8f6f1;
-  color: #1f2937;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .landing-layout .btn-primary {
-  background: #a67c2e;
+  background: #2563eb;
   color: #ffffff;
   border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, #a67c2e 70%, transparent);
+  border: 1px solid color-mix(in srgb, #2563eb 70%, transparent);
 }
 
 .landing-layout .btn-primary:hover {
@@ -871,8 +871,8 @@ body {
 
 .landing-layout .btn-secondary {
   background: #ffffff;
-  color: #1f2937;
-  border: 1px solid color-mix(in srgb, #a67c2e 26%, transparent);
+  color: #0f172a;
+  border: 1px solid color-mix(in srgb, #2563eb 22%, transparent);
   border-radius: 0.75rem;
 }
 
@@ -919,7 +919,7 @@ body {
   transform-origin: left;
   transform: scaleX(0);
   animation: gold-draw 900ms var(--ease-out-expo) forwards 280ms;
-  background: linear-gradient(90deg, rgba(201, 168, 76, 0), rgba(201, 168, 76, 0.95), rgba(201, 168, 76, 0));
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0), rgba(37, 99, 235, 0.95), rgba(37, 99, 235, 0));
 }
 
 @keyframes gold-draw {
