@@ -141,6 +141,9 @@ const nextConfig = {
       : [security, fontCache, nextStaticCache];
   },
   images: {
+    // OpenNext on Cloudflare Workers does not run the /_next/image optimizer by default.
+    // Serve images straight from /public to keep them rendering everywhere.
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "**.supabase.co", pathname: "/**" },
       { protocol: "https", hostname: "**.supabase.in", pathname: "/**" },
