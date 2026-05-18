@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { contactMessage } from "@/content/landing-directory";
 import { getLandingOperators } from "@/lib/operators.server";
+import { getOperatorMedia } from "@/content/operator-media";
 
 export default async function WorkDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -10,41 +12,107 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
   const operator = rows.find((o) => o.username.toLowerCase() === handle);
   if (!operator) notFound();
 
+  const media = getOperatorMedia(operator.username);
+  const pieces = media?.workPieces ?? [];
+
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:underline">
-        ← Back
+        ← Back to directory
       </Link>
-      <p className="mt-6 text-xs uppercase tracking-[0.1em] text-[var(--color-gold)]">Work</p>
-      <h1 className="mt-1 text-3xl font-semibold text-[var(--color-text-primary)]">{operator.name}</h1>
-      <p className="mt-2 text-[var(--color-text-secondary)]">{operator.bestResult}</p>
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        {["Done", "Doing", "Planned"].map((stage) => (
-          <article key={stage} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}>
-            <div
-              className="h-40"
-              style={{
-                background:
-                  "linear-gradient(145deg, color-mix(in srgb, var(--color-gold) 14%, white), color-mix(in srgb, var(--color-gold) 4%, white))",
-              }}
+
+      <header
+        className="mt-6 overflow-hidden rounded-3xl border bg-[var(--color-surface)]"
+        style={{ borderColor: "var(--color-border)" }}
+      >
+        {media?.cover ? (
+          <div className="relative h-56 w-full overflow-hidden md:h-72">
+            <Image
+              src={media.cover}
+              alt={`${operator.name} portfolio`}
+              fill
+              sizes="(max-width: 768px) 100vw, 1100px"
+              className="object-cover"
+              priority
             />
-            <div className="p-3">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--color-gold)]">{stage}</p>
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{operator.role}</p>
-            </div>
-          </article>
-        ))}
-      </div>
-      <div className="mt-8">
-        <a
-          href={contactMessage(`Interest in work portfolio: ${operator.name} (@${operator.username})`)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold text-white"
-          style={{ background: "var(--color-gold)" }}
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%)" }}
+            />
+          </div>
+        ) : null}
+        <div className="flex flex-wrap items-end justify-between gap-4 px-6 py-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-gold)]">Portfolio</p>
+            <h1 className="mt-1 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">
+              {operator.name}
+            </h1>
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{operator.bestResult}</p>
+          </div>
+          <a
+            href={contactMessage(`Interest in work portfolio: ${operator.name} (@${operator.username})`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold text-white"
+            style={{ background: "var(--color-gold)" }}
+          >
+            Show interest via Telegram →
+          </a>
+        </div>
+      </header>
+
+      {pieces.length ? (
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {pieces.map((piece) => (
+            <article
+              key={piece.id}
+              id={piece.id}
+              className="overflow-hidden rounded-3xl border bg-[var(--color-surface)] scroll-mt-24"
+              style={{ borderColor: "var(--color-border)" }}
+            >
+              <div className="relative h-72 w-full overflow-hidden">
+                <Image
+                  src={piece.image}
+                  alt={piece.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 600px"
+                  className="object-cover"
+                />
+                <span
+                  className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] backdrop-blur"
+                  style={{ background: "color-mix(in srgb, white 82%, transparent)", color: "var(--color-gold)" }}
+                >
+                  {piece.stage}
+                </span>
+              </div>
+              <div className="p-5">
+                <h2 className="font-headline text-xl font-semibold text-[var(--color-text-primary)]">
+                  {piece.title}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{piece.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="mt-8 rounded-3xl border p-8 text-center text-sm text-[var(--color-text-secondary)]"
+          style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
         >
-          Show interest via Telegram →
-        </a>
+          This operator&apos;s portfolio is being prepared.
+        </div>
+      )}
+
+      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href={`/${encodeURIComponent(operator.username)}`}
+          className="text-sm text-[var(--color-text-secondary)] hover:underline"
+        >
+          View {operator.name}&apos;s full profile →
+        </Link>
+        <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:underline">
+          ← Back to directory
+        </Link>
       </div>
     </main>
   );

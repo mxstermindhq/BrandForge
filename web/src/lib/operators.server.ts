@@ -1,9 +1,7 @@
 import "server-only";
 
 import { CuratedOperatorSchema, type CuratedOperator } from "@/lib/schemas/operator.schema";
-import { apiProxyOrigin } from "@/lib/api-proxy-origin";
-import { mapTalentMemberToOperator } from "@/lib/operator-mappers";
-import type { TalentDirectoryResponse } from "@/lib/talent-types";
+import { OPERATOR_SEED } from "@/content/operator-seed";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -70,52 +68,38 @@ export async function getCuratedOperators(): Promise<CuratedOperator[]> {
   return valid;
 }
 
-export async function getRegisteredDirectoryOperators(): Promise<CuratedOperator[]> {
-  try {
-    const response = await fetch(`${apiProxyOrigin()}/api/talent`, {
-      headers: { Accept: "application/json" },
-      next: { revalidate: 30 },
-    });
-    if (!response.ok) return [];
-    const json = (await response.json().catch(() => null)) as TalentDirectoryResponse | null;
-    const members = Array.isArray(json?.members) ? json.members : [];
-    return members.map((member, index) => mapTalentMemberToOperator(member, index));
-  } catch (err) {
-    console.error("getRegisteredDirectoryOperators: fetch failed", err);
-    return [];
-  }
-}
-
 export async function getLandingOperators(): Promise<CuratedOperator[]> {
-  const registered = await getRegisteredDirectoryOperators();
-  if (registered.length > 0) return registered;
-  return getCuratedOperators();
+  const curated = await getCuratedOperators();
+  if (curated.length > 0) return curated;
+  return OPERATOR_SEED;
 }
 
 export async function getCuratedOperatorByUsername(username: string): Promise<CuratedOperator | null> {
-  if (!SUPABASE_URL) return null;
-  const headers = baseHeaders();
-  if (!headers) return null;
+  const slug = String(username || "").trim().toLowerCase().replace(/^@+/, "");
+  if (!slug) return null;
 
-  const slug = encodeURIComponent(String(username || "").trim().toLowerCase().replace(/^@+/, ""));
-  const url = `${SUPABASE_URL}/rest/v1/curated_operators?select=*&username=eq.${slug}&limit=1`;
-  const res = await fetch(url, {
-    headers,
-    next: { revalidate: 30 },
-  });
-  if (!res.ok) {
-    console.error("getCuratedOperatorByUsername: fetch failed", res.status);
-    return null;
+  if (SUPABASE_URL) {
+    const headers = baseHeaders();
+    if (headers) {
+      const url = `${SUPABASE_URL}/rest/v1/curated_operators?select=*&username=eq.${encodeURIComponent(slug)}&limit=1`;
+      try {
+        const res = await fetch(url, { headers, next: { revalidate: 30 } });
+        if (res.ok) {
+          const rows = (await res.json().catch(() => [])) as Array<Record<string, unknown>>;
+          const row = rows[0];
+          if (row) {
+            try {
+              return mapDbRow(row);
+            } catch (err) {
+              console.error("getCuratedOperatorByUsername: schema error", err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("getCuratedOperatorByUsername: fetch failed", err);
+      }
+    }
   }
 
-  const rows = (await res.json().catch(() => [])) as Array<Record<string, unknown>>;
-  const row = rows[0];
-  if (!row) return null;
-
-  try {
-    return mapDbRow(row);
-  } catch (err) {
-    console.error("getCuratedOperatorByUsername: schema error", err);
-    return null;
-  }
+  return OPERATOR_SEED.find((op) => op.username.toLowerCase() === slug) ?? null;
 }
