@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 import { talentInitials } from "@/lib/talent-types";
 import { profilePath } from "@/lib/reserved-paths";
+import { contactMessage } from "@/content/landing-directory";
 
 type OperatorCardProps = {
   operator: CuratedOperator;
@@ -27,6 +28,7 @@ export function OperatorCard({ operator, index }: OperatorCardProps) {
   const scoreText = useTransform(scoreSpring, (v) => Math.round(v));
   const avail = availabilityUi(operator.availability);
   const featured = operator.layoutSpan === "featured";
+  const interestUrl = contactMessage(`Interest in profile: ${operator.name} (@${operator.username})`);
 
   useEffect(() => {
     score.set(operator.amanahScore);
@@ -118,14 +120,25 @@ export function OperatorCard({ operator, index }: OperatorCardProps) {
         ))}
       </div>
 
-      <Link
-        href={profilePath(operator.username)}
-        className="mt-4 inline-flex w-full items-center justify-center gap-1 rounded-md border px-3 py-2 text-sm transition-all duration-[var(--duration-fast)] hover:border-[var(--color-gold-border)] hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]"
-        style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
-      >
-        View profile
-        <span className="transition-transform duration-[var(--duration-fast)] ease-[var(--ease-spring)] group-hover:translate-x-1">→</span>
-      </Link>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <a
+          href={interestUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm transition-all duration-[var(--duration-fast)] hover:border-[var(--color-gold-border)] hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]"
+          style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
+        >
+          Show interest
+        </a>
+        <Link
+          href={profilePath(operator.username)}
+          className="inline-flex items-center justify-center gap-1 rounded-md border px-3 py-2 text-sm transition-all duration-[var(--duration-fast)] hover:border-[var(--color-gold-border)] hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]"
+          style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
+        >
+          View profile
+          <span className="transition-transform duration-[var(--duration-fast)] ease-[var(--ease-spring)] group-hover:translate-x-1">→</span>
+        </Link>
+      </div>
     </motion.article>
   );
 }

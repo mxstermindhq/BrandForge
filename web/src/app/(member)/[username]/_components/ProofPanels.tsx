@@ -13,7 +13,7 @@ const rowClass = "grid grid-cols-[140px_1fr] items-center gap-3 border-b px-3 py
 export function ProofPanels({ viewModel }: ProofPanelsProps) {
   const reduced = useReducedMotion();
   const stats = [
-    ["Amanah score", `${viewModel.amanahScore}/100`],
+    ["Review score", `${viewModel.amanahScore}/100`],
     ["Completion rate", `${viewModel.completionRate}%`],
     ["Starting price", viewModel.startingPrice],
     ["Typical timeline", viewModel.typicalTimeline],

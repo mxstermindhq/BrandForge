@@ -28,7 +28,7 @@ const labels = {
   } as Record<AvailabilityFilter, string>,
   sort: {
     default: "Default",
-    amanah: "Amanah score",
+    amanah: "Reviews",
     years: "Years exp",
   } as Record<SortFilter, string>,
 };
