@@ -48,6 +48,9 @@ export function LandingNav() {
         </nav>
 
         <div className="hidden items-center gap-2 sm:flex">
+          <Link href="/login" className="btn-secondary min-h-9 px-3 text-xs">
+            Sign in
+          </Link>
           <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer" className="btn-secondary min-h-9 px-3 text-xs">
             Discord
           </a>

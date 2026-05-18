@@ -176,34 +176,46 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
   if (!open) return null;
 
   const publicHref = username.trim() ? profilePath(username.trim()) : null;
+  const fieldClass =
+    "w-full rounded-xl border bg-[var(--color-surface-2)] px-3 py-2.5 text-sm text-[var(--color-text-primary)] transition-colors outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)] focus:bg-[var(--color-surface)]";
+  const labelClass = "mb-1 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-secondary)]";
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4" data-lenis-prevent>
-      <button type="button" className="absolute inset-0 bg-black/60" aria-label="Close" onClick={onClose} />
+      <button
+        type="button"
+        className="absolute inset-0 backdrop-blur-sm"
+        style={{ background: "rgba(15, 23, 42, 0.36)" }}
+        aria-label="Close"
+        onClick={onClose}
+      />
       <div
-        className="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-outline-variant bg-surface p-6 shadow-2xl sm:rounded-2xl"
+        className="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border bg-[var(--color-surface)] p-6 shadow-2xl sm:rounded-2xl"
+        style={{ borderColor: "var(--color-border-hover)", boxShadow: "0 24px 70px rgba(37, 99, 235, 0.18)" }}
         data-lenis-prevent
         onPointerDown={(e) => e.stopPropagation()}
       >
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--color-gold)]" />
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-headline text-xl font-bold text-on-surface">Your profile</h2>
-            <p className="mt-1 text-sm text-on-surface-variant">
+            <h2 className="font-headline text-2xl font-semibold text-[var(--color-text-primary)]">Complete your profile</h2>
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
               Founders, creators, operators — advertise yourself and your services at brandforge.gg/
               {username || "username"}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="text-on-surface-variant hover:text-on-surface" aria-label="Close">
+          <button type="button" onClick={onClose} className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]" aria-label="Close">
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <div className="mb-6 flex items-center gap-4">
+        <div className="mb-6 flex items-center gap-4 rounded-xl border p-3" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>
           <div className="relative">
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="relative flex h-16 w-16 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-high"
+              className="relative flex h-16 w-16 overflow-hidden rounded-xl border"
+              style={{ borderColor: "var(--color-border-hover)", background: "var(--color-surface)" }}
               aria-label="Change profile photo"
             >
               {avatarUrl ? (
@@ -226,11 +238,11 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
             />
           </div>
           <div className="text-sm">
-            <p className="font-medium text-on-surface">Profile photo</p>
-            <p className="text-on-surface-variant">Click to upload · JPG or PNG</p>
-            {avatarErr ? <p className="text-critical mt-1 text-xs">{avatarErr}</p> : null}
+            <p className="font-medium text-[var(--color-text-primary)]">Profile photo</p>
+            <p className="text-[var(--color-text-secondary)]">Click to upload · JPG or PNG</p>
+            {avatarErr ? <p className="mt-1 text-xs text-[var(--color-danger)]">{avatarErr}</p> : null}
             {publicHref ? (
-              <a href={publicHref} className="text-primary mt-1 inline-block text-xs hover:underline" target="_blank" rel="noreferrer">
+              <a href={publicHref} className="mt-1 inline-block text-xs text-[var(--color-gold)] hover:underline" target="_blank" rel="noreferrer">
                 Preview public page →
               </a>
             ) : null}
@@ -239,32 +251,35 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
 
         <form onSubmit={save} className="space-y-4">
           <label className="block">
-            <span className="section-label !mb-1">Username</span>
+            <span className={labelClass}>Username</span>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="input w-full"
+              className={fieldClass}
+              style={{ borderColor: "var(--color-border)" }}
               placeholder="mxstermind"
               autoComplete="off"
             />
           </label>
 
           <label className="block">
-            <span className="section-label !mb-1">Headline</span>
+            <span className={labelClass}>Headline</span>
             <input
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
-              className="input w-full"
+              className={fieldClass}
+              style={{ borderColor: "var(--color-border)" }}
               placeholder="Founder · AI operator · Creator"
             />
           </label>
 
           <label className="block">
-            <span className="section-label !mb-1">Directory category</span>
+            <span className={labelClass}>Directory category</span>
             <select
               value={directoryCategory}
               onChange={(e) => setDirectoryCategory(e.target.value)}
-              className="input w-full cursor-pointer"
+              className={`${fieldClass} cursor-pointer`}
+              style={{ borderColor: "var(--color-border)" }}
             >
               <option value="">Auto from bio & services</option>
               {DIRECTORY_CATEGORIES.map((c) => (
@@ -276,65 +291,71 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
           </label>
 
           <label className="block">
-            <span className="section-label !mb-1">Bio</span>
+            <span className={labelClass}>Bio</span>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={4}
-              className="input min-h-[100px] w-full resize-y"
+              className={`${fieldClass} min-h-[100px] resize-y`}
+              style={{ borderColor: "var(--color-border)" }}
               placeholder="What you build, who you help, outcomes you deliver…"
             />
           </label>
 
           <label className="block">
-            <span className="section-label !mb-1">Tools & skills</span>
+            <span className={labelClass}>Tools & skills</span>
             <input
               value={skillsText}
               onChange={(e) => setSkillsText(e.target.value)}
-              className="input w-full"
+              className={fieldClass}
+              style={{ borderColor: "var(--color-border)" }}
               placeholder="n8n, Next.js, TikTok Ads"
             />
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="section-label !mb-1">Rate label</span>
+              <span className={labelClass}>Rate label</span>
               <input
                 value={rateLabel}
                 onChange={(e) => setRateLabel(e.target.value)}
-                className="input w-full"
+                className={fieldClass}
+                style={{ borderColor: "var(--color-border)" }}
                 placeholder="€80–120/hr"
               />
             </label>
             <label className="block">
-              <span className="section-label !mb-1">Min budget (€)</span>
+              <span className={labelClass}>Min budget (€)</span>
               <input
                 type="number"
                 min={0}
                 value={minBudget}
                 onChange={(e) => setMinBudget(e.target.value)}
-                className="input w-full"
+                className={fieldClass}
+                style={{ borderColor: "var(--color-border)" }}
                 placeholder="500"
               />
             </label>
           </div>
 
           <label className="block">
-            <span className="section-label !mb-1">Location</span>
+            <span className={labelClass}>Location</span>
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="input w-full"
+              className={fieldClass}
+              style={{ borderColor: "var(--color-border)" }}
               placeholder="Remote · EU"
             />
           </label>
 
           <label className="block">
-            <span className="section-label !mb-1">Availability</span>
+            <span className={labelClass}>Availability</span>
             <select
               value={availability}
               onChange={(e) => setAvailability(e.target.value)}
-              className="input w-full cursor-pointer"
+              className={`${fieldClass} cursor-pointer`}
+              style={{ borderColor: "var(--color-border)" }}
             >
               <option value="available">Available — taking work</option>
               <option value="busy">Limited slots</option>
@@ -342,29 +363,39 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
             </select>
           </label>
 
-          <div className="flex flex-wrap gap-4 text-sm">
-            <label className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-4 rounded-xl border p-3 text-sm" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>
+            <label className="flex items-center gap-2 text-[var(--color-text-primary)]">
               <input type="checkbox" checked={remoteOnly} onChange={(e) => setRemoteOnly(e.target.checked)} />
               Remote only
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-[var(--color-text-primary)]">
               <input type="checkbox" checked={openToOffers} onChange={(e) => setOpenToOffers(e.target.checked)} />
               Open to offers
             </label>
           </div>
 
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-[var(--color-text-secondary)]">
             Contact on listings goes through {CONTACT.telegramHandle} — {CONTACT.guarantor} coordinates deals.
           </p>
 
-          {msg ? <p className="text-sm text-success">{msg}</p> : null}
-          {err ? <p className="text-sm text-critical">{err}</p> : null}
+          {msg ? <p className="rounded-lg border px-3 py-2 text-sm text-[var(--color-success)]" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>{msg}</p> : null}
+          {err ? <p className="rounded-lg border px-3 py-2 text-sm text-[var(--color-danger)]" style={{ borderColor: "var(--color-danger)", background: "rgba(239,68,68,0.04)" }}>{err}</p> : null}
 
           <div className="flex gap-2 pt-2">
-            <button type="submit" disabled={saving || avatarBusy} className="btn-primary min-h-11 flex-1">
+            <button
+              type="submit"
+              disabled={saving || avatarBusy}
+              className="min-h-11 flex-1 rounded-xl border px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+              style={{ borderColor: "color-mix(in srgb, var(--color-gold) 70%, transparent)", background: "var(--color-gold)" }}
+            >
               {saving ? "Saving…" : "Save profile"}
             </button>
-            <button type="button" onClick={onClose} className="btn-secondary min-h-11 px-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="min-h-11 rounded-xl border px-4 text-sm font-medium text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text-primary)]"
+              style={{ borderColor: "var(--color-border)" }}
+            >
               Cancel
             </button>
           </div>
