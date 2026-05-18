@@ -10,12 +10,6 @@ export function DirectoryHero() {
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const ticker = [
-    "● Founder matched · lifecycle operator · 2 min ago",
-    "● New scope: Next.js rebuild · Under review",
-    "● Deal delivered: AI support agent · Approved",
-    "● UGC retainer filled · 3 operators shortlisted",
-  ];
 
   async function submitInterest(e: React.FormEvent) {
     e.preventDefault();
@@ -157,23 +151,6 @@ export function DirectoryHero() {
           </a>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          className="mt-14"
-        >
-          <p className="mb-2 text-[10px] uppercase tracking-[0.16em] text-[var(--color-text-secondary)]">Live activity</p>
-          <div className="ticker-mask overflow-hidden rounded-lg border py-2" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-surface)" }}>
-            <div className="ticker-track">
-              {[...ticker, ...ticker].map((line, i) => (
-                <span key={`${line}-${i}`} className="mx-5 whitespace-nowrap text-xs uppercase tracking-[0.08em] text-[var(--color-text-primary)]">
-                  {line}
-                </span>
-              ))}
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
