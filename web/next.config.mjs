@@ -69,8 +69,15 @@ const nextConfig = {
   distDir: ".next",
   // Keep tracing scoped to `web/` so `output: standalone` lays out `.next/standalone/.next/...` (OpenNext expects this). A repo-root tracing root nests `standalone/web/.next` and breaks @opennextjs/cloudflare on Windows/CI.
   outputFileTracingRoot: __dirname,
-  // Windows compatibility: ensure routes-manifest is generated
-  generateBuildId: async () => "build",
+  // Unique build id per deploy. Using a fixed id (e.g. "build") keeps
+  // `/_next/static/build/_buildManifest.js` at the same immutable URL while its
+  // content changes every deploy, which produced `e[o] is not a function`
+  // webpack runtime crashes on cached visits.
+  generateBuildId: async () => {
+    const sha = process.env.CF_PAGES_COMMIT_SHA || process.env.GIT_COMMIT_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "";
+    if (sha) return sha.slice(0, 12);
+    return `bf-${Date.now().toString(36)}`;
+  },
   onDemandEntries: {
     // period of time in ms where a page is kept in memory
     maxInactiveAge: 60 * 1000,
