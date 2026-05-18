@@ -1,16 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { CONTACT } from "@/content/landing-directory";
 import { IslamicPattern } from "@/components/ui/IslamicPattern";
 
 export function DirectoryHero() {
+  const [intent, setIntent] = useState<"hire" | "get_hired" | null>(null);
+  const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
   const ticker = [
     "● Founder matched · lifecycle operator · 2 min ago",
     "● New scope: Next.js rebuild · Under review",
     "● Deal delivered: AI support agent · Approved",
     "● UGC retainer filled · 3 operators shortlisted",
   ];
+
+  async function submitInterest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!intent) return;
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/landing-interest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, intent }),
+      });
+      if (!res.ok) throw new Error("Could not save email");
+      setMsg("You're in. We'll send updates when applications/news drop.");
+      setEmail("");
+    } catch {
+      setMsg("Could not save right now. Try again in a moment.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden px-4 py-12 sm:px-6 lg:px-8" style={{ background: "var(--color-bg)" }}>
@@ -42,10 +68,9 @@ export function DirectoryHero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.16 }}
-          className="mt-8 max-w-3xl text-lg text-[var(--color-text-secondary)] sm:text-xl"
+          className="mt-8 max-w-2xl text-lg text-[var(--color-text-secondary)] sm:text-xl"
         >
-          Most agencies waste your time with proposals. We waste nothing. One conversation with mxstermind routes you
-          to the right operator — scoped, trusted, and ready to execute.
+          One conversation with mxstermind routes you to the right operator — scoped, trusted, and ready.
         </motion.p>
 
         <motion.p
@@ -54,8 +79,69 @@ export function DirectoryHero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-4 text-xs uppercase tracking-[0.12em] text-[var(--color-gold)]"
         >
-          No bidding. No spam briefs. No hidden fees. Your word is honoured here.
+          No bidding. No spam. No hidden fees.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.21 }}
+          className="mt-6 flex flex-wrap items-center gap-2"
+        >
+          <button
+            type="button"
+            onClick={() => setIntent("hire")}
+            className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] transition-colors hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]"
+            style={{ borderColor: "var(--color-border)", color: "var(--color-text-primary)" }}
+          >
+            Hire
+          </button>
+          <button
+            type="button"
+            onClick={() => setIntent("get_hired")}
+            className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] transition-colors hover:bg-[var(--color-gold-subtle)] hover:text-[var(--color-gold)]"
+            style={{ borderColor: "var(--color-border)", color: "var(--color-text-primary)" }}
+          >
+            Get hired
+          </button>
+        </motion.div>
+
+        {intent ? (
+          <motion.form
+            onSubmit={(e) => void submitInterest(e)}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 flex max-w-xl flex-wrap gap-2 rounded-xl border p-2"
+            style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}
+          >
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email for whitelist updates"
+              className="min-h-10 min-w-[220px] flex-1 rounded-lg border px-3 text-sm outline-none"
+              style={{ borderColor: "var(--color-border)", background: "var(--color-surface)", color: "var(--color-text-primary)" }}
+            />
+            <button
+              type="submit"
+              disabled={saving}
+              className="min-h-10 rounded-lg px-3 text-sm font-semibold text-white disabled:opacity-70"
+              style={{ background: "var(--color-gold)" }}
+            >
+              {saving ? "Saving…" : "Notify me"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIntent(null)}
+              className="min-h-10 rounded-lg border px-3 text-sm"
+              style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
+            >
+              Close
+            </button>
+            {msg ? <p className="w-full text-xs text-[var(--color-text-secondary)]">{msg}</p> : null}
+          </motion.form>
+        ) : null}
 
         <motion.div
           initial={{ opacity: 0, y: 14 }}

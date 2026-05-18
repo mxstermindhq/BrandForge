@@ -75,7 +75,7 @@ export function OperatorCard({ operator, index }: OperatorCardProps) {
 
       <div className="mt-4 rounded-md bg-[var(--color-surface-3)] px-3 py-2">
         <div className="mb-1 flex items-center justify-between text-[11px]">
-          <span className="text-[var(--color-text-secondary)]">Amanah score</span>
+          <span className="text-[var(--color-text-secondary)]">Reviews</span>
           <motion.span className="font-semibold text-[var(--color-text-primary)]">{scoreText}</motion.span>
         </div>
         <div className="relative h-[3px] overflow-hidden rounded-sm bg-[var(--color-border)]" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={operator.amanahScore}>
@@ -87,6 +87,9 @@ export function OperatorCard({ operator, index }: OperatorCardProps) {
           />
           <span className="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-white/15 group-hover:block group-hover:animate-[bf-shimmer_1.5s_linear_1]" />
         </div>
+        <p className="mt-1 text-[10px] text-[var(--color-text-secondary)]">
+          {Math.max(3, Math.round(operator.completionRate / 20))} verified reviews
+        </p>
       </div>
 
       <p className="mt-3 line-clamp-1 text-sm text-[var(--color-text-secondary)]">{operator.bio}</p>

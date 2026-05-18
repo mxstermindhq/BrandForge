@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import {
   DirectoryHero,
   OperationalPulse,
-  OfficialPackages,
   TalentDirectory,
   GuarantorStrip,
   TrustStandards,
@@ -64,7 +63,6 @@ export default async function LandingPage() {
       <main className="min-h-screen bg-background text-on-surface">
         <DirectoryHero />
         <OperationalPulse />
-        <OfficialPackages />
         <Suspense fallback={<div className="px-4 py-16 text-sm text-[var(--color-text-secondary)]">Loading directory…</div>}>
           <TalentDirectory operators={operators} />
         </Suspense>
