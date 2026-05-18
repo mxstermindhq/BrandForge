@@ -409,7 +409,7 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                 {workRows.map(({ operator: op, piece }) => (
                   <Link
                     key={`work-${op.username}-${piece.id}`}
-                    href={`/work/${encodeURIComponent(op.username)}#${piece.id}`}
+                    href={`/work/${encodeURIComponent(op.username)}/${encodeURIComponent(piece.id)}`}
                     className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)] hover:shadow-md"
                     style={{ borderColor: "var(--color-border)" }}
                   >

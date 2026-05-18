@@ -83,7 +83,7 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
           {media.workPieces.map((piece) => (
             <Link
               key={piece.id}
-              href={`/work/${encodeURIComponent(viewModel.username)}#${piece.id}`}
+              href={`/work/${encodeURIComponent(viewModel.username)}/${encodeURIComponent(piece.id)}`}
               className="group block overflow-hidden rounded-2xl border bg-[var(--color-surface)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)]"
               style={{ borderColor: "var(--color-border)" }}
             >

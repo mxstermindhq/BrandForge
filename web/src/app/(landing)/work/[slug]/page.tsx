@@ -5,7 +5,7 @@ import { contactMessage } from "@/content/landing-directory";
 import { getLandingOperators } from "@/lib/operators.server";
 import { getOperatorMedia } from "@/content/operator-media";
 
-export default async function WorkDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function WorkPortfolioPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const handle = decodeURIComponent(slug).replace(/^@+/, "").toLowerCase();
   const rows = await getLandingOperators();
@@ -37,7 +37,10 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
             />
             <div
               className="absolute inset-0"
-              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%)" }}
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%)",
+              }}
             />
           </div>
         ) : null}
@@ -64,10 +67,10 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
       {pieces.length ? (
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {pieces.map((piece) => (
-            <article
+            <Link
               key={piece.id}
-              id={piece.id}
-              className="overflow-hidden rounded-3xl border bg-[var(--color-surface)] scroll-mt-24"
+              href={`/work/${encodeURIComponent(operator.username)}/${encodeURIComponent(piece.id)}`}
+              className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)]"
               style={{ borderColor: "var(--color-border)" }}
             >
               <div className="relative h-72 w-full overflow-hidden">
@@ -76,11 +79,14 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
                   alt={piece.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 600px"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <span
                   className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] backdrop-blur"
-                  style={{ background: "color-mix(in srgb, white 82%, transparent)", color: "var(--color-gold)" }}
+                  style={{
+                    background: "color-mix(in srgb, white 82%, transparent)",
+                    color: "var(--color-gold)",
+                  }}
                 >
                   {piece.stage}
                 </span>
@@ -90,8 +96,9 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
                   {piece.title}
                 </h2>
                 <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{piece.description}</p>
+                <p className="mt-3 text-xs font-semibold text-[var(--color-gold)]">Open case study →</p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       ) : (
