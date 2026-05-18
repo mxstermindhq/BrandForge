@@ -50,7 +50,7 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
           {viewModel.isVerified ? (
-            <span className="rounded-full border px-2.5 py-1" style={{ borderColor: "var(--color-emerald)", background: "var(--color-emerald-subtle)", color: "var(--color-emerald-text)" }}>
+            <span className="rounded-full border px-2.5 py-1" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)", color: "var(--color-gold)" }}>
               Verified
             </span>
           ) : null}

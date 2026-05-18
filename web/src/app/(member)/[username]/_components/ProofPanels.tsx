@@ -35,16 +35,16 @@ export function ProofPanels({ viewModel }: ProofPanelsProps) {
           <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{viewModel.bio}</p>
         </div>
 
-        <div className="rounded-xl border-l-2 p-4" style={{ borderLeftColor: "var(--color-emerald)", background: "var(--color-emerald-subtle)" }}>
-          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.08em] text-[var(--color-emerald-text)]">
+        <div className="rounded-xl border-l-2 p-4" style={{ borderLeftColor: "var(--color-gold)", background: "var(--color-gold-subtle)" }}>
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.08em] text-[var(--color-gold)]">
             <Trophy size={12} aria-hidden="true" />
             Best result
           </p>
-          <p className="mt-1 text-sm text-[var(--color-emerald-text)]">{viewModel.bestResult}</p>
+          <p className="mt-1 text-sm text-[var(--color-text-primary)]">{viewModel.bestResult}</p>
         </div>
 
-        <div className="rounded-xl border-l-2 p-4" style={{ borderLeftColor: "var(--color-warning)", background: "rgba(245,158,11,0.08)" }}>
-          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.08em]" style={{ color: "var(--color-warning)" }}>
+        <div className="rounded-xl border-l-2 p-4" style={{ borderLeftColor: "var(--color-border-hover)", background: "var(--color-surface-2)" }}>
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.08em]" style={{ color: "var(--color-text-secondary)" }}>
             <Ban size={12} aria-hidden="true" />
             Won't take on
           </p>

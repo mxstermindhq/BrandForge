@@ -365,11 +365,21 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
 
           <div className="flex flex-wrap gap-4 rounded-xl border p-3 text-sm" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>
             <label className="flex items-center gap-2 text-[var(--color-text-primary)]">
-              <input type="checkbox" checked={remoteOnly} onChange={(e) => setRemoteOnly(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={remoteOnly}
+                onChange={(e) => setRemoteOnly(e.target.checked)}
+                style={{ accentColor: "var(--color-gold)" }}
+              />
               Remote only
             </label>
             <label className="flex items-center gap-2 text-[var(--color-text-primary)]">
-              <input type="checkbox" checked={openToOffers} onChange={(e) => setOpenToOffers(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={openToOffers}
+                onChange={(e) => setOpenToOffers(e.target.checked)}
+                style={{ accentColor: "var(--color-gold)" }}
+              />
               Open to offers
             </label>
           </div>
@@ -378,7 +388,7 @@ export function ProfileEditor({ open, onClose, onSaved }: ProfileEditorProps) {
             Contact on listings goes through {CONTACT.telegramHandle} — {CONTACT.guarantor} coordinates deals.
           </p>
 
-          {msg ? <p className="rounded-lg border px-3 py-2 text-sm text-[var(--color-success)]" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}>{msg}</p> : null}
+          {msg ? <p className="rounded-lg border px-3 py-2 text-sm text-[var(--color-gold)]" style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)" }}>{msg}</p> : null}
           {err ? <p className="rounded-lg border px-3 py-2 text-sm text-[var(--color-danger)]" style={{ borderColor: "var(--color-danger)", background: "rgba(239,68,68,0.04)" }}>{err}</p> : null}
 
           <div className="flex gap-2 pt-2">
