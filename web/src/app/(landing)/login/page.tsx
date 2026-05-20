@@ -3,50 +3,52 @@ import Link from "next/link";
 import { SocialLoginButtons } from "@/components/SocialLoginButtons";
 
 export const metadata: Metadata = {
-  title: "Sign In | BrandForge",
-  description: "Sign in to BrandForge to hire or get hired",
+  title: "Sign In",
+  description: "Sign in to BrandForge — curated operator directory",
 };
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ next?: string }>;
-}) {
+export default function LoginPage() {
   return (
-    <div className="bg-background text-on-surface flex min-h-screen flex-col items-center justify-center px-6 py-16">
+    <div className="landing-layout flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-8 block text-center">
-          <h1 className="font-display text-3xl font-bold tracking-tight">BrandForge</h1>
+        <Link href="/" className="mb-10 block text-center">
+          <span className="font-headline text-3xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+            BrandForge
+          </span>
+          <span className="mt-1 block text-xs uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+            Curated directory
+          </span>
         </Link>
 
-        <div className="rounded-2xl border border-outline-variant bg-surface-container p-8">
-          <h2 className="mb-2 text-2xl font-bold">Sign in</h2>
-          <p className="text-on-surface-variant mb-8 text-sm">Choose your preferred method to continue</p>
+        <div
+          className="rounded-2xl border p-8 shadow-sm"
+          style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+        >
+          <h2 className="font-headline text-2xl font-semibold text-[var(--color-text-primary)]">Sign in</h2>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+            For operators updating their profile. Clients start on the homepage.
+          </p>
 
-          <SocialLoginButtons redirectTo="/" />
-
-          <div className="my-6 flex items-center">
-            <div className="flex-1 border-t border-outline-variant" />
-            <span className="mx-4 text-sm text-on-surface-variant">or</span>
-            <div className="flex-1 border-t border-outline-variant" />
+          <div className="mt-8">
+            <SocialLoginButtons redirectTo="/" />
           </div>
 
-          <p className="text-on-surface-variant text-center text-sm">
-            By signing in, you agree to our{" "}
-            <Link href="/terms" className="text-primary hover:underline">
-              Terms of Service
+          <p className="mt-8 text-center text-xs text-[var(--color-text-muted)]">
+            By signing in you agree to our{" "}
+            <Link href="/terms" className="text-[var(--color-gold)] hover:underline">
+              Terms
             </Link>{" "}
             and{" "}
-            <Link href="/privacy" className="text-primary hover:underline">
+            <Link href="/privacy" className="text-[var(--color-gold)] hover:underline">
               Privacy Policy
             </Link>
+            .
           </p>
         </div>
 
-        <p className="text-on-surface-variant mt-6 text-center text-sm">
-          Don't have an account?{" "}
-          <Link href="/welcome" className="text-primary font-medium hover:underline">
-            Get started
+        <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
+          <Link href="/" className="text-[var(--color-gold)] font-medium hover:underline">
+            ← Back to directory
           </Link>
         </p>
       </div>

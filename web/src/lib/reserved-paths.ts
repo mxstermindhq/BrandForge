@@ -1,44 +1,23 @@
 /** Single-segment paths reserved for app routes — not usernames. */
 export const RESERVED_PATHS = new Set([
   "about",
-  "ai",
-  "api",
   "auth",
-  "bid",
   "blog",
-  "chat",
   "cookies",
-  "dashboard",
   "docs",
-  "explore",
-  "feed",
   "help",
-  "icon.svg",
-  "inbox",
-  "leaderboard",
   "login",
-  "marketing",
-  "marketplace",
-  "messages",
-  "p",
-  "payment",
-  "plans",
+  "offer",
   "press",
   "privacy",
   "product",
-  "requests",
-  "robots.txt",
-  "services",
-  "settings",
-  "sitemap.xml",
-  "squads",
   "status",
-  "store",
   "terms",
-  "u",
-  "welcome",
+  "work",
   "_next",
   "favicon.ico",
+  "robots.txt",
+  "sitemap.xml",
 ]);
 
 export function isReservedUsername(segment: string): boolean {
@@ -55,8 +34,4 @@ export function profilePath(username: string): string {
 
 export function profileServicePath(username: string, serviceId: string): string {
   return `${profilePath(username)}/service/${encodeURIComponent(serviceId)}`;
-}
-
-export function profileRequestPath(username: string, requestId: string): string {
-  return `${profilePath(username)}/request/${encodeURIComponent(requestId)}`;
 }

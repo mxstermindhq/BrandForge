@@ -4,7 +4,6 @@ import "./globals.css";
 import "@/styles/tokens.css";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AuthMeProvider } from "@/providers/AuthMeProvider";
-import { BootstrapProvider } from "@/providers/BootstrapProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const displayFont = Cormorant_Garamond({
@@ -30,22 +29,19 @@ const monoFont = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
   title: {
-    default: "BrandForge — The Professional OS for the AI Era",
+    default: "BrandForge — Curated AI-Native Operators",
     template: "%s · BrandForge",
   },
   description:
-    "BrandForge is the marketplace and deal OS where specialists list services, " +
-    "buyers post briefs, and negotiations, contracts, and payments stay in one thread.",
+    "A verified directory of elite builders, designers, and growth operators. " +
+    "One conversation with mxstermind — scoped, trusted, no marketplace noise.",
   keywords: [
-    "professional marketplace",
-    "AI era platform",
-    "freelance OS",
-    "deal rooms",
-    "specialist marketplace",
-    "contract management",
+    "curated talent directory",
+    "AI-native operators",
+    "startup builders",
+    "growth operators",
     "BrandForge",
-    "professional services",
-    "escrow marketplace",
+    "verified operators",
   ],
   authors: [{ name: "BrandForge" }],
   creator: "BrandForge",
@@ -54,9 +50,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://brandforge.gg",
     siteName: "BrandForge",
-    title: "BrandForge — The Professional OS for the AI Era",
+    title: "BrandForge — Curated AI-Native Operators",
     description:
-      "One identity, marketplace, and workspace where humans lead and AI accelerates.",
+      "Browse verified operators, services, and work. Start one conversation — mxstermind coordinates fit.",
     images: [
       {
         url: "/og-image.png",
@@ -68,9 +64,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BrandForge — The Professional OS for the AI Era",
+    title: "BrandForge — Curated AI-Native Operators",
     description:
-      "One identity, marketplace, and workspace where humans lead and AI accelerates.",
+      "Browse verified operators, services, and work. Start one conversation — mxstermind coordinates fit.",
     images: ["/og-image.png"],
     creator: "@brandforge",
   },
@@ -132,7 +128,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="light">
           <AuthProvider>
             <AuthMeProvider>
-              <BootstrapProvider>{children}</BootstrapProvider>
+              {children}
             </AuthMeProvider>
           </AuthProvider>
         </ThemeProvider>

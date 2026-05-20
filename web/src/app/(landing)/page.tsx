@@ -6,7 +6,6 @@ import {
   TalentDirectory,
   GuarantorStrip,
   TrustStandards,
-  FooterBanner,
   FAQSection,
   LandingFooter,
 } from "./_components";
@@ -68,7 +67,6 @@ export default async function LandingPage() {
         <OperationalPulse />
         <GuarantorStrip />
         <TrustStandards />
-        <FooterBanner />
         <section id="faq" className="border-t border-outline-variant">
           <FAQSection />
         </section>

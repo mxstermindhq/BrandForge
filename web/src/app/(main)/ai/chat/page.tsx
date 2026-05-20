@@ -1,5 +1,0 @@
-import { redirect } from "next/navigation";
-
-export default function AiChatPage() {
-  redirect("/chat");
-}

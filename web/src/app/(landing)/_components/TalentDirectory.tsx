@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
@@ -138,42 +138,62 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
       style={{ borderColor: "var(--color-gold-border)", background: "var(--color-bg)" }}
     >
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-          <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
-            {viewOptions.map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setView(mode)}
-                className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm font-medium capitalize transition-colors"
-                style={{
-                  borderColor: view === mode ? "var(--color-gold-border)" : "var(--color-border)",
-                  background: view === mode ? "var(--color-gold-subtle)" : "var(--color-surface)",
-                  color: view === mode ? "var(--color-gold)" : "var(--color-text-secondary)",
-                }}
-              >
-                {mode}
-                <span>→</span>
-              </button>
-            ))}
+        <div className="mb-12 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]">Directory</p>
+          <h2 className="mt-3 font-headline text-4xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-5xl">
+            {operators.length} verified {operators.length === 1 ? "operator" : "operators"}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
+            Profiles, scoped services, and portfolio work — each vetted. Filter, search, then open a card or message
+            mxstermind directly.
+          </p>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[200px_1fr]">
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <LayoutGroup id="directory-view">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                View
+              </p>
+              <div className="flex flex-row gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+                {viewOptions.map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setView(mode)}
+                    className="relative flex shrink-0 items-center justify-between rounded-xl border px-4 py-2.5 text-left text-sm font-medium capitalize transition-colors lg:w-full"
+                    style={{
+                      borderColor: view === mode ? "var(--color-gold-border)" : "var(--color-border)",
+                      background: view === mode ? "var(--color-gold-subtle)" : "var(--color-surface)",
+                      color: view === mode ? "var(--color-gold)" : "var(--color-text-secondary)",
+                    }}
+                  >
+                    {view === mode ? (
+                      <motion.span
+                        layoutId="directory-view-pill"
+                        className="pointer-events-none absolute inset-0 rounded-xl border"
+                        style={{ borderColor: "var(--color-gold-border)" }}
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    ) : null}
+                    <span className="relative z-[1]">{mode}</span>
+                    <span className="relative z-[1] opacity-60">→</span>
+                  </button>
+                ))}
+              </div>
+            </LayoutGroup>
           </aside>
 
           <div>
-            <div
-              className="mb-4 rounded-xl border p-3"
-              style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
-            >
+            <div className="directory-search mb-4">
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search profiles, services, and work…"
-                className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
-                style={{
-                  borderColor: "var(--color-border)",
-                  background: "var(--color-surface-2)",
-                  color: "var(--color-text-primary)",
-                }}
+                aria-label="Search directory"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-[var(--color-text-muted)]"
+                style={{ color: "var(--color-text-primary)" }}
               />
             </div>
 
@@ -201,11 +221,15 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
               ))}
             </div>
 
+            <AnimatePresence mode="wait">
             {view === "profiles" ? (
               <motion.div
-                initial={prefersReducedMotion ? undefined : { opacity: 0 }}
-                animate={prefersReducedMotion ? undefined : { opacity: 1 }}
-                className="space-y-5"
+                key="profiles"
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.28 }}
+                className="space-y-6"
               >
                 {profileRows.map((op) => {
                   const media = OPERATOR_MEDIA[op.username.toLowerCase()];
@@ -215,7 +239,7 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                     <Link
                       key={op.username}
                       href={`/${encodeURIComponent(op.username)}`}
-                      className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)] hover:shadow-md"
+                      className="directory-card group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-1"
                       style={{ borderColor: "var(--color-border)" }}
                     >
                       <article className="flex flex-col md:flex-row">
@@ -259,7 +283,7 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                                 <p className="text-sm text-[var(--color-text-secondary)]">{op.role}</p>
                               </div>
                               <span className="text-xs font-semibold text-[var(--color-gold)]">
-                                ★ {op.amanahScore}/100
+                                Reviews {op.amanahScore}/100
                               </span>
                             </div>
                             <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
@@ -326,12 +350,19 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
             ) : null}
 
             {view === "services" ? (
-              <div className="space-y-5">
+              <motion.div
+                key="services"
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.28 }}
+                className="space-y-6"
+              >
                 {serviceRows.map(({ operator: op, service }) => (
                   <Link
                     key={`${op.username}-${service.id}`}
                     href={`/offer/${encodeURIComponent(service.id)}`}
-                    className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)] hover:shadow-md"
+                    className="directory-card group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-1"
                     style={{ borderColor: "var(--color-border)" }}
                   >
                     <article className="flex flex-col md:flex-row">
@@ -401,16 +432,23 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                     No services match your search yet.
                   </div>
                 ) : null}
-              </div>
+              </motion.div>
             ) : null}
 
             {view === "work" ? (
-              <div className="space-y-5">
+              <motion.div
+                key="work"
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.28 }}
+                className="space-y-6"
+              >
                 {workRows.map(({ operator: op, piece }) => (
                   <Link
                     key={`work-${op.username}-${piece.id}`}
                     href={`/work/${encodeURIComponent(op.username)}/${encodeURIComponent(piece.id)}`}
-                    className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)] hover:shadow-md"
+                    className="directory-card group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-1"
                     style={{ borderColor: "var(--color-border)" }}
                   >
                     <article className="flex flex-col md:flex-row">
@@ -472,8 +510,9 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                     No portfolio pieces match your filters yet.
                   </div>
                 ) : null}
-              </div>
+              </motion.div>
             ) : null}
+            </AnimatePresence>
           </div>
         </div>
       </div>
