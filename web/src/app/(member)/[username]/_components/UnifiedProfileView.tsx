@@ -4,12 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
-import { contactMessage } from "@/content/landing-directory";
 import type { ProfileViewModel } from "@/lib/profile-view-model";
 import { getOperatorMedia } from "@/content/operator-media";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProofPanels } from "./ProofPanels";
-import { ProfileCTA } from "./ProfileCTA";
+import { ProfileStickyCTA } from "@/components/directory/ProfileStickyCTA";
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -36,7 +35,6 @@ type ProfileTab = "about" | "work" | "reviews";
 
 export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
   const reduced = useReducedMotion();
-  const tg = contactMessage(`Profile inquiry: ${viewModel.name}`);
   const [tab, setTab] = useState<ProfileTab>("about");
   const media = getOperatorMedia(viewModel.username);
 
@@ -49,6 +47,18 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
     >
       <motion.div variants={reduced ? undefined : itemVariants}>
         <ProfileHeader viewModel={viewModel} />
+      </motion.div>
+
+      <motion.div
+        variants={reduced ? undefined : itemVariants}
+        className="mt-5 rounded-2xl border-l-2 px-4 py-3"
+        style={{ borderLeftColor: "var(--color-gold)", background: "var(--color-gold-subtle)" }}
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-gold)]">Best result</p>
+        <p className="mt-1 text-sm text-[var(--color-text-primary)]">{viewModel.bestResult}</p>
+        <p className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">
+          From {viewModel.startingPrice} · {viewModel.pricingModel}
+        </p>
       </motion.div>
 
       <motion.div variants={reduced ? undefined : itemVariants} className="mt-5 flex flex-wrap gap-2">
@@ -178,7 +188,7 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
       ) : null}
 
       <motion.div variants={reduced ? undefined : itemVariants}>
-        <ProfileCTA telegramUrl={tg} />
+        <ProfileStickyCTA operatorName={viewModel.name} context={`Profile inquiry: ${viewModel.name} (@${viewModel.username})`} />
       </motion.div>
     </motion.article>
   );

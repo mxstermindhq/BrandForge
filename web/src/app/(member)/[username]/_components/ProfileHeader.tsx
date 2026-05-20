@@ -111,7 +111,13 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
                 color: "var(--color-gold)",
               }}
             >
-              ★ {viewModel.amanahScore}/100
+              Reviews {viewModel.amanahScore}/100
+            </span>
+            <span
+              className="rounded-full border px-2.5 py-1 font-medium"
+              style={{ borderColor: "var(--color-border)", color: "var(--color-text-primary)" }}
+            >
+              From {viewModel.startingPrice}
             </span>
           </div>
         </div>

@@ -1,6 +1,9 @@
 export { DirectoryHero } from "./DirectoryHero";
 export { LandingUIProvider } from "./LandingUIProvider";
 export { TalentDirectory } from "./TalentDirectory";
+export { ProcessTimeline } from "./ProcessTimeline";
+export { ProofStrip } from "./ProofStrip";
+export { DirectorySearchPalette } from "./DirectorySearchPalette";
 export { OperationalPulse } from "./OperationalPulse";
 export { GuarantorStrip } from "./GuarantorStrip";
 export { TrustStandards } from "./TrustStandards";

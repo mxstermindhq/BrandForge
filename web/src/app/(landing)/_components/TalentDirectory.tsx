@@ -6,8 +6,8 @@ import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-m
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
-import { contactMessage } from "@/content/landing-directory";
 import { OPERATOR_MEDIA, type WorkStage } from "@/content/operator-media";
+import { DirectorySearchPalette } from "./DirectorySearchPalette";
 
 type TalentDirectoryProps = {
   operators: CuratedOperator[];
@@ -185,13 +185,16 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
           </aside>
 
           <div>
+            <div className="mb-4">
+              <DirectorySearchPalette operators={operators} />
+            </div>
             <div className="directory-search mb-4">
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search profiles, services, and work…"
-                aria-label="Search directory"
+                placeholder="Filter results…"
+                aria-label="Filter directory"
                 className="w-full bg-transparent text-sm outline-none placeholder:text-[var(--color-text-muted)]"
                 style={{ color: "var(--color-text-primary)" }}
               />
@@ -229,17 +232,18 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                 animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                 exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.28 }}
-                className="space-y-6"
+                className="directory-bento"
               >
                 {profileRows.map((op) => {
                   const media = OPERATOR_MEDIA[op.username.toLowerCase()];
                   const badge = availabilityBadge(op.availability);
                   const portrait = media?.portrait ?? PROFILE_FALLBACK_IMAGE;
+                  const featured = op.layoutSpan === "featured";
                   return (
                     <Link
                       key={op.username}
                       href={`/${encodeURIComponent(op.username)}`}
-                      className="directory-card group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-1"
+                      className={`directory-card group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-1 ${featured ? "directory-bento-featured" : ""}`}
                       style={{ borderColor: "var(--color-border)" }}
                     >
                       <article className="flex flex-col md:flex-row">
@@ -311,26 +315,12 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                           </div>
                           <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--color-border)" }}>
                             <span className="text-sm font-semibold text-[var(--color-text-primary)]">
-                              {op.startingPrice}{" "}
+                              From {op.startingPrice}{" "}
                               <span className="text-xs font-normal text-[var(--color-text-secondary)]">
                                 · {op.pricingModel}
                               </span>
                             </span>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <a
-                                href={contactMessage(`Interest in profile: ${op.name} (@${op.username})`)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="rounded-md border px-3 py-1.5 text-xs font-medium"
-                                style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
-                              >
-                                Show interest
-                              </a>
-                              <span className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold text-white" style={{ background: "var(--color-gold)" }}>
-                                Open profile →
-                              </span>
-                            </div>
+                            <span className="card-cta-pill">View profile →</span>
                           </div>
                         </div>
                       </article>
@@ -400,24 +390,8 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                           </ul>
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--color-border)" }}>
-                          <span className="text-base font-semibold text-[var(--color-text-primary)]">
-                            {service.price}
-                          </span>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <a
-                              href={contactMessage(`Interest in service: ${service.name} (${op.name})`)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="rounded-md border px-3 py-1.5 text-xs font-medium"
-                              style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
-                            >
-                              Show interest
-                            </a>
-                            <span className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold text-white" style={{ background: "var(--color-gold)" }}>
-                              Open service →
-                            </span>
-                          </div>
+                          <span className="text-base font-semibold text-[var(--color-text-primary)]">{service.price}</span>
+                          <span className="card-cta-pill">View service →</span>
                         </div>
                       </div>
                     </article>
@@ -479,23 +453,9 @@ export function TalentDirectory({ operators }: TalentDirectoryProps) {
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--color-border)" }}>
                           <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-text-secondary)]">
-                            Portfolio piece
+                            Case study
                           </span>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <a
-                              href={contactMessage(`Interest in work: ${piece.title} (${op.name})`)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="rounded-md border px-3 py-1.5 text-xs font-medium"
-                              style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
-                            >
-                              Show interest
-                            </a>
-                            <span className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold text-white" style={{ background: "var(--color-gold)" }}>
-                              Open work →
-                            </span>
-                          </div>
+                          <span className="card-cta-pill">View work →</span>
                         </div>
                       </div>
                     </article>
