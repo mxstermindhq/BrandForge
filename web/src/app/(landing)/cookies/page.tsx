@@ -1,46 +1,29 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { ForgePage } from "@/components/forge/ForgePage";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | BrandForge",
+  title: "Cookie Policy",
   description: "BrandForge cookie policy",
 };
 
 export default function CookiesPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h1 className="text-4xl font-headline font-bold text-on-surface mb-8">Cookie Policy</h1>
-        
-        <div className="prose max-w-none text-on-surface-variant">
-          <p className="mb-6">Last updated: April 2026</p>
-          
-          <h2 className="text-xl font-semibold text-on-surface mt-8 mb-4">1. What Are Cookies</h2>
-          <p className="mb-4">
-            Cookies are small text files that are placed on your computer or mobile device when you 
-            visit a website. They are widely used to make websites work more efficiently.
-          </p>
-          
-          <h2 className="text-xl font-semibold text-on-surface mt-8 mb-4">2. How We Use Cookies</h2>
-          <p className="mb-4">
-            BrandForge uses cookies to keep you signed in, remember your preferences, 
-            and understand how you use our platform.
-          </p>
-          
-          <h2 className="text-xl font-semibold text-on-surface mt-8 mb-4">3. Managing Cookies</h2>
-          <p className="mb-4">
-            Most web browsers allow you to control cookies through their settings. You can usually 
-            find these settings in the &quot;Options&quot; or &quot;Preferences&quot; menu of your browser.
-          </p>
-          
-          <h2 className="text-xl font-semibold text-on-surface mt-8 mb-4">4. Contact</h2>
-          <p>
-            If you have questions about our Cookie Policy, contact us at{" "}
-            <a href="mailto:hello@brandforge.gg" className="text-primary hover:underline">
-              hello@brandforge.gg
-            </a>
-          </p>
-        </div>
+    <ForgePage title="Cookie Policy" eyebrow="Legal" narrow>
+      <div className="forge-prose">
+        <p>Last updated: May 2026</p>
+        <h2>What are cookies</h2>
+        <p>
+          Cookies are small text files stored on your device when you visit brandforge.gg. We use them to keep you
+          signed in, remember preferences, and measure how the forge is used.
+        </p>
+        <h2>How we use cookies</h2>
+        <p>
+          Essential cookies power authentication and security. Analytics cookies (when enabled) help us improve
+          marketplace discovery and performance.
+        </p>
+        <h2>Managing cookies</h2>
+        <p>You can block or delete cookies in your browser settings. Some forge features may not work without them.</p>
       </div>
-    </main>
+    </ForgePage>
   );
 }

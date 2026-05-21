@@ -76,7 +76,7 @@ export function PublicMemberProfile({ username, curatedOperator }: PublicMemberP
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <div className="h-40 animate-pulse rounded-2xl bg-[var(--color-surface-2)]" />
+        <div className="h-40 animate-pulse rounded-2xl bg-[var(--forge-surface-2)]" />
       </div>
     );
   }

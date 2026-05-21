@@ -15,97 +15,83 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ id
   const jsonLd = serviceJsonLd(service, operator);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6 sm:pb-12">
+    <main className="forge-page pb-28">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-gold)]">
-        ← Directory
-      </Link>
+      <div className="forge-container forge-page-inner">
+        <Link href="/#trending" className="forge-back-link">
+          ← Marketplace
+        </Link>
 
-      <article
-        className="mt-6 overflow-hidden rounded-3xl border bg-[var(--color-surface)]"
-        style={{ borderColor: "var(--color-border)" }}
-      >
-        <div className="relative h-64 w-full overflow-hidden sm:h-80">
-          <Image
-            src={service.image}
-            alt={service.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 1100px"
-            className="object-cover"
-            priority
-          />
-          <span
-            className="absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] backdrop-blur"
-            style={{ background: "color-mix(in srgb, white 82%, transparent)", color: "var(--color-gold)" }}
-          >
-            Scoped service
-          </span>
-        </div>
-
-        <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1.35fr_0.65fr]">
-          <div>
-            <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
-              Operator{" "}
-              <Link href={`/${encodeURIComponent(operator.username)}`} className="text-[var(--color-gold)] hover:underline">
-                {operator.name}
-              </Link>
-            </p>
-            <h1 className="mt-2 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">{service.name}</h1>
-            <p className="mt-4 text-base leading-relaxed text-[var(--color-text-secondary)]">{service.tagline}</p>
-
-            <h2 className="mt-8 text-sm font-semibold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">
-              What&apos;s included
-            </h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {service.bullets.map((bullet) => (
-                <li
-                  key={bullet}
-                  className="rounded-xl border px-3 py-2.5 text-sm text-[var(--color-text-secondary)]"
-                  style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}
-                >
-                  <span className="mr-2 text-[var(--color-gold)]">✓</span>
-                  {bullet}
-                </li>
-              ))}
-            </ul>
+        <article className="forge-detail-article mt-6">
+          <div className="relative h-64 w-full overflow-hidden sm:h-80">
+            <Image
+              src={service.image}
+              alt={service.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 1100px"
+              className="object-cover"
+              priority
+            />
+            <span className="absolute left-4 top-4 forge-tag backdrop-blur">Scoped service</span>
           </div>
 
-          <aside className="offer-sticky-panel">
-            <div
-              className="rounded-2xl border p-6"
-              style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)" }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gold)]">Starting from</p>
-              <p className="mt-2 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">{service.price}</p>
-              <p className="mt-3 text-sm text-[var(--color-text-secondary)]">
-                mxstermind confirms scope and fit before any payment. No bidding, no surprise fees.
+          <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1.35fr_0.65fr]">
+            <div>
+              <p className="text-xs uppercase tracking-[0.1em] text-[var(--forge-text-muted)]">
+                Operator{" "}
+                <Link href={`/${encodeURIComponent(operator.username)}`} className="text-[var(--forge-gold)] hover:underline">
+                  {operator.name}
+                </Link>
               </p>
-              <a
-                href={contactMessage(tgSubject)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary mt-6 flex min-h-12 w-full items-center justify-center text-sm"
-                data-track="offer_primary_cta"
-              >
-                Start conversation about this service →
-              </a>
-              <Link
-                href={`/${encodeURIComponent(operator.username)}`}
-                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-xl border text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-gold-border)]"
-                style={{ borderColor: "var(--color-border)" }}
-                data-track="offer_profile_link"
-              >
-                View {operator.name}&apos;s profile
-              </Link>
+              <h1 className="mt-2 font-headline text-4xl font-semibold text-[var(--forge-text)]">{service.name}</h1>
+              <p className="mt-4 text-base leading-relaxed text-[var(--forge-text-muted)]">{service.tagline}</p>
+
+              <h2 className="mt-8 text-sm font-semibold uppercase tracking-[0.1em] text-[var(--forge-text-muted)]">
+                What&apos;s included
+              </h2>
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {service.bullets.map((bullet) => (
+                  <li key={bullet} className="forge-surface-card py-2.5 text-sm text-[var(--forge-text-muted)]">
+                    <span className="mr-2 text-[var(--forge-fire)]">✓</span>
+                    {bullet}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </aside>
-        </div>
-      </article>
+
+            <aside className="offer-sticky-panel">
+              <div className="forge-detail-panel forge-detail-panel-accent">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--forge-gold)]">Starting from</p>
+                <p className="mt-2 font-headline text-4xl font-semibold text-[var(--forge-text)]">{service.price}</p>
+                <p className="mt-3 text-sm text-[var(--forge-text-muted)]">
+                  Direct scope on Discord or Telegram. Fast delivery, no bidding.
+                </p>
+                <a
+                  href={contactMessage(tgSubject)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="forge-btn forge-btn-primary mt-6 flex min-h-12 w-full items-center justify-center text-sm"
+                  data-track="offer_primary_cta"
+                >
+                  Get this service →
+                </a>
+                <Link
+                  href={`/${encodeURIComponent(operator.username)}`}
+                  className="forge-btn forge-btn-secondary mt-3 flex min-h-11 w-full items-center justify-center text-sm"
+                  data-track="offer_profile_link"
+                >
+                  View {operator.name}&apos;s profile
+                </Link>
+              </div>
+            </aside>
+          </div>
+        </article>
+      </div>
 
       <StickyConversationCTA
         subject={tgSubject}
         label="Discuss this service"
-        sublabel={`Scoped with mxstermind · ${operator.name}`}
+        sublabel={`${operator.name} · BrandForge forge`}
       />
     </main>
   );

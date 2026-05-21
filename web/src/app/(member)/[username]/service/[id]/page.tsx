@@ -35,28 +35,29 @@ export default async function MemberServicePage({
   const tg = contactMessage(`Service: ${title} — @${ownerUsername}`);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <Link href={profilePath(ownerUsername)} className="text-sm text-primary hover:underline">
-        ← {ownerUsername}
-      </Link>
-      <p className="section-label mt-6">{category}</p>
-      <h1 className="font-headline text-3xl font-bold text-on-surface">{title}</h1>
-      <p className="mt-2 text-2xl font-bold text-primary">${price.toLocaleString()}</p>
-      {description ? <p className="mt-6 whitespace-pre-wrap text-on-surface-variant leading-relaxed">{description}</p> : null}
-      <div className="mt-8 flex flex-wrap gap-3">
-        <a href={tg} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11">
-          Book via Telegram
-        </a>
-        <a
-          href={CONTACT.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-secondary min-h-11"
-        >
-          Discord
-        </a>
+    <main className="forge-page">
+      <div className="forge-container forge-page-inner forge-page-inner-narrow">
+        <Link href={profilePath(ownerUsername)} className="forge-back-link">
+          ← {ownerUsername}
+        </Link>
+        <p className="forge-section-eyebrow forge-page-eyebrow">{category}</p>
+        <h1 className="forge-section-title forge-page-title">{title}</h1>
+        <p className="mt-2 font-headline text-3xl font-semibold text-[var(--forge-gold)]">${price.toLocaleString()}</p>
+        {description ? (
+          <p className="forge-page-body mt-6 whitespace-pre-wrap leading-relaxed text-[var(--forge-text-muted)]">
+            {description}
+          </p>
+        ) : null}
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a href={tg} target="_blank" rel="noopener noreferrer" className="forge-btn forge-btn-primary min-h-11">
+            Book via Telegram
+          </a>
+          <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer" className="forge-btn forge-btn-secondary min-h-11">
+            Discord
+          </a>
+        </div>
+        <p className="mt-6 text-xs text-[var(--forge-text-muted)]">Managed by {CONTACT.guarantor}</p>
       </div>
-      <p className="mt-6 text-xs text-on-surface-variant">Managed by {CONTACT.guarantor}</p>
-    </div>
+    </main>
   );
 }

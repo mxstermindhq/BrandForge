@@ -1299,10 +1299,222 @@ body {
   --forge-glow: rgba(255, 77, 0, 0.45);
   --font-headline: var(--landing-font-headline, "Cormorant Garamond", Georgia, serif);
   --font-body: var(--landing-font-body, "DM Sans", system-ui, sans-serif);
+  /* Bridge legacy directory tokens → forge palette */
+  --color-bg: var(--forge-bg);
+  --color-surface: var(--forge-surface);
+  --color-surface-2: var(--forge-surface-2);
+  --color-gold: var(--forge-gold);
+  --color-gold-subtle: rgba(255, 77, 0, 0.12);
+  --color-gold-border: var(--forge-border);
+  --color-gold-hover: rgba(255, 77, 0, 0.2);
+  --color-text-primary: var(--forge-text);
+  --color-text-secondary: var(--forge-text-muted);
+  --color-text-muted: rgba(248, 244, 239, 0.45);
+  --color-border: var(--forge-border);
+  --color-border-hover: rgba(255, 120, 50, 0.45);
+  --color-emerald: var(--forge-ember);
+  --color-emerald-subtle: rgba(255, 140, 0, 0.1);
+  --color-emerald-text: var(--forge-gold);
+  --color-background: var(--forge-bg);
+  --color-on-surface: var(--forge-text);
+  --color-on-surface-variant: var(--forge-text-muted);
+  --color-primary: var(--forge-fire);
+  --color-on-primary: #0a0505;
+  --color-outline: var(--forge-border);
+  --color-outline-variant: rgba(255, 100, 40, 0.12);
   background: var(--forge-bg);
   color: var(--forge-text);
   font-family: var(--font-body);
   overflow-x: hidden;
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+.forge-site-shell {
+  position: relative;
+}
+
+.forge-page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.forge-page-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, transparent 0%, #030305 72%);
+}
+
+.forge-site-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Inner pages */
+.forge-page {
+  padding: 5.5rem 1.25rem 4rem;
+  min-height: calc(100vh - 8rem);
+}
+
+.forge-page-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.forge-page-inner-narrow {
+  max-width: 48rem;
+}
+
+.forge-page-eyebrow {
+  margin-top: 1.5rem;
+}
+
+.forge-page-title {
+  margin-top: 0.35rem;
+}
+
+.forge-page-body {
+  margin-top: 2rem;
+}
+
+.forge-back-link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--forge-text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forge-back-link:hover {
+  color: var(--forge-gold);
+}
+
+.forge-surface-card {
+  border-radius: 1rem;
+  border: 1px solid var(--forge-border);
+  background: var(--forge-surface);
+  padding: 1.35rem 1.25rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.forge-surface-card:hover {
+  border-color: var(--forge-fire);
+  box-shadow: 0 0 24px rgba(255, 77, 0, 0.1);
+}
+
+.forge-page-card {
+  border-radius: 1.25rem;
+  border: 1px solid var(--forge-border);
+  background: color-mix(in srgb, var(--forge-surface) 90%, transparent);
+  backdrop-filter: blur(12px);
+  padding: 2rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.forge-prose h2 {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+  color: var(--forge-text);
+}
+
+.forge-prose p {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--forge-text-muted);
+}
+
+.forge-prose a {
+  color: var(--forge-gold);
+}
+
+.forge-tag {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: rgba(255, 77, 0, 0.15);
+  color: var(--forge-gold);
+}
+
+.forge-layout .btn-primary {
+  background: linear-gradient(135deg, var(--forge-molten) 0%, var(--forge-fire) 50%, var(--forge-ember) 100%);
+  color: #0a0505;
+  border: 1px solid color-mix(in srgb, var(--forge-gold) 40%, transparent);
+  border-radius: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  box-shadow: 0 0 20px var(--forge-glow);
+}
+
+.forge-layout .btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 28px var(--forge-glow);
+}
+
+.forge-layout .btn-secondary {
+  background: color-mix(in srgb, var(--forge-surface) 70%, transparent);
+  color: var(--forge-text);
+  border: 1px solid var(--forge-border);
+  border-radius: 0.65rem;
+  backdrop-filter: blur(8px);
+}
+
+.forge-layout .btn-secondary:hover {
+  border-color: var(--forge-fire);
+}
+
+.forge-layout .sticky-cta-bar {
+  background: color-mix(in srgb, var(--forge-bg) 90%, transparent);
+  border-top-color: var(--forge-border);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.forge-layout .sticky-cta-button {
+  background: linear-gradient(135deg, var(--forge-molten), var(--forge-fire));
+  color: #0a0505;
+}
+
+.forge-layout .profile-sticky-cta {
+  background: color-mix(in srgb, var(--forge-bg) 92%, transparent);
+  border-top: 1px solid var(--forge-border);
+}
+
+.forge-layout .profile-sticky-cta-btn {
+  background: linear-gradient(135deg, var(--forge-molten), var(--forge-fire));
+  color: #0a0505;
+}
+
+.forge-detail-article {
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid var(--forge-border);
+  background: var(--forge-surface);
+}
+
+.forge-detail-panel {
+  border-radius: 1rem;
+  border: 1px solid var(--forge-border);
+  background: color-mix(in srgb, var(--forge-fire) 8%, var(--forge-surface));
+  padding: 1.25rem 1.5rem;
+}
+
+.forge-detail-panel-accent {
+  border-color: color-mix(in srgb, var(--forge-gold) 35%, transparent);
+  background: rgba(255, 77, 0, 0.08);
 }
 
 .forge-canvas {

@@ -44,7 +44,10 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 100%)" }} />
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, rgba(3,3,5,0) 0%, rgba(10,8,8,0.95) 100%)" }}
+          />
         </div>
       ) : null}
 

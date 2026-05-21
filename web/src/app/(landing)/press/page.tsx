@@ -1,39 +1,30 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { ForgePage } from "@/components/forge/ForgePage";
 
 export const metadata: Metadata = {
-  title: "Press | BrandForge",
-  description: "BrandForge press kit and media resources",
+  title: "Press",
+  description: "BrandForge press kit",
 };
 
 export default function PressPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h1 className="text-4xl font-headline font-bold text-on-surface mb-4">Press</h1>
-        <p className="text-xl text-on-surface-variant mb-12">
-          Media resources and brand assets for press coverage.
-        </p>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="surface-card p-6 rounded-xl">
-            <h3 className="text-lg font-semibold text-on-surface mb-2">Brand Assets</h3>
-            <p className="text-on-surface-variant text-sm mb-4">
-              Logos, colors, and brand guidelines for press use.
-            </p>
-            <button className="text-primary text-sm hover:underline">Download Kit</button>
-          </div>
-          
-          <div className="surface-card p-6 rounded-xl">
-            <h3 className="text-lg font-semibold text-on-surface mb-2">Media Inquiries</h3>
-            <p className="text-on-surface-variant text-sm mb-4">
-              Contact our press team for interviews and features.
-            </p>
-            <a href="mailto:hello@brandforge.gg" className="text-primary text-sm hover:underline">
-              hello@brandforge.gg
-            </a>
-          </div>
+    <ForgePage title="Press" eyebrow="Media" description="Brand assets and story for coverage." narrow>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="forge-surface-card">
+          <h2 className="font-headline text-lg font-semibold text-[var(--forge-text)]">Brand assets</h2>
+          <p className="mt-2 text-sm text-[var(--forge-text-muted)]">
+            Logos, forge colors (fire / molten / gold on black metal), and usage guidelines.
+          </p>
+          <p className="mt-4 text-sm text-[var(--forge-gold)]">press@brandforge.gg</p>
+        </div>
+        <div className="forge-surface-card">
+          <h2 className="font-headline text-lg font-semibold text-[var(--forge-text)]">Story</h2>
+          <p className="mt-2 text-sm text-[var(--forge-text-muted)]">
+            BrandForge is the marketplace for digital products and services — sister brand to Mxstermind intelligence
+            layer.
+          </p>
         </div>
       </div>
-    </main>
+    </ForgePage>
   );
 }

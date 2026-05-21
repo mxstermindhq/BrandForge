@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ForgeLayoutRouter } from "./_components/forge/ForgeLayoutRouter";
 import { LandingUIProvider } from "./_components/LandingUIProvider";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 
@@ -16,7 +17,9 @@ export default function LandingLayout({
 }>) {
   return (
     <SmoothScrollProvider>
-      <LandingUIProvider>{children}</LandingUIProvider>
+      <LandingUIProvider>
+        <ForgeLayoutRouter>{children}</ForgeLayoutRouter>
+      </LandingUIProvider>
     </SmoothScrollProvider>
   );
 }

@@ -1,26 +1,27 @@
 import Link from "next/link";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { ForgeSiteShell } from "@/app/(landing)/_components/forge/ForgeSiteShell";
 
 export const metadata: Metadata = {
   title: "404 — Not Found",
-  description: "This page is not in the BrandForge directory.",
+  description: "This page is not in the BrandForge forge.",
 };
 
 export default function NotFound() {
   return (
-    <div className="landing-layout flex min-h-screen items-center justify-center px-6">
-      <div className="max-w-lg text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">404</p>
-        <h1 className="mt-4 font-headline text-4xl font-semibold text-[var(--color-text-primary)] sm:text-5xl">
-          Not in the directory
-        </h1>
-        <p className="mt-4 text-[var(--color-text-secondary)]">
-          This URL does not match a profile, service, or work piece. Head back to the curated roster.
-        </p>
-        <Link href="/#talent" className="btn-primary mt-8 inline-flex min-h-11 items-center px-6 text-sm">
-          Browse operators →
-        </Link>
-      </div>
-    </div>
+    <ForgeSiteShell subtleBg>
+      <main className="forge-page forge-page-center">
+        <div className="forge-container forge-page-inner forge-page-inner-narrow text-center">
+          <p className="forge-section-eyebrow">404</p>
+          <h1 className="forge-section-title forge-page-title">Lost in the void</h1>
+          <p className="forge-section-desc mx-auto">
+            This URL doesn&apos;t match a product, service, or operator. Head back to the forge.
+          </p>
+          <Link href="/#browse" className="forge-btn forge-btn-primary mt-8 inline-flex">
+            Explore Marketplace →
+          </Link>
+        </div>
+      </main>
+    </ForgeSiteShell>
   );
 }

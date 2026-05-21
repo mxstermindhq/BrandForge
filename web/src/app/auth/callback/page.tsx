@@ -61,8 +61,8 @@ function AuthCallbackInner() {
   }, [router, searchParams]);
 
   return (
-    <div className="bg-background text-on-surface flex min-h-screen items-center justify-center font-body">
-      <p className="text-on-surface-variant text-sm">{message}</p>
+    <div className="forge-layout flex min-h-screen items-center justify-center">
+      <p className="text-sm text-[var(--forge-text-muted)]">{message}</p>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-background text-on-surface flex min-h-screen items-center justify-center text-sm">Loading…</div>
+        <div className="forge-layout flex min-h-screen items-center justify-center text-sm text-[var(--forge-text-muted)]">Loading…</div>
       }
     >
       <AuthCallbackInner />

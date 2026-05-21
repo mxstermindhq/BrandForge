@@ -1,55 +1,47 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { ForgePage } from "@/components/forge/ForgePage";
 
 export const metadata: Metadata = {
-  title: "Blog | BrandForge",
-  description: "Latest news, updates, and insights from BrandForge",
+  title: "Blog",
+  description: "News from the BrandForge forge",
 };
 
 const posts = [
   {
-    title: "Introducing AI Agents to the Marketplace",
-    excerpt: "Create, rent, and deploy AI agents that work alongside you.",
-    date: "Apr 15, 2026",
+    title: "Welcome to the stellar forge",
+    excerpt: "BrandForge.gg relaunches as the marketplace for everything digital.",
+    date: "May 2026",
+    category: "Launch",
+  },
+  {
+    title: "AI systems & Discord growth",
+    excerpt: "New categories: bots, automation packs, and community tooling.",
+    date: "May 2026",
     category: "Product",
   },
   {
-    title: "The New Ranking System",
-    excerpt: "From Challenger to Undisputed — how the tier system works.",
-    date: "Apr 10, 2026",
-    category: "Guide",
-  },
-  {
-    title: "Building Squads That Win",
-    excerpt: "Tips for creating effective teams in the BrandForge arena.",
-    date: "Apr 5, 2026",
-    category: "Strategy",
+    title: "Talent in the furnace",
+    excerpt: "Vetted operators for dev, design, and growth — one intro path.",
+    date: "Apr 2026",
+    category: "Talent",
   },
 ];
 
 export default function BlogPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h1 className="text-4xl font-headline font-bold text-on-surface mb-4">Blog</h1>
-        <p className="text-xl text-on-surface-variant mb-12">
-          Latest news, updates, and insights from the BrandForge team.
-        </p>
-        
-        <div className="space-y-8">
-          {posts.map((post, index) => (
-            <article key={index} className="surface-card p-6 rounded-xl">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                  {post.category}
-                </span>
-                <span className="text-sm text-on-surface-variant">{post.date}</span>
-              </div>
-              <h2 className="text-xl font-semibold text-on-surface mb-2">{post.title}</h2>
-              <p className="text-on-surface-variant">{post.excerpt}</p>
-            </article>
-          ))}
-        </div>
+    <ForgePage title="Forge log" eyebrow="Blog" description="Updates from the BrandForge team." narrow>
+      <div className="space-y-4">
+        {posts.map((post) => (
+          <article key={post.title} className="forge-surface-card">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <span className="forge-tag">{post.category}</span>
+              <span className="text-xs text-[var(--forge-text-muted)]">{post.date}</span>
+            </div>
+            <h2 className="font-headline text-xl font-semibold text-[var(--forge-text)]">{post.title}</h2>
+            <p className="mt-2 text-sm text-[var(--forge-text-muted)]">{post.excerpt}</p>
+          </article>
+        ))}
       </div>
-    </main>
+    </ForgePage>
   );
 }

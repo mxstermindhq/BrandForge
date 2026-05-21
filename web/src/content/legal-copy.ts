@@ -93,23 +93,23 @@ export const privacySections: { heading: string; body: string[] }[] = [
 
 export const helpFaqs: { q: string; a: string }[] = [
   {
-    q: "How do I hire an operator?",
-    a: "Browse the directory, open a profile or service, and start a conversation via Telegram. mxstermind confirms scope and fit before you commit.",
+    q: "How do I buy a service or product?",
+    a: "Browse the forge, pick a listing, and message on Discord or Telegram. You get direct communication and clear delivery windows.",
   },
   {
-    q: "Is this a marketplace with bids?",
-    a: "No. BrandForge is a curated directory — vetted operators, one intro path, no proposal spam.",
+    q: "Is BrandForge a design agency?",
+    a: "No. It's a marketplace for digital products and services — AI, Discord, brands, dev, content, templates, and more.",
   },
   {
-    q: "How do I get listed as an operator?",
-    a: "Use the email form on the homepage (intent: get listed) or message mxstermind on Telegram. Listings are curated, not self-serve open signup.",
+    q: "How do I sell on BrandForge?",
+    a: "Sign in as an operator or message us on Discord to get listed. We curate quality; the forge is not open spam listings.",
   },
   {
-    q: "Do I need an account?",
-    a: "Clients do not need to sign in. Operators sign in only to maintain their profile when that flow is enabled.",
+    q: "Do I need an account to buy?",
+    a: "No. Browse and checkout paths run through Discord/Telegram. Sellers sign in to manage profiles and listings.",
   },
   {
-    q: "How are payments handled?",
-    a: "Pricing is shown as starting points. Final scope and payment terms are agreed in your conversation with mxstermind and the operator.",
+    q: "How fast is delivery?",
+    a: "Many services ship in 24–48h. Each listing shows its delivery window. Stats on the homepage reflect typical forge speed.",
   },
 ];

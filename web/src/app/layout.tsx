@@ -30,12 +30,11 @@ const monoFont = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
   title: {
-    default: "BrandForge — Curated AI-Native Operators",
+    default: "BrandForge — Forge Anything Digital",
     template: "%s · BrandForge",
   },
   description:
-    "A verified directory of elite builders, designers, and growth operators. " +
-    "One conversation with mxstermind — scoped, trusted, no marketplace noise.",
+    "The forge for digital products, services, and talent. AI systems, Discord growth, brands, dev, content — built for online communities.",
   keywords: [
     "curated talent directory",
     "AI-native operators",
@@ -51,9 +50,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://brandforge.gg",
     siteName: "BrandForge",
-    title: "BrandForge — Curated AI-Native Operators",
+    title: "BrandForge — Forge Anything Digital",
     description:
-      "Browse verified operators, services, and work. Start one conversation — mxstermind coordinates fit.",
+      "Browse the marketplace — digital products, services, and vetted talent. Enter the forge.",
     images: [
       {
         url: "/og-image.png",
@@ -65,9 +64,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BrandForge — Curated AI-Native Operators",
+    title: "BrandForge — Forge Anything Digital",
     description:
-      "Browse verified operators, services, and work. Start one conversation — mxstermind coordinates fit.",
+      "Browse the marketplace — digital products, services, and vetted talent. Enter the forge.",
     images: ["/og-image.png"],
     creator: "@brandforge",
   },
@@ -112,7 +111,7 @@ export default function RootLayout({
               (function() {
                 const saved = localStorage.getItem('brandforge-theme');
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                let theme = saved || 'light';
+                let theme = saved || 'dark';
                 let resolved = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
                 document.documentElement.classList.add(resolved);
               })();
@@ -126,7 +125,7 @@ export default function RootLayout({
         />
       </head>
       <body className={bodyFont.className}>
-        <ThemeProvider defaultTheme="light">
+        <ThemeProvider defaultTheme="dark">
           <AuthProvider>
             <AuthMeProvider>
               <DirectoryAnalytics />

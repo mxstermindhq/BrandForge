@@ -7,12 +7,14 @@ export default async function MemberBlogPage({ params }: { params: Promise<{ use
   if (isReservedUsername(username)) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 text-center">
-      <Link href={profilePath(username)} className="text-sm text-primary hover:underline">
-        ← {username}
-      </Link>
-      <h1 className="font-headline mt-8 text-2xl font-bold">Blog</h1>
-      <p className="mt-3 text-on-surface-variant">Posts coming soon. Follow on Telegram for updates.</p>
-    </div>
+    <main className="forge-page">
+      <div className="forge-container forge-page-inner forge-page-inner-narrow text-center">
+        <Link href={profilePath(username)} className="forge-back-link">
+          ← {username}
+        </Link>
+        <h1 className="forge-section-title forge-page-title mt-8">Blog</h1>
+        <p className="mt-3 text-[var(--forge-text-muted)]">Posts coming soon. Follow on Telegram for updates.</p>
+      </div>
+    </main>
   );
 }
