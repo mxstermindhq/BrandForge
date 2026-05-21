@@ -1,19 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { CategoryCard } from "@/components/marketplace/CategoryCard";
-import { FeaturedCarousel } from "@/components/marketplace/FeaturedCarousel";
-import { MarketplaceFilters } from "@/components/marketplace/MarketplaceFilters";
-import { ProfileCard } from "@/components/marketplace/ProfileCard";
-import { CATEGORIES, getFeaturedProducts, SELLERS } from "@/lib/marketplace";
+import { Suspense } from "react";
+import { ListingBrowse } from "@/components/marketplace/ListingBrowse";
 
 export const metadata: Metadata = {
   title: "Marketplace",
-  description: "Browse digital products and services — AI, Discord, branding, automation, and more.",
+  description: "Browse short-term listings and long-term subscriptions from verified sellers.",
 };
 
 export default function MarketplacePage() {
-  const featured = getFeaturedProducts();
-
   return (
     <main>
       <section className="mp-hero-bar">
@@ -21,45 +15,13 @@ export default function MarketplacePage() {
           <p className="forge-section-eyebrow">Execution marketplace</p>
           <h1 className="forge-section-title">Browse the forge</h1>
           <p className="forge-section-desc">
-            Buy services, products, and systems — order via Discord. Fast delivery. No checkout friction.
+            Short-term projects with end dates, or long-term subscriptions — contact on Discord to close.
           </p>
         </div>
       </section>
-
-      <FeaturedCarousel products={featured} />
-
-      <section className="forge-section">
-        <div className="forge-container">
-          <h2 className="forge-section-title text-2xl">Categories</h2>
-          <div className="mp-category-grid mt-6">
-            {CATEGORIES.map((c, i) => (
-              <CategoryCard key={c.id} category={c} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="forge-section forge-section-alt" id="listings">
-        <div className="forge-container">
-          <MarketplaceFilters />
-        </div>
-      </section>
-
-      <section className="forge-section">
-        <div className="forge-container">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <h2 className="forge-section-title text-2xl">Top sellers</h2>
-            <Link href="/mxstermind" className="forge-back-link">
-              Need talent? Mxstermind →
-            </Link>
-          </div>
-          <div className="mp-profile-grid mt-6">
-            {SELLERS.map((s, i) => (
-              <ProfileCard key={s.id} profile={s} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <Suspense fallback={<section className="forge-section forge-section-alt" />}>
+        <ListingBrowse />
+      </Suspense>
     </main>
   );
 }

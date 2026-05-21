@@ -23,7 +23,7 @@ export default function LoginPage() {
           Sellers and operators only. Buyers can browse and order via Discord or Telegram.
         </p>
         <div className="mt-8">
-          <SocialLoginButtons redirectTo="/" />
+          <SocialLoginButtons redirectTo="/onboarding" />
         </div>
         <p className="mt-8 text-center text-xs text-[var(--forge-text-muted)]">
           By signing in you agree to our{" "}

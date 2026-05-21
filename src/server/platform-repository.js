@@ -1262,26 +1262,50 @@ async function createPlatformRepository(previewRepository) {
     const slugBase = slugify(title) || `service-${Date.now()}`;
     const slug = `${slugBase}-${Date.now().toString(36).slice(-4)}`;
 
-    const { data, error } = await client
-      .from('service_packages')
-      .insert({
-        owner_id: user.id,
-        title,
-        slug,
-        category,
-        description,
-        delivery_mode: deliveryMode,
-        base_price: price,
-        delivery_days: deliveryDays,
-        revisions: deliveryMode === 'white_glove' ? 3 : 1,
-        status: 'published',
-        metadata: {
-          rating: 'New',
-          sales: 0,
-        },
-      })
-      .select('*')
-      .single();
+    const listingType = payload.listing_type === 'long_term' ? 'long_term' : 'short_term';
+    let endsAt = null;
+    if (listingType === 'short_term' && payload.ends_at) {
+      const d = new Date(payload.ends_at);
+      if (!Number.isNaN(d.getTime())) endsAt = d.toISOString();
+    }
+    const billingAllowed = new Set(['weekly', 'monthly', 'quarterly', 'yearly']);
+    const billingInterval =
+      listingType === 'long_term' && billingAllowed.has(String(payload.billing_interval || ''))
+        ? String(payload.billing_interval)
+        : listingType === 'long_term'
+          ? 'monthly'
+          : null;
+
+    const insertRow = {
+      owner_id: user.id,
+      title,
+      slug,
+      category,
+      description,
+      delivery_mode: deliveryMode,
+      base_price: price,
+      delivery_days: deliveryDays,
+      revisions: deliveryMode === 'white_glove' ? 3 : 1,
+      status: 'published',
+      listing_type: listingType,
+      ends_at: endsAt,
+      billing_interval: billingInterval,
+      metadata: {
+        rating: 'New',
+        sales: 0,
+        listing_type: listingType,
+        ends_at: endsAt,
+        billing_interval: billingInterval,
+      },
+    };
+
+    let data;
+    let error;
+    ({ data, error } = await client.from('service_packages').insert(insertRow).select('*').single());
+    if (error && /listing_type|ends_at|billing_interval/i.test(String(error.message || ''))) {
+      const { listing_type: _lt, ends_at: _ea, billing_interval: _bi, ...fallback } = insertRow;
+      ({ data, error } = await client.from('service_packages').insert(fallback).select('*').single());
+    }
     if (error) throw error;
     const { data: ownerProfile } = await client
       .from('profiles')
@@ -5067,6 +5091,156 @@ async function createPlatformRepository(previewRepository) {
     };
   }
 
+  function mapMarketplaceListing(row, ownerRow) {
+    const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
+    const coverUrl = meta.coverUrl || meta.cover_image_url || null;
+    const ownerUsernameRaw = ownerRow?.username != null ? String(ownerRow.username).trim() : '';
+    const ownerUsername = ownerUsernameRaw.replace(/^@+/, '') || null;
+    const category = row.category || 'General';
+    const deliveryDays = Math.max(1, Number(row.delivery_days) || 1);
+    const price = Number(row.base_price) || 0;
+    const listingType =
+      row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+    const endsAt = row.ends_at || meta.ends_at || null;
+    const billingInterval = row.billing_interval || meta.billing_interval || null;
+    const priceLabel =
+      listingType === 'long_term' && billingInterval
+        ? `$${price.toLocaleString()}/${billingInterval}`
+        : `$${price.toLocaleString()}`;
+    const deliveryLabel =
+      listingType === 'long_term'
+        ? `${billingInterval || 'monthly'} subscription`
+        : deliveryDays === 1
+          ? '1 day'
+          : `${deliveryDays} days`;
+
+    return {
+      id: row.id,
+      title: row.title,
+      tagline: String(row.description || '').slice(0, 140),
+      description: row.description || '',
+      category,
+      price,
+      priceLabel,
+      deliveryDays,
+      deliveryLabel,
+      listingType,
+      endsAt,
+      billingInterval,
+      ownerId: row.owner_id || null,
+      ownerUsername,
+      ownerName: ownerRow?.full_name || ownerUsername || 'Seller',
+      ownerAvatar: ownerRow?.avatar_url || null,
+      coverUrl: typeof coverUrl === 'string' && coverUrl.trim() ? coverUrl.trim() : null,
+      thumbGradient: categoryBackgrounds[category] || 'linear-gradient(135deg, #0a0505, #ff4d00, #ffb800)',
+      createdAt: row.created_at || null,
+      serviceUrl: ownerUsername
+        ? `/${encodeURIComponent(ownerUsername)}/service/${row.id}`
+        : `/product/${row.id}`,
+    };
+  }
+
+  /** Published listings for BrandForge marketplace (short-term vs subscriptions). */
+  async function listMarketplaceListings({ term = 'short', q = '', category = '', sort = 'newest' } = {}) {
+    if (!client) return { listings: [], total: 0 };
+    const listingType =
+      term === 'long' || term === 'long_term' || term === 'subscriptions' ? 'long_term' : 'short_term';
+    const nowIso = new Date().toISOString();
+
+    let rows;
+    let error;
+    try {
+      let query = client
+        .from('service_packages')
+        .select('*')
+        .eq('status', 'published')
+        .eq('listing_type', listingType);
+      if (listingType === 'short_term') {
+        query = query.or(`ends_at.is.null,ends_at.gt.${nowIso}`);
+      }
+      const cat = String(category || '').trim();
+      if (cat && cat !== 'All') {
+        query = query.ilike('category', `%${cat}%`);
+      }
+      const search = String(q || '').trim();
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+      if (sort === 'price-asc') query = query.order('base_price', { ascending: true });
+      else if (sort === 'price-desc') query = query.order('base_price', { ascending: false });
+      else if (sort === 'ending') query = query.order('ends_at', { ascending: true, nullsFirst: false });
+      else query = query.order('created_at', { ascending: false });
+      ({ data: rows, error } = await query.limit(200));
+    } catch (e) {
+      error = e;
+    }
+
+    if (error) {
+      ({ data: rows, error } = await client
+        .from('service_packages')
+        .select('*')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(200));
+      if (error) throw error;
+      rows = (rows || []).filter((row) => {
+        const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
+        const lt =
+          row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+        if (lt !== listingType) return false;
+        if (listingType === 'short_term') {
+          const end = row.ends_at || meta.ends_at;
+          if (end && new Date(end).getTime() <= Date.now()) return false;
+        }
+        const cat = String(category || '').trim();
+        if (cat && cat !== 'All' && !String(row.category || '').toLowerCase().includes(cat.toLowerCase())) {
+          return false;
+        }
+        const search = String(q || '').trim().toLowerCase();
+        if (search) {
+          const blob = `${row.title || ''} ${row.description || ''}`.toLowerCase();
+          if (!blob.includes(search)) return false;
+        }
+        return true;
+      });
+    }
+
+    const svcRows = rows || [];
+    const ownerIds = [...new Set(svcRows.map((r) => r.owner_id).filter(Boolean))];
+    const ownersById = new Map();
+    if (ownerIds.length) {
+      const { data: ownerRows } = await client
+        .from('profiles')
+        .select('id, username, full_name, avatar_url')
+        .in('id', ownerIds);
+      for (const o of ownerRows || []) ownersById.set(o.id, o);
+    }
+
+    let listings = svcRows.map((row) => mapMarketplaceListing(row, ownersById.get(row.owner_id)));
+    if (sort === 'price-asc') listings.sort((a, b) => a.price - b.price);
+    else if (sort === 'price-desc') listings.sort((a, b) => b.price - a.price);
+    else if (sort === 'ending') {
+      listings.sort((a, b) => {
+        const ae = a.endsAt ? new Date(a.endsAt).getTime() : Infinity;
+        const be = b.endsAt ? new Date(b.endsAt).getTime() : Infinity;
+        return ae - be;
+      });
+    }
+
+    return { listings, total: listings.length, term: listingType };
+  }
+
+  async function countPublishedServicesForUser(userId) {
+    if (!client || !userId) return 0;
+    const { count, error } = await client
+      .from('service_packages')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', userId)
+      .eq('status', 'published');
+    if (error) return 0;
+    return count || 0;
+  }
+
   /** Public talent directory — registered members with usernames. */
   async function listTalentDirectory({ category } = {}) {
     if (!client) return { members: [], total: 0 };
@@ -5673,6 +5847,8 @@ async function createPlatformRepository(previewRepository) {
     // Public Profile
     getPublicProfile,
     listTalentDirectory,
+    listMarketplaceListings,
+    countPublishedServicesForUser,
     // AI Models
     getAIModels,
     // User Agents

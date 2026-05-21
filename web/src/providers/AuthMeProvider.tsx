@@ -26,6 +26,9 @@ export type AuthMeResponse = {
   user: { id: string; email: string } | null;
   profile: AuthMeProfile | null;
   pendingOnboarding?: boolean;
+  pendingSellerSetup?: boolean;
+  sellerAccess?: boolean;
+  publishedServiceCount?: number;
 };
 
 type AuthMeCtx = {

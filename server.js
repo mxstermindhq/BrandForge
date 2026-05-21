@@ -443,6 +443,18 @@ async function routeApi(req, res, pathname) {
       const pendingOnboarding = Boolean(
         !profileRow || !profileRow.onboarding_completed_at,
       );
+      let publishedServiceCount = 0;
+      try {
+        publishedServiceCount = await platformRepository.countPublishedServicesForUser(user.id);
+      } catch {
+        publishedServiceCount = 0;
+      }
+      const pendingSellerSetup = Boolean(
+        profileRow?.onboarding_completed_at && publishedServiceCount === 0,
+      );
+      const sellerAccess = Boolean(
+        profileRow?.onboarding_completed_at && publishedServiceCount > 0,
+      );
       const profileOut = profileRow
         ? {
             id: profileRow.id,
@@ -462,6 +474,9 @@ async function routeApi(req, res, pathname) {
         profile: profileOut,
         settings: bootstrapped ? bootstrapped.settings : null,
         pendingOnboarding,
+        pendingSellerSetup,
+        sellerAccess,
+        publishedServiceCount,
       });
     } catch (error) {
       sendJson(res, 401, { error: 'Invalid or expired session' });
@@ -2789,6 +2804,22 @@ async function routeApi(req, res, pathname) {
       });
     } catch (error) {
       sendJson(res, 500, { error: error.message || 'Failed to get notification settings' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/marketplace/listings' && method === 'GET') {
+    try {
+      const url = new URL(req.url || '', 'http://localhost');
+      const result = await platformRepository.listMarketplaceListings({
+        term: url.searchParams.get('term') || 'short',
+        q: url.searchParams.get('q') || '',
+        category: url.searchParams.get('category') || '',
+        sort: url.searchParams.get('sort') || 'newest',
+      });
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load listings' });
     }
     return true;
   }

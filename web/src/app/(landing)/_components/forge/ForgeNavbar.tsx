@@ -2,19 +2,26 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { CONTACT } from "@/content/landing-directory";
+import { useAuth } from "@/providers/AuthProvider";
+import { useAuthMe } from "@/providers/AuthMeProvider";
 import { MagneticButton } from "./MagneticButton";
 
-const links = [
-  { href: "/marketplace", label: "Marketplace" },
-  { href: "/marketplace", label: "Products" },
-  { href: "/offers", label: "Offers" },
-  { href: "/marketplace#listings", label: "Services" },
-] as const;
+function termHref(term: "short" | "long", pathname: string): string {
+  const base = pathname === "/" ? "/" : "/marketplace";
+  return `${base}?term=${term}${base === "/" ? "#browse" : ""}`;
+}
 
-export function ForgeNavbar() {
+function ForgeNavbarInner() {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const term = searchParams.get("term") === "long" ? "long" : "short";
+  const { session } = useAuth();
+  const { me } = useAuthMe();
+  const user = session?.user ?? null;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -22,6 +29,14 @@ export function ForgeNavbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const accountHref = user
+    ? me?.pendingOnboarding
+      ? "/onboarding"
+      : me?.pendingSellerSetup
+        ? "/onboarding/service"
+        : "/account"
+    : "/login";
 
   return (
     <motion.header
@@ -41,11 +56,18 @@ export function ForgeNavbar() {
         </Link>
 
         <nav className="forge-nav-links" aria-label="Primary">
-          {links.map((item) => (
-            <Link key={item.label} href={item.href} className="forge-nav-link">
-              {item.label}
-            </Link>
-          ))}
+          <Link
+            href={termHref("short", pathname)}
+            className={`forge-nav-link ${term === "short" ? "forge-nav-link-active" : ""}`}
+          >
+            Short term
+          </Link>
+          <Link
+            href={termHref("long", pathname)}
+            className={`forge-nav-link ${term === "long" ? "forge-nav-link-active" : ""}`}
+          >
+            Long term
+          </Link>
           <a
             href={CONTACT.discord}
             target="_blank"
@@ -58,11 +80,22 @@ export function ForgeNavbar() {
         </nav>
 
         <div className="forge-nav-actions">
-          <MagneticButton href="/marketplace" variant="primary" dataTrack="enter_forge">
-            Enter Forge
+          <Link href={accountHref} className="forge-nav-link hidden sm:inline">
+            {user ? "Account" : "Sign in"}
+          </Link>
+          <MagneticButton href="/#browse" variant="primary" dataTrack="enter_forge">
+            Browse
           </MagneticButton>
         </div>
       </div>
     </motion.header>
+  );
+}
+
+export function ForgeNavbar() {
+  return (
+    <Suspense fallback={<header className="forge-nav" />}>
+      <ForgeNavbarInner />
+    </Suspense>
   );
 }

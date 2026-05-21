@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 import { ForgeFooter } from "./ForgeFooter";
 import { ForgeNavbar } from "./ForgeNavbar";
 import { StellarForgeCanvas } from "./StellarForgeCanvas";
@@ -20,6 +21,7 @@ export function ForgeSiteShell({ children, subtleBg }: ForgeSiteShellProps) {
           <div className="forge-page-bg-vignette" />
         </div>
       ) : null}
+      <OnboardingGate />
       <ForgeNavbar />
       <div className="forge-site-main">{children}</div>
       <ForgeFooter />

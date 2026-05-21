@@ -2718,6 +2718,68 @@ body {
   color: var(--forge-gold);
 }
 
+.forge-nav-link-active {
+  color: var(--forge-gold);
+  background: rgba(255, 77, 0, 0.1);
+}
+
+.mp-term-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.mp-term-tab {
+  flex: 1;
+  max-width: 12rem;
+  border-radius: 999px;
+  border: 1px solid var(--forge-border);
+  background: var(--forge-surface-2);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--forge-text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.mp-term-tab:hover {
+  border-color: var(--forge-fire);
+  color: var(--forge-gold);
+}
+
+.mp-term-tab-active {
+  border-color: var(--forge-fire);
+  background: linear-gradient(135deg, rgba(255, 77, 0, 0.2), rgba(255, 184, 0, 0.08));
+  color: var(--forge-gold);
+}
+
+.forge-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--forge-text-muted);
+}
+
+.forge-input {
+  border-radius: 10px;
+  border: 1px solid var(--forge-border);
+  background: var(--forge-surface-2);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--forge-text);
+}
+
+.forge-input:focus {
+  outline: none;
+  border-color: var(--forge-fire);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+}
+
 .mp-chip-row {
   display: flex;
   flex-wrap: wrap;

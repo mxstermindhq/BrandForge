@@ -7,6 +7,8 @@ export const RESERVED_PATHS = new Set([
   "docs",
   "help",
   "login",
+  "onboarding",
+  "account",
   "marketplace",
   "mxstermind",
   "offer",
