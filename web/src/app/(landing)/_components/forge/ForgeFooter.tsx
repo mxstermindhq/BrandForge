@@ -19,9 +19,10 @@ export function ForgeFooter() {
           </p>
         </div>
         <div className="forge-footer-links">
+          <Link href="/marketplace">Marketplace</Link>
+          <Link href="/offers">Offers</Link>
+          <Link href="/mxstermind">Mxstermind</Link>
           <Link href="/help">Help</Link>
-          <Link href="/terms">Terms</Link>
-          <Link href="/privacy">Privacy</Link>
           <a href={CONTACT.discord} target="_blank" rel="noopener noreferrer">
             Discord
           </a>

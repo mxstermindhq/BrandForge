@@ -100,8 +100,7 @@ export function ForgeHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.7 }}
         >
-          Everything your project needs — design, AI systems, growth, communities, developers, creators
-          and digital products.
+          Buy services, products, systems and execution — instantly.
         </motion.p>
 
         <motion.div
@@ -110,7 +109,7 @@ export function ForgeHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.7 }}
         >
-          <MagneticButton href="#browse" variant="primary" dataTrack="explore_marketplace">
+          <MagneticButton href="/marketplace" variant="primary" dataTrack="explore_marketplace">
             Explore Marketplace
           </MagneticButton>
           <MagneticButton href={CONTACT.discord} variant="secondary" external dataTrack="join_discord_hero">

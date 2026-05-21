@@ -103,7 +103,6 @@ const nextConfig = {
     const home = { destination: "/", permanent: true };
     const legacyApp = [
       "/dashboard",
-      "/marketplace",
       "/explore",
       "/feed",
       "/chat",
@@ -134,13 +133,13 @@ const nextConfig = {
       "/payment",
       "/payment/:path*",
       "/docs/api",
-      "/product",
-      "/product/:path*",
+      "/product/overview",
     ];
     return [
       { source: "/p/:username", destination: "/:username", permanent: true },
       { source: "/u/:username", destination: "/:username", permanent: true },
       { source: "/u/:username/service/:id", destination: "/:username/service/:id", permanent: true },
+      { source: "/offer/:id", destination: "/product/:id", permanent: true },
       ...legacyApp.map((source) => ({ source, ...home })),
       { source: "/:username/request/:id", destination: "/", permanent: true },
     ];

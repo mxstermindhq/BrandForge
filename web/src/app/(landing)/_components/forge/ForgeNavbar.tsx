@@ -7,10 +7,10 @@ import { CONTACT } from "@/content/landing-directory";
 import { MagneticButton } from "./MagneticButton";
 
 const links = [
-  { href: "#browse", label: "Marketplace" },
-  { href: "#browse", label: "Products" },
-  { href: "#trending", label: "Services" },
-  { href: "#talent", label: "Talent" },
+  { href: "/marketplace", label: "Marketplace" },
+  { href: "/marketplace", label: "Products" },
+  { href: "/offers", label: "Offers" },
+  { href: "/marketplace#listings", label: "Services" },
 ] as const;
 
 export function ForgeNavbar() {
@@ -42,9 +42,9 @@ export function ForgeNavbar() {
 
         <nav className="forge-nav-links" aria-label="Primary">
           {links.map((item) => (
-            <a key={item.label} href={item.href} className="forge-nav-link">
+            <Link key={item.label} href={item.href} className="forge-nav-link">
               {item.label}
-            </a>
+            </Link>
           ))}
           <a
             href={CONTACT.discord}
@@ -58,7 +58,7 @@ export function ForgeNavbar() {
         </nav>
 
         <div className="forge-nav-actions">
-          <MagneticButton href="#browse" variant="primary" dataTrack="enter_forge">
+          <MagneticButton href="/marketplace" variant="primary" dataTrack="enter_forge">
             Enter Forge
           </MagneticButton>
         </div>
