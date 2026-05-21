@@ -47,14 +47,19 @@ function AuthCallbackInner() {
         return;
       }
       let dest = "/";
-      try {
-        const n = sessionStorage.getItem("mx_auth_next");
-        if (n && n.startsWith("/") && !n.startsWith("//")) {
-          dest = n;
-          sessionStorage.removeItem("mx_auth_next");
+      const redirectParam = searchParams.get("redirect");
+      if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
+        dest = redirectParam;
+      } else {
+        try {
+          const n = sessionStorage.getItem("mx_auth_next");
+          if (n && n.startsWith("/") && !n.startsWith("//")) {
+            dest = n;
+            sessionStorage.removeItem("mx_auth_next");
+          }
+        } catch {
+          /* ignore */
         }
-      } catch {
-        /* ignore */
       }
       router.replace(dest);
     });

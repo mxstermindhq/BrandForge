@@ -2546,6 +2546,86 @@ body {
   padding: 0 0.75rem 0.75rem;
 }
 
+.vi-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem 0;
+}
+
+.vi-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--forge-border);
+  color: var(--forge-text-muted);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.vi-trust-verified {
+  border-color: rgba(87, 196, 255, 0.45);
+  color: #9ed4ff;
+}
+
+.vi-trust-whitelist {
+  border-color: rgba(255, 184, 0, 0.45);
+  color: var(--forge-gold);
+}
+
+.vi-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--forge-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.vi-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.vi-panel-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--forge-text-muted);
+}
+
+.vi-trust-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  text-transform: uppercase;
+}
+
+.vi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem 0.5rem;
+}
+
+.vi-grid dt {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--forge-text-muted);
+}
+
+.vi-grid dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--forge-text);
+}
+
 .mp-category-card {
   display: block;
   position: relative;

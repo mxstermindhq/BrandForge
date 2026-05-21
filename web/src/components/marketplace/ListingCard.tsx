@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import type { MarketplaceListing } from "@/lib/listings-types";
-import { contactMessage } from "@/content/landing-directory";
+import { normalizeListingIntelligence } from "@/lib/listing-intelligence-types";
+import { CONTACT } from "@/content/landing-directory";
+import { ValueIntelligenceCard } from "./ValueIntelligenceCard";
 
 type ListingCardProps = {
   listing: MarketplaceListing;
@@ -19,8 +21,7 @@ function formatEndsAt(iso: string | null): string | null {
 
 export function ListingCard({ listing, index = 0 }: ListingCardProps) {
   const endsLabel = formatEndsAt(listing.endsAt);
-  const orderMsg = contactMessage(`Order: ${listing.title} (${listing.priceLabel})`);
-
+  const intelligence = normalizeListingIntelligence(listing.intelligence);
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -40,6 +41,7 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
             <span className="mp-card-badge mp-card-badge-hot">Ends {endsLabel}</span>
           ) : null}
         </div>
+        {intelligence ? <ValueIntelligenceCard intelligence={intelligence} compact /> : null}
         <div className="mp-card-body">
           <div className="mp-card-meta-row">
             <span className="mp-card-cat">{listing.category}</span>
@@ -59,16 +61,23 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
       </Link>
       <div className="mp-card-cta-row">
         <Link href={listing.serviceUrl} className="forge-btn forge-btn-ghost forge-btn-sm flex-1 justify-center">
-          View
+          Details
+        </Link>
+        <Link
+          href={`${listing.serviceUrl}?checkout=1`}
+          className="forge-btn forge-btn-primary forge-btn-sm flex-1 justify-center"
+          data-track={`checkout_listing_${listing.id}`}
+        >
+          Pay crypto
         </Link>
         <a
-          href={contactMessage(orderMsg)}
+          href={CONTACT.discord}
           target="_blank"
           rel="noopener noreferrer"
-          className="forge-btn forge-btn-primary forge-btn-sm flex-1 justify-center"
-          data-track={`order_listing_${listing.id}`}
+          className="forge-btn forge-btn-ghost forge-btn-sm flex-1 justify-center"
+          data-track={`discord_listing_${listing.id}`}
         >
-          Contact on Discord
+          Discord
         </a>
       </div>
     </motion.article>

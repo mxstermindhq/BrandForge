@@ -37,6 +37,7 @@ function ForgeNavbarInner() {
         ? "/onboarding/service"
         : "/account"
     : "/login";
+  const dashboardHref = user ? "/dashboard" : "/login?next=/dashboard";
 
   return (
     <motion.header
@@ -80,6 +81,11 @@ function ForgeNavbarInner() {
         </nav>
 
         <div className="forge-nav-actions">
+          {user ? (
+            <Link href={dashboardHref} className="forge-nav-link hidden sm:inline">
+              Dashboard
+            </Link>
+          ) : null}
           <Link href={accountHref} className="forge-nav-link hidden sm:inline">
             {user ? "Account" : "Sign in"}
           </Link>

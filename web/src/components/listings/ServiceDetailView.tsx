@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { CONTACT, contactMessage } from "@/content/landing-directory";
-import { profilePath, profileServicePath } from "@/lib/reserved-paths";
+import { profilePath } from "@/lib/reserved-paths";
 import type { ServiceDetail } from "@/lib/service-types";
+import { ValueIntelligenceCard } from "@/components/marketplace/ValueIntelligenceCard";
+import { CryptoCheckoutButton } from "./CryptoCheckoutButton";
 import { ForgeButton } from "@/components/marketplace/ForgeButton";
 
 function formatEndsAt(iso: string | null): string | null {
@@ -20,7 +22,6 @@ type ServiceDetailViewProps = {
 
 export function ServiceDetailView({ service, canEdit = false }: ServiceDetailViewProps) {
   const endsLabel = formatEndsAt(service.endsAt);
-  const orderMsg = contactMessage(`Order: ${service.title} (${service.priceLabel})`);
   const ownerUsername = service.ownerUsername?.replace(/^@+/, "");
   const profileUrl = ownerUsername ? profilePath(ownerUsername) : null;
   const editUrl = canEdit && !service.isOfficial ? `/account/listings/${service.id}/edit` : null;
@@ -28,7 +29,7 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
   return (
     <article className="forge-detail-article mt-6">
       <div
-        className="relative h-72 w-full overflow-hidden sm:h-96"
+        className="relative h-48 w-full overflow-hidden sm:h-56"
         style={{ background: service.thumbGradient }}
       >
         <div className="absolute inset-0 mp-heat-overlay" aria-hidden />
@@ -49,6 +50,13 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
         <div>
           <h1 className="font-headline text-4xl font-semibold text-[var(--forge-text)]">{service.title}</h1>
           <p className="mt-3 text-lg text-[var(--forge-text-muted)]">{service.tagline}</p>
+
+          {service.intelligence ? (
+            <div className="mt-6">
+              <ValueIntelligenceCard intelligence={service.intelligence} />
+            </div>
+          ) : null}
+
           <p className="mt-6 text-base leading-relaxed text-[var(--forge-text-secondary,var(--forge-text-muted))]">
             {service.description}
           </p>
@@ -107,11 +115,22 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
               <p className="mt-4 text-sm text-[var(--forge-text-muted)]">Seller: {service.ownerName}</p>
             )}
             <div className="mt-6 flex flex-col gap-2">
-              <ForgeButton href={CONTACT.discord} variant="primary" external dataTrack={`service_discord_${service.id}`}>
-                {service.ctaText}
+              <CryptoCheckoutButton listingId={service.id} priceLabel={service.priceLabel} />
+              <ForgeButton
+                href={CONTACT.discord}
+                variant="secondary"
+                external
+                dataTrack={`service_discord_${service.id}`}
+              >
+                Questions on Discord
               </ForgeButton>
-              <ForgeButton href={contactMessage(orderMsg)} variant="secondary" external dataTrack={`service_telegram_${service.id}`}>
-                Order via Telegram
+              <ForgeButton
+                href={contactMessage(`Order: ${service.title} (${service.priceLabel})`)}
+                variant="ghost"
+                external
+                dataTrack={`service_telegram_${service.id}`}
+              >
+                Message on Telegram
               </ForgeButton>
               {editUrl ? (
                 <Link href={editUrl} className="forge-btn forge-btn-ghost justify-center text-center">
@@ -120,7 +139,7 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
               ) : null}
             </div>
             <p className="mt-4 text-xs text-[var(--forge-text-muted)]">
-              No checkout — message on Discord/Telegram to confirm scope. Managed by {CONTACT.guarantor}.
+              Instant crypto checkout via NOWPayments. Escrow support on {CONTACT.guarantor} for scope disputes.
             </p>
           </div>
         </aside>

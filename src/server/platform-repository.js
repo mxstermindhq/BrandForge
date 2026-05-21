@@ -2,6 +2,8 @@ const { createClient } = require('@supabase/supabase-js');
 const { getEnv } = require('./env');
 const { sendNotificationEmailForRow } = require('./notify-email');
 const { createNowpaymentsInvoice, extractInvoiceCheckoutUrl } = require('./nowpayments');
+const { normalizeIntelligence } = require('./listing-intelligence');
+const { createMarketplaceCommerce } = require('./marketplace-commerce');
 const { createCurrencyService } = require('./currency-service');
 const { createRatingService } = require('./rating-service');
 
@@ -255,7 +257,16 @@ function mapServiceForDetail(row, ownerRow) {
     useCases,
     use_cases: useCases,
     tags: Array.isArray(meta.tags) ? meta.tags : [],
-    ctaText: 'Contact on Discord',
+    ctaText: 'Pay with crypto',
+    intelligence: normalizeIntelligence(
+      (row.intelligence && typeof row.intelligence === 'object' ? row.intelligence : meta.intelligence) || {},
+      {
+        category: row.category,
+        price,
+        deliveryDays,
+        listingType,
+      },
+    ),
     ownerUsername: ownerRow?.username || null,
     ownerName: ownerRow?.full_name || ownerRow?.username || base.sel,
     ownerAvatar: ownerRow?.avatar_url || null,
@@ -454,6 +465,7 @@ async function createPlatformRepository(previewRepository) {
 
   const currencyService = client ? createCurrencyService(client) : null;
   const ratingService = client ? createRatingService(client) : null;
+  const marketplaceCommerce = createMarketplaceCommerce({ client, env });
 
   async function notifyInsert(row) {
     if (!client) return;
@@ -1307,6 +1319,12 @@ async function createPlatformRepository(previewRepository) {
 
   async function createServicePackage(user, payload) {
     if (!client) throw new Error('Supabase is not configured');
+    const canSell = await marketplaceCommerce.canUserCreateListings(user);
+    if (!canSell) {
+      throw new Error(
+        'Seller access requires whitelist approval. Complete onboarding, then contact the team to enable listing creation.',
+      );
+    }
     const title = String(payload.title || '').trim();
     const category = String(payload.category || 'Design').trim();
     const deliveryDays = Math.max(1, Number(String(payload.delivery || '').trim()) || 3);
@@ -1332,6 +1350,14 @@ async function createPlatformRepository(previewRepository) {
           ? 'monthly'
           : null;
 
+    const intelligence = normalizeIntelligence(payload.intelligence, {
+      category,
+      price,
+      deliveryDays,
+      listingType,
+      whitelistedSeller: true,
+    });
+
     const insertRow = {
       owner_id: user.id,
       title,
@@ -1346,12 +1372,14 @@ async function createPlatformRepository(previewRepository) {
       listing_type: listingType,
       ends_at: endsAt,
       billing_interval: billingInterval,
+      intelligence,
       metadata: {
         rating: 'New',
         sales: 0,
         listing_type: listingType,
         ends_at: endsAt,
         billing_interval: billingInterval,
+        intelligence,
       },
     };
 
@@ -1363,6 +1391,11 @@ async function createPlatformRepository(previewRepository) {
       ({ data, error } = await client.from('service_packages').insert(fallback).select('*').single());
     }
     if (error) throw error;
+    try {
+      await client.from('profiles').update({ role: 'seller' }).eq('id', user.id).in('role', ['member', 'buyer']);
+    } catch {
+      /* role migration may be pending */
+    }
     const { data: ownerProfile } = await client
       .from('profiles')
       .select('username, full_name')
@@ -5211,9 +5244,11 @@ async function createPlatformRepository(previewRepository) {
       coverUrl: typeof coverUrl === 'string' && coverUrl.trim() ? coverUrl.trim() : null,
       thumbGradient: categoryBackgrounds[category] || 'linear-gradient(135deg, #0a0505, #ff4d00, #ffb800)',
       createdAt: row.created_at || null,
-      serviceUrl: ownerUsername
-        ? `/${encodeURIComponent(ownerUsername)}/service/${row.id}`
-        : `/product/${row.id}`,
+      serviceUrl: `/listing/${row.id}`,
+      intelligence: normalizeIntelligence(
+        (row.intelligence && typeof row.intelligence === 'object' ? row.intelligence : meta.intelligence) || {},
+        { category, price, deliveryDays, listingType },
+      ),
     };
   }
 
@@ -5876,6 +5911,7 @@ async function createPlatformRepository(previewRepository) {
   }
 
   return {
+    ...marketplaceCommerce,
     currencyService,
     ratingService,
     getBootstrap,

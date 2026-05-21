@@ -35,11 +35,18 @@ export default function OnboardingServicePage() {
   useEffect(() => {
     if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
     if (!meLoading && me?.sellerAccess) router.replace("/account");
+    if (!meLoading && me && me.canCreateListing === false && !me.sellerWhitelisted) {
+      setError("Listing creation requires seller whitelist approval. Contact the team on Discord.");
+    }
   }, [me, meLoading, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!accessToken) return;
+    if (me?.canCreateListing === false) {
+      setError("You are not whitelisted to create listings yet.");
+      return;
+    }
     setBusy(true);
     setError(null);
     const body: Record<string, unknown> = {

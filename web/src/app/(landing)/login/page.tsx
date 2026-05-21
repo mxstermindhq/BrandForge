@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ForgePage } from "@/components/forge/ForgePage";
-import { SocialLoginButtons } from "@/components/SocialLoginButtons";
+import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
   title: "Sign In",
@@ -20,22 +19,9 @@ export default function LoginPage() {
       <div className="forge-page-card mx-auto max-w-md">
         <h2 className="font-headline text-xl font-semibold text-[var(--forge-text)]">Sign in</h2>
         <p className="mt-2 text-sm text-[var(--forge-text-muted)]">
-          Sellers and operators only. Buyers can browse and order via Discord or Telegram.
+          Sign in to pay with crypto, track orders, and manage listings.
         </p>
-        <div className="mt-8">
-          <SocialLoginButtons redirectTo="/onboarding" />
-        </div>
-        <p className="mt-8 text-center text-xs text-[var(--forge-text-muted)]">
-          By signing in you agree to our{" "}
-          <Link href="/terms" className="text-[var(--forge-gold)] hover:underline">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-[var(--forge-gold)] hover:underline">
-            Privacy Policy
-          </Link>
-          .
-        </p>
+        <LoginForm />
       </div>
     </ForgePage>
   );

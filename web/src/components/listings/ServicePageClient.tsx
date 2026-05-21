@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 import { ServiceDetailView } from "./ServiceDetailView";
 import type { ServiceDetail } from "@/lib/service-types";
 import { useAuth } from "@/providers/AuthProvider";
@@ -31,6 +32,16 @@ export function ServicePageClient({ service, backHref, backLabel }: ServicePageC
       ),
     );
   }, [session, me, service.ownerId, service.isOfficial]);
+
+  useEffect(() => {
+    void apiFetch("/api/marketplace/views", {
+      method: "POST",
+      body: JSON.stringify({
+        listingId: service.id,
+        listingType: service.isOfficial ? "official" : "db",
+      }),
+    });
+  }, [service.id, service.isOfficial]);
 
   return (
     <main className="forge-page pb-28">

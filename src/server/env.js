@@ -55,6 +55,7 @@ function getEnv() {
     /** Base URL for API (IPN callbacks). */
     apiPublicOrigin: String(process.env.API_PUBLIC_ORIGIN || `http://127.0.0.1:${process.env.PORT || 3000}`).replace(/\/+$/, ''),
     nowpaymentsApiKey: process.env.NOWPAYMENTS_API_KEY || '',
+    nowpaymentsIpnSecret: process.env.NOWPAYMENTS_IPN_SECRET || '',
     nowpaymentsSandbox: process.env.NOWPAYMENTS_SANDBOX === '1' || process.env.NOWPAYMENTS_SANDBOX === 'true',
     /** Optional: protect POST /api/cron/decay-* (Bearer or JSON body.secret). Set in host env, not committed. */
     cronSecret: process.env.CRON_SECRET || '',

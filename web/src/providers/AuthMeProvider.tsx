@@ -32,6 +32,8 @@ export type AuthMeResponse = {
   pendingOnboarding?: boolean;
   pendingSellerSetup?: boolean;
   sellerAccess?: boolean;
+  canCreateListing?: boolean;
+  sellerWhitelisted?: boolean;
   publishedServiceCount?: number;
 };
 

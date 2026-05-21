@@ -16,6 +16,7 @@ type ForgeButtonProps = {
   type?: "button" | "submit";
   dataTrack?: string;
   small?: boolean;
+  disabled?: boolean;
 };
 
 export function ForgeButton({
@@ -28,6 +29,7 @@ export function ForgeButton({
   type = "button",
   dataTrack,
   small,
+  disabled,
 }: ForgeButtonProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -80,7 +82,12 @@ export function ForgeButton({
   }
 
   return (
-    <button type={type} onClick={onClick} className="inline-block border-0 bg-transparent p-0">
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-block border-0 bg-transparent p-0 disabled:opacity-60"
+    >
       {inner}
     </button>
   );

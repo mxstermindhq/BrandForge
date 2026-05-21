@@ -293,27 +293,26 @@ function sendText(res, status, message) {
   res.end(message);
 }
 
-function parseBody(req) {
+function readRawBody(req, maxBytes = 1_000_000) {
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
-      if (body.length > 1_000_000) {
-        reject(new Error('Payload too large'));
-      }
+      if (body.length > maxBytes) reject(new Error('Payload too large'));
     });
-    req.on('end', () => {
-      if (!body) {
-        resolve({});
-        return;
-      }
-      try {
-        resolve(JSON.parse(body));
-      } catch {
-        reject(new Error('Invalid JSON body'));
-      }
-    });
+    req.on('end', () => resolve(body));
     req.on('error', reject);
+  });
+}
+
+function parseBody(req) {
+  return readRawBody(req).then((body) => {
+    if (!body) return {};
+    try {
+      return JSON.parse(body);
+    } catch {
+      throw new Error('Invalid JSON body');
+    }
   });
 }
 
@@ -452,8 +451,20 @@ async function routeApi(req, res, pathname) {
       const pendingSellerSetup = Boolean(
         profileRow?.onboarding_completed_at && publishedServiceCount === 0,
       );
+      let sellerWhitelisted = false;
+      try {
+        sellerWhitelisted = await platformRepository.isSellerWhitelisted(user.email);
+      } catch {
+        sellerWhitelisted = false;
+      }
+      const role = String(profileRow?.role || 'member');
       const sellerAccess = Boolean(
-        profileRow?.onboarding_completed_at && publishedServiceCount > 0,
+        sellerWhitelisted ||
+          ['admin', 'moderator', 'seller', 'enterprise'].includes(role) ||
+          (profileRow?.onboarding_completed_at && publishedServiceCount > 0),
+      );
+      const canCreateListing = Boolean(
+        sellerWhitelisted || ['admin', 'moderator'].includes(role),
       );
       const profileOut = profileRow
         ? {
@@ -480,6 +491,8 @@ async function routeApi(req, res, pathname) {
         pendingOnboarding,
         pendingSellerSetup,
         sellerAccess,
+        canCreateListing,
+        sellerWhitelisted,
         publishedServiceCount,
       });
     } catch (error) {
@@ -2160,12 +2173,22 @@ async function routeApi(req, res, pathname) {
   }
 
   if (pathname === '/api/nowpayments/ipn' && method === 'POST') {
-    await new Promise((resolve, reject) => {
-      req.on('data', () => {});
-      req.on('end', resolve);
-      req.on('error', reject);
-    });
-    sendJson(res, 200, { ok: true });
+    try {
+      const rawBody = await readRawBody(req);
+      const sig =
+        req.headers['x-nowpayments-sig'] ||
+        req.headers['X-Nowpayments-Sig'] ||
+        '';
+      const result = await platformRepository.handleNowpaymentsIpn(rawBody, sig);
+      if (!result.ok) {
+        sendJson(res, 401, result);
+        return true;
+      }
+      sendJson(res, 200, result);
+    } catch (error) {
+      console.error('[nowpayments/ipn]', error);
+      sendJson(res, 500, { ok: false, error: error.message || 'IPN failed' });
+    }
     return true;
   }
 
@@ -2836,6 +2859,109 @@ async function routeApi(req, res, pathname) {
       sendJson(res, 200, result);
     } catch (error) {
       sendJson(res, 500, { error: error.message || 'Failed to load listings' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/marketplace/checkout' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    await ensureProfileForUser(user).catch(() => null);
+    try {
+      const payload = await parseBody(req);
+      const listingId = String(payload.listingId || payload.listing_id || '').trim();
+      if (!listingId) {
+        sendJson(res, 400, { error: 'listingId is required' });
+        return true;
+      }
+      const out = await platformRepository.createMarketplaceCheckout(user, listingId);
+      sendJson(res, 201, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Checkout failed' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/marketplace/views' && method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const listingId = String(payload.listingId || '').trim();
+      if (!listingId) {
+        sendJson(res, 400, { error: 'listingId is required' });
+        return true;
+      }
+      const viewer = await getOptionalUser(req);
+      await platformRepository.recordListingView(
+        listingId,
+        payload.listingType || 'db',
+        viewer?.id || null,
+      );
+      sendJson(res, 200, { ok: true });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to record view' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/marketplace/saved' && method === 'POST') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      const payload = await parseBody(req);
+      const listingId = String(payload.listingId || '').trim();
+      if (!listingId) {
+        sendJson(res, 400, { error: 'listingId is required' });
+        return true;
+      }
+      const out = await platformRepository.toggleSavedListing(
+        user.id,
+        listingId,
+        payload.listingType,
+      );
+      sendJson(res, 200, out);
+    } catch (error) {
+      sendJson(res, 400, { error: error.message || 'Failed to update saved listing' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/dashboard/buyer' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      const data = await platformRepository.getBuyerDashboard(user.id);
+      sendJson(res, 200, data);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load buyer dashboard' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/dashboard/seller' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      const data = await platformRepository.getSellerDashboard(user.id);
+      sendJson(res, 200, data);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load seller dashboard' });
+    }
+    return true;
+  }
+
+  const orderMatch = pathname.match(/^\/api\/orders\/([^/]+)\/?$/);
+  if (orderMatch && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      const order = await platformRepository.getOrderForUser(user.id, orderMatch[1]);
+      if (!order) {
+        sendJson(res, 404, { error: 'Order not found' });
+        return true;
+      }
+      sendJson(res, 200, order);
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load order' });
     }
     return true;
   }

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { officialIntelligenceFromItem } = require('./listing-intelligence');
 
 let cached = null;
 
@@ -76,7 +77,8 @@ function mapOfficialToMarketplaceListing(item, seller) {
     deliverables: item.deliverables || [],
     useCases: item.useCases || [],
     createdAt: null,
-    serviceUrl: `/product/${item.slug}`,
+    serviceUrl: `/listing/${item.slug}`,
+    intelligence: officialIntelligenceFromItem(item),
   };
 }
 
@@ -111,7 +113,8 @@ function mapOfficialToServiceDetail(item, seller) {
     ownerName: seller.name,
     owner: { username: seller.username, full_name: seller.name, avatar_url: null },
     sel: seller.name,
-    ctaText: 'Contact on Discord',
+    ctaText: 'Pay with crypto',
+    intelligence: officialIntelligenceFromItem(item),
   };
 }
 

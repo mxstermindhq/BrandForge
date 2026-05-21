@@ -1,3 +1,6 @@
+import type { ListingIntelligence } from "@/lib/listing-intelligence-types";
+import { normalizeListingIntelligence } from "@/lib/listing-intelligence-types";
+
 export type ServiceDetail = {
   id: string;
   title: string;
@@ -21,6 +24,7 @@ export type ServiceDetail = {
   ownerId?: string | null;
   isOfficial?: boolean;
   status?: string;
+  intelligence?: ListingIntelligence | null;
 };
 
 export function normalizeServiceDetail(raw: Record<string, unknown>): ServiceDetail {
@@ -65,7 +69,8 @@ export function normalizeServiceDetail(raw: Record<string, unknown>): ServiceDet
       (raw.thumbGradient as string) ||
       (raw.bg as string) ||
       "linear-gradient(135deg, #0a0505, #ff4d00, #ffb800)",
-    ctaText: String(raw.ctaText || "Contact on Discord"),
+    ctaText: String(raw.ctaText || "Pay with crypto"),
+    intelligence: normalizeListingIntelligence(raw.intelligence),
     ownerUsername:
       (raw.ownerUsername as string) ||
       ((raw.owner as { username?: string })?.username ?? null),

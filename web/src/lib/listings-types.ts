@@ -2,6 +2,8 @@ export type ListingTerm = "short" | "long";
 
 export type ListingSort = "newest" | "price-asc" | "price-desc" | "ending";
 
+import type { ListingIntelligence } from "@/lib/listing-intelligence-types";
+
 export type MarketplaceListing = {
   id: string;
   title: string;
@@ -25,6 +27,7 @@ export type MarketplaceListing = {
   serviceUrl: string;
   isOfficial?: boolean;
   catalogSlug?: string;
+  intelligence?: ListingIntelligence | Record<string, unknown> | null;
 };
 
 export type MarketplaceListingsResponse = {

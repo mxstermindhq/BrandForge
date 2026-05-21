@@ -102,7 +102,6 @@ const nextConfig = {
   async redirects() {
     const home = { destination: "/", permanent: true };
     const legacyApp = [
-      "/dashboard",
       "/explore",
       "/feed",
       "/chat",
@@ -139,7 +138,8 @@ const nextConfig = {
       { source: "/p/:username", destination: "/:username", permanent: true },
       { source: "/u/:username", destination: "/:username", permanent: true },
       { source: "/u/:username/service/:id", destination: "/:username/service/:id", permanent: true },
-      { source: "/offer/:id", destination: "/product/:id", permanent: true },
+      { source: "/offer/:id", destination: "/listing/:id", permanent: true },
+      { source: "/product/:id", destination: "/listing/:id", permanent: true },
       { source: "/product/ai-automation-starter", destination: "/product/ai-automation-business-system", permanent: true },
       { source: "/product/ai-discord-bot", destination: "/product/ai-chatbot-businesses", permanent: true },
       { source: "/product/discord-setup-pro", destination: "/product/discord-growth-monetization", permanent: true },
