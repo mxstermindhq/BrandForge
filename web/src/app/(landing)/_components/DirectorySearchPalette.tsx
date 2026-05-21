@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics.client";
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 import { OPERATOR_MEDIA } from "@/content/operator-media";
 
@@ -68,7 +69,8 @@ export function DirectorySearchPalette({ operators }: DirectorySearchPaletteProp
   }, [operators, q]);
 
   const go = useCallback(
-    (href: string) => {
+    (href: string, label?: string) => {
+      trackEvent("search_select", { href, label: label ?? "" });
       setOpen(false);
       setQ("");
       router.push(href);
@@ -80,7 +82,11 @@ export function DirectorySearchPalette({ operators }: DirectorySearchPaletteProp
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setOpen((v) => !v);
+        setOpen((v) => {
+          const next = !v;
+          if (next) trackEvent("search_open");
+          return next;
+        });
       }
       if (e.key === "Escape") setOpen(false);
     }
@@ -96,7 +102,10 @@ export function DirectorySearchPalette({ operators }: DirectorySearchPaletteProp
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          trackEvent("search_open");
+          setOpen(true);
+        }}
         className="directory-cmd-trigger"
         aria-label="Search directory (Ctrl+K)"
       >
@@ -130,7 +139,7 @@ export function DirectorySearchPalette({ operators }: DirectorySearchPaletteProp
             }
             if (e.key === "Enter" && results[active]) {
               e.preventDefault();
-              go(results[active].href);
+              go(results[active].href, results[active].label);
             }
           }}
           placeholder="Find an operator, service, or project…"
@@ -147,7 +156,7 @@ export function DirectorySearchPalette({ operators }: DirectorySearchPaletteProp
                   className="directory-cmd-result"
                   data-active={i === active ? true : undefined}
                   onMouseEnter={() => setActive(i)}
-                  onClick={() => go(r.href)}
+                  onClick={() => go(r.href, r.label)}
                 >
                   <span className="directory-cmd-kind">{r.kind}</span>
                   <span>

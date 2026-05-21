@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/tokens.css";
+import { DirectoryAnalytics } from "@/components/analytics/DirectoryAnalytics";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AuthMeProvider } from "@/providers/AuthMeProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -128,6 +129,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="light">
           <AuthProvider>
             <AuthMeProvider>
+              <DirectoryAnalytics />
               {children}
             </AuthMeProvider>
           </AuthProvider>

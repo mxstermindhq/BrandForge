@@ -2,37 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { contactMessage } from "@/content/landing-directory";
-import { OPERATOR_MEDIA, type OperatorService } from "@/content/operator-media";
-import { OPERATOR_SEED } from "@/content/operator-seed";
 import { StickyConversationCTA } from "@/components/directory/StickyConversationCTA";
-
-type FoundService = {
-  service: OperatorService;
-  operatorUsername: string;
-  operatorName: string;
-};
-
-function findService(id: string): FoundService | null {
-  for (const operator of OPERATOR_SEED) {
-    const media = OPERATOR_MEDIA[operator.username.toLowerCase()];
-    if (!media) continue;
-    const match = media.services.find((s) => s.id === id);
-    if (match) {
-      return { service: match, operatorUsername: operator.username, operatorName: operator.name };
-    }
-  }
-  return null;
-}
+import { findServiceById } from "@/lib/operator-catalog";
+import { serviceJsonLd } from "@/lib/json-ld";
 
 export default async function OfferDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const found = findService(id);
+  const found = await findServiceById(id);
   if (!found) notFound();
-  const { service, operatorUsername, operatorName } = found;
-  const tgSubject = `Service inquiry: ${service.name} (${operatorName})`;
+  const { service, operator } = found;
+  const tgSubject = `Service inquiry: ${service.name} (${operator.name})`;
+  const jsonLd = serviceJsonLd(service, operator);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6 sm:pb-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-gold)]">
         ← Directory
       </Link>
@@ -62,8 +46,8 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ id
           <div>
             <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
               Operator{" "}
-              <Link href={`/${encodeURIComponent(operatorUsername)}`} className="text-[var(--color-gold)] hover:underline">
-                {operatorName}
+              <Link href={`/${encodeURIComponent(operator.username)}`} className="text-[var(--color-gold)] hover:underline">
+                {operator.name}
               </Link>
             </p>
             <h1 className="mt-2 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">{service.name}</h1>
@@ -101,15 +85,17 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ id
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary mt-6 flex min-h-12 w-full items-center justify-center text-sm"
+                data-track="offer_primary_cta"
               >
                 Start conversation about this service →
               </a>
               <Link
-                href={`/${encodeURIComponent(operatorUsername)}`}
+                href={`/${encodeURIComponent(operator.username)}`}
                 className="mt-3 flex min-h-11 w-full items-center justify-center rounded-xl border text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-gold-border)]"
                 style={{ borderColor: "var(--color-border)" }}
+                data-track="offer_profile_link"
               >
-                View {operatorName}&apos;s profile
+                View {operator.name}&apos;s profile
               </Link>
             </div>
           </aside>
@@ -119,7 +105,7 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ id
       <StickyConversationCTA
         subject={tgSubject}
         label="Discuss this service"
-        sublabel={`Scoped with mxstermind · ${operatorName}`}
+        sublabel={`Scoped with mxstermind · ${operator.name}`}
       />
     </main>
   );

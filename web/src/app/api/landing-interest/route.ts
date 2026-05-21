@@ -2,9 +2,22 @@ import { NextResponse } from "next/server";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const DISCORD_WEBHOOK = process.env.INTEREST_DISCORD_WEBHOOK_URL;
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+async function notifyDiscord(email: string, intent: string) {
+  if (!DISCORD_WEBHOOK) return;
+  const label = intent === "hire" ? "Wants to hire" : "Wants to get listed";
+  await fetch(DISCORD_WEBHOOK, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: `**BrandForge interest** — ${label}\n\`${email}\``,
+    }),
+  }).catch((err) => console.error("discord interest notify failed", err));
 }
 
 export async function POST(request: Request) {
@@ -45,6 +58,8 @@ export async function POST(request: Request) {
       console.error("landing-interest insert failed", response.status, detail);
       return NextResponse.json({ error: "Could not save." }, { status: 502 });
     }
+
+    await notifyDiscord(email, intent);
 
     return NextResponse.json({ ok: true });
   } catch (error) {

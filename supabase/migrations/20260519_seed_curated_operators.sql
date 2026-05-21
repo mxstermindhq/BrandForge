@@ -1,0 +1,86 @@
+-- Idempotent seed for curated_operators (directory MVP)
+
+insert into public.curated_operators (
+  username, name, role, years_exp, availability, amanah_score, completion_rate,
+  bio, best_result, wont_take_on, starting_price, pricing_model, skills,
+  ideal_client, work_style, typical_timeline, proof_link, faq, is_verified,
+  layout_span, display_order
+) values
+(
+  'prince', 'Prince', 'Graphic & motion designer', 8, 'limited', 99, 100,
+  'Eight years crafting visual brands. 182 consecutive 5-star vouches. Logos, banners, PFPs, server kits, animated brand assets. Source files always included.',
+  '182 consecutive 5-star vouches — 100% verified rating.',
+  'Rush jobs where speed beats quality. Quality never gets cut.',
+  '$25', 'Per-asset / kit',
+  '["Logos","Banners","Motion","PFP","Brand kits","Server"]'::jsonb,
+  'Founders and creators who want craft over speed',
+  'Brief first. Queue respected. Quality never compromised.',
+  '24–72h (queue dependent)',
+  'https://brandforge.gg/prince',
+  '[{"question":"Why do reviews mention longer wait times?","answer":"Prince takes his time. Every review says the same — it takes longer than expected and it''s worth every day of the wait."},{"question":"What''s your typical delivery?","answer":"Most projects ship in 24–72 hours with the source file included."},{"question":"What kinds of work do you take?","answer":"Logos, banners, server design, profile pictures, signatures, product cards, animated brand assets."}]'::jsonb,
+  true, 'featured', 1
+),
+(
+  'dipps', 'Dipako Thupayatlase', 'Full-stack software engineer · Java', 4, 'available', 96, 98,
+  'Full-stack engineer from Gaborone, Botswana. 4+ years building web apps, automation tools, and end-to-end software in Java, Python, Node.js, React, and TypeScript. Currently building an AI voice receptionist for dental clinics.',
+  'Reverse-engineered an APK to unblock a $2,000 client project at BrandForge.',
+  'Vague briefs without a real owner or measurable outcome.',
+  'EUR 1,500', 'Project sprint',
+  '["Java","Python","Node.js","React","TypeScript","SQL"]'::jsonb,
+  'Founders shipping web apps and automation',
+  'Sprint-based with milestone reviews',
+  '2–6 weeks per sprint',
+  'https://github.com/DippsDev',
+  '[{"question":"What kinds of products do you build?","answer":"Corporate websites, automation and scraping tools, AI voice agents, full-stack web apps, and end-to-end Java services."},{"question":"How do you scope an engagement?","answer":"We start with a 30-minute scoping call routed by mxstermind. I send back a fixed-scope sprint plan with milestones and a flat price."},{"question":"What stacks do you ship in?","answer":"Java (primary), Python for automation and scraping, Node.js + React + TypeScript on the web. SQL and unstructured data on the backend."}]'::jsonb,
+  true, 'featured', 2
+),
+(
+  'thami', 'Thami', 'Senior software engineer', 10, 'limited', 95, 96,
+  'Ten years shipping production systems. Architects platforms that survive scale, owns delivery from RFC to release, and keeps technical debt out of the roadmap.',
+  'Led the redesign of a high-traffic platform from monolith to event-driven services with zero downtime.',
+  'Architecture work where decisions keep getting deferred without an accountable owner.',
+  'EUR 2,000', 'Sprint + advisory',
+  '["Architecture","Platform engineering","Reliability","Cloud","Observability"]'::jsonb,
+  'Scale-ups carrying technical debt or migrating critical systems',
+  'Structured scope, transparent tradeoffs, written tech specs',
+  '3–6 weeks per sprint',
+  'https://brandforge.gg/thami',
+  '[{"question":"What do you specialize in?","answer":"Platform engineering, system architecture, and reliability. I take messy production systems and make them durable."},{"question":"Can you act as a fractional staff engineer?","answer":"Yes. Advisory + delivery hybrid. I sit with your team, write the specs, ship a milestone, and keep moving."},{"question":"What stacks do you cover?","answer":"Node, TypeScript, Go, Postgres, Redis, Kafka, AWS, GCP. Cloud-agnostic by default — I pick what serves your roadmap."}]'::jsonb,
+  true, 'standard', 3
+),
+(
+  'nik', 'Nik', 'Web3 developer', 6, 'available', 92, 94,
+  'Web3 engineer focused on production-grade utility — wallets, payments, DeFi tooling. Builds with a security-first mindset and ships UX that doesn''t punish users.',
+  'Shipped a self-custody wallet experience used across three blockchain networks.',
+  'Token-first speculation projects with no real product utility.',
+  'EUR 1,900', 'Project-based',
+  '["Solidity","Wallet UX","EVM","DeFi","Smart contracts"]'::jsonb,
+  'Founders building real-utility web3 products',
+  'Security review first, then ship in small reviewable increments',
+  '2–5 weeks per scope',
+  'https://brandforge.gg/nik',
+  '[{"question":"What web3 stacks do you ship?","answer":"EVM chains (Ethereum, Base, Arbitrum, Optimism). Wallet integration via Wagmi/Viem. Smart contracts in Solidity with full test coverage."},{"question":"Do you handle audits?","answer":"I write contracts to be audit-ready and coordinate with external audit partners when the project warrants it."},{"question":"Can you also handle UX?","answer":"Yes. Wallet UX is the difference between a usable product and a security incident — I treat it as core engineering."}]'::jsonb,
+  true, 'compact', 4
+)
+on conflict (username) do update set
+  name = excluded.name,
+  role = excluded.role,
+  years_exp = excluded.years_exp,
+  availability = excluded.availability,
+  amanah_score = excluded.amanah_score,
+  completion_rate = excluded.completion_rate,
+  bio = excluded.bio,
+  best_result = excluded.best_result,
+  wont_take_on = excluded.wont_take_on,
+  starting_price = excluded.starting_price,
+  pricing_model = excluded.pricing_model,
+  skills = excluded.skills,
+  ideal_client = excluded.ideal_client,
+  work_style = excluded.work_style,
+  typical_timeline = excluded.typical_timeline,
+  proof_link = excluded.proof_link,
+  faq = excluded.faq,
+  is_verified = excluded.is_verified,
+  layout_span = excluded.layout_span,
+  display_order = excluded.display_order,
+  updated_at = now();

@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { contactMessage } from "@/content/landing-directory";
-import { getLandingOperators } from "@/lib/operators.server";
+import { StickyConversationCTA } from "@/components/directory/StickyConversationCTA";
 import { getOperatorMedia } from "@/content/operator-media";
+import { getLandingOperators } from "@/lib/operators.server";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const handle = decodeURIComponent(slug).replace(/^@+/, "").toLowerCase();
+  const rows = await getLandingOperators();
+  const operator = rows.find((o) => o.username.toLowerCase() === handle);
+  if (!operator) return { title: "Portfolio not found" };
+  return {
+    title: `${operator.name} — Portfolio`,
+    description: operator.bestResult,
+    alternates: { canonical: `https://brandforge.gg/work/${encodeURIComponent(operator.username)}` },
+  };
+}
 
 export default async function WorkPortfolioPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -14,11 +33,12 @@ export default async function WorkPortfolioPage({ params }: { params: Promise<{ 
 
   const media = getOperatorMedia(operator.username);
   const pieces = media?.workPieces ?? [];
+  const tgSubject = `Portfolio inquiry: ${operator.name} (@${operator.username})`;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:underline">
-        ← Back to directory
+    <main className="mx-auto max-w-6xl px-4 py-10 pb-28 sm:px-6 sm:pb-12">
+      <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-gold)]">
+        ← Directory
       </Link>
 
       <header
@@ -39,28 +59,46 @@ export default async function WorkPortfolioPage({ params }: { params: Promise<{ 
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%)",
+                  "linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.92) 100%)",
               }}
             />
           </div>
         ) : null}
-        <div className="flex flex-wrap items-end justify-between gap-4 px-6 py-6">
+        <div className="grid gap-6 px-6 py-6 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
           <div>
             <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-gold)]">Portfolio</p>
             <h1 className="mt-1 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">
               {operator.name}
             </h1>
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{operator.bestResult}</p>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{operator.role}</p>
+            <p className="mt-3 text-base text-[var(--color-text-primary)]">{operator.bestResult}</p>
           </div>
-          <a
-            href={contactMessage(`Interest in work portfolio: ${operator.name} (@${operator.username})`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold text-white"
-            style={{ background: "var(--color-gold)" }}
+          <div
+            className="rounded-2xl border p-5"
+            style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)" }}
           >
-            Show interest via Telegram →
-          </a>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gold)]">From</p>
+            <p className="mt-1 font-headline text-2xl font-semibold text-[var(--color-text-primary)]">
+              {operator.startingPrice}
+            </p>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{operator.pricingModel}</p>
+            <a
+              href={contactMessage(tgSubject)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary mt-4 flex min-h-11 w-full items-center justify-center text-sm"
+              data-track="work_portfolio_cta"
+            >
+              Discuss this portfolio →
+            </a>
+            <Link
+              href={`/${encodeURIComponent(operator.username)}`}
+              className="mt-2 flex min-h-10 w-full items-center justify-center rounded-xl border text-sm font-medium"
+              style={{ borderColor: "var(--color-border)" }}
+            >
+              Full profile
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -72,6 +110,7 @@ export default async function WorkPortfolioPage({ params }: { params: Promise<{ 
               href={`/work/${encodeURIComponent(operator.username)}/${encodeURIComponent(piece.id)}`}
               className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)]"
               style={{ borderColor: "var(--color-border)" }}
+              data-track={`work_piece_${piece.id}`}
             >
               <div className="relative h-72 w-full overflow-hidden">
                 <Image
@@ -110,17 +149,11 @@ export default async function WorkPortfolioPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-        <Link
-          href={`/${encodeURIComponent(operator.username)}`}
-          className="text-sm text-[var(--color-text-secondary)] hover:underline"
-        >
-          View {operator.name}&apos;s full profile →
-        </Link>
-        <Link href="/#talent" className="text-sm text-[var(--color-text-secondary)] hover:underline">
-          ← Back to directory
-        </Link>
-      </div>
+      <StickyConversationCTA
+        subject={tgSubject}
+        label="Discuss this work"
+        sublabel={`mxstermind · ${operator.name}`}
+      />
     </main>
   );
 }

@@ -1,9 +1,33 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { contactMessage } from "@/content/landing-directory";
-import { getLandingOperators } from "@/lib/operators.server";
+import { StickyConversationCTA } from "@/components/directory/StickyConversationCTA";
 import { getOperatorMedia, getOperatorWorkPiece } from "@/content/operator-media";
+import { getLandingOperators } from "@/lib/operators.server";
+import { creativeWorkJsonLd } from "@/lib/json-ld";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; pieceId: string }>;
+}): Promise<Metadata> {
+  const { slug, pieceId } = await params;
+  const handle = decodeURIComponent(slug).replace(/^@+/, "").toLowerCase();
+  const rows = await getLandingOperators();
+  const operator = rows.find((o) => o.username.toLowerCase() === handle);
+  if (!operator) return { title: "Case study not found" };
+  const piece = getOperatorWorkPiece(operator.username, decodeURIComponent(pieceId));
+  if (!piece) return { title: "Case study not found" };
+  return {
+    title: `${piece.title} — ${operator.name}`,
+    description: piece.description,
+    alternates: {
+      canonical: `https://brandforge.gg/work/${encodeURIComponent(operator.username)}/${encodeURIComponent(piece.id)}`,
+    },
+  };
+}
 
 export default async function WorkPieceDetailPage({
   params,
@@ -22,15 +46,18 @@ export default async function WorkPieceDetailPage({
   const media = getOperatorMedia(operator.username);
   const otherPieces = (media?.workPieces || []).filter((p) => p.id !== piece.id).slice(0, 3);
   const study = piece.caseStudy;
+  const tgSubject = `Work inquiry: ${piece.title} (${operator.name})`;
+  const jsonLd = creativeWorkJsonLd(piece.title, piece.description, piece.image, operator, piece.id);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6 sm:pb-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--color-text-secondary)]">
-        <Link href={`/work/${encodeURIComponent(operator.username)}`} className="hover:underline">
+        <Link href={`/work/${encodeURIComponent(operator.username)}`} className="hover:text-[var(--color-gold)]">
           ← {operator.name}&apos;s portfolio
         </Link>
-        <Link href={`/${encodeURIComponent(operator.username)}`} className="hover:underline">
-          Open {operator.name}&apos;s profile →
+        <Link href={`/${encodeURIComponent(operator.username)}`} className="hover:text-[var(--color-gold)]">
+          Profile →
         </Link>
       </div>
 
@@ -70,42 +97,28 @@ export default async function WorkPieceDetailPage({
 
             {study?.summary ? (
               <section className="mt-8">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Overview
-                </h2>
-                <p className="mt-2 text-base leading-relaxed text-[var(--color-text-primary)]">
-                  {study.summary}
-                </p>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Overview</h2>
+                <p className="mt-2 text-base leading-relaxed text-[var(--color-text-primary)]">{study.summary}</p>
               </section>
             ) : null}
 
             {study?.targetClient ? (
               <section className="mt-6">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Target client
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-                  {study.targetClient}
-                </p>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Target client</h2>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{study.targetClient}</p>
               </section>
             ) : null}
 
             {study?.coreUseCase ? (
               <section className="mt-6">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Core use case
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-                  {study.coreUseCase}
-                </p>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Core use case</h2>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{study.coreUseCase}</p>
               </section>
             ) : null}
 
             {study?.mainFunctions?.length ? (
               <section className="mt-6">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Main functions
-                </h2>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Main functions</h2>
                 <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
                   {study.mainFunctions.map((fn) => (
                     <li
@@ -123,9 +136,7 @@ export default async function WorkPieceDetailPage({
 
             {study?.idealFlow?.length ? (
               <section className="mt-6">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Ideal flow
-                </h2>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Ideal flow</h2>
                 <ul className="mt-2 grid gap-2 text-sm">
                   {study.idealFlow.map((step) => (
                     <li
@@ -145,35 +156,33 @@ export default async function WorkPieceDetailPage({
                 className="mt-6 rounded-2xl border-l-2 px-4 py-3"
                 style={{ borderLeftColor: "var(--color-gold)", background: "var(--color-gold-subtle)" }}
               >
-                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
-                  Outcome
-                </h2>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">Outcome</h2>
                 <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-primary)]">{study.outcome}</p>
               </section>
             ) : null}
           </div>
 
-          <aside className="space-y-4">
+          <aside className="offer-sticky-panel space-y-4">
             <div
               className="rounded-2xl border p-5"
               style={{ borderColor: "var(--color-gold-border)", background: "var(--color-gold-subtle)" }}
             >
-              <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-gold)]">Interested?</p>
-              <p className="mt-1 text-sm text-[var(--color-text-primary)]">
-                Routed by mxstermind. One conversation. Right next step.
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gold)]">Interested?</p>
+              <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                mxstermind confirms fit and scope before any commitment.
               </p>
               <a
-                href={contactMessage(`Interest in work: ${piece.title} (${operator.name})`)}
+                href={contactMessage(tgSubject)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 text-sm font-semibold text-white"
-                style={{ background: "var(--color-gold)" }}
+                className="btn-primary mt-4 flex min-h-11 w-full items-center justify-center text-sm"
+                data-track="work_piece_cta"
               >
-                Show interest via Telegram →
+                Start conversation about this work →
               </a>
               <Link
                 href={`/${encodeURIComponent(operator.username)}`}
-                className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-lg border px-4 text-sm font-medium text-[var(--color-text-primary)]"
+                className="mt-2 flex min-h-10 w-full items-center justify-center rounded-xl border text-sm font-medium"
                 style={{ borderColor: "var(--color-border)" }}
               >
                 View {operator.name}&apos;s profile
@@ -199,16 +208,6 @@ export default async function WorkPieceDetailPage({
                 </div>
               </div>
             ) : null}
-
-            <div
-              className="rounded-2xl border p-5"
-              style={{ borderColor: "var(--color-border)", background: "var(--color-surface-2)" }}
-            >
-              <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Stage</p>
-              <p className="mt-1 text-base font-semibold capitalize text-[var(--color-text-primary)]">
-                {piece.stage}
-              </p>
-            </div>
           </aside>
         </div>
       </article>
@@ -223,7 +222,7 @@ export default async function WorkPieceDetailPage({
               <Link
                 key={other.id}
                 href={`/work/${encodeURIComponent(operator.username)}/${encodeURIComponent(other.id)}`}
-                className="group block overflow-hidden rounded-2xl border bg-[var(--color-surface)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-border-hover)]"
+                className="group block overflow-hidden rounded-2xl border bg-[var(--color-surface)] transition-all hover:-translate-y-0.5"
                 style={{ borderColor: "var(--color-border)" }}
               >
                 <div className="relative h-44 w-full overflow-hidden">
@@ -244,6 +243,12 @@ export default async function WorkPieceDetailPage({
           </div>
         </section>
       ) : null}
+
+      <StickyConversationCTA
+        subject={tgSubject}
+        label="Discuss this case study"
+        sublabel={`mxstermind · ${operator.name}`}
+      />
     </main>
   );
 }

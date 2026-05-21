@@ -11,8 +11,10 @@ import {
   FAQSection,
   LandingFooter,
 } from "./_components";
+import { LandingInterestForm } from "@/components/directory/LandingInterestForm";
 import { StickyConversationCTA } from "@/components/directory/StickyConversationCTA";
 import { getLandingOperators } from "@/lib/operators.server";
+import { websiteJsonLd } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brandforge.gg"),
@@ -30,16 +32,9 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "BrandForge",
-  url: "https://brandforge.gg",
-  description: "Curated directory of AI-native operators — introduced by mxstermind.",
-};
-
 export default async function LandingPage() {
   const operators = await getLandingOperators();
+  const jsonLd = websiteJsonLd();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -56,6 +51,7 @@ export default async function LandingPage() {
         <section id="faq" className="border-t border-outline-variant">
           <FAQSection />
         </section>
+        <LandingInterestForm />
         <LandingFooter />
         <StickyConversationCTA />
       </main>

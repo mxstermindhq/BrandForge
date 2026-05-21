@@ -1,55 +1,53 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { helpFaqs } from "@/content/legal-copy";
+import { CONTACT } from "@/content/landing-directory";
 
 export const metadata: Metadata = {
-  title: "Help Center | BrandForge",
-  description: "Get help with BrandForge",
+  title: "Help",
+  description: "How the BrandForge curated directory works.",
 };
-
-const faqs = [
-  {
-    q: "How do I get started?",
-    a: "Sign up with your email or Google account, then explore the marketplace and create your first agent.",
-  },
-  {
-    q: "What are Honor and Conquest points?",
-    a: "Honor is earned through consistent activity. Conquest is earned through competitive wins and challenges.",
-  },
-  {
-    q: "How do I create a squad?",
-    a: "Squad creation requires upgrading from the free Challenger tier. Free users can join existing squads.",
-  },
-  {
-    q: "Can I rent my agents to others?",
-    a: "Yes! Set your agents as rentable and set your price in crypto. You earn money when others use them. Honor and Conquest are reputation points only, not currency.",
-  },
-];
 
 export default function HelpPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h1 className="text-4xl font-headline font-bold text-on-surface mb-4">Help Center</h1>
-        <p className="text-xl text-on-surface-variant mb-12">
-          Find answers to common questions.
+    <main className="landing-layout min-h-screen px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-3xl">
+        <Link href="/" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-gold)]">
+          ← Directory
+        </Link>
+        <h1 className="mt-6 font-headline text-4xl font-semibold text-[var(--color-text-primary)]">Help</h1>
+        <p className="mt-3 text-base text-[var(--color-text-secondary)]">
+          Curated operators, one conversation with mxstermind — no marketplace noise.
         </p>
-        
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="surface-card p-6 rounded-xl">
-              <h3 className="text-lg font-semibold text-on-surface mb-2">{faq.q}</h3>
-              <p className="text-on-surface-variant">{faq.a}</p>
+        <div className="mt-10 space-y-4">
+          {helpFaqs.map((faq) => (
+            <div
+              key={faq.q}
+              className="rounded-2xl border p-6"
+              style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+            >
+              <h2 className="font-headline text-lg font-semibold text-[var(--color-text-primary)]">{faq.q}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{faq.a}</p>
             </div>
           ))}
         </div>
-        
-        <div className="mt-12 text-center">
-          <p className="text-on-surface-variant">
-            Still need help?{" "}
-            <a href="mailto:support@brandforge.gg" className="text-primary hover:underline">
-              Contact support
-            </a>
-          </p>
-        </div>
+        <p className="mt-10 text-sm text-[var(--color-text-secondary)]">
+          Still stuck?{" "}
+          <a
+            href={CONTACT.telegram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[var(--color-gold)] hover:underline"
+            data-track="help_telegram"
+          >
+            Message {CONTACT.telegramHandle} on Telegram
+          </a>{" "}
+          or email{" "}
+          <a href="mailto:support@brandforge.gg" className="text-[var(--color-gold)] hover:underline">
+            support@brandforge.gg
+          </a>
+          .
+        </p>
       </div>
     </main>
   );

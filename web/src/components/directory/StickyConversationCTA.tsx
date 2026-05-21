@@ -23,7 +23,13 @@ export function StickyConversationCTA({
           <p className="sticky-cta-label">{label}</p>
           <p className="sticky-cta-sublabel">{sublabel}</p>
         </div>
-        <a href={href} target="_blank" rel="noopener noreferrer" className="sticky-cta-button">
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sticky-cta-button"
+          data-track="sticky_conversation_cta"
+        >
           {label} →
         </a>
       </div>

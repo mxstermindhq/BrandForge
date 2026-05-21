@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicMemberProfile } from "./_components/PublicMemberProfile";
 import { fetchPublicProfileForMetadata } from "@/lib/metadata-api";
 import { getCuratedOperatorByUsername } from "@/lib/operators.server";
+import { personJsonLd } from "@/lib/json-ld";
 import { isReservedUsername } from "@/lib/reserved-paths";
 
 function decodeUsername(seg: string): string {
@@ -64,5 +65,13 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const username = decodeUsername(raw);
   if (isReservedUsername(username)) notFound();
   const curated = await getCuratedOperatorByUsername(username);
-  return <PublicMemberProfile username={username} curatedOperator={curated} />;
+  const jsonLd = curated ? personJsonLd(curated) : null;
+  return (
+    <>
+      {jsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      ) : null}
+      <PublicMemberProfile username={username} curatedOperator={curated} />
+    </>
+  );
 }

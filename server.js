@@ -409,63 +409,6 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  // Temporary endpoint to apply squad_members migration
-  if (pathname === '/api/apply-migration' && method === 'POST') {
-    try {
-      const client = platformRepository.client;
-      if (!client) throw new Error('Database not available');
-      
-      // Add member_type column if it doesn't exist
-      await client.rpc('exec', { sql: `
-        DO $$
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'squad_members' 
-            AND column_name = 'member_type'
-          ) THEN
-            ALTER TABLE public.squad_members 
-            ADD COLUMN member_type TEXT DEFAULT 'human' CHECK (member_type IN ('human', 'agent'));
-          END IF;
-        END $$;
-      `});
-      
-      // Add status column if it doesn't exist
-      await client.rpc('exec', { sql: `
-        DO $$
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'squad_members' 
-            AND column_name = 'status'
-          ) THEN
-            ALTER TABLE public.squad_members 
-            ADD COLUMN status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending'));
-          END IF;
-        END $$;
-      `});
-      
-      // Update existing records
-      await client.rpc('exec', { sql: `
-        UPDATE public.squad_members 
-        SET member_type = 'human' 
-        WHERE member_type IS NULL;
-      `});
-      
-      await client.rpc('exec', { sql: `
-        UPDATE public.squad_members 
-        SET status = 'active' 
-        WHERE status IS NULL;
-      `});
-      
-      sendJson(res, 200, { success: true, message: 'Migration applied successfully' });
-    } catch (error) {
-      console.error('Migration error:', error);
-      sendJson(res, 500, { error: error.message });
-    }
-    return true;
-  }
-
   if (pathname === '/api/auth/config' && method === 'GET') {
     sendJson(res, 200, {
       enabled: Boolean(env.supabaseUrl && env.supabaseAnonKey && env.supabaseServiceRoleKey),

@@ -1,52 +1,51 @@
-/** Placeholder legal copy — replace with counsel-approved text before production. */
+/** Directory-focused legal copy — replace with counsel-approved text before scale. */
 
-export const TERMS_LAST_UPDATED = "April 3, 2026";
+export const TERMS_LAST_UPDATED = "May 19, 2026";
+export const PRIVACY_LAST_UPDATED = "May 19, 2026";
 
-export const PRIVACY_LAST_UPDATED = "April 3, 2026";
-
-export const COMPANY_PRODUCT_BLURB = `BrandForge is a creative marketplace and operations platform: members list services and post requests, parties negotiate in Messages, and accepted work becomes trackable Projects with optional AI-assisted workflows.`;
+export const COMPANY_PRODUCT_BLURB =
+  "BrandForge is a curated operator directory. mxstermind introduces founders and creators to vetted specialists — one conversation, scoped fit, no marketplace bidding.";
 
 export const termsSections: { heading: string; body: string[] }[] = [
   {
     heading: "Agreement",
     body: [
-      "By accessing or using BrandForge (the “Service”), you agree to these Terms. If you do not agree, do not use the Service.",
-      "We may update these Terms; material changes will be indicated by updating the date above. Continued use after changes constitutes acceptance.",
+      "By using BrandForge (the “Directory”), you agree to these Terms. If you do not agree, do not use the Directory.",
+      "We may update these Terms; continued use after the date above constitutes acceptance of material changes.",
+    ],
+  },
+  {
+    heading: "What BrandForge provides",
+    body: [
+      "BrandForge publishes curated operator profiles, services, and work samples for discovery.",
+      "mxstermind coordinates introductions and scoping via Telegram or other channels we publish. Deliverables, pricing, and timelines are agreed directly between you and the operator unless a separate written agreement states otherwise.",
+      "BrandForge is not a marketplace escrow platform in its current directory form. Payment terms are disclosed during your conversation with mxstermind.",
     ],
   },
   {
     heading: "Accounts",
     body: [
-      "You must provide accurate registration information and safeguard your credentials. You are responsible for activity under your account.",
-      "We may suspend or terminate accounts that violate these Terms, pose security risk, or harm other users or the platform.",
+      "Operator sign-in is provided for profile maintenance. Clients typically start on the homepage or via Telegram without creating an account.",
+      "You are responsible for safeguarding credentials and for activity under your account.",
     ],
   },
   {
-    heading: "Marketplace & payments",
+    heading: "Conduct",
     body: [
-      "BrandForge facilitates introductions, messaging, and (where enabled) payments between members. Specific deliverables, pricing, and timelines are agreed between users unless a binding checkout or contract flow states otherwise.",
-      "Fees, taxes, and escrow rules are disclosed at checkout or in product documentation. Chargebacks and disputes may be governed by separate policies and payment provider terms.",
+      "Do not misuse the Directory, scrape it abusively, attempt unauthorized access, or submit false interest or contact information.",
+      "Do not harass operators or mxstermind staff through any contact channel linked from the site.",
     ],
   },
   {
-    heading: "Content & IP",
+    heading: "Disclaimer",
     body: [
-      "You retain rights to content you upload. You grant BrandForge a limited license to host, display, and operate the Service with respect to that content.",
-      "Do not upload unlawful content, malware, or material you do not have rights to use commercially.",
-    ],
-  },
-  {
-    heading: "Disclaimer & liability",
-    body: [
-      'The Service is provided “as is” without warranties of uninterrupted or error-free operation. To the maximum extent permitted by law, BrandForge is not liable for indirect, incidental, or consequential damages arising from use of the Service.',
-      "Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted by law.",
+      "The Directory is provided “as is.” We do not guarantee uninterrupted availability or that every operator engagement will meet your expectations.",
+      "To the maximum extent permitted by law, BrandForge is not liable for indirect or consequential damages arising from use of the Directory or operator engagements.",
     ],
   },
   {
     heading: "Contact",
-    body: [
-      "Questions about these Terms: use the contact method published on your deployment (e.g. support email in environment or marketing site).",
-    ],
+    body: ["Questions: privacy@brandforge.gg or the Telegram handle published on brandforge.gg."],
   },
 ];
 
@@ -54,44 +53,63 @@ export const privacySections: { heading: string; body: string[] }[] = [
   {
     heading: "What we collect",
     body: [
-      "Account data: email, profile fields, and authentication identifiers from our auth provider (e.g. Supabase).",
-      "Usage data: interactions with the app, marketplace listings, messages metadata, and technical logs needed for security and reliability.",
-      "Payment data is processed by payment partners; we do not store full card numbers on BrandForge application servers when using standard Stripe flows.",
+      "Contact interest: email and intent (hire vs get listed) when you submit the homepage form.",
+      "Account data: if you sign in as an operator — email, auth identifiers, and profile fields from our auth provider (Supabase).",
+      "Usage data: page paths and CTA events stored for product improvement (directory_events).",
+      "Technical logs: IP, browser, and security-related metadata from hosting providers.",
     ],
   },
   {
-    heading: "Why we use data",
+    heading: "How we use data",
     body: [
-      "To provide core features: profiles, discovery, messaging, projects, notifications, and optional AI features you invoke.",
-      "To secure the Service, prevent abuse, and comply with legal obligations.",
-      "To improve performance and fix bugs (aggregated or de-identified where feasible).",
+      "To operate the Directory, respond to interest submissions, and route conversations via mxstermind.",
+      "To secure the service and prevent abuse.",
+      "To measure which pages and CTAs drive conversations (aggregated where feasible).",
     ],
   },
   {
     heading: "Sharing",
     body: [
-      "We share data with subprocessors required to run the product (hosting, database, auth, email, analytics as configured on your deployment).",
-      "We may disclose information if required by law or to protect rights, safety, and integrity of users and the platform.",
-      "We do not sell personal information as commonly defined in US state privacy laws; specific regional addenda may apply to your deployment.",
+      "We use subprocessors for hosting (Cloudflare), database/auth (Supabase), and optional notifications (e.g. Discord webhooks configured server-side).",
+      "Operator profiles are public by design. We do not sell personal information.",
+      "We may disclose information if required by law.",
     ],
   },
   {
     heading: "Retention & rights",
     body: [
-      "We retain data as long as your account is active and as needed for legitimate business or legal purposes after closure.",
-      "Depending on jurisdiction, you may have rights to access, correct, delete, or export personal data. Contact support to exercise rights; identity verification may be required.",
+      "Interest submissions and analytics events are retained as needed for operations and reporting.",
+      "You may request access or deletion of account-related data by contacting privacy@brandforge.gg.",
     ],
   },
   {
-    heading: "International users",
+    heading: "Cookies",
     body: [
-      "If you access the Service from outside the country where servers run, your data may be processed in other regions with appropriate safeguards as required by law.",
+      "We use local storage for theme preference and session authentication when you sign in.",
+      "No third-party ad trackers are installed by default on the directory site.",
     ],
   },
+];
+
+export const helpFaqs: { q: string; a: string }[] = [
   {
-    heading: "Contact",
-    body: [
-      "Privacy inquiries: use the contact method configured for your BrandForge deployment.",
-    ],
+    q: "How do I hire an operator?",
+    a: "Browse the directory, open a profile or service, and start a conversation via Telegram. mxstermind confirms scope and fit before you commit.",
+  },
+  {
+    q: "Is this a marketplace with bids?",
+    a: "No. BrandForge is a curated directory — vetted operators, one intro path, no proposal spam.",
+  },
+  {
+    q: "How do I get listed as an operator?",
+    a: "Use the email form on the homepage (intent: get listed) or message mxstermind on Telegram. Listings are curated, not self-serve open signup.",
+  },
+  {
+    q: "Do I need an account?",
+    a: "Clients do not need to sign in. Operators sign in only to maintain their profile when that flow is enabled.",
+  },
+  {
+    q: "How are payments handled?",
+    a: "Pricing is shown as starting points. Final scope and payment terms are agreed in your conversation with mxstermind and the operator.",
   },
 ];

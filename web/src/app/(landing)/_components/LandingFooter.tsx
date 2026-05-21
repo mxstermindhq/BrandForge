@@ -6,7 +6,7 @@ import { CONTACT } from "@/content/landing-directory";
 const footerLinks = {
   explore: [
     { label: "Talent", href: "#talent" },
-    { label: "Packages", href: "#packages" },
+    { label: "Get on the list", href: "#interest" },
     { label: "FAQ", href: "#faq" },
   ],
   legal: [
