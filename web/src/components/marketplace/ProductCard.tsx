@@ -54,7 +54,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           className="forge-btn forge-btn-primary forge-btn-sm flex-1 justify-center"
           data-track={`order_${product.id}`}
         >
-          Order via Discord
+          {product.ctaText}
         </a>
       </div>
     </motion.article>

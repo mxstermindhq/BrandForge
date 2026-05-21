@@ -53,13 +53,26 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
               <h2 className="forge-section-eyebrow mt-8">What you get</h2>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {product.includes.map((item) => (
+                {product.deliverables.map((item) => (
                   <li key={item} className="forge-surface-card py-2.5 text-sm">
                     <span className="mr-2 text-[var(--forge-fire)]">✓</span>
                     {item}
                   </li>
                 ))}
               </ul>
+
+              {product.useCases.length ? (
+                <>
+                  <h2 className="forge-section-eyebrow mt-8">Perfect if you</h2>
+                  <ul className="mt-4 space-y-2">
+                    {product.useCases.map((item) => (
+                      <li key={item} className="text-sm text-[var(--forge-text-muted)]">
+                        → {item}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
 
               <div className="mt-6 flex flex-wrap gap-2">
                 {product.tags.map((t) => (
@@ -78,7 +91,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   Delivery: <strong className="text-[var(--forge-gold)]">{product.deliveryLabel}</strong>
                 </p>
                 <p className="mt-1 text-sm text-[var(--forge-text-muted)]">
-                  ★ {product.rating} ({product.reviewCount} reviews)
+                  ★ {product.rating} ({product.reviewCount} reviews) · Demand {product.popularityScore}/100
                 </p>
                 {seller ? (
                   <Link href={`/profile/${seller.id}`} className="mt-4 block text-sm text-[var(--forge-gold)] hover:underline">
@@ -87,7 +100,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 ) : null}
                 <div className="mt-6 flex flex-col gap-2">
                   <ForgeButton href={CONTACT.discord} variant="primary" external dataTrack={`product_discord_${product.id}`}>
-                    Order via Discord
+                    {product.ctaText}
                   </ForgeButton>
                   <ForgeButton href={contactMessage(orderMsg)} variant="secondary" external dataTrack={`product_telegram_${product.id}`}>
                     Order via Telegram

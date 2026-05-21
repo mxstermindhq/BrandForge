@@ -60,7 +60,12 @@ export function filterProducts(opts: {
       break;
     case "popular":
     default:
-      list.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0) || b.reviewCount - a.reviewCount);
+      list.sort(
+        (a, b) =>
+          b.popularityScore - a.popularityScore ||
+          (b.popular ? 1 : 0) - (a.popular ? 1 : 0) ||
+          b.reviewCount - a.reviewCount,
+      );
   }
 
   return list;

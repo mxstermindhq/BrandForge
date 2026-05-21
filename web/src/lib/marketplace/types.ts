@@ -3,11 +3,14 @@
 export type CategoryId =
   | "ai"
   | "discord"
+  | "content"
+  | "video"
   | "branding"
   | "landing"
-  | "automation"
-  | "content"
-  | "templates";
+  | "leads"
+  | "business"
+  | "monetization"
+  | "marketing";
 
 export type SortKey = "popular" | "price-asc" | "price-desc" | "fastest";
 
@@ -36,20 +39,29 @@ export interface SellerProfile {
 export interface Product {
   id: string;
   title: string;
+  /** short_description */
   tagline: string;
+  /** long_description */
   description: string;
+  /** deliverables */
   includes: string[];
+  deliverables: string[];
+  useCases: string[];
   price: number;
   priceLabel: string;
   categoryId: CategoryId;
   deliveryHours: number;
+  /** delivery_time */
   deliveryLabel: string;
   rating: number;
   reviewCount: number;
   sellerId: string;
   featured: boolean;
   popular: boolean;
+  /** 1–100 */
+  popularityScore: number;
   tags: string[];
+  ctaText: string;
   thumbGradient: string;
 }
 
