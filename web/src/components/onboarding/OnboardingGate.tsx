@@ -27,6 +27,9 @@ export function OnboardingGate() {
     if (authLoading || meLoading || !user || !me?.enabled) return;
     if (ALLOWED_WHILE_ONBOARDING.has(pathname)) return;
 
+    // Already has a published listing — onboarding is complete.
+    if ((me.publishedServiceCount ?? 0) > 0) return;
+
     if (me.pendingOnboarding) {
       router.replace("/onboarding");
       return;

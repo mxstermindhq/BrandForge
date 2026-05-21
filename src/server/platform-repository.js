@@ -1396,6 +1396,21 @@ async function createPlatformRepository(previewRepository) {
     } catch {
       /* role migration may be pending */
     }
+    try {
+      const { data: prof } = await client
+        .from('profiles')
+        .select('onboarding_completed_at, username, headline')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (prof && !prof.onboarding_completed_at && prof.username && prof.headline) {
+        await client
+          .from('profiles')
+          .update({ onboarding_completed_at: new Date().toISOString() })
+          .eq('id', user.id);
+      }
+    } catch {
+      /* column may not exist on older DB */
+    }
     const { data: ownerProfile } = await client
       .from('profiles')
       .select('username, full_name')
@@ -5395,8 +5410,14 @@ async function createPlatformRepository(previewRepository) {
       .select('id', { count: 'exact', head: true })
       .eq('owner_id', userId)
       .eq('status', 'published');
-    if (error) return 0;
-    return count || 0;
+    if (!error && count != null) return count;
+    const { data: rows, error: listErr } = await client
+      .from('service_packages')
+      .select('id, status')
+      .eq('owner_id', userId)
+      .neq('status', 'archived');
+    if (listErr) return 0;
+    return (rows || []).filter((r) => String(r.status || 'published') === 'published').length;
   }
 
   /** Public talent directory — registered members with usernames. */

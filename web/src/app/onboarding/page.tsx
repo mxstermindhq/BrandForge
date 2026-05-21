@@ -25,7 +25,9 @@ export default function OnboardingProfilePage() {
   useEffect(() => {
     if (!meLoading && me?.profile?.username) setUsername(me.profile.username);
     if (!meLoading && me?.profile?.headline) setHeadline(me.profile.headline);
-    if (!meLoading && me?.sellerAccess) router.replace("/account");
+    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || me?.sellerAccess)) {
+      router.replace("/account");
+    }
     if (!meLoading && me?.profile?.onboarding_completed_at && me.pendingSellerSetup) {
       router.replace("/onboarding/service");
     }

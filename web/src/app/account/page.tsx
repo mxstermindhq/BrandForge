@@ -20,6 +20,7 @@ export default function AccountPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
+    if (!meLoading && (me?.publishedServiceCount ?? 0) > 0) return;
     if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
     if (!meLoading && me?.pendingSellerSetup) router.replace("/onboarding/service");
   }, [me, meLoading, router]);

@@ -34,7 +34,9 @@ export default function OnboardingServicePage() {
 
   useEffect(() => {
     if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
-    if (!meLoading && me?.sellerAccess) router.replace("/account");
+    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || me?.sellerAccess)) {
+      router.replace("/account");
+    }
     if (!meLoading && me && me.canCreateListing === false && !me.sellerWhitelisted) {
       setError("Listing creation requires seller whitelist approval. Contact the team on Discord.");
     }

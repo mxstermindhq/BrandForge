@@ -31,9 +31,9 @@ function ForgeNavbarInner() {
   }, []);
 
   const accountHref = user
-    ? me?.pendingOnboarding
+    ? me?.pendingOnboarding && (me?.publishedServiceCount ?? 0) === 0
       ? "/onboarding"
-      : me?.pendingSellerSetup
+      : me?.pendingSellerSetup && (me?.publishedServiceCount ?? 0) === 0
         ? "/onboarding/service"
         : "/account"
     : "/login";

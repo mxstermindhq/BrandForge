@@ -439,17 +439,23 @@ async function routeApi(req, res, pathname) {
       touchPresence(user.id);
       const bootstrapped = await ensureProfileForUser(user);
       const profileRow = bootstrapped ? bootstrapped.profile : null;
-      const pendingOnboarding = Boolean(
-        !profileRow || !profileRow.onboarding_completed_at,
-      );
       let publishedServiceCount = 0;
       try {
         publishedServiceCount = await platformRepository.countPublishedServicesForUser(user.id);
       } catch {
         publishedServiceCount = 0;
       }
+      const hasPublishedListing = publishedServiceCount > 0;
+      const profileBasicsComplete = Boolean(
+        profileRow?.onboarding_completed_at ||
+          (profileRow?.username && profileRow?.headline),
+      );
+      // Users with a live listing are not stuck in onboarding (even if onboarding_completed_at was never set).
+      const pendingOnboarding = Boolean(
+        !profileRow || (!profileBasicsComplete && !hasPublishedListing),
+      );
       const pendingSellerSetup = Boolean(
-        profileRow?.onboarding_completed_at && publishedServiceCount === 0,
+        profileBasicsComplete && !hasPublishedListing,
       );
       let sellerWhitelisted = false;
       try {
@@ -461,7 +467,8 @@ async function routeApi(req, res, pathname) {
       const sellerAccess = Boolean(
         sellerWhitelisted ||
           ['admin', 'moderator', 'seller', 'enterprise'].includes(role) ||
-          (profileRow?.onboarding_completed_at && publishedServiceCount > 0),
+          hasPublishedListing ||
+          profileBasicsComplete,
       );
       const canCreateListing = Boolean(
         sellerWhitelisted || ['admin', 'moderator'].includes(role),
