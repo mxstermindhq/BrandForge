@@ -214,15 +214,64 @@ function mapService(row) {
 /** Full service row for `/services/:id` and `/bid/service` (adds owner fields the web client expects). */
 function mapServiceForDetail(row, ownerRow) {
   const base = mapService({ ...row, owner: ownerRow });
+  const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
+  const listingType =
+    row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+  const endsAt = row.ends_at || meta.ends_at || null;
+  const billingInterval = row.billing_interval || meta.billing_interval || null;
+  const deliverables = Array.isArray(meta.deliverables)
+    ? meta.deliverables
+    : Array.isArray(meta.includes)
+      ? meta.includes
+      : [];
+  const useCases = Array.isArray(meta.use_cases) ? meta.use_cases : [];
+  const price = Number(row.base_price) || 0;
+  const priceLabel =
+    listingType === 'long_term' && billingInterval
+      ? `$${price.toLocaleString()}/${billingInterval}`
+      : `$${price.toLocaleString()}`;
+  const deliveryDays = Math.max(1, Number(row.delivery_days) || 1);
+  const deliveryLabel =
+    listingType === 'long_term'
+      ? `${billingInterval || 'monthly'} subscription`
+      : deliveryDays === 1
+        ? '1 day'
+        : `${deliveryDays} days`;
+
   return {
     ...base,
+    tagline: String(row.description || '').slice(0, 160),
+    category: row.category || base.cat,
+    base_price: price,
+    priceLabel,
+    deliveryLabel,
+    listingType,
+    listing_type: listingType,
+    endsAt,
+    ends_at: endsAt,
+    billingInterval,
+    billing_interval: billingInterval,
+    deliverables,
+    useCases,
+    use_cases: useCases,
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    ctaText: 'Contact on Discord',
     ownerUsername: ownerRow?.username || null,
+    ownerName: ownerRow?.full_name || ownerRow?.username || base.sel,
     ownerAvatar: ownerRow?.avatar_url || null,
+    owner: ownerRow
+      ? {
+          username: ownerRow.username,
+          full_name: ownerRow.full_name,
+          avatar_url: ownerRow.avatar_url,
+        }
+      : null,
     topMember: Boolean(ownerRow?.top_member),
     createdAt: row.created_at || null,
     ownerReputation: ownerRow?.reputation != null ? Number(ownerRow.reputation) : null,
     ownerDealWins: null,
     ownerDealLosses: null,
+    catalogSlug: meta.catalog_slug || null,
   };
 }
 
@@ -1211,9 +1260,16 @@ async function createPlatformRepository(previewRepository) {
   }
 
   async function getServiceById(serviceId, viewerUserId) {
-    if (!client) return null;
     const id = String(serviceId || '').trim();
     if (!id) return null;
+    try {
+      const { getOfficialListingById } = require('./brandforge-official-catalog');
+      const official = getOfficialListingById(id);
+      if (official) return official.detail;
+    } catch {
+      /* catalog optional */
+    }
+    if (!client) return null;
     const { data: row, error } = await client.from('service_packages').select('*').eq('id', id).maybeSingle();
     if (error || !row) return null;
     const published = row.status === 'published';
@@ -1385,6 +1441,27 @@ async function createPlatformRepository(previewRepository) {
     }
     if (payload.delivery != null) {
       updates.delivery_days = Math.max(1, Number(String(payload.delivery).trim()) || 3);
+    }
+    if (payload.listing_type != null) {
+      updates.listing_type = payload.listing_type === 'long_term' ? 'long_term' : 'short_term';
+    }
+    if (payload.ends_at !== undefined) {
+      if (payload.ends_at === '' || payload.ends_at == null) updates.ends_at = null;
+      else {
+        const d = new Date(payload.ends_at);
+        updates.ends_at = Number.isNaN(d.getTime()) ? null : d.toISOString();
+      }
+    }
+    if (payload.billing_interval !== undefined) {
+      const allowed = new Set(['weekly', 'monthly', 'quarterly', 'yearly']);
+      updates.billing_interval =
+        payload.billing_interval && allowed.has(String(payload.billing_interval))
+          ? String(payload.billing_interval)
+          : null;
+    }
+    if (payload.status != null) {
+      const st = String(payload.status);
+      if (['draft', 'published', 'archived'].includes(st)) updates.status = st;
     }
 
     const keys = Object.keys(updates).filter((k) => k !== 'updated_at');
@@ -5227,7 +5304,53 @@ async function createPlatformRepository(previewRepository) {
       });
     }
 
+    try {
+      const { getOfficialListings } = require('./brandforge-official-catalog');
+      const dbSlugs = new Set(
+        svcRows
+          .map((r) => {
+            const meta = r.metadata && typeof r.metadata === 'object' ? r.metadata : {};
+            return meta.catalog_slug || null;
+          })
+          .filter(Boolean),
+      );
+      const official = getOfficialListings({ term, q, category, sort }).filter(
+        (o) => !dbSlugs.has(o.catalogSlug),
+      );
+      listings = [...listings, ...official];
+      if (sort === 'price-asc') listings.sort((a, b) => a.price - b.price);
+      else if (sort === 'price-desc') listings.sort((a, b) => b.price - a.price);
+      else if (sort === 'ending') {
+        listings.sort((a, b) => {
+          const ae = a.endsAt ? new Date(a.endsAt).getTime() : Infinity;
+          const be = b.endsAt ? new Date(b.endsAt).getTime() : Infinity;
+          return ae - be;
+        });
+      } else {
+        listings.sort((a, b) => (b.popularityScore || 0) - (a.popularityScore || 0));
+      }
+    } catch (e) {
+      console.warn('[marketplace] official catalog:', e.message);
+    }
+
     return { listings, total: listings.length, term: listingType };
+  }
+
+  async function listMyServicePackages(userId) {
+    if (!client || !userId) return [];
+    const { data: rows, error } = await client
+      .from('service_packages')
+      .select('*')
+      .eq('owner_id', userId)
+      .neq('status', 'archived')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    const { data: ownerRow } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .eq('id', userId)
+      .maybeSingle();
+    return (rows || []).map((row) => mapServiceForDetail(row, ownerRow || null));
   }
 
   async function countPublishedServicesForUser(userId) {
@@ -5363,11 +5486,11 @@ async function createPlatformRepository(previewRepository) {
         await Promise.all([
           client
             .from('service_packages')
-            .select('id, title, category, base_price, slug, status')
+            .select('id, title, category, base_price, slug, status, description, listing_type, ends_at, billing_interval, metadata')
             .eq('owner_id', data.id)
             .eq('status', 'published')
             .order('created_at', { ascending: false })
-            .limit(6),
+            .limit(24),
           client
             .from('project_requests')
             .select('id, title, budget_min, budget_max, due_date, status')
@@ -5848,6 +5971,7 @@ async function createPlatformRepository(previewRepository) {
     getPublicProfile,
     listTalentDirectory,
     listMarketplaceListings,
+    listMyServicePackages,
     countPublishedServicesForUser,
     // AI Models
     getAIModels,

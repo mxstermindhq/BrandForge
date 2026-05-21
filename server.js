@@ -462,6 +462,10 @@ async function routeApi(req, res, pathname) {
             username: profileRow.username ?? null,
             avatar_url: profileRow.avatar_url ?? null,
             headline: profileRow.headline ?? null,
+            bio: profileRow.bio ?? null,
+            location: profileRow.location ?? null,
+            rate_label: profileRow.rate_label ?? null,
+            skills: profileRow.skills ?? null,
             onboarding_completed_at: profileRow.onboarding_completed_at ?? null,
           }
         : null;
@@ -2804,6 +2808,18 @@ async function routeApi(req, res, pathname) {
       });
     } catch (error) {
       sendJson(res, 500, { error: error.message || 'Failed to get notification settings' });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/me/listings' && method === 'GET') {
+    const user = await requireUser(req, res);
+    if (!user) return true;
+    try {
+      const listings = await platformRepository.listMyServicePackages(user.id);
+      sendJson(res, 200, { listings });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message || 'Failed to load listings' });
     }
     return true;
   }

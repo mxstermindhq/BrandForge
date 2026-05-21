@@ -23,6 +23,8 @@ export type MarketplaceListing = {
   thumbGradient: string;
   createdAt: string | null;
   serviceUrl: string;
+  isOfficial?: boolean;
+  catalogSlug?: string;
 };
 
 export type MarketplaceListingsResponse = {

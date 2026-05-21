@@ -18,6 +18,10 @@ export type AuthMeProfile = {
   username?: string | null;
   avatar_url?: string | null;
   headline?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  rate_label?: string | null;
+  skills?: string[] | null;
   onboarding_completed_at?: string | null;
 };
 

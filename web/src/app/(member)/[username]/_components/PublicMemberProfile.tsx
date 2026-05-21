@@ -21,6 +21,14 @@ type PublicProfile = {
   rate_label?: string | null;
   min_budget?: number | null;
   open_to_offers?: boolean | null;
+  publicServices?: Array<{
+    id: string;
+    title?: string;
+    category?: string;
+    base_price?: number;
+    listing_type?: string;
+    description?: string;
+  }>;
 };
 
 type PublicMemberProfileProps = {

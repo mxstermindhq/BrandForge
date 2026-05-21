@@ -1,5 +1,16 @@
 import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 import { talentInitials } from "@/lib/talent-types";
+import officialCatalog from "../../../data/brandforge-official-catalog.json";
+
+export type ProfileServiceItem = {
+  id: string;
+  title: string;
+  category: string;
+  priceLabel: string;
+  href: string;
+  listingType: "short_term" | "long_term";
+  tagline?: string;
+};
 
 export interface ProfileViewModel {
   username: string;
@@ -23,6 +34,7 @@ export interface ProfileViewModel {
   faq: Array<{ question: string; answer: string }>;
   isVerified: boolean;
   isCurated: boolean;
+  services: ProfileServiceItem[];
 }
 
 function normalizeAvailability(v: string | null | undefined): ProfileViewModel["availability"] {
@@ -73,8 +85,29 @@ export function mapCuratedOperatorToViewModel(op: CuratedOperator): ProfileViewM
     proofLink: op.proofLink || `https://brandforge.gg/${encodeURIComponent(op.username)}`,
     isVerified: op.isVerified,
     isCurated: true,
+    services: [],
   };
-  return { ...base, faq: op.faq.length > 0 ? op.faq : fallbackFaq(base) };
+  const services: ProfileServiceItem[] =
+    op.username === "brandforge"
+      ? officialCatalog.listings.map((item) => {
+          const lt = item.listingType === "long_term" ? "long_term" : "short_term";
+          const price = Number(item.price) || 0;
+          return {
+            id: item.slug,
+            title: item.title,
+            category: item.category,
+            priceLabel:
+              lt === "long_term" && item.billingInterval
+                ? `$${price}/${item.billingInterval}`
+                : `$${price}`,
+            href: `/product/${item.slug}`,
+            listingType: lt,
+            tagline: item.tagline,
+          };
+        })
+      : [];
+
+  return { ...base, services, faq: op.faq.length > 0 ? op.faq : fallbackFaq(base) };
 }
 
 type ApiProfileInput = {
@@ -88,7 +121,35 @@ type ApiProfileInput = {
   skills?: string[] | null;
   open_to_offers?: boolean | null;
   openRequests?: Array<{ title?: string | null }> | null;
+  publicServices?: Array<{
+    id: string;
+    title?: string;
+    category?: string;
+    base_price?: number;
+    listing_type?: string;
+    description?: string;
+  }> | null;
 };
+
+function mapPublicServices(
+  username: string,
+  rows: ApiProfileInput["publicServices"],
+): ProfileServiceItem[] {
+  if (!rows?.length) return [];
+  return rows.map((s) => {
+    const lt = s.listing_type === "long_term" ? "long_term" : "short_term";
+    const price = Number(s.base_price) || 0;
+    return {
+      id: s.id,
+      title: String(s.title || "Service"),
+      category: String(s.category || "General"),
+      priceLabel: `$${price.toLocaleString()}`,
+      href: `/${encodeURIComponent(username)}/service/${s.id}`,
+      listingType: lt,
+      tagline: String(s.description || "").slice(0, 100),
+    };
+  });
+}
 
 export function mapApiProfileToViewModel(profile: ApiProfileInput): ProfileViewModel {
   const username = String(profile.username || "").replace(/^@+/, "") || "member";
@@ -115,6 +176,10 @@ export function mapApiProfileToViewModel(profile: ApiProfileInput): ProfileViewM
     proofLink: `https://brandforge.gg/${encodeURIComponent(username)}`,
     isVerified: false,
     isCurated: false,
+    services: mapPublicServices(username, profile.publicServices),
   };
-  return { ...base, faq: fallbackFaq(base) };
+  return {
+    ...base,
+    faq: fallbackFaq(base),
+  };
 }

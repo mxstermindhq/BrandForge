@@ -2,6 +2,39 @@ import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 
 export const OPERATOR_SEED: CuratedOperator[] = [
   {
+    username: "brandforge",
+    name: "BrandForge",
+    role: "Official forge team",
+    yearsExp: 6,
+    availability: "available",
+    amanahScore: 99,
+    completionRate: 99,
+    bio: "High-velocity digital systems — AI automation, Discord growth, conversion funnels, and creator monetization. Every official deal is scoped and delivered via Discord with mxstermind as your guarantor.",
+    bestResult: "500+ systems shipped for creators, agencies, and founders.",
+    wontTakeOn: "Scope-less requests and buyers who ghost after delivery starts.",
+    startingPrice: "$129",
+    pricingModel: "Short-term projects & monthly retainers",
+    skills: ["AI", "Discord", "Funnels", "Short-form", "Branding", "Lead gen"],
+    idealClient: "Founders and creators who want outcomes, not templates",
+    workStyle: "Discord-first delivery, fast scoping, milestone checkpoints",
+    typicalTimeline: "24h – 7 days (short term) · monthly (long term)",
+    proofLink: "https://brandforge.gg/brandforge",
+    faq: [
+      {
+        question: "Short term vs long term?",
+        answer:
+          "Short term listings have a clear end date — one-off builds and launches. Long term are subscriptions and retainers billed weekly or monthly.",
+      },
+      {
+        question: "How do I order?",
+        answer: "Open any listing, hit Contact on Discord or Telegram, and mxstermind confirms scope and payment.",
+      },
+    ],
+    isVerified: true,
+    layoutSpan: "featured",
+    displayOrder: 0,
+  },
+  {
     username: "prince",
     name: "Prince",
     role: "Graphic & motion designer",

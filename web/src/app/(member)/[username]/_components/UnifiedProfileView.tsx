@@ -85,6 +85,36 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
         </motion.div>
       ) : null}
 
+      {tab === "work" && viewModel.services.length > 0 ? (
+        <motion.section variants={reduced ? undefined : itemVariants} className="mt-6">
+          <h2 className="font-headline text-xl font-semibold text-[var(--color-text-primary)]">Listings</h2>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Short-term deals and subscriptions — message on Discord to order.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {viewModel.services.map((svc) => (
+              <Link
+                key={svc.id}
+                href={svc.href}
+                className="group block rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:border-[var(--color-gold-border)]"
+                style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-gold)]">
+                  {svc.listingType === "long_term" ? "Long term" : "Short term"} · {svc.category}
+                </p>
+                <h3 className="mt-2 font-headline text-lg font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)]">
+                  {svc.title}
+                </h3>
+                {svc.tagline ? (
+                  <p className="mt-1 line-clamp-2 text-sm text-[var(--color-text-secondary)]">{svc.tagline}</p>
+                ) : null}
+                <p className="mt-3 text-sm font-semibold text-[var(--color-gold)]">{svc.priceLabel}</p>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
+      ) : null}
+
       {tab === "work" && media?.workPieces?.length ? (
         <motion.section
           variants={reduced ? undefined : itemVariants}
@@ -126,13 +156,13 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
         </motion.section>
       ) : null}
 
-      {tab === "work" && !media?.workPieces?.length ? (
+      {tab === "work" && !viewModel.services.length && !media?.workPieces?.length ? (
         <motion.section
           variants={reduced ? undefined : itemVariants}
           className="mt-6 rounded-2xl border p-6 text-sm text-[var(--color-text-secondary)]"
           style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
         >
-          Portfolio is being prepared.
+          Listings and portfolio coming soon.
         </motion.section>
       ) : null}
 

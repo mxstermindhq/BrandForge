@@ -32,7 +32,9 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
     >
       <Link href={listing.serviceUrl} className="block">
         <div className="mp-card-thumb" style={{ background: listing.thumbGradient }}>
-          {listing.listingType === "long_term" ? (
+          {listing.isOfficial ? (
+            <span className="mp-card-badge">Official</span>
+          ) : listing.listingType === "long_term" ? (
             <span className="mp-card-badge">Subscription</span>
           ) : endsLabel ? (
             <span className="mp-card-badge mp-card-badge-hot">Ends {endsLabel}</span>

@@ -9,6 +9,7 @@ export const RESERVED_PATHS = new Set([
   "login",
   "onboarding",
   "account",
+  "brandforge",
   "marketplace",
   "mxstermind",
   "offer",

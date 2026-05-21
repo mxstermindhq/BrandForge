@@ -72,8 +72,14 @@ export default function AccountPage() {
               View public profile
             </Link>
           ) : null}
-          <Link href="/onboarding/service" className="forge-btn forge-btn-secondary justify-center">
-            Add another listing
+          <Link href="/account/profile" className="forge-btn forge-btn-secondary justify-center">
+            Edit profile
+          </Link>
+          <Link href="/account/listings" className="forge-btn forge-btn-secondary justify-center">
+            Manage listings
+          </Link>
+          <Link href="/onboarding/service" className="forge-btn forge-btn-ghost justify-center">
+            Add listing
           </Link>
           <Link href="/#browse" className="forge-btn forge-btn-ghost justify-center">
             Browse marketplace
