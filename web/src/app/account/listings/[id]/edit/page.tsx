@@ -32,7 +32,7 @@ export default function EditListingPage() {
     );
     const s = normalizeServiceDetail(data.service || {});
     setValues({
-      listingTerm: s.listingType === "long_term" ? "long" : "short",
+      listingTerm: s.listingType === "partner" ? "partner" : "starter",
       title: s.title,
       category: s.category,
       price: String(s.price),
@@ -64,9 +64,9 @@ export default function EditListingPage() {
         price: values.price.trim(),
         delivery: values.delivery.trim(),
         description: values.description.trim(),
-        listing_type: values.listingTerm === "long" ? "long_term" : "short_term",
-        ends_at: values.listingTerm === "short" && values.endsAt ? values.endsAt : null,
-        billing_interval: values.listingTerm === "long" ? values.billingInterval : null,
+        listing_type: values.listingTerm,
+        ends_at: values.listingTerm === "starter" && values.endsAt ? values.endsAt : null,
+        billing_interval: values.listingTerm === "partner" ? values.billingInterval : null,
         status: values.status,
       }, accessToken);
       router.push("/account/listings");

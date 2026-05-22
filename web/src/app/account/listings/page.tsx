@@ -75,7 +75,7 @@ export default function MyListingsPage() {
                 <li key={l.id} className="hub-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wider text-[var(--forge-gold)]">
-                      {l.listingType === "long_term" ? "Subscription" : "Short term"} · {l.status || "published"}
+                      {l.listingType === "partner" ? "Partner" : "Starter"} · {l.status || "published"}
                     </p>
                     <h3 className="font-headline text-xl font-semibold text-[var(--forge-text)]">{l.title}</h3>
                     <p className="text-sm text-[var(--forge-text-muted)]">

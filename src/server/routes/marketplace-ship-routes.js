@@ -45,7 +45,7 @@ function createMarketplaceShipRoutes(ctx) {
         const body = await parseBody(req);
         const { query, category } = body || {};
         const { listings } = await platformRepository.listMarketplaceListings({
-          term: 'short',
+          term: 'starter',
           q: query || '',
           category: category || '',
           sort: 'newest',

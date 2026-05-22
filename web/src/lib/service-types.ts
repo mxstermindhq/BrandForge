@@ -1,5 +1,10 @@
 import type { ListingIntelligence } from "@/lib/listing-intelligence-types";
 import { normalizeListingIntelligence } from "@/lib/listing-intelligence-types";
+import {
+  formatTierPriceLabel,
+  normalizeListingType,
+  type ListingTier,
+} from "@/lib/package-tiers";
 
 export type ServiceDetail = {
   id: string;
@@ -11,7 +16,7 @@ export type ServiceDetail = {
   priceLabel: string;
   deliveryDays: number;
   deliveryLabel: string;
-  listingType: "short_term" | "long_term";
+  listingType: ListingTier;
   endsAt: string | null;
   billingInterval: string | null;
   deliverables: string[];
@@ -28,21 +33,19 @@ export type ServiceDetail = {
 };
 
 export function normalizeServiceDetail(raw: Record<string, unknown>): ServiceDetail {
-  const listingType =
-    raw.listingType === "long_term" || raw.listing_type === "long_term" ? "long_term" : "short_term";
+  const listingType = normalizeListingType(
+    (raw.listingType as string) || (raw.listing_type as string),
+  );
   const price = Number(raw.price ?? raw.base_price) || 0;
   const billingInterval =
     (raw.billingInterval as string) || (raw.billing_interval as string) || null;
   const deliveryDays = Math.max(1, Number(raw.deliveryDays ?? raw.delivery_days) || 1);
   const priceLabel =
-    (raw.priceLabel as string) ||
-    (listingType === "long_term" && billingInterval
-      ? `$${price.toLocaleString()}/${billingInterval}`
-      : `$${price.toLocaleString()}`);
+    (raw.priceLabel as string) || formatTierPriceLabel(price, listingType, billingInterval);
   const deliveryLabel =
     (raw.deliveryLabel as string) ||
-    (listingType === "long_term"
-      ? `${billingInterval || "monthly"} subscription`
+    (listingType === "partner" && billingInterval
+      ? `${billingInterval} partner program`
       : `${deliveryDays} day${deliveryDays === 1 ? "" : "s"}`);
 
   return {

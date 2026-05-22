@@ -36,8 +36,12 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
         <div className="mp-card-header-bar">
           {listing.isOfficial ? (
             <span className="mp-card-badge">Official</span>
-          ) : listing.listingType === "long_term" ? (
-            <span className="mp-card-badge">Subscription</span>
+          ) : listing.packageSlot === "partner_scale" ? (
+            <span className="mp-card-badge">Partner Scale</span>
+          ) : listing.listingType === "partner" ? (
+            <span className="mp-card-badge">Partner</span>
+          ) : listing.listingType === "starter" ? (
+            <span className="mp-card-badge">Starter</span>
           ) : endsLabel ? (
             <span className="mp-card-badge mp-card-badge-hot">Ends {endsLabel}</span>
           ) : (

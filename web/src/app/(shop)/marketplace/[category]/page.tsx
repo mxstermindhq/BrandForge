@@ -7,5 +7,5 @@ export default async function MarketplaceCategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
-  redirect(`/marketplace?term=short&category=${encodeURIComponent(category)}`);
+  redirect(`/marketplace?term=starter&category=${encodeURIComponent(category)}`);
 }

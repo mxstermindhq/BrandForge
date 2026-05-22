@@ -35,7 +35,7 @@ export default function NewListingPage() {
       <div className="forge-container">
         <AccountShell
           title="Create an offer"
-          subtitle="Optional — publish a short-term package or subscription when you're ready to sell."
+          subtitle="Optional — publish a Starter or Partner package when you're ready to sell."
         >
           <Link href="/account/listings" className="forge-back-link mb-4 inline-block">
             ← Back to offers

@@ -2,18 +2,14 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import type { ListingTerm } from "@/lib/listings-types";
+import { normalizeListingTerm, PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 import { ListingFilters } from "./ListingFilters";
-
-function parseTerm(raw: string | null): ListingTerm {
-  return raw === "long" || raw === "subscriptions" ? "long" : "short";
-}
 
 export function ListingBrowse() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const term = parseTerm(searchParams.get("term"));
+  const term = normalizeListingTerm(searchParams.get("term"));
   const basePath = pathname === "/marketplace" ? "/marketplace" : "/";
 
   const setTerm = useCallback(
@@ -30,33 +26,33 @@ export function ListingBrowse() {
     <section id="browse" className="forge-section forge-section-alt">
       <div className="forge-container">
         <div className="forge-section-head">
-          <p className="forge-section-eyebrow">Live listings</p>
+          <p className="forge-section-eyebrow">Live packages</p>
           <h2 className="forge-section-title">Browse the forge</h2>
           <p className="forge-section-desc">
-            {term === "short"
-              ? "One-off services with clear delivery — buy instantly with crypto."
-              : "Recurring subscriptions — buy instantly or ask questions on Discord."}
+            {term === "starter"
+              ? `Starter packages ($${PACKAGE_TIERS.starter.minUsd}–$${PACKAGE_TIERS.starter.maxUsd.toLocaleString()}) — fixed scope, crypto checkout.`
+              : `Partner packages ($${PACKAGE_TIERS.partner.minUsd}–$${PACKAGE_TIERS.partner.maxUsd.toLocaleString()}) — retainers and scale engagements.`}
           </p>
         </div>
 
-        <div className="mp-term-tabs" role="tablist" aria-label="Listing type">
+        <div className="mp-term-tabs" role="tablist" aria-label="Package tier">
           <button
             type="button"
             role="tab"
-            aria-selected={term === "short"}
-            className={`mp-term-tab ${term === "short" ? "mp-term-tab-active" : ""}`}
-            onClick={() => setTerm("short")}
+            aria-selected={term === "starter"}
+            className={`mp-term-tab ${term === "starter" ? "mp-term-tab-active" : ""}`}
+            onClick={() => setTerm("starter")}
           >
-            Short term
+            Starter
           </button>
           <button
             type="button"
             role="tab"
-            aria-selected={term === "long"}
-            className={`mp-term-tab ${term === "long" ? "mp-term-tab-active" : ""}`}
-            onClick={() => setTerm("long")}
+            aria-selected={term === "partner"}
+            className={`mp-term-tab ${term === "partner" ? "mp-term-tab-active" : ""}`}
+            onClick={() => setTerm("partner")}
           >
-            Long term
+            Partner
           </button>
         </div>
 

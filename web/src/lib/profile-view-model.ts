@@ -9,7 +9,7 @@ export type ProfileServiceItem = {
   category: string;
   priceLabel: string;
   href: string;
-  listingType: "short_term" | "long_term";
+  listingType: "starter" | "partner";
   tagline?: string;
 };
 
@@ -47,7 +47,8 @@ function mapPublicServices(
 ): ProfileServiceItem[] {
   if (!rows?.length) return [];
   return rows.map((s) => {
-    const lt = s.listing_type === "long_term" ? "long_term" : "short_term";
+    const lt =
+      s.listing_type === "partner" || s.listing_type === "long_term" ? "partner" : "starter";
     const price = Number(s.base_price) || 0;
     return {
       id: s.id,

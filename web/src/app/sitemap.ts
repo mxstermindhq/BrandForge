@@ -18,25 +18,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let profiles: MetadataRoute.Sitemap = [];
   try {
     const base = metadataApiBase();
-    const [listRes, profRes] = await Promise.all([
-      fetch(`${base}/api/marketplace/listings?term=short`, { next: { revalidate: 3600 } }),
+    const [starterRes, partnerRes, profRes] = await Promise.all([
+      fetch(`${base}/api/marketplace/listings?term=starter`, { next: { revalidate: 3600 } }),
+      fetch(`${base}/api/marketplace/listings?term=partner`, { next: { revalidate: 3600 } }),
       fetch(`${base}/api/talent`, { next: { revalidate: 3600 } }),
     ]);
-    if (listRes.ok) {
-      const j = (await listRes.json()) as { listings?: Array<{ id: string; serviceUrl?: string }> };
-      listings = (j.listings || []).map((l) => ({
-        url: `${BASE}${l.serviceUrl || `/listing/${l.id}`}`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-      }));
+    const seen = new Set<string>();
+    for (const res of [starterRes, partnerRes]) {
+      if (!res.ok) continue;
+      const j = (await res.json()) as { listings?: Array<{ id: string; serviceUrl?: string }> };
+      for (const l of j.listings || []) {
+        const path = l.serviceUrl || `/listing/${l.id}`;
+        if (seen.has(path)) continue;
+        seen.add(path);
+        listings.push({
+          url: `${BASE}${path}`,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.8,
+        });
+      }
     }
     if (profRes.ok) {
       const j = (await profRes.json()) as { members?: Array<{ username: string }> };
       profiles = (j.members || []).map((m) => ({
         url: `${BASE}/${encodeURIComponent(m.username)}`,
         lastModified: now,
-        changeFrequency: "weekly" as const,
+        changeFrequency: "weekly",
         priority: 0.75,
       }));
     }

@@ -9,7 +9,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
 import { MagneticButton } from "./MagneticButton";
 
-function termHref(term: "short" | "long", pathname: string): string {
+function termHref(term: "starter" | "partner", pathname: string): string {
   const base = pathname === "/" ? "/" : "/marketplace";
   return `${base}?term=${term}${base === "/" ? "#browse" : ""}`;
 }
@@ -18,7 +18,11 @@ function ForgeNavbarInner() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const term = searchParams.get("term") === "long" ? "long" : "short";
+  const raw = searchParams.get("term");
+  const term =
+    raw === "partner" || raw === "long" || raw === "long_term" || raw === "subscriptions"
+      ? "partner"
+      : "starter";
   const { session } = useAuth();
   const { me } = useAuthMe();
   const user = session?.user ?? null;
@@ -52,16 +56,16 @@ function ForgeNavbarInner() {
 
         <nav className="forge-nav-links" aria-label="Primary">
           <Link
-            href={termHref("short", pathname)}
-            className={`forge-nav-link ${term === "short" ? "forge-nav-link-active" : ""}`}
+            href={termHref("starter", pathname)}
+            className={`forge-nav-link ${term === "starter" ? "forge-nav-link-active" : ""}`}
           >
-            Short term
+            Starter
           </Link>
           <Link
-            href={termHref("long", pathname)}
-            className={`forge-nav-link ${term === "long" ? "forge-nav-link-active" : ""}`}
+            href={termHref("partner", pathname)}
+            className={`forge-nav-link ${term === "partner" ? "forge-nav-link-active" : ""}`}
           >
-            Long term
+            Partner
           </Link>
           <a
             href={CONTACT.discord}

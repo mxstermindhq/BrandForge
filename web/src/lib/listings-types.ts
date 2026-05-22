@@ -1,8 +1,10 @@
-export type ListingTerm = "short" | "long";
+export type { ListingTerm, ListingTier } from "@/lib/package-tiers";
+export { normalizeListingTerm, normalizeListingType, PACKAGE_TIERS } from "@/lib/package-tiers";
 
 export type ListingSort = "newest" | "price-asc" | "price-desc" | "ending";
 
 import type { ListingIntelligence } from "@/lib/listing-intelligence-types";
+import type { ListingTier } from "@/lib/package-tiers";
 
 export type MarketplaceListing = {
   id: string;
@@ -14,7 +16,8 @@ export type MarketplaceListing = {
   priceLabel: string;
   deliveryDays: number;
   deliveryLabel: string;
-  listingType: "short_term" | "long_term";
+  listingType: ListingTier;
+  packageSlot?: "starter" | "partner" | "partner_scale";
   endsAt: string | null;
   billingInterval: string | null;
   ownerId: string | null;
@@ -33,6 +36,6 @@ export type MarketplaceListing = {
 export type MarketplaceListingsResponse = {
   listings: MarketplaceListing[];
   total: number;
-  term?: "short_term" | "long_term";
+  term?: ListingTier;
   error?: string;
 };

@@ -36,7 +36,7 @@ function normalizeIntelligence(raw, ctx = {}) {
 
   let impactScale = src.impact_scale || src.impactScale;
   if (!impactScale) {
-    if (price >= 2500 || ctx.listingType === 'long_term') impactScale = 'Enterprise';
+    if (price >= 2500 || ctx.listingType === 'partner') impactScale = 'Enterprise';
     else if (price >= 600) impactScale = 'Creator';
     else impactScale = 'Startup';
   }
@@ -71,7 +71,7 @@ function normalizeIntelligence(raw, ctx = {}) {
   const deliveryFormat =
     src.delivery_format ||
     src.deliveryFormat ||
-    (ctx.listingType === 'long_term' ? 'Subscription' : 'Service');
+    (ctx.listingType === 'partner' ? 'Partnership' : 'Service');
 
   return {
     domain,

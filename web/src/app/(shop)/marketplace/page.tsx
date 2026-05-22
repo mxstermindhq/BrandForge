@@ -4,7 +4,7 @@ import { ListingBrowse } from "@/components/marketplace/ListingBrowse";
 
 export const metadata: Metadata = {
   title: "Marketplace",
-  description: "Browse short-term listings and long-term subscriptions from verified sellers.",
+  description: "Starter ($300–$1.5k) and Partner ($500–$15k) packages — three tiers per category, crypto checkout.",
 };
 
 export default function MarketplacePage() {
@@ -15,7 +15,7 @@ export default function MarketplacePage() {
           <p className="forge-section-eyebrow">Execution marketplace</p>
           <h1 className="forge-section-title">Browse the forge</h1>
           <p className="forge-section-desc">
-            Short-term projects and long-term subscriptions — instant crypto checkout.
+            Starter and Partner packages — three offers per category, instant crypto checkout.
           </p>
         </div>
       </section>

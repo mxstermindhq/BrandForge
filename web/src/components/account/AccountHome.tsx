@@ -69,7 +69,7 @@ export function AccountHome() {
             <p className="hub-promo-eyebrow">Optional</p>
             <h2 className="font-headline text-xl font-semibold text-[var(--forge-text)]">Publish a paid offer</h2>
             <p className="mt-1 max-w-lg text-sm text-[var(--forge-text-muted)]">
-              You&apos;re set up as a buyer and member. When you&apos;re ready to sell, create a short-term or subscription
+              You&apos;re set up as a buyer and member. When you&apos;re ready to sell, create a Starter or Partner
               listing — crypto checkout included.
             </p>
           </div>
@@ -111,7 +111,7 @@ export function AccountHome() {
             <Link href="/marketplace" className="hub-action-tile">
               <span className="hub-action-icon">🛒</span>
               <span className="hub-action-label">Browse & buy</span>
-              <span className="hub-action-desc">Short & long term offers</span>
+              <span className="hub-action-desc">Starter & Partner packages</span>
             </Link>
             <Link href="/account/listings/new" className="hub-action-tile">
               <span className="hub-action-icon">＋</span>

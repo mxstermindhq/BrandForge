@@ -13,17 +13,17 @@ export const OPERATOR_SEED: CuratedOperator[] = [
     bestResult: "500+ systems shipped for creators, agencies, and founders.",
     wontTakeOn: "Scope-less requests and buyers who ghost after delivery starts.",
     startingPrice: "$129",
-    pricingModel: "Short-term projects & monthly retainers",
+    pricingModel: "Starter ($300–$1.5k) & Partner ($500–$15k) packages",
     skills: ["AI", "Discord", "Funnels", "Short-form", "Branding", "Lead gen"],
     idealClient: "Founders and creators who want outcomes, not templates",
     workStyle: "Discord-first delivery, fast scoping, milestone checkpoints",
-    typicalTimeline: "24h – 7 days (short term) · monthly (long term)",
+    typicalTimeline: "24h – 7 days (Starter) · monthly or scale (Partner)",
     proofLink: "https://brandforge.gg/brandforge",
     faq: [
       {
-        question: "Short term vs long term?",
+        question: "Starter vs Partner?",
         answer:
-          "Short term listings have a clear end date — one-off builds and launches. Long term are subscriptions and retainers billed weekly or monthly.",
+          "Starter packages are fixed-scope one-offs ($300–$1,500). Partner packages are retainers or scale engagements ($500–$15,000) — each category has three official tiers.",
       },
       {
         question: "How do I order?",

@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const { officialIntelligenceFromItem } = require('./listing-intelligence');
+const {
+  normalizeListingTerm,
+  normalizeListingType,
+  formatTierPriceLabel,
+} = require('./package-tiers');
 
 let cached = null;
 
@@ -36,18 +41,15 @@ function endsAtFromDays(days) {
 }
 
 function mapOfficialToMarketplaceListing(item, seller) {
-  const listingType = item.listingType === 'long_term' ? 'long_term' : 'short_term';
+  const listingType = normalizeListingType(item.listingType);
   const price = Number(item.price) || 0;
   const billingInterval = item.billingInterval || null;
-  const endsAt = listingType === 'short_term' ? endsAtFromDays(item.endsInDays) : null;
+  const endsAt = listingType === 'starter' ? endsAtFromDays(item.endsInDays) : null;
   const deliveryDays = Math.max(1, Number(item.deliveryDays) || 1);
-  const priceLabel =
-    listingType === 'long_term' && billingInterval
-      ? `$${price.toLocaleString()}/${billingInterval}`
-      : `$${price.toLocaleString()}`;
+  const priceLabel = formatTierPriceLabel(price, listingType, billingInterval);
   const deliveryLabel =
-    listingType === 'long_term'
-      ? `${billingInterval || 'monthly'} subscription`
+    listingType === 'partner' && billingInterval
+      ? `${billingInterval} partner program`
       : deliveryDays === 1
         ? '24h'
         : `${deliveryDays} days`;
@@ -65,6 +67,13 @@ function mapOfficialToMarketplaceListing(item, seller) {
     deliveryDays,
     deliveryLabel,
     listingType,
+    packageSlot:
+      item.packageSlot ||
+      (item.slug && String(item.slug).endsWith('-partner-scale')
+        ? 'partner_scale'
+        : listingType === 'starter'
+          ? 'starter'
+          : 'partner'),
     endsAt,
     billingInterval,
     ownerId: null,
@@ -118,11 +127,11 @@ function mapOfficialToServiceDetail(item, seller) {
   };
 }
 
-function getOfficialListings({ term = 'short', q = '', category = '', sort = 'newest' } = {}) {
+function getOfficialListings({ term = 'starter', q = '', category = '', sort = 'newest' } = {}) {
   const { seller, listings } = loadCatalog();
-  const listingType = term === 'long' || term === 'long_term' ? 'long_term' : 'short_term';
+  const listingType = normalizeListingTerm(term);
   let out = listings
-    .filter((item) => (item.listingType === 'long_term' ? 'long_term' : 'short_term') === listingType)
+    .filter((item) => normalizeListingType(item.listingType) === listingType)
     .map((item) => mapOfficialToMarketplaceListing(item, seller));
 
   const search = String(q || '').trim().toLowerCase();

@@ -1,7 +1,7 @@
 "use client";
 
 import { CATEGORIES } from "@/content/landing-directory";
-import type { ListingTerm } from "@/lib/listings-types";
+import { PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 
 const SERVICE_CATEGORIES = CATEGORIES.filter((c) => c !== "All");
 
@@ -34,17 +34,17 @@ export function ListingForm({ values, onChange, submitLabel, busy, error, onSubm
       <div className="mp-term-tabs">
         <button
           type="button"
-          className={`mp-term-tab ${values.listingTerm === "short" ? "mp-term-tab-active" : ""}`}
-          onClick={() => set({ listingTerm: "short" })}
+          className={`mp-term-tab ${values.listingTerm === "starter" ? "mp-term-tab-active" : ""}`}
+          onClick={() => set({ listingTerm: "starter" })}
         >
-          Short term
+          Starter
         </button>
         <button
           type="button"
-          className={`mp-term-tab ${values.listingTerm === "long" ? "mp-term-tab-active" : ""}`}
-          onClick={() => set({ listingTerm: "long" })}
+          className={`mp-term-tab ${values.listingTerm === "partner" ? "mp-term-tab-active" : ""}`}
+          onClick={() => set({ listingTerm: "partner" })}
         >
-          Long term
+          Partner
         </button>
       </div>
 
@@ -89,6 +89,11 @@ export function ListingForm({ values, onChange, submitLabel, busy, error, onSubm
             className="forge-input mt-2 w-full"
             value={values.price}
             onChange={(e) => set({ price: e.target.value })}
+            placeholder={
+              values.listingTerm === "starter"
+                ? `${PACKAGE_TIERS.starter.minUsd}–${PACKAGE_TIERS.starter.maxUsd}`
+                : `${PACKAGE_TIERS.partner.minUsd}–${PACKAGE_TIERS.partner.maxUsd}`
+            }
             required
           />
         </div>
@@ -108,7 +113,7 @@ export function ListingForm({ values, onChange, submitLabel, busy, error, onSubm
         </div>
       </div>
 
-      {values.listingTerm === "short" ? (
+      {values.listingTerm === "starter" ? (
         <div>
           <label className="forge-label" htmlFor="endsAt">
             Listing ends

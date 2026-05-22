@@ -51,12 +51,12 @@ export function ServiceDetailView({
       <header className="border-b border-[var(--forge-border)] px-6 py-6">
         <div className="flex flex-wrap gap-2">
           <span className="forge-tag">{service.category}</span>
-          {service.listingType === "long_term" ? (
-            <span className="forge-tag">Subscription</span>
+          {service.listingType === "partner" ? (
+            <span className="forge-tag">Partner</span>
           ) : endsLabel ? (
             <span className="forge-tag">Ends {endsLabel}</span>
           ) : (
-            <span className="forge-tag">Short term</span>
+            <span className="forge-tag">Starter</span>
           )}
           {service.isOfficial ? <span className="forge-tag">Official</span> : null}
         </div>

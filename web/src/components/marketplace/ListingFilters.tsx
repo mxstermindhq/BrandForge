@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CATEGORIES } from "@/content/landing-directory";
-import type { ListingSort, ListingTerm, MarketplaceListing } from "@/lib/listings-types";
+import { CATEGORIES as MARKETPLACE_CATEGORIES } from "@/lib/marketplace/data";
+
+const CATEGORY_CHIPS = ["All", ...MARKETPLACE_CATEGORIES.map((c) => c.name)];
+import type { ListingSort, MarketplaceListing } from "@/lib/listings-types";
+import { PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 import { ListingCard } from "./ListingCard";
 
 type ListingFiltersProps = {
@@ -21,7 +24,7 @@ const SORTS: { key: ListingSort; label: string }[] = [
 export function ListingFilters({ term, showCategoryChips = true, initialCategory = "All" }: ListingFiltersProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>(initialCategory || "All");
-  const [sort, setSort] = useState<ListingSort>(term === "short" ? "ending" : "newest");
+  const [sort, setSort] = useState<ListingSort>(term === "starter" ? "ending" : "newest");
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,13 +57,15 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
   }, [load, query]);
 
   useEffect(() => {
-    setSort(term === "short" ? "ending" : "newest");
+    setSort(term === "starter" ? "ending" : "newest");
   }, [term]);
 
   const sortOptions = useMemo(
-    () => (term === "long" ? SORTS.filter((s) => s.key !== "ending") : SORTS),
+    () => (term === "partner" ? SORTS.filter((s) => s.key !== "ending") : SORTS),
     [term],
   );
+
+  const tierLabel = term === "starter" ? PACKAGE_TIERS.starter.label : PACKAGE_TIERS.partner.label;
 
   return (
     <div>
@@ -71,9 +76,9 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={
-              term === "short"
-                ? "Search short-term listings…"
-                : "Search subscriptions…"
+              term === "starter"
+                ? "Search Starter packages…"
+                : "Search Partner packages…"
             }
             className="mp-search-input"
             aria-label="Search listings"
@@ -95,7 +100,7 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
 
       {showCategoryChips ? (
         <div className="mp-chip-row">
-          {CATEGORIES.map((c) => (
+          {CATEGORY_CHIPS.map((c) => (
             <button
               key={c}
               type="button"
@@ -109,7 +114,7 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
       ) : null}
 
       <p className="mp-results-count">
-        {loading ? "Loading…" : `${listings.length} ${term === "short" ? "short-term" : "subscription"} listings`}
+        {loading ? "Loading…" : `${listings.length} ${tierLabel} packages`}
       </p>
 
       {error ? (
@@ -127,9 +132,9 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
       {!loading && !listings.length && !error ? (
         <div className="forge-surface-card py-12 text-center">
           <p className="text-sm text-[var(--forge-text-muted)]">
-            {term === "short"
-              ? "No active short-term listings yet. Be the first — sign in and list a service."
-              : "No subscriptions listed yet. Sellers can publish recurring offers after onboarding."}
+            {term === "starter"
+              ? "No Starter packages in this category yet. Official catalog fills each category with up to three tiers."
+              : "No Partner packages in this category yet. Partner listings support retainers ($500–$2k) and scale engagements up to $15k."}
           </p>
           <a href="/login" className="forge-btn forge-btn-primary mt-6 inline-flex">
             Sign in to list

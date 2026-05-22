@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CATEGORIES } from "@/content/landing-directory";
 import { apiFetch } from "@/lib/api";
-import type { ListingTerm } from "@/lib/listings-types";
+import { PACKAGE_TIERS, priceInTier, type ListingTerm } from "@/lib/package-tiers";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
 
@@ -20,7 +20,7 @@ export function CreateListingForm({ onSuccess, showSkip = true }: CreateListingF
   const { accessToken } = useAuth();
   const { me, reload } = useAuthMe();
   const router = useRouter();
-  const [listingTerm, setListingTerm] = useState<ListingTerm>("short");
+  const [listingTerm, setListingTerm] = useState<ListingTerm>("starter");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<string>(SERVICE_CATEGORIES[0]);
   const [price, setPrice] = useState("");
@@ -42,16 +42,28 @@ export function CreateListingForm({ onSuccess, showSkip = true }: CreateListingF
     }
     setBusy(true);
     setError(null);
+
+    const priceNum = Number(String(price).replace(/[^0-9.]/g, ""));
+    if (!priceInTier(priceNum, listingTerm)) {
+      setBusy(false);
+      setError(
+        listingTerm === "starter"
+          ? `Starter price must be $${PACKAGE_TIERS.starter.minUsd}–$${PACKAGE_TIERS.starter.maxUsd}.`
+          : `Partner price must be $${PACKAGE_TIERS.partner.minUsd}–$${PACKAGE_TIERS.partner.maxUsd}.`,
+      );
+      return;
+    }
+
     const body: Record<string, unknown> = {
       title: title.trim(),
       category,
       price: price.trim(),
       delivery: delivery.trim(),
       description: description.trim(),
-      listing_type: listingTerm === "long" ? "long_term" : "short_term",
+      listing_type: listingTerm,
     };
-    if (listingTerm === "short" && endsAt) body.ends_at = endsAt;
-    if (listingTerm === "long") body.billing_interval = billingInterval;
+    if (listingTerm === "starter" && endsAt) body.ends_at = endsAt;
+    if (listingTerm === "partner") body.billing_interval = billingInterval;
 
     const { ok, data } = await apiFetch<{ error?: string }>("/api/services", {
       method: "POST",
@@ -79,17 +91,17 @@ export function CreateListingForm({ onSuccess, showSkip = true }: CreateListingF
       <div className="mp-term-tabs">
         <button
           type="button"
-          className={`mp-term-tab ${listingTerm === "short" ? "mp-term-tab-active" : ""}`}
-          onClick={() => setListingTerm("short")}
+          className={`mp-term-tab ${listingTerm === "starter" ? "mp-term-tab-active" : ""}`}
+          onClick={() => setListingTerm("starter")}
         >
-          Short term
+          Starter
         </button>
         <button
           type="button"
-          className={`mp-term-tab ${listingTerm === "long" ? "mp-term-tab-active" : ""}`}
-          onClick={() => setListingTerm("long")}
+          className={`mp-term-tab ${listingTerm === "partner" ? "mp-term-tab-active" : ""}`}
+          onClick={() => setListingTerm("partner")}
         >
-          Long term
+          Partner
         </button>
       </div>
 
@@ -136,7 +148,11 @@ export function CreateListingForm({ onSuccess, showSkip = true }: CreateListingF
             className="forge-input mt-2 w-full"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="499"
+            placeholder={
+              listingTerm === "starter"
+                ? `${PACKAGE_TIERS.starter.minUsd}–${PACKAGE_TIERS.starter.maxUsd}`
+                : `${PACKAGE_TIERS.partner.minUsd}–${PACKAGE_TIERS.partner.maxUsd}`
+            }
             required
             disabled={!canCreate}
           />
@@ -158,7 +174,11 @@ export function CreateListingForm({ onSuccess, showSkip = true }: CreateListingF
         </div>
       </div>
 
-      {listingTerm === "short" ? (
+      <p className="text-xs text-[var(--forge-text-muted)]">
+        {listingTerm === "starter" ? PACKAGE_TIERS.starter.description : PACKAGE_TIERS.partner.description}
+      </p>
+
+      {listingTerm === "starter" ? (
         <div>
           <label className="forge-label" htmlFor="ends">
             Offer ends (optional)

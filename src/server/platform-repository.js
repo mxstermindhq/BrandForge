@@ -3,6 +3,12 @@ const { getEnv } = require('./env');
 const { sendNotificationEmailForRow } = require('./notify-email');
 const { createNowpaymentsInvoice, extractInvoiceCheckoutUrl } = require('./nowpayments');
 const { normalizeIntelligence } = require('./listing-intelligence');
+const {
+  normalizeListingTerm,
+  normalizeListingType,
+  formatTierPriceLabel,
+  validateListingPrice,
+} = require('./package-tiers');
 const { createMarketplaceCommerce } = require('./marketplace-commerce');
 const { createCurrencyService } = require('./currency-service');
 const { createRatingService } = require('./rating-service');
@@ -217,8 +223,7 @@ function mapService(row) {
 function mapServiceForDetail(row, ownerRow) {
   const base = mapService({ ...row, owner: ownerRow });
   const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
-  const listingType =
-    row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+  const listingType = normalizeListingType(row.listing_type || meta.listing_type);
   const endsAt = row.ends_at || meta.ends_at || null;
   const billingInterval = row.billing_interval || meta.billing_interval || null;
   const deliverables = Array.isArray(meta.deliverables)
@@ -228,14 +233,11 @@ function mapServiceForDetail(row, ownerRow) {
       : [];
   const useCases = Array.isArray(meta.use_cases) ? meta.use_cases : [];
   const price = Number(row.base_price) || 0;
-  const priceLabel =
-    listingType === 'long_term' && billingInterval
-      ? `$${price.toLocaleString()}/${billingInterval}`
-      : `$${price.toLocaleString()}`;
+  const priceLabel = formatTierPriceLabel(price, listingType, billingInterval);
   const deliveryDays = Math.max(1, Number(row.delivery_days) || 1);
   const deliveryLabel =
-    listingType === 'long_term'
-      ? `${billingInterval || 'monthly'} subscription`
+    listingType === 'partner' && billingInterval
+      ? `${billingInterval} partner program`
       : deliveryDays === 1
         ? '1 day'
         : `${deliveryDays} days`;
@@ -1336,17 +1338,19 @@ async function createPlatformRepository(previewRepository) {
     const slugBase = slugify(title) || `service-${Date.now()}`;
     const slug = `${slugBase}-${Date.now().toString(36).slice(-4)}`;
 
-    const listingType = payload.listing_type === 'long_term' ? 'long_term' : 'short_term';
+    const listingType = normalizeListingType(payload.listing_type);
+    const priceError = validateListingPrice(price, listingType);
+    if (priceError) throw new Error(priceError);
     let endsAt = null;
-    if (listingType === 'short_term' && payload.ends_at) {
+    if (listingType === 'starter' && payload.ends_at) {
       const d = new Date(payload.ends_at);
       if (!Number.isNaN(d.getTime())) endsAt = d.toISOString();
     }
     const billingAllowed = new Set(['weekly', 'monthly', 'quarterly', 'yearly']);
     const billingInterval =
-      listingType === 'long_term' && billingAllowed.has(String(payload.billing_interval || ''))
+      listingType === 'partner' && billingAllowed.has(String(payload.billing_interval || ''))
         ? String(payload.billing_interval)
-        : listingType === 'long_term'
+        : listingType === 'partner' && payload.billing_interval
           ? 'monthly'
           : null;
 
@@ -1491,7 +1495,7 @@ async function createPlatformRepository(previewRepository) {
       updates.delivery_days = Math.max(1, Number(String(payload.delivery).trim()) || 3);
     }
     if (payload.listing_type != null) {
-      updates.listing_type = payload.listing_type === 'long_term' ? 'long_term' : 'short_term';
+      updates.listing_type = normalizeListingType(payload.listing_type);
     }
     if (payload.ends_at !== undefined) {
       if (payload.ends_at === '' || payload.ends_at == null) updates.ends_at = null;
@@ -5224,20 +5228,16 @@ async function createPlatformRepository(previewRepository) {
     const category = row.category || 'General';
     const deliveryDays = Math.max(1, Number(row.delivery_days) || 1);
     const price = Number(row.base_price) || 0;
-    const listingType =
-      row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+    const listingType = normalizeListingType(row.listing_type || meta.listing_type);
     const endsAt = row.ends_at || meta.ends_at || null;
     const billingInterval = row.billing_interval || meta.billing_interval || null;
-    const priceLabel =
-      listingType === 'long_term' && billingInterval
-        ? `$${price.toLocaleString()}/${billingInterval}`
-        : `$${price.toLocaleString()}`;
+    const priceLabel = formatTierPriceLabel(price, listingType, billingInterval);
     const deliveryLabel =
-      listingType === 'long_term'
-        ? `${billingInterval || 'monthly'} subscription`
+      listingType === 'partner' && billingInterval
+        ? `${billingInterval} partner program`
         : deliveryDays === 1
           ? '1 day'
-          : `${deliveryDays} days`;
+          : `${deliveryDays} days';
 
     return {
       id: row.id,
@@ -5267,11 +5267,10 @@ async function createPlatformRepository(previewRepository) {
     };
   }
 
-  /** Published listings for BrandForge marketplace (short-term vs subscriptions). */
-  async function listMarketplaceListings({ term = 'short', q = '', category = '', sort = 'newest' } = {}) {
+  /** Published listings for BrandForge marketplace (Starter vs Partner tiers). */
+  async function listMarketplaceListings({ term = 'starter', q = '', category = '', sort = 'newest' } = {}) {
     if (!client) return { listings: [], total: 0 };
-    const listingType =
-      term === 'long' || term === 'long_term' || term === 'subscriptions' ? 'long_term' : 'short_term';
+    const listingType = normalizeListingTerm(term);
     const nowIso = new Date().toISOString();
 
     let rows;
@@ -5282,7 +5281,7 @@ async function createPlatformRepository(previewRepository) {
         .select('*')
         .eq('status', 'published')
         .eq('listing_type', listingType);
-      if (listingType === 'short_term') {
+      if (listingType === 'starter') {
         query = query.or(`ends_at.is.null,ends_at.gt.${nowIso}`);
       }
       const cat = String(category || '').trim();
@@ -5312,10 +5311,9 @@ async function createPlatformRepository(previewRepository) {
       if (error) throw error;
       rows = (rows || []).filter((row) => {
         const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
-        const lt =
-          row.listing_type === 'long_term' || meta.listing_type === 'long_term' ? 'long_term' : 'short_term';
+        const lt = normalizeListingType(row.listing_type || meta.listing_type);
         if (lt !== listingType) return false;
-        if (listingType === 'short_term') {
+        if (listingType === 'starter') {
           const end = row.ends_at || meta.ends_at;
           if (end && new Date(end).getTime() <= Date.now()) return false;
         }
@@ -5383,7 +5381,18 @@ async function createPlatformRepository(previewRepository) {
       console.warn('[marketplace] official catalog:', e.message);
     }
 
-    return { listings, total: listings.length, term: listingType };
+    const capped = [];
+    const perCategory = new Map();
+    for (const row of listings) {
+      const key = row.category || 'General';
+      const n = perCategory.get(key) || 0;
+      if (n < 3) {
+        perCategory.set(key, n + 1);
+        capped.push(row);
+      }
+    }
+
+    return { listings: capped, total: capped.length, term: listingType };
   }
 
   async function listMyServicePackages(userId) {
