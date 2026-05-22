@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ServicePageClient } from "@/components/listings/ServicePageClient";
 import { fetchServiceById } from "@/lib/fetch-service";
@@ -23,8 +23,13 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const service = await fetchServiceById(id);
   if (!service) notFound();
 
-  const backHref = "/marketplace";
-  const backLabel = "← Marketplace";
-
-  return <ServicePageClient service={service} backHref={backHref} backLabel={backLabel} />;
+  return (
+    <Suspense
+      fallback={
+        <main className="forge-page p-12 text-center text-sm text-[var(--forge-text-muted)]">Loading…</main>
+      }
+    >
+      <ServicePageClient service={service} backHref="/marketplace" backLabel="← Marketplace" />
+    </Suspense>
+  );
 }

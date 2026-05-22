@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { ServiceDetailView } from "./ServiceDetailView";
 import type { ServiceDetail } from "@/lib/service-types";
@@ -15,6 +16,9 @@ type ServicePageClientProps = {
 };
 
 export function ServicePageClient({ service, backHref, backLabel }: ServicePageClientProps) {
+  const searchParams = useSearchParams();
+  const autoCheckout = searchParams.get("checkout") === "1";
+  const checkoutCancelled = searchParams.get("checkout") === "cancelled";
   const { session } = useAuth();
   const { me } = useAuthMe();
   const [canEdit, setCanEdit] = useState(false);
@@ -25,11 +29,7 @@ export function ServicePageClient({ service, backHref, backLabel }: ServicePageC
       return;
     }
     setCanEdit(
-      Boolean(
-        me?.profile?.id &&
-          service.ownerId &&
-          String(me.profile.id) === String(service.ownerId),
-      ),
+      Boolean(me?.profile?.id && service.ownerId && String(me.profile.id) === String(service.ownerId)),
     );
   }, [session, me, service.ownerId, service.isOfficial]);
 
@@ -49,7 +49,12 @@ export function ServicePageClient({ service, backHref, backLabel }: ServicePageC
         <Link href={backHref} className="forge-back-link">
           {backLabel}
         </Link>
-        <ServiceDetailView service={service} canEdit={canEdit} />
+        <ServiceDetailView
+          service={service}
+          canEdit={canEdit}
+          autoCheckout={autoCheckout}
+          checkoutCancelled={checkoutCancelled}
+        />
       </div>
     </main>
   );

@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProfileViewModel } from "@/lib/profile-view-model";
+import { filterProfileTrust } from "@/lib/trust-thresholds";
 
 type ProofPanelsProps = {
   viewModel: ProfileViewModel;
@@ -9,16 +10,16 @@ type ProofPanelsProps = {
 
 export function ProofPanels({ viewModel }: ProofPanelsProps) {
   const reduced = useReducedMotion();
-  const t = viewModel.trust;
+  const t = filterProfileTrust(viewModel.trust);
   const stats: Array<[string, string]> = [];
-  if (t?.averageRating != null) stats.push(["Average rating", `★ ${t.averageRating}`]);
-  if (t?.reviewCount != null) stats.push(["Reviews", String(t.reviewCount)]);
-  if (t?.completionRate != null) stats.push(["Completion rate", `${t.completionRate}%`]);
+
   if (t?.completedOrders != null) stats.push(["Completed orders", String(t.completedOrders)]);
+  if (t?.totalRevenueUsd != null) stats.push(["Total revenue", `$${t.totalRevenueUsd.toLocaleString()}`]);
+  if (t?.reviewCount != null) stats.push(["Reviews", String(t.reviewCount)]);
+  if (t?.averageRating != null) stats.push(["Average rating", `★ ${t.averageRating}`]);
   if (t?.repeatBuyers != null) stats.push(["Repeat buyers", String(t.repeatBuyers)]);
-  if (t?.avgDeliveryHours != null) stats.push(["Avg delivery", `${t.avgDeliveryHours}h`]);
-  if (t?.joinedAt) stats.push(["Joined", new Date(t.joinedAt).toLocaleDateString()]);
-  stats.push(["Starting price", viewModel.startingPrice]);
+  if (t?.avgDeliveryHours != null) stats.push(["Avg delivery", `~${t.avgDeliveryHours}h`]);
+  if (t?.activeListings != null) stats.push(["Active listings", String(t.activeListings)]);
 
   return (
     <motion.section
@@ -32,15 +33,27 @@ export function ProofPanels({ viewModel }: ProofPanelsProps) {
         <p className="mt-2 text-sm leading-relaxed text-[var(--forge-text-muted)]">
           {viewModel.bio || "No bio yet."}
         </p>
+        {viewModel.skills.length ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {viewModel.skills.map((skill) => (
+              <span key={skill} className="forge-tag">
+                {skill}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {stats.length > 0 ? (
-        <aside className="rounded-xl border border-[var(--forge-border)] bg-[var(--forge-surface)] overflow-hidden">
+        <aside className="overflow-hidden rounded-xl border border-[var(--forge-border)] bg-[var(--forge-surface)]">
           <h3 className="border-b border-[var(--forge-border)] px-3 py-2 text-sm font-semibold text-[var(--forge-text)]">
-            Trust metrics
+            Track record
           </h3>
           {stats.map(([key, value]) => (
-            <div key={key} className="grid grid-cols-[140px_1fr] gap-3 border-b border-[var(--forge-border)] px-3 py-2 text-xs last:border-0">
+            <div
+              key={key}
+              className="grid grid-cols-[140px_1fr] gap-3 border-b border-[var(--forge-border)] px-3 py-2 text-xs last:border-0"
+            >
               <span className="text-[var(--forge-text-muted)]">{key}</span>
               <span className="font-medium text-[var(--forge-text)]">{value}</span>
             </div>

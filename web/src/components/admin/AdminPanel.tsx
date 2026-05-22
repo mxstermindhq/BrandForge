@@ -12,7 +12,9 @@ export function AdminPanel() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [orders, setOrders] = useState<Array<{ id: string; listing_title: string; status: string; amount_usd: number }>>([]);
   const [whitelist, setWhitelist] = useState<Array<{ id: string; email: string; note: string | null }>>([]);
+  const [disputes, setDisputes] = useState<Array<{ id: string; listing_title: string; amount_usd: number }>>([]);
   const [email, setEmail] = useState("");
+  const [banUser, setBanUser] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,10 +24,12 @@ export function AdminPanel() {
       apiFetch<Overview>("/api/admin/overview", { method: "GET", accessToken: token }),
       apiFetch<{ orders: typeof orders }>("/api/admin/orders", { method: "GET", accessToken: token }),
       apiFetch<{ rows: typeof whitelist }>("/api/admin/whitelist", { method: "GET", accessToken: token }),
-    ]).then(([o, ord, wl]) => {
+      apiFetch<{ disputes: typeof disputes }>("/api/admin/disputes", { method: "GET", accessToken: token }),
+    ]).then(([o, ord, wl, disp]) => {
       if (o.ok) setOverview(o.data);
       if (ord.ok) setOrders(ord.data.orders || []);
       if (wl.ok) setWhitelist(wl.data.rows || []);
+      if (disp.ok) setDisputes(disp.data.disputes || []);
     });
   }, [session?.access_token]);
 
@@ -100,6 +104,50 @@ export function AdminPanel() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-[var(--forge-text)]">Ban user (hide profile)</h2>
+          <form
+            className="mt-3 flex gap-2"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!session?.access_token || !banUser.trim()) return;
+              const { ok, data } = await apiFetch<{ error?: string }>("/api/admin/users/ban", {
+                method: "POST",
+                accessToken: session.access_token,
+                body: JSON.stringify({ username: banUser.trim() }),
+              });
+              if (!ok) setError(data.error || "Failed");
+              else setBanUser("");
+            }}
+          >
+            <input
+              className="hub-input flex-1"
+              value={banUser}
+              onChange={(e) => setBanUser(e.target.value)}
+              placeholder="username"
+            />
+            <button type="submit" className="forge-btn forge-btn-ghost">
+              Ban
+            </button>
+          </form>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-[var(--forge-text)]">Disputes</h2>
+          {disputes.length ? (
+            <ul className="mt-4 space-y-2 text-sm">
+              {disputes.map((d) => (
+                <li key={d.id} className="flex justify-between border-b border-[var(--forge-border)] py-2">
+                  <span>{d.listing_title}</span>
+                  <span className="text-[var(--forge-text-muted)]">${d.amount_usd}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-[var(--forge-text-muted)]">No open disputes.</p>
+          )}
         </section>
 
         <section className="mt-10">

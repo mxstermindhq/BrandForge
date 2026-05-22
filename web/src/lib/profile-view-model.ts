@@ -1,5 +1,7 @@
 import { talentInitials } from "@/lib/talent-types";
-import type { ProfileTrustMetrics, MarketplaceReview } from "@/lib/trust-types";
+import type { ProfileTrustMetrics } from "@/lib/trust-thresholds";
+import type { MarketplaceReview } from "@/lib/trust-types";
+import { filterProfileTrust } from "@/lib/trust-thresholds";
 
 export type ProfileServiceItem = {
   id: string;
@@ -26,7 +28,6 @@ export interface ProfileViewModel {
   services: ProfileServiceItem[];
   trust: ProfileTrustMetrics | null;
   reviews: MarketplaceReview[];
-  profileCompletionPercent: number | null;
   avatarUrl?: string | null;
   faq?: Array<{ question: string; answer: string }>;
 }
@@ -90,6 +91,7 @@ export function mapApiProfileToViewModel(
   const skills = Array.isArray(profile.skills) ? profile.skills.filter(Boolean).slice(0, 8) : [];
   const services = mapPublicServices(username, profile.publicServices);
   const firstService = services[0];
+  const filteredTrust = filterProfileTrust(trust);
 
   return {
     username,
@@ -104,11 +106,10 @@ export function mapApiProfileToViewModel(
     pricingModel: services.length ? "Browse listings below" : "Message to scope",
     skills,
     proofLink: `https://brandforge.gg/${encodeURIComponent(username)}`,
-    isVerified: Boolean(trust?.isVerified),
+    isVerified: Boolean(filteredTrust?.isVerified),
     services,
-    trust,
+    trust: filteredTrust,
     reviews,
-    profileCompletionPercent: trust?.profileCompletionPercent ?? null,
     avatarUrl: profile.avatar_url,
   };
 }

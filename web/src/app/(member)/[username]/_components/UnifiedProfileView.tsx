@@ -17,7 +17,8 @@ type UnifiedProfileViewProps = {
 export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<ProfileTab>("about");
-  const hireHref = viewModel.services[0]?.href || "/marketplace";
+  const firstService = viewModel.services[0];
+  const hireHref = firstService ? `${firstService.href}?checkout=1` : "/marketplace";
 
   return (
     <motion.article
@@ -81,11 +82,7 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
       ) : null}
 
       <div className="mt-8 max-w-md">
-        <ConversionCTA
-          variant="profile"
-          operatorName={viewModel.name}
-          serviceUrl={hireHref}
-        />
+        <ConversionCTA variant="profile" operatorName={viewModel.name} hireUrl={hireHref} />
       </div>
     </motion.article>
   );

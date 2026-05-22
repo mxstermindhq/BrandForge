@@ -1,32 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { CONTACT, contactMessage } from "@/content/landing-directory";
+import { CONTACT } from "@/content/landing-directory";
 
-type Variant = "hero" | "card" | "listing" | "profile" | "dashboard";
+type Variant = "hero" | "card" | "profile" | "dashboard";
 
 type ConversionCTAProps = {
   variant: Variant;
   listingId?: string;
-  listingTitle?: string;
-  priceLabel?: string;
   serviceUrl?: string;
+  hireUrl?: string;
   operatorName?: string;
   orderId?: string;
-  onBuy?: () => void;
-  buyLoading?: boolean;
 };
 
 export function ConversionCTA({
   variant,
   listingId,
-  listingTitle,
-  priceLabel,
   serviceUrl,
+  hireUrl,
   operatorName,
   orderId,
-  onBuy,
-  buyLoading,
 }: ConversionCTAProps) {
   if (variant === "hero") {
     return (
@@ -64,72 +58,21 @@ export function ConversionCTA({
           className="forge-btn forge-btn-ghost forge-btn-sm"
           data-track={listingId ? `questions_listing_${listingId}` : "questions_listing"}
         >
-          Questions?
-        </a>
-      </div>
-    );
-  }
-
-  if (variant === "listing" && listingId) {
-    return (
-      <div className="flex flex-col gap-2">
-        {onBuy ? (
-          <button
-            type="button"
-            className="forge-btn forge-btn-primary w-full justify-center"
-            onClick={onBuy}
-            disabled={buyLoading}
-            data-track={`checkout_${listingId}`}
-          >
-            {buyLoading ? "Opening checkout…" : `Buy Now — ${priceLabel || "crypto"}`}
-          </button>
-        ) : (
-          <Link
-            href={`/listing/${listingId}?checkout=1`}
-            className="forge-btn forge-btn-primary w-full justify-center"
-            data-track={`checkout_${listingId}`}
-          >
-            Buy Now — {priceLabel}
-          </Link>
-        )}
-        <a
-          href={CONTACT.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="forge-btn forge-btn-ghost w-full justify-center text-sm"
-          data-track={`questions_${listingId}`}
-        >
-          Questions on Discord
-        </a>
-        <a
-          href={contactMessage(listingTitle ? `Question: ${listingTitle}` : "Marketplace question")}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-center text-xs text-[var(--forge-text-muted)] hover:text-[var(--forge-gold)]"
-          data-track={`telegram_${listingId}`}
-        >
-          Telegram support
+          Ask Questions
         </a>
       </div>
     );
   }
 
   if (variant === "profile" && operatorName) {
-    const hireHref = serviceUrl || CONTACT.discord;
-    const isExternal = hireHref.startsWith("http");
+    const primaryHref = hireUrl || (serviceUrl ? `${serviceUrl}?checkout=1` : "/marketplace");
     return (
       <div className="profile-cta-unified">
-        {isExternal ? (
-          <a href={hireHref} target="_blank" rel="noopener noreferrer" className="forge-btn forge-btn-primary w-full justify-center">
-            Hire {operatorName}
-          </a>
-        ) : (
-          <Link href={hireHref} className="forge-btn forge-btn-primary w-full justify-center">
-            Hire {operatorName}
-          </Link>
-        )}
+        <Link href={primaryHref} className="forge-btn forge-btn-primary w-full justify-center">
+          Hire {operatorName}
+        </Link>
         <a
-          href={contactMessage(`I'd like to work with ${operatorName}`)}
+          href={CONTACT.discord}
           target="_blank"
           rel="noopener noreferrer"
           className="forge-btn forge-btn-ghost w-full justify-center mt-2"

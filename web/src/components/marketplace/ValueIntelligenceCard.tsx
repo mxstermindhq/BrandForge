@@ -5,31 +5,22 @@ type ValueIntelligenceCardProps = {
   compact?: boolean;
 };
 
-const TRUST_CLASS: Record<string, string> = {
-  Verified: "vi-trust-verified",
-  Whitelisted: "vi-trust-whitelist",
-  New: "vi-trust-new",
-};
-
+/** Listing metadata only — no synthetic trust badges. */
 export function ValueIntelligenceCard({ intelligence, compact = false }: ValueIntelligenceCardProps) {
-  const trustClass = TRUST_CLASS[intelligence.trustLevel] || "vi-trust-new";
-
   if (compact) {
     return (
-      <div className="vi-strip" aria-label="Listing intelligence">
+      <div className="vi-strip" aria-label="Listing details">
         <span className="vi-chip">{intelligence.domain}</span>
         <span className="vi-chip">{intelligence.impactScale}</span>
         <span className="vi-chip">{intelligence.executionSpeed}</span>
-        <span className={`vi-chip ${trustClass}`}>{intelligence.trustLevel}</span>
       </div>
     );
   }
 
   return (
-    <div className="vi-panel" aria-label="Value intelligence">
+    <div className="vi-panel" aria-label="Listing details">
       <div className="vi-panel-head">
-        <span className="vi-panel-title">Decision intelligence</span>
-        <span className={`vi-trust-badge ${trustClass}`}>{intelligence.trustLevel}</span>
+        <span className="vi-panel-title">Service details</span>
       </div>
       <dl className="vi-grid">
         <div>
@@ -37,20 +28,16 @@ export function ValueIntelligenceCard({ intelligence, compact = false }: ValueIn
           <dd>{intelligence.domain}</dd>
         </div>
         <div>
-          <dt>Impact</dt>
+          <dt>Best for</dt>
           <dd>{intelligence.impactScale}</dd>
         </div>
         <div>
-          <dt>Speed</dt>
+          <dt>Timeline</dt>
           <dd>{intelligence.executionSpeed}</dd>
         </div>
         <div>
-          <dt>Complexity</dt>
-          <dd>{intelligence.complexityScore}/5</dd>
-        </div>
-        <div>
-          <dt>ROI</dt>
-          <dd>{intelligence.roiPotential}</dd>
+          <dt>Scope</dt>
+          <dd>Level {intelligence.complexityScore}</dd>
         </div>
         <div>
           <dt>Format</dt>

@@ -192,6 +192,49 @@ function createMarketplaceShipRoutes(ctx) {
       return true;
     }
 
+    if (pathname === '/api/admin/disputes' && method === 'GET') {
+      const user = await requireUser(req, res);
+      if (!user) return true;
+      if (!(await requireAdmin(user, res))) return true;
+      const { data } = await platformRepository.client
+        .from('marketplace_orders')
+        .select('id, listing_title, amount_usd, status, buyer_id, seller_id, created_at')
+        .eq('status', 'disputed')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      sendJson(res, 200, { disputes: data || [] });
+      return true;
+    }
+
+    if (pathname === '/api/admin/users/ban' && method === 'POST') {
+      const user = await requireUser(req, res);
+      if (!user) return true;
+      if (!(await requireAdmin(user, res))) return true;
+      try {
+        const body = await parseBody(req);
+        const username = String(body.username || '').trim().toLowerCase().replace(/^@+/, '');
+        if (!username) {
+          sendJson(res, 400, { error: 'username required' });
+          return true;
+        }
+        const { data: prof, error } = await platformRepository.client
+          .from('profiles')
+          .update({ is_public: false })
+          .eq('username', username)
+          .select('id, username')
+          .maybeSingle();
+        if (error) throw error;
+        if (!prof) {
+          sendJson(res, 404, { error: 'User not found' });
+          return true;
+        }
+        sendJson(res, 200, { ok: true, profile: prof });
+      } catch (e) {
+        sendJson(res, 400, { error: e.message || 'Ban failed' });
+      }
+      return true;
+    }
+
     return false;
   };
 }

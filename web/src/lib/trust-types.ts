@@ -1,25 +1,4 @@
-export type ProfileTrustMetrics = {
-  completedOrders?: number;
-  totalRevenueUsd?: number;
-  repeatBuyers?: number;
-  reviewCount?: number;
-  averageRating?: number;
-  completionRate?: number;
-  avgDeliveryHours?: number;
-  activeListings?: number;
-  joinedAt?: string;
-  isVerified?: boolean;
-  profileCompletionPercent?: number;
-};
-
-export type ListingTrustMetrics = {
-  views?: number;
-  saves?: number;
-  purchases?: number;
-  conversionRate?: number;
-  repeatBuyerPct?: number;
-  averageRating?: number;
-};
+export type { ProfileTrustMetrics, ListingTrustMetrics } from "@/lib/trust-thresholds";
 
 export type MarketplaceReview = {
   id: string;

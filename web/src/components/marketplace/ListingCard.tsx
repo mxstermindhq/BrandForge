@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import type { MarketplaceListing } from "@/lib/listings-types";
 import { normalizeListingIntelligence } from "@/lib/listing-intelligence-types";
-import { ValueIntelligenceCard } from "./ValueIntelligenceCard";
+import { ListingOutcomeBlock } from "./ListingOutcomeBlock";
 import { ConversionCTA } from "@/components/conversion/ConversionCTA";
 
 type ListingCardProps = {
@@ -22,33 +22,37 @@ function formatEndsAt(iso: string | null): string | null {
 export function ListingCard({ listing, index = 0 }: ListingCardProps) {
   const endsLabel = formatEndsAt(listing.endsAt);
   const intelligence = normalizeListingIntelligence(listing.intelligence);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ delay: index * 0.04, duration: 0.45 }}
-      whileHover={{ y: -6, scale: 1.01 }}
+      whileHover={{ y: -4 }}
       className="mp-card group"
     >
       <Link href={listing.serviceUrl} className="block">
-        <div className="mp-card-thumb" style={{ background: listing.thumbGradient }}>
+        <div className="mp-card-header-bar">
           {listing.isOfficial ? (
             <span className="mp-card-badge">Official</span>
           ) : listing.listingType === "long_term" ? (
             <span className="mp-card-badge">Subscription</span>
           ) : endsLabel ? (
             <span className="mp-card-badge mp-card-badge-hot">Ends {endsLabel}</span>
-          ) : null}
+          ) : (
+            <span className="mp-card-badge">{listing.category}</span>
+          )}
         </div>
-        {intelligence ? <ValueIntelligenceCard intelligence={intelligence} compact /> : null}
+        <ListingOutcomeBlock
+          compact
+          tagline={listing.tagline}
+          category={listing.category}
+          deliveryLabel={listing.deliveryLabel}
+          intelligence={intelligence}
+        />
         <div className="mp-card-body">
-          <div className="mp-card-meta-row">
-            <span className="mp-card-cat">{listing.category}</span>
-            <span className="mp-card-rating">{listing.deliveryLabel}</span>
-          </div>
           <h3 className="mp-card-title">{listing.title}</h3>
-          <p className="mp-card-tagline">{listing.tagline}</p>
           <div className="mp-card-footer">
             <span className="mp-card-price">{listing.priceLabel}</span>
             {listing.ownerUsername ? (

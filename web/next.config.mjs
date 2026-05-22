@@ -135,6 +135,7 @@ const nextConfig = {
       "/product/overview",
     ];
     return [
+      { source: "/profile/:username", destination: "/:username", permanent: true },
       { source: "/p/:username", destination: "/:username", permanent: true },
       { source: "/u/:username", destination: "/:username", permanent: true },
       { source: "/u/:username/service/:id", destination: "/:username/service/:id", permanent: true },

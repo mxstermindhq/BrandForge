@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { CONTACT, contactMessage } from "@/content/landing-directory";
+import { useEffect, useState } from "react";
+import { CONTACT } from "@/content/landing-directory";
 import { profilePath } from "@/lib/reserved-paths";
 import type { ServiceDetail } from "@/lib/service-types";
+import type { ListingTrustMetrics } from "@/lib/trust-thresholds";
+import { apiFetch } from "@/lib/api";
 import { CryptoCheckoutButton } from "./CryptoCheckoutButton";
 import { ListingIntelligenceVisual } from "@/components/marketplace/ListingIntelligenceVisual";
+import { ListingSupportMenu } from "./ListingSupportMenu";
 
 function formatEndsAt(iso: string | null): string | null {
   if (!iso) return null;
@@ -17,22 +21,35 @@ function formatEndsAt(iso: string | null): string | null {
 type ServiceDetailViewProps = {
   service: ServiceDetail;
   canEdit?: boolean;
+  autoCheckout?: boolean;
+  checkoutCancelled?: boolean;
 };
 
-export function ServiceDetailView({ service, canEdit = false }: ServiceDetailViewProps) {
+export function ServiceDetailView({
+  service,
+  canEdit = false,
+  autoCheckout = false,
+  checkoutCancelled = false,
+}: ServiceDetailViewProps) {
   const endsLabel = formatEndsAt(service.endsAt);
   const ownerUsername = service.ownerUsername?.replace(/^@+/, "");
   const profileUrl = ownerUsername ? profilePath(ownerUsername) : null;
   const editUrl = canEdit && !service.isOfficial ? `/account/listings/${service.id}/edit` : null;
+  const [trust, setTrust] = useState<ListingTrustMetrics | null>(null);
+
+  useEffect(() => {
+    void apiFetch<{ trust: ListingTrustMetrics | null }>(
+      `/api/listings/${encodeURIComponent(service.id)}/trust?type=${service.isOfficial ? "official" : "db"}`,
+      { method: "GET" },
+    ).then(({ ok, data }) => {
+      if (ok && data.trust) setTrust(data.trust);
+    });
+  }, [service.id, service.isOfficial]);
 
   return (
     <article className="forge-detail-article mt-6">
-      <div
-        className="relative h-48 w-full overflow-hidden sm:h-56"
-        style={{ background: service.thumbGradient }}
-      >
-        <div className="absolute inset-0 mp-heat-overlay" aria-hidden />
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+      <header className="border-b border-[var(--forge-border)] px-6 py-6">
+        <div className="flex flex-wrap gap-2">
           <span className="forge-tag">{service.category}</span>
           {service.listingType === "long_term" ? (
             <span className="forge-tag">Subscription</span>
@@ -41,24 +58,25 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
           ) : (
             <span className="forge-tag">Short term</span>
           )}
-          {service.isOfficial ? <span className="forge-tag">BrandForge Official</span> : null}
+          {service.isOfficial ? <span className="forge-tag">Official</span> : null}
         </div>
-      </div>
+        <h1 className="font-headline mt-4 text-4xl font-semibold text-[var(--forge-text)]">{service.title}</h1>
+        <p className="mt-2 text-lg text-[var(--forge-text-muted)]">{service.tagline}</p>
+      </header>
 
       <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1.35fr_0.65fr]">
         <div>
-          <h1 className="font-headline text-4xl font-semibold text-[var(--forge-text)]">{service.title}</h1>
-          <p className="mt-3 text-lg text-[var(--forge-text-muted)]">{service.tagline}</p>
-
           {service.intelligence ? (
-            <div className="mt-6">
-              <ListingIntelligenceVisual intelligence={service.intelligence} category={service.category} />
-            </div>
+            <ListingIntelligenceVisual
+              intelligence={service.intelligence}
+              category={service.category}
+              deliveryLabel={service.deliveryLabel}
+              tagline={service.tagline}
+              trust={trust}
+            />
           ) : null}
 
-          <p className="mt-6 text-base leading-relaxed text-[var(--forge-text-secondary,var(--forge-text-muted))]">
-            {service.description}
-          </p>
+          <p className="mt-6 text-base leading-relaxed text-[var(--forge-text-muted)]">{service.description}</p>
 
           {service.deliverables.length ? (
             <>
@@ -86,16 +104,6 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
               </ul>
             </>
           ) : null}
-
-          {service.tags.length ? (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {service.tags.map((t) => (
-                <span key={t} className="mp-tag">
-                  {t}
-                </span>
-              ))}
-            </div>
-          ) : null}
         </div>
 
         <aside className="offer-sticky-panel">
@@ -113,33 +121,34 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
             ) : (
               <p className="mt-4 text-sm text-[var(--forge-text-muted)]">Seller: {service.ownerName}</p>
             )}
-            <div className="mt-6 space-y-2">
-              <CryptoCheckoutButton listingId={service.id} priceLabel={service.priceLabel} />
+
+            {checkoutCancelled ? (
+              <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-950/20 p-3 text-sm text-amber-200">
+                Checkout was cancelled. You can retry payment below.
+              </p>
+            ) : null}
+
+            <div className="mt-6">
+              <CryptoCheckoutButton
+                listingId={service.id}
+                priceLabel={service.priceLabel}
+                autoStart={autoCheckout}
+              />
               <a
                 href={CONTACT.discord}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="forge-btn forge-btn-ghost w-full justify-center text-sm"
+                className="forge-btn forge-btn-ghost mt-2 w-full justify-center text-sm"
               >
-                Questions on Discord
+                Ask Questions
               </a>
-              <a
-                href={contactMessage(`Question: ${service.title}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-center text-xs text-[var(--forge-text-muted)] hover:text-[var(--forge-gold)]"
-              >
-                Telegram support
-              </a>
+              <ListingSupportMenu listingTitle={service.title} />
               {editUrl ? (
-                <Link href={editUrl} className="forge-btn forge-btn-ghost mt-3 w-full justify-center text-center">
+                <Link href={editUrl} className="forge-btn forge-btn-ghost mt-3 w-full justify-center text-center text-xs">
                   Edit listing
                 </Link>
               ) : null}
             </div>
-            <p className="mt-4 text-xs text-[var(--forge-text-muted)]">
-              Instant crypto checkout via NOWPayments. Escrow support on {CONTACT.guarantor} for scope disputes.
-            </p>
           </div>
         </aside>
       </div>

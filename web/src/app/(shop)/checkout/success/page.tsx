@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { apiFetch } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics.client";
 
 function CheckoutSuccessInner() {
   const searchParams = useSearchParams();
@@ -18,7 +19,11 @@ function CheckoutSuccessInner() {
       method: "GET",
       accessToken: session.access_token,
     }).then(({ data }) => {
-      setStatus(data.order?.status || null);
+      const s = data.order?.status || null;
+      setStatus(s);
+      if (s === "paid" || s === "in_progress") {
+        trackEvent("checkout_complete", { orderId: orderId || "" });
+      }
     });
   }, [orderId, session?.access_token]);
 

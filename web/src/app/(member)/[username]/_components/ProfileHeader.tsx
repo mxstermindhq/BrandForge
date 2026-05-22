@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProfileViewModel } from "@/lib/profile-view-model";
+import { filterProfileTrust } from "@/lib/trust-thresholds";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -15,7 +16,7 @@ type ProfileHeaderProps = {
 
 export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
   const reduced = useReducedMotion();
-  const t = viewModel.trust;
+  const t = filterProfileTrust(viewModel.trust);
   const availabilityLabel =
     viewModel.availability === "available-now"
       ? "Available now"
@@ -24,6 +25,10 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
         : viewModel.availability === "limited"
           ? "Limited slots"
           : "Unavailable";
+
+  const memberSince = t?.joinedAt
+    ? new Date(t.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : null;
 
   return (
     <motion.header
@@ -47,19 +52,23 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
           <div>
             <h1 className="font-headline text-3xl font-semibold leading-tight text-[var(--forge-text)]">{viewModel.name}</h1>
             <p className="text-sm text-[var(--forge-text-muted)]">@{viewModel.username} · {viewModel.role}</p>
+            {memberSince ? <p className="mt-1 text-xs text-[var(--forge-text-muted)]">Member since {memberSince}</p> : null}
           </div>
-          <div className="flex flex-wrap gap-2 text-xs">
-            {viewModel.isVerified ? (
-              <span className="forge-tag">Verified</span>
-            ) : null}
-            <span className="forge-tag">{availabilityLabel}</span>
-            {t?.averageRating != null ? <span className="forge-tag">★ {t.averageRating}</span> : null}
-            {t?.completedOrders != null ? <span className="forge-tag">{t.completedOrders} orders</span> : null}
-            <span className="forge-tag">From {viewModel.startingPrice}</span>
-            {viewModel.profileCompletionPercent != null ? (
-              <span className="forge-tag">{viewModel.profileCompletionPercent}% complete</span>
-            ) : null}
-          </div>
+          {t ? (
+            <ul className="flex flex-wrap gap-2 text-xs">
+              {t.isVerified ? <li className="forge-tag">Verified</li> : null}
+              <li className="forge-tag">{availabilityLabel}</li>
+              {t.averageRating != null ? <li className="forge-tag">★ {t.averageRating}</li> : null}
+              {t.completedOrders != null ? <li className="forge-tag">{t.completedOrders} orders</li> : null}
+              {t.reviewCount != null ? <li className="forge-tag">{t.reviewCount} reviews</li> : null}
+              <li className="forge-tag">From {viewModel.startingPrice}</li>
+            </ul>
+          ) : (
+            <ul className="flex flex-wrap gap-2 text-xs">
+              <li className="forge-tag">{availabilityLabel}</li>
+              <li className="forge-tag">From {viewModel.startingPrice}</li>
+            </ul>
+          )}
         </div>
       </div>
     </motion.header>
