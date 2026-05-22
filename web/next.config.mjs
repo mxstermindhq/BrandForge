@@ -139,6 +139,7 @@ const nextConfig = {
       { source: "/u/:username", destination: "/:username", permanent: true },
       { source: "/u/:username/service/:id", destination: "/:username/service/:id", permanent: true },
       { source: "/offer/:id", destination: "/listing/:id", permanent: true },
+      { source: "/offers", destination: "/marketplace", permanent: true },
       { source: "/product/:id", destination: "/listing/:id", permanent: true },
       { source: "/product/ai-automation-starter", destination: "/product/ai-automation-business-system", permanent: true },
       { source: "/product/ai-discord-bot", destination: "/product/ai-chatbot-businesses", permanent: true },

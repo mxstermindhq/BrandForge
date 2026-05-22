@@ -53,7 +53,7 @@ export function CryptoCheckoutButton({ listingId, priceLabel, className }: Crypt
         disabled={loading}
         dataTrack={`checkout_${listingId}`}
       >
-        {loading ? "Opening checkout…" : `Pay ${priceLabel} — crypto`}
+        {loading ? "Opening checkout…" : `Buy Now — ${priceLabel}`}
       </ForgeButton>
       {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
     </div>

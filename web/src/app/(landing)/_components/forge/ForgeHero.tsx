@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CONTACT } from "@/content/landing-directory";
 import { FORGE_ORBIT_CARDS, FORGE_TRUST } from "@/content/forge-marketplace";
-import { MagneticButton } from "./MagneticButton";
+import { ConversionCTA } from "@/components/conversion/ConversionCTA";
 import { StellarForgeCanvas } from "./StellarForgeCanvas";
 import { useForgeParallax } from "./useForgeParallax";
 
@@ -104,34 +103,23 @@ export function ForgeHero() {
         </motion.p>
 
         <motion.div
-          className="forge-hero-ctas"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.7 }}
         >
-          <MagneticButton href="/marketplace" variant="primary" dataTrack="explore_marketplace">
-            Explore Marketplace
-          </MagneticButton>
-          <MagneticButton href={CONTACT.discord} variant="secondary" external dataTrack="join_discord_hero">
-            Join Discord
-          </MagneticButton>
+          <ConversionCTA variant="hero" />
         </motion.div>
 
-        <motion.div
-          className="forge-trust-row"
+        <motion.ul
+          className="forge-trust-list mt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <span className="forge-stars" aria-label="5 star rating">
-            ★★★★★
-          </span>
-          <ul className="forge-trust-list">
-            {FORGE_TRUST.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
-        </motion.div>
+          {FORGE_TRUST.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </motion.ul>
       </div>
     </section>
   );

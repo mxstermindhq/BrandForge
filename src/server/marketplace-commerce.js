@@ -34,7 +34,7 @@ function createMarketplaceCommerce({ client, env }) {
       },
       handleNowpaymentsIpn: async () => ({ ok: false, error: 'not_configured' }),
       getBuyerDashboard: async () => ({ orders: [], payments: [], saved: [], activity: [] }),
-      getSellerDashboard: async () => ({ listings: [], earningsUsd: 0, views: [] }),
+      getSellerDashboard: async () => ({ listings: [], earningsUsd: 0, orders: [], stats: { activeListings: 0, totalSales: 0 } }),
       getOrderForUser: async () => null,
       recordListingView: async () => {},
       toggleSavedListing: async () => ({ saved: false }),
@@ -221,6 +221,13 @@ function createMarketplaceCommerce({ client, env }) {
       })
       .eq('id', order.id);
 
+    await recordPlatformEvent({
+      event: 'checkout_start',
+      path: `/listing/${listingId}`,
+      userId: user.id,
+      props: { listingId, amountUsd: listing.amountUsd },
+    });
+
     return {
       orderId: order.id,
       reference,
@@ -333,22 +340,83 @@ function createMarketplaceCommerce({ client, env }) {
     return { ok: true, ignored: true, reason: 'unknown_reference_prefix' };
   }
 
-  async function getOrderForUser(userId, orderId) {
+  async function logOrderEvent(orderId, actorId, eventType, message, metadata = {}) {
+    try {
+      await client.from('marketplace_order_events').insert({
+        order_id: orderId,
+        actor_id: actorId || null,
+        event_type: eventType,
+        message: message || null,
+        metadata,
+      });
+    } catch {
+      /* migration may be pending */
+    }
+  }
+
+  async function loadOrderParty(orderId, userId) {
     const { data, error } = await client
       .from('marketplace_orders')
       .select('*')
       .eq('id', orderId)
       .maybeSingle();
     if (error || !data) return null;
-    if (String(data.buyer_id) !== String(userId) && String(data.seller_id) !== String(userId)) {
-      return null;
+    const uid = String(userId);
+    if (String(data.buyer_id) !== uid && String(data.seller_id) !== uid) return null;
+    return data;
+  }
+
+  async function updateOrderStatus(order, nextStatus, actorId, message) {
+    const now = new Date().toISOString();
+    const patch = { status: nextStatus, updated_at: now };
+    if (nextStatus === 'delivered') patch.delivered_at = now;
+    if (nextStatus === 'completed') {
+      patch.completed_at = now;
+      patch.buyer_approved_at = now;
     }
+    await client.from('marketplace_orders').update(patch).eq('id', order.id);
+    await logOrderEvent(order.id, actorId, `status_${nextStatus}`, message);
+    return { ...order, ...patch };
+  }
+
+  async function listOrderEvents(orderId, userId) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    const { data } = await client
+      .from('marketplace_order_events')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: true });
+    return data || [];
+  }
+
+  async function getOrderForUser(userId, orderId) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) return null;
     const { data: intents } = await client
       .from('marketplace_payment_intents')
       .select('reference, status, amount_usd, checkout_url, paid_at, created_at')
       .eq('order_id', orderId)
       .order('created_at', { ascending: false });
-    return { order: data, payments: intents || [] };
+    let events = [];
+    try {
+      events = await listOrderEvents(orderId, userId);
+    } catch {
+      events = [];
+    }
+    let review = null;
+    try {
+      const { data: rev } = await client
+        .from('marketplace_order_reviews')
+        .select('*')
+        .eq('order_id', orderId)
+        .maybeSingle();
+      review = rev;
+    } catch {
+      review = null;
+    }
+    const role = String(order.buyer_id) === String(userId) ? 'buyer' : 'seller';
+    return { order, payments: intents || [], events, review, role };
   }
 
   async function getBuyerDashboard(userId) {
@@ -460,9 +528,17 @@ function createMarketplaceCommerce({ client, env }) {
       };
     });
 
+    const { data: sellerOrders } = await client
+      .from('marketplace_orders')
+      .select('id, listing_title, amount_usd, status, paid_at, created_at')
+      .eq('seller_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
     return {
       listings: performance,
       earningsUsd,
+      orders: sellerOrders || [],
       stats: {
         activeListings: (listings || []).filter((l) => l.status === 'published').length,
         totalSales: (paidOrders || []).length,
@@ -482,6 +558,179 @@ function createMarketplaceCommerce({ client, env }) {
     } catch {
       /* ignore if migration not applied */
     }
+  }
+
+  async function sellerMarkInProgress(userId, orderId) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (String(order.seller_id) !== String(userId)) throw new Error('Only the seller can update this order');
+    if (order.status !== 'paid') throw new Error('Order must be paid before starting work');
+    return updateOrderStatus(order, 'in_progress', userId, 'Seller started work');
+  }
+
+  async function sellerDeliver(userId, orderId, { note, url } = {}) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (String(order.seller_id) !== String(userId)) throw new Error('Only the seller can deliver');
+    if (!['paid', 'in_progress', 'revision_requested'].includes(order.status)) {
+      throw new Error('Order cannot be delivered in this state');
+    }
+    const now = new Date().toISOString();
+    await client
+      .from('marketplace_orders')
+      .update({
+        status: 'delivered',
+        delivery_note: note || null,
+        delivery_url: url || null,
+        delivered_at: now,
+        updated_at: now,
+      })
+      .eq('id', order.id);
+    await logOrderEvent(order.id, userId, 'delivered', note || 'Delivery submitted');
+    return { ok: true };
+  }
+
+  async function buyerApprove(userId, orderId) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (String(order.buyer_id) !== String(userId)) throw new Error('Only the buyer can approve');
+    if (order.status !== 'delivered') throw new Error('Order must be delivered before approval');
+    await updateOrderStatus(order, 'completed', userId, 'Buyer approved delivery');
+    return { ok: true, canReview: true };
+  }
+
+  async function buyerRequestRevision(userId, orderId, message) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (String(order.buyer_id) !== String(userId)) throw new Error('Only the buyer can request revision');
+    if (order.status !== 'delivered') throw new Error('Order must be delivered first');
+    await updateOrderStatus(order, 'revision_requested', userId, message || 'Revision requested');
+    return { ok: true };
+  }
+
+  async function openDispute(userId, orderId, message) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (!['paid', 'in_progress', 'delivered', 'revision_requested'].includes(order.status)) {
+      throw new Error('Dispute not available for this order state');
+    }
+    await updateOrderStatus(order, 'disputed', userId, message || 'Dispute opened');
+    return { ok: true };
+  }
+
+  async function submitReview(userId, orderId, payload) {
+    const order = await loadOrderParty(orderId, userId);
+    if (!order) throw new Error('Order not found');
+    if (String(order.buyer_id) !== String(userId)) throw new Error('Only the buyer can review');
+    if (order.status !== 'completed') throw new Error('Order must be completed before reviewing');
+
+    const { data: existing } = await client
+      .from('marketplace_order_reviews')
+      .select('id')
+      .eq('order_id', order.id)
+      .maybeSingle();
+    if (existing) throw new Error('Review already submitted');
+
+    const rating = Number(payload.rating);
+    const deliveryScore = Number(payload.deliveryScore ?? payload.delivery_score);
+    const communicationScore = Number(payload.communicationScore ?? payload.communication_score);
+    const valueScore = Number(payload.valueScore ?? payload.value_score);
+    const headline = String(payload.headline || '').trim();
+    const body = String(payload.body || '').trim();
+
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) throw new Error('Invalid rating');
+    if (!headline || headline.length < 3) throw new Error('Headline is required');
+    if (!body || body.length < 20) throw new Error('Review body must be at least 20 characters');
+
+    const { data: review, error } = await client
+      .from('marketplace_order_reviews')
+      .insert({
+        order_id: order.id,
+        listing_id: order.listing_id,
+        reviewer_id: userId,
+        reviewee_id: order.seller_id,
+        rating,
+        headline,
+        body,
+        delivery_score: deliveryScore >= 1 && deliveryScore <= 5 ? deliveryScore : rating,
+        communication_score:
+          communicationScore >= 1 && communicationScore <= 5 ? communicationScore : rating,
+        value_score: valueScore >= 1 && valueScore <= 5 ? valueScore : rating,
+        would_recommend: payload.wouldRecommend !== false,
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+    await logOrderEvent(order.id, userId, 'review_submitted', headline);
+    return { review };
+  }
+
+  async function listReviewsForProfile(revieweeId, limit = 20) {
+    const { data: rows } = await client
+      .from('marketplace_order_reviews')
+      .select('*')
+      .eq('reviewee_id', revieweeId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (!rows?.length) return [];
+
+    const reviewerIds = [...new Set(rows.map((r) => r.reviewer_id))];
+    const { data: profs } = await client
+      .from('profiles')
+      .select('id, full_name, username, avatar_url')
+      .in('id', reviewerIds);
+    const nm = new Map((profs || []).map((p) => [p.id, p]));
+
+    return rows.map((r) => {
+      const p = nm.get(r.reviewer_id);
+      return {
+        id: r.id,
+        orderId: r.order_id,
+        rating: r.rating,
+        headline: r.headline,
+        body: r.body,
+        deliveryScore: r.delivery_score,
+        communicationScore: r.communication_score,
+        valueScore: r.value_score,
+        wouldRecommend: r.would_recommend,
+        createdAt: r.created_at,
+        verifiedPurchase: true,
+        reviewerName: p?.full_name || p?.username || 'Buyer',
+        reviewerUsername: p?.username || null,
+        reviewerAvatar: p?.avatar_url || null,
+      };
+    });
+  }
+
+  async function recordPlatformEvent({ event, path, userId, sessionId, props }) {
+    try {
+      await client.from('platform_analytics_events').insert({
+        event: String(event || 'unknown'),
+        path: path || null,
+        user_id: userId || null,
+        session_id: sessionId || null,
+        props: props && typeof props === 'object' ? props : {},
+      });
+    } catch {
+      /* optional table */
+    }
+  }
+
+  async function getAdminOverview() {
+    const [{ count: orders }, { count: users }, { data: revenueRows }] = await Promise.all([
+      client.from('marketplace_orders').select('id', { count: 'exact', head: true }),
+      client.from('profiles').select('id', { count: 'exact', head: true }),
+      client
+        .from('marketplace_orders')
+        .select('amount_usd')
+        .in('status', ['paid', 'in_progress', 'delivered', 'revision_requested', 'completed']),
+    ]);
+    const revenueUsd = (revenueRows || []).reduce((s, o) => s + Number(o.amount_usd || 0), 0);
+    return {
+      orders: orders || 0,
+      users: users || 0,
+      revenueUsd: Math.round(revenueUsd * 100) / 100,
+    };
   }
 
   async function toggleSavedListing(userId, listingId, listingType) {
@@ -524,6 +773,16 @@ function createMarketplaceCommerce({ client, env }) {
     recordListingView,
     toggleSavedListing,
     resolveListingForCheckout,
+    sellerMarkInProgress,
+    sellerDeliver,
+    buyerApprove,
+    buyerRequestRevision,
+    openDispute,
+    submitReview,
+    listOrderEvents,
+    listReviewsForProfile,
+    recordPlatformEvent,
+    getAdminOverview,
   };
 }
 

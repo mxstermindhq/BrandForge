@@ -34,8 +34,8 @@ export function ListingBrowse() {
           <h2 className="forge-section-title">Browse the forge</h2>
           <p className="forge-section-desc">
             {term === "short"
-              ? "One-off services and projects with a clear end date — order via Discord or Telegram."
-              : "Recurring subscriptions and retainers — message to start."}
+              ? "One-off services with clear delivery — buy instantly with crypto."
+              : "Recurring subscriptions — buy instantly or ask questions on Discord."}
           </p>
         </div>
 

@@ -69,9 +69,7 @@ export async function getCuratedOperators(): Promise<CuratedOperator[]> {
 }
 
 export async function getLandingOperators(): Promise<CuratedOperator[]> {
-  const curated = await getCuratedOperators();
-  if (curated.length > 0) return curated;
-  return OPERATOR_SEED;
+  return getCuratedOperators();
 }
 
 export async function getCuratedOperatorByUsername(username: string): Promise<CuratedOperator | null> {

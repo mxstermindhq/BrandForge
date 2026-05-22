@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProfileViewModel } from "@/lib/profile-view-model";
-import { getOperatorMedia } from "@/content/operator-media";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -16,7 +15,7 @@ type ProfileHeaderProps = {
 
 export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
   const reduced = useReducedMotion();
-  const media = getOperatorMedia(viewModel.username);
+  const t = viewModel.trust;
   const availabilityLabel =
     viewModel.availability === "available-now"
       ? "Available now"
@@ -31,97 +30,35 @@ export function ProfileHeader({ viewModel }: ProfileHeaderProps) {
       variants={reduced ? undefined : itemVariants}
       initial={reduced ? undefined : "hidden"}
       animate={reduced ? undefined : "visible"}
-      className="relative overflow-hidden rounded-3xl border"
-      style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+      className="relative overflow-hidden rounded-3xl border border-[var(--forge-border)] bg-[var(--forge-surface)]"
     >
-      {media?.cover ? (
-        <div className="relative h-44 w-full overflow-hidden md:h-56">
-          <Image
-            src={media.cover}
-            alt={`${viewModel.name} cover`}
-            fill
-            sizes="(max-width: 768px) 100vw, 1100px"
-            className="object-cover"
-            priority
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(3,3,5,0) 0%, rgba(10,8,8,0.95) 100%)" }}
-          />
-        </div>
-      ) : null}
-
-      <div className="relative z-10 flex flex-wrap items-end gap-5 px-6 pb-6 pt-4 sm:gap-6">
-        {media?.portrait ? (
-          <div
-            className="relative -mt-16 h-28 w-28 overflow-hidden rounded-2xl border bg-[var(--color-surface)] shadow-lg sm:h-32 sm:w-32"
-            style={{ borderColor: "var(--color-border-hover)" }}
-          >
-            <Image
-              src={media.portrait}
-              alt={viewModel.name}
-              fill
-              sizes="128px"
-              className="object-cover"
-              priority
-            />
+      <div className="relative z-10 flex flex-wrap items-end gap-5 px-6 py-6 sm:gap-6">
+        {viewModel.avatarUrl ? (
+          <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--forge-border)] sm:h-32 sm:w-32">
+            <Image src={viewModel.avatarUrl} alt={viewModel.name} fill sizes="128px" className="object-cover" />
           </div>
         ) : (
-          <div
-            className="-mt-16 flex h-28 w-28 items-center justify-center rounded-2xl border bg-[var(--color-surface)] text-xl font-semibold shadow-lg sm:h-32 sm:w-32"
-            style={{ borderColor: "var(--color-border-hover)", color: "var(--color-text-primary)" }}
-          >
+          <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-[var(--forge-border)] bg-[var(--forge-surface-2)] text-xl font-semibold text-[var(--forge-text)] sm:h-32 sm:w-32">
             {viewModel.initials}
           </div>
         )}
 
         <div className="flex flex-1 flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-headline text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">
-              {viewModel.name}
-            </h1>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              {viewModel.role} · {viewModel.yearsExp > 0 ? `${viewModel.yearsExp} years` : "Experience verified"}
-            </p>
-            {media?.accentTagline ? (
-              <p className="mt-1 text-xs italic text-[var(--color-text-muted)]">{media.accentTagline}</p>
-            ) : null}
+            <h1 className="font-headline text-3xl font-semibold leading-tight text-[var(--forge-text)]">{viewModel.name}</h1>
+            <p className="text-sm text-[var(--forge-text-muted)]">@{viewModel.username} · {viewModel.role}</p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
             {viewModel.isVerified ? (
-              <span
-                className="rounded-full border px-2.5 py-1"
-                style={{
-                  borderColor: "var(--color-gold-border)",
-                  background: "var(--color-gold-subtle)",
-                  color: "var(--color-gold)",
-                }}
-              >
-                Verified
-              </span>
+              <span className="forge-tag">Verified</span>
             ) : null}
-            <span
-              className="rounded-full border px-2.5 py-1"
-              style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
-            >
-              {availabilityLabel}
-            </span>
-            <span
-              className="rounded-full border px-2.5 py-1"
-              style={{
-                borderColor: "var(--color-gold-border)",
-                background: "var(--color-gold-subtle)",
-                color: "var(--color-gold)",
-              }}
-            >
-              Reviews {viewModel.amanahScore}/100
-            </span>
-            <span
-              className="rounded-full border px-2.5 py-1 font-medium"
-              style={{ borderColor: "var(--color-border)", color: "var(--color-text-primary)" }}
-            >
-              From {viewModel.startingPrice}
-            </span>
+            <span className="forge-tag">{availabilityLabel}</span>
+            {t?.averageRating != null ? <span className="forge-tag">★ {t.averageRating}</span> : null}
+            {t?.completedOrders != null ? <span className="forge-tag">{t.completedOrders} orders</span> : null}
+            <span className="forge-tag">From {viewModel.startingPrice}</span>
+            {viewModel.profileCompletionPercent != null ? (
+              <span className="forge-tag">{viewModel.profileCompletionPercent}% complete</span>
+            ) : null}
           </div>
         </div>
       </div>

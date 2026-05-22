@@ -5950,6 +5950,7 @@ async function createPlatformRepository(previewRepository) {
 
   return {
     ...marketplaceCommerce,
+    client,
     currencyService,
     ratingService,
     getBootstrap,

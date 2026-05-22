@@ -15,7 +15,7 @@ export default function MarketplacePage() {
           <p className="forge-section-eyebrow">Execution marketplace</p>
           <h1 className="forge-section-title">Browse the forge</h1>
           <p className="forge-section-desc">
-            Short-term projects with end dates, or long-term subscriptions — contact on Discord to close.
+            Short-term projects and long-term subscriptions — instant crypto checkout.
           </p>
         </div>
       </section>

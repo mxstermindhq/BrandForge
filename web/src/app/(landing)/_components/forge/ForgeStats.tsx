@@ -1,46 +1,61 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import { FORGE_STATS } from "@/content/forge-marketplace";
 
-function StatBlock({ value, label }: { value: string; label: string }) {
-  return (
-    <motion.div
-      className="forge-stat"
-      initial={{ opacity: 0, scale: 0.92 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      <p className="forge-stat-value">{value}</p>
-      <p className="forge-stat-label">{label}</p>
-    </motion.div>
-  );
-}
+type Stats = {
+  servicesCount: number;
+  dealsClosed: number;
+  registeredMembers: number;
+  volumeUsdEstimate: number;
+};
 
 export function ForgeStats() {
-  const ref = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(false);
+  const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.3 });
-    io.observe(el);
-    return () => io.disconnect();
+    void fetch("/api/marketplace/stats")
+      .then((r) => r.json())
+      .then((j: Stats) => setStats(j))
+      .catch(() => setStats(null));
   }, []);
 
+  const rows = [
+    stats?.servicesCount != null && stats.servicesCount > 0
+      ? { value: String(stats.servicesCount), label: "live listings" }
+      : null,
+    stats?.dealsClosed != null && stats.dealsClosed > 0
+      ? { value: String(stats.dealsClosed), label: "orders completed" }
+      : null,
+    stats?.volumeUsdEstimate != null && stats.volumeUsdEstimate > 0
+      ? { value: `$${Math.round(stats.volumeUsdEstimate).toLocaleString()}`, label: "volume" }
+      : null,
+    stats?.registeredMembers != null && stats.registeredMembers > 0
+      ? { value: String(stats.registeredMembers), label: "members" }
+      : null,
+  ].filter(Boolean) as Array<{ value: string; label: string }>;
+
+  if (!rows.length) return null;
+
   return (
-    <section ref={ref} id="stats" className="forge-section forge-stats-section">
+    <section className="forge-section">
       <div className="forge-container">
         <div className="forge-stats-grid">
-          {FORGE_STATS.map((s) => (
-            <StatBlock key={s.label} value={s.value} label={s.label} />
+          {rows.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              className="forge-stat-cell"
+            >
+              <p className="forge-stat-value">{s.value}</p>
+              <p className="forge-stat-label">{s.label}</p>
+            </motion.div>
           ))}
         </div>
       </div>
-      {inView ? <div className="forge-stats-glow" aria-hidden /> : null}
     </section>
   );
 }

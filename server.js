@@ -66,6 +66,7 @@ const mimeTypes = {
 let repository;
 let platformRepository;
 let agentInfraRepository;
+let shipRoutesHandler = null;
 let storageMode = 'local';
 const presenceByUserId = new Map();
 const typingByChatId = new Map();
@@ -374,6 +375,11 @@ function verifyCronSecret(req, body, cronSecret) {
 async function routeApi(req, res, pathname) {
   const method = req.method || 'GET';
 
+  if (shipRoutesHandler) {
+    const shipHandled = await shipRoutesHandler(pathname, method, req, res);
+    if (shipHandled) return true;
+  }
+
   if (pathname === '/api/activation' && method === 'POST') {
     const payload = await parseBody(req);
     const step = String(payload.step || '').trim().slice(0, 64);
@@ -624,8 +630,8 @@ async function routeApi(req, res, pathname) {
       const marketplaceStats = await platformRepository.getMarketplaceStats?.() || {};
       console.log('[API /api/marketplace/stats] marketplaceStats:', marketplaceStats);
       // Use nullish coalescing to only fallback when value is null/undefined, not when it's 0
-      const servicesCount = marketplaceStats.servicesPublished ?? 2450;
-      const requestsCount = marketplaceStats.requestsOpen ?? 180;
+      const servicesCount = marketplaceStats.servicesPublished ?? 0;
+      const requestsCount = marketplaceStats.requestsOpen ?? 0;
       console.log('[API /api/marketplace/stats] returning:', { servicesCount, requestsCount });
       const listingsActive = marketplaceStats.listingsActive ?? servicesCount + requestsCount;
       const volumeUsdEstimate = marketplaceStats.volumeUsdEstimate ?? 0;
@@ -642,9 +648,9 @@ async function routeApi(req, res, pathname) {
     } catch (error) {
       console.error('[API /api/marketplace/stats] error:', error);
       sendJson(res, 200, {
-        servicesCount: 2450,
-        requestsCount: 180,
-        listingsActive: 2630,
+        servicesCount: 0,
+        requestsCount: 0,
+        listingsActive: 0,
         volumeUsdEstimate: 0,
         registeredMembers: 0,
         dealsClosed: 0,
@@ -670,54 +676,6 @@ async function routeApi(req, res, pathname) {
     return true;
   }
 
-  // Smart match endpoint for marketplace
-  if (pathname === '/api/marketplace/smart-match' && method === 'POST') {
-    const user = await requireUser(req, res);
-    if (!user) return true;
-    await ensureProfileForUser(user).catch(() => null);
-    try {
-      const body = await parseBody(req);
-      const { query, category } = body || {};
-      // Return some mock matches based on query
-      const matches = [
-        {
-          id: 'match-1',
-          title: query ? `${query} Service` : 'AI Content Writing',
-          description: 'Professional content creation powered by AI agents',
-          category: category || 'creative',
-          provider: 'Top Rated Agent',
-          price: 500,
-          rating: 4.8,
-          matchScore: 95
-        },
-        {
-          id: 'match-2',
-          title: query ? `Advanced ${query}` : 'Code Review & Optimization',
-          description: 'Expert code analysis and performance improvements',
-          category: category || 'technical',
-          provider: 'Elite Developer',
-          price: 800,
-          rating: 4.9,
-          matchScore: 88
-        },
-        {
-          id: 'match-3',
-          title: query ? `${query} Pro` : 'Brand Strategy Consultation',
-          description: 'Strategic branding advice for your business',
-          category: category || 'strategy',
-          provider: 'Strategy Expert',
-          price: 1200,
-          rating: 4.7,
-          matchScore: 82
-        }
-      ];
-      sendJson(res, 200, { matches, query, category });
-    } catch (error) {
-      console.error('Smart match error:', error.message);
-      sendJson(res, 500, { error: 'Smart match failed', details: error.message });
-    }
-    return true;
-  }
 
   if (pathname === '/api/home/stats' && method === 'GET') {
     try {
@@ -3008,7 +2966,17 @@ async function routeApi(req, res, pathname) {
       return true;
     }
     const profile = await platformRepository.getPublicProfile(username);
-    sendJson(res, 200, { profile });
+    let trust = null;
+    let marketplaceReviews = [];
+    try {
+      const { createTrustMetrics } = require('./src/server/trust-metrics');
+      const tm = createTrustMetrics(platformRepository.client);
+      trust = await tm.getProfileTrust(profile.id);
+      marketplaceReviews = await platformRepository.listReviewsForProfile(profile.id, 20);
+    } catch {
+      /* optional */
+    }
+    sendJson(res, 200, { profile, trust, marketplaceReviews });
     return true;
   }
 
@@ -3318,6 +3286,14 @@ async function createServer() {
   storageMode = created.mode;
   platformRepository = await createPlatformRepository(repository);
   agentInfraRepository = createAgentInfraRepository();
+  const { createMarketplaceShipRoutes } = require('./src/server/routes/marketplace-ship-routes');
+  shipRoutesHandler = createMarketplaceShipRoutes({
+    platformRepository,
+    sendJson,
+    requireUser,
+    parseBody,
+    getOptionalUser,
+  });
 
   const server = http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);

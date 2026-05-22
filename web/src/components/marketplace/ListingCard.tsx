@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import type { MarketplaceListing } from "@/lib/listings-types";
 import { normalizeListingIntelligence } from "@/lib/listing-intelligence-types";
-import { CONTACT } from "@/content/landing-directory";
 import { ValueIntelligenceCard } from "./ValueIntelligenceCard";
+import { ConversionCTA } from "@/components/conversion/ConversionCTA";
 
 type ListingCardProps = {
   listing: MarketplaceListing;
@@ -59,27 +59,7 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
           </div>
         </div>
       </Link>
-      <div className="mp-card-cta-row">
-        <Link href={listing.serviceUrl} className="forge-btn forge-btn-ghost forge-btn-sm flex-1 justify-center">
-          Details
-        </Link>
-        <Link
-          href={`${listing.serviceUrl}?checkout=1`}
-          className="forge-btn forge-btn-primary forge-btn-sm flex-1 justify-center"
-          data-track={`checkout_listing_${listing.id}`}
-        >
-          Pay crypto
-        </Link>
-        <a
-          href={CONTACT.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="forge-btn forge-btn-ghost forge-btn-sm flex-1 justify-center"
-          data-track={`discord_listing_${listing.id}`}
-        >
-          Discord
-        </a>
-      </div>
+      <ConversionCTA variant="card" listingId={listing.id} serviceUrl={listing.serviceUrl} />
     </motion.article>
   );
 }

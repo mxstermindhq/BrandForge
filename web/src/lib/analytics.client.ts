@@ -25,6 +25,17 @@ export function trackEvent(event: string, props?: TrackProps) {
     body: JSON.stringify(payload),
     keepalive: true,
   }).catch(() => {});
+
+  fetch("/api/platform/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event,
+      path: payload.path,
+      props: payload.props,
+    }),
+    keepalive: true,
+  }).catch(() => {});
 }
 
 export function trackPageView() {

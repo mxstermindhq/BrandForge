@@ -1,6 +1,5 @@
-import type { CuratedOperator } from "@/lib/schemas/operator.schema";
 import { talentInitials } from "@/lib/talent-types";
-import officialCatalog from "../../../data/brandforge-official-catalog.json";
+import type { ProfileTrustMetrics, MarketplaceReview } from "@/lib/trust-types";
 
 export type ProfileServiceItem = {
   id: string;
@@ -17,24 +16,19 @@ export interface ProfileViewModel {
   name: string;
   initials: string;
   role: string;
-  yearsExp: number;
   availability: "available-now" | "available" | "limited" | "unavailable";
-  amanahScore: number;
-  completionRate: number;
   bio: string;
-  bestResult: string;
-  wontTakeOn: string;
   startingPrice: string;
   pricingModel: string;
   skills: string[];
-  idealClient: string;
-  workStyle: string;
-  typicalTimeline: string;
   proofLink: string;
-  faq: Array<{ question: string; answer: string }>;
   isVerified: boolean;
-  isCurated: boolean;
   services: ProfileServiceItem[];
+  trust: ProfileTrustMetrics | null;
+  reviews: MarketplaceReview[];
+  profileCompletionPercent: number | null;
+  avatarUrl?: string | null;
+  faq?: Array<{ question: string; answer: string }>;
 }
 
 function normalizeAvailability(v: string | null | undefined): ProfileViewModel["availability"] {
@@ -45,91 +39,6 @@ function normalizeAvailability(v: string | null | undefined): ProfileViewModel["
   if (n === "unavailable") return "unavailable";
   return "available";
 }
-
-function fallbackFaq(vm: Omit<ProfileViewModel, "faq">): Array<{ question: string; answer: string }> {
-  return [
-    {
-      question: "What's the best way to work with you?",
-      answer: `${vm.workStyle}. Engagement model: ${vm.pricingModel}. Typical timeline: ${vm.typicalTimeline}.`,
-    },
-    {
-      question: "What does a typical project look like?",
-      answer: `${vm.idealClient}. ${vm.bio}`,
-    },
-    {
-      question: `What makes you different from other ${vm.role}s?`,
-      answer: `${vm.bestResult} Core strengths: ${vm.skills.join(", ")}.`,
-    },
-  ];
-}
-
-export function mapCuratedOperatorToViewModel(op: CuratedOperator): ProfileViewModel {
-  const base: Omit<ProfileViewModel, "faq"> = {
-    username: op.username,
-    name: op.name,
-    initials: talentInitials(op.name),
-    role: op.role,
-    yearsExp: op.yearsExp,
-    availability: op.availability,
-    amanahScore: op.amanahScore,
-    completionRate: op.completionRate,
-    bio: op.bio,
-    bestResult: op.bestResult,
-    wontTakeOn: op.wontTakeOn,
-    startingPrice: op.startingPrice,
-    pricingModel: op.pricingModel,
-    skills: op.skills,
-    idealClient: op.idealClient,
-    workStyle: op.workStyle,
-    typicalTimeline: op.typicalTimeline,
-    proofLink: op.proofLink || `https://brandforge.gg/${encodeURIComponent(op.username)}`,
-    isVerified: op.isVerified,
-    isCurated: true,
-    services: [],
-  };
-  const services: ProfileServiceItem[] =
-    op.username === "brandforge"
-      ? officialCatalog.listings.map((item) => {
-          const lt = item.listingType === "long_term" ? "long_term" : "short_term";
-          const price = Number(item.price) || 0;
-          return {
-            id: item.slug,
-            title: item.title,
-            category: item.category,
-            priceLabel:
-              lt === "long_term" && item.billingInterval
-                ? `$${price}/${item.billingInterval}`
-                : `$${price}`,
-            href: `/product/${item.slug}`,
-            listingType: lt,
-            tagline: item.tagline,
-          };
-        })
-      : [];
-
-  return { ...base, services, faq: op.faq.length > 0 ? op.faq : fallbackFaq(base) };
-}
-
-type ApiProfileInput = {
-  username?: string | null;
-  full_name?: string | null;
-  headline?: string | null;
-  bio?: string | null;
-  availability?: string | null;
-  rate_label?: string | null;
-  min_budget?: number | null;
-  skills?: string[] | null;
-  open_to_offers?: boolean | null;
-  openRequests?: Array<{ title?: string | null }> | null;
-  publicServices?: Array<{
-    id: string;
-    title?: string;
-    category?: string;
-    base_price?: number;
-    listing_type?: string;
-    description?: string;
-  }> | null;
-};
 
 function mapPublicServices(
   username: string,
@@ -144,42 +53,62 @@ function mapPublicServices(
       title: String(s.title || "Service"),
       category: String(s.category || "General"),
       priceLabel: `$${price.toLocaleString()}`,
-      href: `/${encodeURIComponent(username)}/service/${s.id}`,
+      href: `/listing/${s.id}`,
       listingType: lt,
       tagline: String(s.description || "").slice(0, 100),
     };
   });
 }
 
-export function mapApiProfileToViewModel(profile: ApiProfileInput): ProfileViewModel {
+type ApiProfileInput = {
+  username?: string | null;
+  full_name?: string | null;
+  headline?: string | null;
+  bio?: string | null;
+  availability?: string | null;
+  rate_label?: string | null;
+  min_budget?: number | null;
+  skills?: string[] | null;
+  avatar_url?: string | null;
+  publicServices?: Array<{
+    id: string;
+    title?: string;
+    category?: string;
+    base_price?: number;
+    listing_type?: string;
+    description?: string;
+  }> | null;
+};
+
+export function mapApiProfileToViewModel(
+  profile: ApiProfileInput,
+  trust: ProfileTrustMetrics | null = null,
+  reviews: MarketplaceReview[] = [],
+): ProfileViewModel {
   const username = String(profile.username || "").replace(/^@+/, "") || "member";
   const name = profile.full_name?.trim() || username;
-  const skills = Array.isArray(profile.skills) ? profile.skills.filter(Boolean).slice(0, 6) : [];
-  const base: Omit<ProfileViewModel, "faq"> = {
+  const skills = Array.isArray(profile.skills) ? profile.skills.filter(Boolean).slice(0, 8) : [];
+  const services = mapPublicServices(username, profile.publicServices);
+  const firstService = services[0];
+
+  return {
     username,
     name,
     initials: talentInitials(name),
     role: profile.headline?.trim() || "Operator",
-    yearsExp: 0,
     availability: normalizeAvailability(profile.availability),
-    amanahScore: 90,
-    completionRate: 92,
-    bio: profile.bio?.trim() || "Profile is being completed.",
-    bestResult: "Delivery aligned to scope and communication quality.",
-    wontTakeOn: "Projects without scope clarity or decision ownership.",
-    startingPrice: profile.rate_label?.trim() || (profile.min_budget ? `From EUR ${profile.min_budget}` : "Rate on request"),
-    pricingModel: profile.open_to_offers ? "Flexible engagement" : "Scoped engagement",
-    skills: skills.length > 0 ? skills : ["Execution", "Communication", "Delivery"],
-    idealClient: "Teams with clear outcomes and fast feedback",
-    workStyle: "Transparent checkpoints and milestone-based delivery",
-    typicalTimeline: "1-4 weeks",
+    bio: profile.bio?.trim() || "",
+    startingPrice:
+      profile.rate_label?.trim() ||
+      (profile.min_budget ? `From $${profile.min_budget}` : firstService?.priceLabel || "Rate on request"),
+    pricingModel: services.length ? "Browse listings below" : "Message to scope",
+    skills,
     proofLink: `https://brandforge.gg/${encodeURIComponent(username)}`,
-    isVerified: false,
-    isCurated: false,
-    services: mapPublicServices(username, profile.publicServices),
-  };
-  return {
-    ...base,
-    faq: fallbackFaq(base),
+    isVerified: Boolean(trust?.isVerified),
+    services,
+    trust,
+    reviews,
+    profileCompletionPercent: trust?.profileCompletionPercent ?? null,
+    avatarUrl: profile.avatar_url,
   };
 }

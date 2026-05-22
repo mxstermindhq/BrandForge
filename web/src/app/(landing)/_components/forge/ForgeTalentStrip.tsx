@@ -35,7 +35,7 @@ export function ForgeTalentStrip({ operators }: ForgeTalentStripProps) {
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -4 }}
             >
-              <Link href={`/profile/${encodeURIComponent(op.username)}`} className="forge-talent-card" data-track={`talent_${op.username}`}>
+              <Link href={`/${encodeURIComponent(op.username)}`} className="forge-talent-card" data-track={`talent_${op.username}`}>
                 <div className="forge-talent-top">
                   <span className="forge-talent-name">{op.name}</span>
                   {op.isVerified ? <span className="forge-talent-verified">Verified</span> : null}

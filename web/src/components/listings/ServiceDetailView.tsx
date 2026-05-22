@@ -4,9 +4,8 @@ import Link from "next/link";
 import { CONTACT, contactMessage } from "@/content/landing-directory";
 import { profilePath } from "@/lib/reserved-paths";
 import type { ServiceDetail } from "@/lib/service-types";
-import { ValueIntelligenceCard } from "@/components/marketplace/ValueIntelligenceCard";
 import { CryptoCheckoutButton } from "./CryptoCheckoutButton";
-import { ForgeButton } from "@/components/marketplace/ForgeButton";
+import { ListingIntelligenceVisual } from "@/components/marketplace/ListingIntelligenceVisual";
 
 function formatEndsAt(iso: string | null): string | null {
   if (!iso) return null;
@@ -53,7 +52,7 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
 
           {service.intelligence ? (
             <div className="mt-6">
-              <ValueIntelligenceCard intelligence={service.intelligence} />
+              <ListingIntelligenceVisual intelligence={service.intelligence} category={service.category} />
             </div>
           ) : null}
 
@@ -114,26 +113,26 @@ export function ServiceDetailView({ service, canEdit = false }: ServiceDetailVie
             ) : (
               <p className="mt-4 text-sm text-[var(--forge-text-muted)]">Seller: {service.ownerName}</p>
             )}
-            <div className="mt-6 flex flex-col gap-2">
+            <div className="mt-6 space-y-2">
               <CryptoCheckoutButton listingId={service.id} priceLabel={service.priceLabel} />
-              <ForgeButton
+              <a
                 href={CONTACT.discord}
-                variant="secondary"
-                external
-                dataTrack={`service_discord_${service.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="forge-btn forge-btn-ghost w-full justify-center text-sm"
               >
                 Questions on Discord
-              </ForgeButton>
-              <ForgeButton
-                href={contactMessage(`Order: ${service.title} (${service.priceLabel})`)}
-                variant="ghost"
-                external
-                dataTrack={`service_telegram_${service.id}`}
+              </a>
+              <a
+                href={contactMessage(`Question: ${service.title}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-xs text-[var(--forge-text-muted)] hover:text-[var(--forge-gold)]"
               >
-                Message on Telegram
-              </ForgeButton>
+                Telegram support
+              </a>
               {editUrl ? (
-                <Link href={editUrl} className="forge-btn forge-btn-ghost justify-center text-center">
+                <Link href={editUrl} className="forge-btn forge-btn-ghost mt-3 w-full justify-center text-center">
                   Edit listing
                 </Link>
               ) : null}

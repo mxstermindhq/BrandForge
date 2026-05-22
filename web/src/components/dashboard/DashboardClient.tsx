@@ -30,6 +30,14 @@ type BuyerDash = {
 };
 
 type SellerDash = {
+  orders?: Array<{
+    id: string;
+    listing_title: string;
+    amount_usd: number;
+    status: string;
+    paid_at: string | null;
+    created_at: string;
+  }>;
   listings: Array<{
     id: string;
     title: string;
@@ -152,13 +160,18 @@ export function DashboardClient() {
             ) : (
               <ul className="hub-table">
                 {buyer.orders.slice(0, 8).map((o) => (
-                  <li key={o.id} className="hub-table-row">
+                  <li key={o.id} className="hub-table-row hub-table-row-4">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-[var(--forge-text)]">{o.listing_title}</p>
+                      <Link href={`/dashboard/orders/${o.id}`} className="truncate font-medium text-[var(--forge-text)] hover:text-[var(--forge-gold)]">
+                        {o.listing_title}
+                      </Link>
                       <p className="text-xs text-[var(--forge-text-muted)]">{formatDate(o.paid_at || o.created_at)}</p>
                     </div>
                     <span className="font-medium text-[var(--forge-gold)]">${Number(o.amount_usd).toLocaleString()}</span>
                     <span className={statusClass(o.status)}>{o.status.replace(/_/g, " ")}</span>
+                    <Link href={`/dashboard/orders/${o.id}`} className="forge-btn forge-btn-primary forge-btn-sm">
+                      Continue
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -218,6 +231,28 @@ export function DashboardClient() {
               + New offer
             </Link>
           </div>
+
+          {seller?.orders?.length ? (
+            <section className="hub-panel overflow-hidden">
+              <div className="border-b border-[var(--forge-border)] px-6 py-4">
+                <h2 className="hub-panel-title">Orders to fulfill</h2>
+              </div>
+              <ul className="hub-table">
+                {seller.orders.slice(0, 8).map((o) => (
+                  <li key={o.id} className="hub-table-row hub-table-row-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-[var(--forge-text)]">{o.listing_title}</p>
+                      <p className="text-xs text-[var(--forge-text-muted)]">{formatDate(o.created_at)}</p>
+                    </div>
+                    <span className={statusClass(o.status)}>{o.status.replace(/_/g, " ")}</span>
+                    <Link href={`/dashboard/orders/${o.id}`} className="forge-btn forge-btn-primary forge-btn-sm">
+                      Manage
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <section className="hub-panel overflow-hidden">
             <div className="border-b border-[var(--forge-border)] px-6 py-4">

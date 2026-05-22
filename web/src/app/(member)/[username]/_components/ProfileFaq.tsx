@@ -24,7 +24,7 @@ export function ProfileFaq({ viewModel }: ProfileFaqProps) {
     >
       <h2 className="text-xl text-[var(--color-text-primary)]">Profile FAQ</h2>
       <div className="mt-4 space-y-2">
-        {viewModel.faq.map((item, idx) => {
+        {(viewModel.faq ?? []).map((item, idx) => {
           const active = idx === open;
           return (
             <div
