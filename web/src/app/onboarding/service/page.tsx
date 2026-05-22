@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ForgePage } from "@/components/forge/ForgePage";
 import { CATEGORIES } from "@/content/landing-directory";
+import { useHasOwnListings } from "@/hooks/useHasOwnListings";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { apiFetch } from "@/lib/api";
 import type { ListingTerm } from "@/lib/listings-types";
 import { useAuth } from "@/providers/AuthProvider";
@@ -16,6 +18,7 @@ export default function OnboardingServicePage() {
   const user = session?.user ?? null;
   const authLoading = !authReady;
   const { me, loading: meLoading, reload } = useAuthMe();
+  const { hasListings, loading: listingsLoading } = useHasOwnListings();
   const router = useRouter();
   const [listingTerm, setListingTerm] = useState<ListingTerm>("short");
   const [title, setTitle] = useState("");
@@ -33,14 +36,16 @@ export default function OnboardingServicePage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
-    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || me?.sellerAccess)) {
+    if (meLoading || listingsLoading) return;
+    if (isOnboardingFinished(me) || hasListings) {
       router.replace("/account");
+      return;
     }
-    if (!meLoading && me && me.canCreateListing === false && !me.sellerWhitelisted) {
+    if (me?.pendingOnboarding) router.replace("/onboarding");
+    if (me && me.canCreateListing === false && !me.sellerWhitelisted) {
       setError("Listing creation requires seller whitelist approval. Contact the team on Discord.");
     }
-  }, [me, meLoading, router]);
+  }, [me, meLoading, listingsLoading, hasListings, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,10 +81,23 @@ export default function OnboardingServicePage() {
     router.push("/account");
   }
 
-  if (authLoading || meLoading) {
+  if (authLoading || meLoading || listingsLoading) {
     return (
       <ForgePage title="Loading…" narrow>
         <p className="text-sm text-[var(--forge-text-muted)]">Almost there…</p>
+      </ForgePage>
+    );
+  }
+
+  if (hasListings) {
+    return (
+      <ForgePage title="Listing found" narrow>
+        <p className="text-sm text-[var(--forge-text-muted)]">
+          You already have a service listed. Head to your account to manage it.
+        </p>
+        <button type="button" className="forge-btn forge-btn-primary mt-6 w-full" onClick={() => router.replace("/account")}>
+          Open account
+        </button>
       </ForgePage>
     );
   }
@@ -121,6 +139,7 @@ export default function OnboardingServicePage() {
             required
           />
         </div>
+
         <div>
           <label className="forge-label" htmlFor="category">
             Category
@@ -138,6 +157,7 @@ export default function OnboardingServicePage() {
             ))}
           </select>
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="forge-label" htmlFor="price">
@@ -148,7 +168,7 @@ export default function OnboardingServicePage() {
               className="forge-input mt-2 w-full"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="299"
+              placeholder="499"
               required
             />
           </div>
@@ -158,9 +178,9 @@ export default function OnboardingServicePage() {
             </label>
             <input
               id="delivery"
+              className="forge-input mt-2 w-full"
               type="number"
               min={1}
-              className="forge-input mt-2 w-full"
               value={delivery}
               onChange={(e) => setDelivery(e.target.value)}
               required
@@ -170,11 +190,11 @@ export default function OnboardingServicePage() {
 
         {listingTerm === "short" ? (
           <div>
-            <label className="forge-label" htmlFor="endsAt">
-              Listing ends (optional)
+            <label className="forge-label" htmlFor="ends">
+              Offer ends (optional)
             </label>
             <input
-              id="endsAt"
+              id="ends"
               type="date"
               className="forge-input mt-2 w-full"
               value={endsAt}
@@ -209,13 +229,12 @@ export default function OnboardingServicePage() {
             className="forge-input mt-2 min-h-[120px] w-full"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What buyers get and why they need it now."
           />
         </div>
 
         {error ? <p className="text-sm text-[var(--forge-fire)]">{error}</p> : null}
         <button type="submit" className="forge-btn forge-btn-primary w-full" disabled={busy}>
-          {busy ? "Publishing…" : "Publish & unlock account"}
+          {busy ? "Publishing…" : "Publish listing"}
         </button>
       </form>
     </ForgePage>

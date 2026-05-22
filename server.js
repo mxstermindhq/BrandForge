@@ -440,23 +440,37 @@ async function routeApi(req, res, pathname) {
       const bootstrapped = await ensureProfileForUser(user);
       const profileRow = bootstrapped ? bootstrapped.profile : null;
       let publishedServiceCount = 0;
+      let ownedServiceCount = 0;
       try {
         publishedServiceCount = await platformRepository.countPublishedServicesForUser(user.id);
+        ownedServiceCount = await platformRepository.countOwnedServicesForUser(user.id);
       } catch {
         publishedServiceCount = 0;
+        ownedServiceCount = 0;
       }
+      const hasAnyListing = ownedServiceCount > 0 || publishedServiceCount > 0;
       const hasPublishedListing = publishedServiceCount > 0;
+
+      if (hasAnyListing && profileRow && !profileRow.onboarding_completed_at) {
+        try {
+          await platformRepository.updateProfile(user.id, {
+            onboarding_completed_at: new Date().toISOString(),
+            is_public: profileRow.is_public !== false,
+          });
+          profileRow.onboarding_completed_at = new Date().toISOString();
+        } catch {
+          /* ignore */
+        }
+      }
+
       const profileBasicsComplete = Boolean(
         profileRow?.onboarding_completed_at ||
           (profileRow?.username && profileRow?.headline),
       );
-      // Users with a live listing are not stuck in onboarding (even if onboarding_completed_at was never set).
       const pendingOnboarding = Boolean(
-        !profileRow || (!profileBasicsComplete && !hasPublishedListing),
+        !profileRow || (!profileBasicsComplete && !hasAnyListing),
       );
-      const pendingSellerSetup = Boolean(
-        profileBasicsComplete && !hasPublishedListing,
-      );
+      const pendingSellerSetup = Boolean(profileBasicsComplete && !hasAnyListing);
       let sellerWhitelisted = false;
       try {
         sellerWhitelisted = await platformRepository.isSellerWhitelisted(user.email);
@@ -467,8 +481,7 @@ async function routeApi(req, res, pathname) {
       const sellerAccess = Boolean(
         sellerWhitelisted ||
           ['admin', 'moderator', 'seller', 'enterprise'].includes(role) ||
-          hasPublishedListing ||
-          profileBasicsComplete,
+          hasAnyListing,
       );
       const canCreateListing = Boolean(
         sellerWhitelisted || ['admin', 'moderator'].includes(role),
@@ -501,6 +514,7 @@ async function routeApi(req, res, pathname) {
         canCreateListing,
         sellerWhitelisted,
         publishedServiceCount,
+        ownedServiceCount,
       });
     } catch (error) {
       sendJson(res, 401, { error: 'Invalid or expired session' });

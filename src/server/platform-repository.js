@@ -5420,6 +5420,23 @@ async function createPlatformRepository(previewRepository) {
     return (rows || []).filter((r) => String(r.status || 'published') === 'published').length;
   }
 
+  /** Any non-archived listing owned by the user (draft/published). */
+  async function countOwnedServicesForUser(userId) {
+    if (!client || !userId) return 0;
+    const { count, error } = await client
+      .from('service_packages')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', userId)
+      .neq('status', 'archived');
+    if (!error && count != null) return count;
+    const { data: rows, error: listErr } = await client
+      .from('service_packages')
+      .select('id')
+      .eq('owner_id', userId);
+    if (listErr) return 0;
+    return (rows || []).filter((r) => String(r.status || '') !== 'archived').length;
+  }
+
   /** Public talent directory — registered members with usernames. */
   async function listTalentDirectory({ category } = {}) {
     if (!client) return { members: [], total: 0 };
@@ -6030,6 +6047,7 @@ async function createPlatformRepository(previewRepository) {
     listMarketplaceListings,
     listMyServicePackages,
     countPublishedServicesForUser,
+    countOwnedServicesForUser,
     // AI Models
     getAIModels,
     // User Agents

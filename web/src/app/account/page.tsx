@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ForgePage } from "@/components/forge/ForgePage";
 import { profilePath } from "@/lib/reserved-paths";
+import { useHasOwnListings } from "@/hooks/useHasOwnListings";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
 
@@ -13,6 +15,7 @@ export default function AccountPage() {
   const user = session?.user ?? null;
   const authLoading = !authReady;
   const { me, loading: meLoading } = useAuthMe();
+  const { hasListings, loading: listingsLoading } = useHasOwnListings();
   const router = useRouter();
 
   useEffect(() => {
@@ -20,12 +23,13 @@ export default function AccountPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!meLoading && (me?.publishedServiceCount ?? 0) > 0) return;
-    if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
-    if (!meLoading && me?.pendingSellerSetup) router.replace("/onboarding/service");
-  }, [me, meLoading, router]);
+    if (meLoading || listingsLoading) return;
+    if (isOnboardingFinished(me) || hasListings) return;
+    if (me?.pendingOnboarding) router.replace("/onboarding");
+    else if (me?.pendingSellerSetup) router.replace("/onboarding/service");
+  }, [me, meLoading, listingsLoading, hasListings, router]);
 
-  if (authLoading || meLoading) {
+  if (authLoading || meLoading || listingsLoading) {
     return (
       <ForgePage title="Account" narrow>
         <p className="text-sm text-[var(--forge-text-muted)]">Loading account…</p>

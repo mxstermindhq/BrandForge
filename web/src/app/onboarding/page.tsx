@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ForgePage } from "@/components/forge/ForgePage";
+import { useHasOwnListings } from "@/hooks/useHasOwnListings";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
@@ -12,6 +14,7 @@ export default function OnboardingProfilePage() {
   const user = session?.user ?? null;
   const authLoading = !authReady;
   const { me, loading: meLoading, reload } = useAuthMe();
+  const { hasListings, loading: listingsLoading } = useHasOwnListings();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [headline, setHeadline] = useState("");
@@ -23,15 +26,17 @@ export default function OnboardingProfilePage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
+    if (meLoading || listingsLoading) return;
+    if (isOnboardingFinished(me) || hasListings) {
+      router.replace("/account");
+      return;
+    }
     if (!meLoading && me?.profile?.username) setUsername(me.profile.username);
     if (!meLoading && me?.profile?.headline) setHeadline(me.profile.headline);
-    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || me?.sellerAccess)) {
-      router.replace("/account");
-    }
-    if (!meLoading && me?.profile?.onboarding_completed_at && me.pendingSellerSetup) {
+    if (me?.profile?.onboarding_completed_at && me.pendingSellerSetup) {
       router.replace("/onboarding/service");
     }
-  }, [me, meLoading, router]);
+  }, [me, meLoading, listingsLoading, hasListings, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,13 +54,24 @@ export default function OnboardingProfilePage() {
       return;
     }
     await reload();
-    router.push("/onboarding/service");
+    router.push(hasListings ? "/account" : "/onboarding/service");
   }
 
-  if (authLoading || meLoading) {
+  if (authLoading || meLoading || listingsLoading) {
     return (
       <ForgePage title="Loading…" narrow>
         <p className="text-sm text-[var(--forge-text-muted)]">Preparing your forge profile…</p>
+      </ForgePage>
+    );
+  }
+
+  if (hasListings) {
+    return (
+      <ForgePage title="You're all set" narrow>
+        <p className="text-sm text-[var(--forge-text-muted)]">Redirecting to your account…</p>
+        <button type="button" className="forge-btn forge-btn-primary mt-4" onClick={() => router.replace("/account")}>
+          Go to account
+        </button>
       </ForgePage>
     );
   }

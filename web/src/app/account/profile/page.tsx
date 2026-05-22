@@ -27,7 +27,7 @@ export default function EditProfilePage() {
   }, [authReady, session, router]);
 
   useEffect(() => {
-    if (!meLoading && (me?.publishedServiceCount ?? 0) > 0) return;
+    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || (me?.ownedServiceCount ?? 0) > 0)) return;
     if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
     if (me?.profile) {
       setFullName(me.profile.full_name || "");

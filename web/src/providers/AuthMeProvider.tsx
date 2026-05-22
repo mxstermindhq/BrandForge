@@ -35,6 +35,7 @@ export type AuthMeResponse = {
   canCreateListing?: boolean;
   sellerWhitelisted?: boolean;
   publishedServiceCount?: number;
+  ownedServiceCount?: number;
 };
 
 type AuthMeCtx = {

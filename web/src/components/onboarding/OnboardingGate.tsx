@@ -2,6 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useHasOwnListings } from "@/hooks/useHasOwnListings";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
 
@@ -13,6 +15,10 @@ const ALLOWED_WHILE_ONBOARDING = new Set([
   "/terms",
   "/privacy",
   "/help",
+  "/account",
+  "/account/listings",
+  "/account/profile",
+  "/dashboard",
 ]);
 
 export function OnboardingGate() {
@@ -20,15 +26,15 @@ export function OnboardingGate() {
   const user = session?.user ?? null;
   const authLoading = !authReady;
   const { me, loading: meLoading } = useAuthMe();
+  const { hasListings, loading: listingsLoading } = useHasOwnListings();
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (authLoading || meLoading || !user || !me?.enabled) return;
+    if (authLoading || meLoading || listingsLoading || !user || !me?.enabled) return;
     if (ALLOWED_WHILE_ONBOARDING.has(pathname)) return;
 
-    // Already has a published listing — onboarding is complete.
-    if ((me.publishedServiceCount ?? 0) > 0) return;
+    if (isOnboardingFinished(me) || hasListings) return;
 
     if (me.pendingOnboarding) {
       router.replace("/onboarding");
@@ -37,7 +43,7 @@ export function OnboardingGate() {
     if (me.pendingSellerSetup) {
       router.replace("/onboarding/service");
     }
-  }, [authLoading, meLoading, user, me, pathname, router]);
+  }, [authLoading, meLoading, listingsLoading, user, me, hasListings, pathname, router]);
 
   return null;
 }
