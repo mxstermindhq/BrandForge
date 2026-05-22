@@ -467,10 +467,9 @@ async function routeApi(req, res, pathname) {
         profileRow?.onboarding_completed_at ||
           (profileRow?.username && profileRow?.headline),
       );
-      const pendingOnboarding = Boolean(
-        !profileRow || (!profileBasicsComplete && !hasAnyListing),
-      );
-      const pendingSellerSetup = Boolean(profileBasicsComplete && !hasAnyListing);
+      const pendingOnboarding = Boolean(!profileRow || !profileBasicsComplete);
+      /** Listing creation is optional — never block navigation after profile is complete. */
+      const pendingSellerSetup = false;
       let sellerWhitelisted = false;
       try {
         sellerWhitelisted = await platformRepository.isSellerWhitelisted(user.email);
@@ -479,7 +478,8 @@ async function routeApi(req, res, pathname) {
       }
       const role = String(profileRow?.role || 'member');
       const sellerAccess = Boolean(
-        sellerWhitelisted ||
+        profileBasicsComplete ||
+          sellerWhitelisted ||
           ['admin', 'moderator', 'seller', 'enterprise'].includes(role) ||
           hasAnyListing,
       );

@@ -30,13 +30,7 @@ function ForgeNavbarInner() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const accountHref = user
-    ? me?.pendingOnboarding && !me?.sellerAccess
-      ? "/onboarding"
-      : me?.pendingSellerSetup && !me?.sellerAccess
-        ? "/onboarding/service"
-        : "/account"
-    : "/login";
+  const accountHref = user ? (me?.pendingOnboarding ? "/onboarding" : "/account") : "/login";
   const dashboardHref = user ? "/dashboard" : "/login?next=/dashboard";
 
   return (

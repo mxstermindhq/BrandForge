@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ForgePage } from "@/components/forge/ForgePage";
-import { useHasOwnListings } from "@/hooks/useHasOwnListings";
 import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
@@ -14,7 +14,6 @@ export default function OnboardingProfilePage() {
   const user = session?.user ?? null;
   const authLoading = !authReady;
   const { me, loading: meLoading, reload } = useAuthMe();
-  const { hasListings, loading: listingsLoading } = useHasOwnListings();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [headline, setHeadline] = useState("");
@@ -26,17 +25,14 @@ export default function OnboardingProfilePage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (meLoading || listingsLoading) return;
-    if (isOnboardingFinished(me) || hasListings) {
+    if (meLoading) return;
+    if (isOnboardingFinished(me)) {
       router.replace("/account");
       return;
     }
-    if (!meLoading && me?.profile?.username) setUsername(me.profile.username);
-    if (!meLoading && me?.profile?.headline) setHeadline(me.profile.headline);
-    if (me?.profile?.onboarding_completed_at && me.pendingSellerSetup) {
-      router.replace("/onboarding/service");
-    }
-  }, [me, meLoading, listingsLoading, hasListings, router]);
+    if (me?.profile?.username) setUsername(me.profile.username);
+    if (me?.profile?.headline) setHeadline(me.profile.headline);
+  }, [me, meLoading, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,10 +50,10 @@ export default function OnboardingProfilePage() {
       return;
     }
     await reload();
-    router.push(hasListings ? "/account" : "/onboarding/service");
+    router.replace("/account");
   }
 
-  if (authLoading || meLoading || listingsLoading) {
+  if (authLoading || meLoading) {
     return (
       <ForgePage title="Loading…" narrow>
         <p className="text-sm text-[var(--forge-text-muted)]">Preparing your forge profile…</p>
@@ -65,22 +61,11 @@ export default function OnboardingProfilePage() {
     );
   }
 
-  if (hasListings) {
-    return (
-      <ForgePage title="You're all set" narrow>
-        <p className="text-sm text-[var(--forge-text-muted)]">Redirecting to your account…</p>
-        <button type="button" className="forge-btn forge-btn-primary mt-4" onClick={() => router.replace("/account")}>
-          Go to account
-        </button>
-      </ForgePage>
-    );
-  }
-
   return (
     <ForgePage
-      title="Complete your profile"
-      eyebrow="Step 1 of 2"
-      description="Set your public handle and title before you list a service."
+      title="Set up your profile"
+      eyebrow="One quick step"
+      description="Choose your public handle and title. You can publish a paid offer anytime — it's optional."
       narrow
     >
       <form onSubmit={submit} className="forge-page-card mx-auto max-w-md space-y-5">
@@ -117,8 +102,15 @@ export default function OnboardingProfilePage() {
         </div>
         {error ? <p className="text-sm text-[var(--forge-fire)]">{error}</p> : null}
         <button type="submit" className="forge-btn forge-btn-primary w-full" disabled={busy}>
-          {busy ? "Saving…" : "Continue → list your first service"}
+          {busy ? "Saving…" : "Finish setup →"}
         </button>
+        <p className="text-center text-xs text-[var(--forge-text-muted)]">
+          After this you can browse, buy, or{" "}
+          <Link href="/account/listings/new" className="text-[var(--forge-gold)] hover:underline">
+            create an offer
+          </Link>{" "}
+          whenever you want.
+        </p>
       </form>
     </ForgePage>
   );

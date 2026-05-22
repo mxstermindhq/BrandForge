@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { ForgePage } from "@/components/forge/ForgePage";
+import { AccountShell } from "@/components/account/AccountShell";
 import { apiGetJson } from "@/lib/api";
 import { normalizeServiceDetail, type ServiceDetail } from "@/lib/service-types";
 import { useAuth } from "@/providers/AuthProvider";
@@ -42,50 +42,60 @@ export default function MyListingsPage() {
   }, [load]);
 
   return (
-    <ForgePage
-      title="Your listings"
-      eyebrow="Seller"
-      description="Edit pricing, copy, and availability. Published listings appear in Short/Long browse."
-      narrow
-      backHref="/account"
-      backLabel="← Account"
-    >
-      <div className="mx-auto max-w-lg space-y-4">
-        <Link href="/onboarding/service" className="forge-btn forge-btn-primary w-full justify-center">
-          + New listing
-        </Link>
-
-        {loading ? <p className="text-sm text-[var(--forge-text-muted)]">Loading listings…</p> : null}
-        {error ? <p className="text-sm text-[var(--forge-fire)]">{error}</p> : null}
-
-        {!loading && !listings.length ? (
-          <div className="forge-surface-card py-10 text-center text-sm text-[var(--forge-text-muted)]">
-            No listings yet. Publish your first service to unlock the marketplace.
+    <main className="forge-page pb-20">
+      <div className="forge-container">
+        <AccountShell
+          title="Your offers"
+          subtitle="Manage pricing, delivery, and visibility. Publishing is optional."
+        >
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-[var(--forge-text-muted)]">
+              {loading ? "Loading…" : `${listings.length} offer${listings.length === 1 ? "" : "s"}`}
+            </p>
+            <Link href="/account/listings/new" className="forge-btn forge-btn-primary">
+              + New offer
+            </Link>
           </div>
-        ) : null}
 
-        {listings.map((l) => (
-          <div key={l.id} className="forge-surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-[var(--forge-gold)]">
-                {l.listingType === "long_term" ? "Long term" : "Short term"} · {l.status || "published"}
+          {error ? <p className="mb-4 text-sm text-[var(--forge-fire)]">{error}</p> : null}
+
+          {!loading && !listings.length ? (
+            <div className="hub-panel px-6 py-14 text-center">
+              <p className="font-headline text-xl text-[var(--forge-text)]">No offers yet</p>
+              <p className="mt-2 text-sm text-[var(--forge-text-muted)]">
+                Create a listing when you want to sell — or keep browsing as a buyer.
               </p>
-              <h3 className="font-headline text-lg font-semibold text-[var(--forge-text)]">{l.title}</h3>
-              <p className="text-sm text-[var(--forge-text-muted)]">
-                {l.priceLabel} · {l.deliveryLabel}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Link href={`/product/${l.id}`} className="forge-btn forge-btn-ghost forge-btn-sm">
-                View
-              </Link>
-              <Link href={`/account/listings/${l.id}/edit`} className="forge-btn forge-btn-secondary forge-btn-sm">
-                Edit
+              <Link href="/account/listings/new" className="forge-btn forge-btn-primary mt-6 inline-flex">
+                Create offer
               </Link>
             </div>
-          </div>
-        ))}
+          ) : (
+            <ul className="space-y-3">
+              {listings.map((l) => (
+                <li key={l.id} className="hub-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--forge-gold)]">
+                      {l.listingType === "long_term" ? "Subscription" : "Short term"} · {l.status || "published"}
+                    </p>
+                    <h3 className="font-headline text-xl font-semibold text-[var(--forge-text)]">{l.title}</h3>
+                    <p className="text-sm text-[var(--forge-text-muted)]">
+                      {l.priceLabel} · {l.deliveryLabel}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <Link href={`/listing/${l.id}`} className="forge-btn forge-btn-ghost forge-btn-sm">
+                      View
+                    </Link>
+                    <Link href={`/account/listings/${l.id}/edit`} className="forge-btn forge-btn-secondary forge-btn-sm">
+                      Edit
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </AccountShell>
       </div>
-    </ForgePage>
+    </main>
   );
 }

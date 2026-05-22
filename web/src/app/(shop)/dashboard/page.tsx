@@ -1,21 +1,39 @@
-import type { Metadata } from "next";
-import { DashboardClient } from "@/components/dashboard/DashboardClient";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Orders, payments, and seller performance on BrandForge",
-};
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { ForgeSiteShell } from "@/app/(landing)/_components/forge/ForgeSiteShell";
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
+import { useAuth } from "@/providers/AuthProvider";
+import { useAuthMe } from "@/providers/AuthMeProvider";
 
 export default function DashboardPage() {
+  const { session, authReady } = useAuth();
+  const { me, loading: meLoading } = useAuthMe();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authReady && !session) router.replace("/login?next=/dashboard");
+  }, [authReady, session, router]);
+
+  useEffect(() => {
+    if (!meLoading && me && !isOnboardingFinished(me)) router.replace("/onboarding");
+  }, [me, meLoading, router]);
+
   return (
-    <main className="forge-page pb-24">
-      <div className="forge-container forge-page-inner">
-        <h1 className="font-headline text-4xl font-semibold text-[var(--forge-text)]">Dashboard</h1>
-        <p className="mt-2 text-[var(--forge-text-muted)]">Orders, crypto payments, and listing analytics.</p>
-        <div className="mt-10">
-          <DashboardClient />
+    <ForgeSiteShell subtleBg>
+      <OnboardingGate />
+      <main className="forge-page pb-20">
+        <div className="forge-container">
+          {meLoading || !session ? (
+            <p className="py-20 text-center text-sm text-[var(--forge-text-muted)]">Loading dashboard…</p>
+          ) : (
+            <DashboardClient />
+          )}
         </div>
-      </div>
-    </main>
+      </main>
+    </ForgeSiteShell>
   );
 }

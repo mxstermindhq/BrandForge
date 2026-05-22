@@ -9,7 +9,7 @@ function LoginFormInner() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
   const redirectTo =
-    next && next.startsWith("/") && !next.startsWith("//") ? next : "/onboarding";
+    next && next.startsWith("/") && !next.startsWith("//") ? next : "/account";
 
   return (
     <>

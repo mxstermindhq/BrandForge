@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ForgePage } from "@/components/forge/ForgePage";
+import { AccountShell } from "@/components/account/AccountShell";
+import { isOnboardingFinished } from "@/lib/onboarding-status";
 import { apiMutateJson } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
@@ -27,8 +28,7 @@ export default function EditProfilePage() {
   }, [authReady, session, router]);
 
   useEffect(() => {
-    if (!meLoading && ((me?.publishedServiceCount ?? 0) > 0 || (me?.ownedServiceCount ?? 0) > 0)) return;
-    if (!meLoading && me?.pendingOnboarding) router.replace("/onboarding");
+    if (!meLoading && me && !isOnboardingFinished(me)) router.replace("/onboarding");
     if (me?.profile) {
       setFullName(me.profile.full_name || "");
       setHeadline(me.profile.headline || "");
@@ -65,22 +65,17 @@ export default function EditProfilePage() {
 
   if (!authReady || meLoading) {
     return (
-      <ForgePage title="Edit profile" narrow backHref="/account" backLabel="← Account">
+      <main className="forge-page flex min-h-[40vh] items-center justify-center">
         <p className="text-sm text-[var(--forge-text-muted)]">Loading…</p>
-      </ForgePage>
+      </main>
     );
   }
 
   return (
-    <ForgePage
-      title="Edit profile"
-      eyebrow="Public page"
-      description="What buyers see on your BrandForge profile and listings."
-      narrow
-      backHref="/account"
-      backLabel="← Account"
-    >
-      <form onSubmit={submit} className="forge-page-card mx-auto max-w-lg space-y-5">
+    <main className="forge-page pb-20">
+      <div className="forge-container">
+        <AccountShell title="Edit profile" subtitle="What buyers see on your public page and offers.">
+      <form onSubmit={submit} className="hub-panel mx-auto max-w-2xl space-y-5 p-6">
         <div>
           <label className="forge-label" htmlFor="fullName">
             Display name
@@ -155,6 +150,8 @@ export default function EditProfilePage() {
           {busy ? "Saving…" : "Save profile"}
         </button>
       </form>
-    </ForgePage>
+        </AccountShell>
+      </div>
+    </main>
   );
 }
