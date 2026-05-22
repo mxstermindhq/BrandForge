@@ -25,7 +25,7 @@ export function BrowseForgeGrid() {
           {FORGE_CATEGORIES.map((cat, i) => (
             <motion.a
               key={cat.id}
-              href={`/marketplace/${cat.id}`}
+              href={`/?term=starter&category=${encodeURIComponent(cat.name)}#browse`}
               className="forge-category-card"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}

@@ -4480,13 +4480,13 @@ async function createPlatformRepository(previewRepository) {
       kind: 'changelog',
       title: 'Channel test ping',
       message: `${label ? `${label} · ` : ''}Triggered by ${actor}.`,
-      url: '/marketplace',
+      url: '/#browse',
       card: {
         Type: 'Manual test',
         Actor: actor,
         Time: new Date().toISOString(),
       },
-      actions: [{ label: 'Open marketplace', url: '/marketplace' }],
+      actions: [{ label: 'Browse packages', url: '/#browse' }],
     });
     return { ok: true };
   }

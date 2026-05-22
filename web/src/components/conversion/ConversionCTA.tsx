@@ -25,7 +25,7 @@ export function ConversionCTA({
   if (variant === "hero") {
     return (
       <div className="forge-hero-ctas">
-        <Link href="/marketplace" className="forge-btn forge-btn-primary" data-track="cta_browse_services">
+        <Link href="/#browse" className="forge-btn forge-btn-primary" data-track="cta_browse_services">
           Browse Services
         </Link>
         <a
@@ -65,7 +65,7 @@ export function ConversionCTA({
   }
 
   if (variant === "profile" && operatorName) {
-    const primaryHref = hireUrl || (serviceUrl ? `${serviceUrl}?checkout=1` : "/marketplace");
+    const primaryHref = hireUrl || (serviceUrl ? `${serviceUrl}?checkout=1` : "/#browse");
     return (
       <div className="profile-cta-unified">
         <Link href={primaryHref} className="forge-btn forge-btn-primary w-full justify-center">

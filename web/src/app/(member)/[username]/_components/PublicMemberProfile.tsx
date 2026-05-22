@@ -81,7 +81,7 @@ export function PublicMemberProfile({ username }: PublicMemberProfileProps) {
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="text-2xl font-bold text-[var(--forge-text)]">Profile not found</h1>
         <p className="mt-2 text-[var(--forge-text-muted)]">{err || "This user does not exist."}</p>
-        <Link href="/marketplace" className="forge-btn forge-btn-ghost mt-6 inline-flex">
+        <Link href="/#browse" className="forge-btn forge-btn-ghost mt-6 inline-flex">
           Browse marketplace
         </Link>
       </div>

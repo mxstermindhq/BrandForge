@@ -17,7 +17,7 @@ export default function NotFound() {
           <p className="forge-section-desc mx-auto">
             This URL doesn&apos;t match a product, service, or operator. Head back to the forge.
           </p>
-          <Link href="/marketplace" className="forge-btn forge-btn-primary mt-8 inline-flex">
+          <Link href="/#browse" className="forge-btn forge-btn-primary mt-8 inline-flex">
             Explore Marketplace →
           </Link>
         </div>

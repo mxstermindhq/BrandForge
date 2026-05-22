@@ -8,7 +8,6 @@ User-agent: *
 Allow: /
 Allow: /login
 Allow: /product/overview
-Allow: /marketplace
 Allow: /services
 Allow: /requests
 Allow: /dashboard

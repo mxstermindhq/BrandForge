@@ -40,7 +40,7 @@ function CheckoutSuccessInner() {
           <Link href="/dashboard" className="forge-btn forge-btn-primary justify-center">
             View dashboard
           </Link>
-          <Link href="/marketplace" className="forge-btn forge-btn-ghost justify-center">
+          <Link href="/#browse" className="forge-btn forge-btn-ghost justify-center">
             Back to marketplace
           </Link>
         </div>

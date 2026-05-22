@@ -53,7 +53,7 @@ export function TrendingMarketplace() {
         </div>
 
         <div className="forge-section-cta-row">
-          <MagneticButton href="/marketplace" variant="primary" dataTrack="trending_marketplace">
+          <MagneticButton href="/#browse" variant="primary" dataTrack="trending_marketplace">
             View all listings →
           </MagneticButton>
         </div>

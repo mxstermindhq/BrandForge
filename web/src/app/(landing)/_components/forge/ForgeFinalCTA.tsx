@@ -32,7 +32,7 @@ export function ForgeFinalCTA() {
           <MagneticButton href={CONTACT.discord} variant="primary" external dataTrack="final_discord">
             Join Discord
           </MagneticButton>
-          <MagneticButton href="/marketplace" variant="secondary" dataTrack="final_marketplace">
+          <MagneticButton href="/#browse" variant="secondary" dataTrack="final_marketplace">
             Explore Marketplace
           </MagneticButton>
         </motion.div>

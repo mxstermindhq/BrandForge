@@ -18,7 +18,7 @@ export function UnifiedProfileView({ viewModel }: UnifiedProfileViewProps) {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<ProfileTab>("about");
   const firstService = viewModel.services[0];
-  const hireHref = firstService ? `${firstService.href}?checkout=1` : "/marketplace";
+  const hireHref = firstService ? `${firstService.href}?checkout=1` : "/#browse";
 
   return (
     <motion.article

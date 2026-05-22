@@ -19,7 +19,7 @@ export function ForgeFooter() {
           </p>
         </div>
         <div className="forge-footer-links">
-          <Link href="/marketplace">Marketplace</Link>
+          <Link href="/#browse">Browse packages</Link>
           <Link href="/offers">Offers</Link>
           <Link href="/mxstermind">Mxstermind</Link>
           <Link href="/help">Help</Link>

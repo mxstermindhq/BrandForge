@@ -9,9 +9,8 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useAuthMe } from "@/providers/AuthMeProvider";
 import { MagneticButton } from "./MagneticButton";
 
-function termHref(term: "starter" | "partner", pathname: string): string {
-  const base = pathname === "/" ? "/" : "/marketplace";
-  return `${base}?term=${term}${base === "/" ? "#browse" : ""}`;
+function termHref(term: "starter" | "partner"): string {
+  return `/?term=${term}#browse`;
 }
 
 function ForgeNavbarInner() {
@@ -56,13 +55,13 @@ function ForgeNavbarInner() {
 
         <nav className="forge-nav-links" aria-label="Primary">
           <Link
-            href={termHref("starter", pathname)}
+            href={termHref("starter")}
             className={`forge-nav-link ${term === "starter" ? "forge-nav-link-active" : ""}`}
           >
             Starter
           </Link>
           <Link
-            href={termHref("partner", pathname)}
+            href={termHref("partner")}
             className={`forge-nav-link ${term === "partner" ? "forge-nav-link-active" : ""}`}
           >
             Partner

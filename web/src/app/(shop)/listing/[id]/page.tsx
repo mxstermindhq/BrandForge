@@ -29,7 +29,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
         <main className="forge-page p-12 text-center text-sm text-[var(--forge-text-muted)]">Loading…</main>
       }
     >
-      <ServicePageClient service={service} backHref="/marketplace" backLabel="← Marketplace" />
+      <ServicePageClient service={service} backHref="/#browse" backLabel="← Browse packages" />
     </Suspense>
   );
 }

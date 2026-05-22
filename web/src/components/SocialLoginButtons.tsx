@@ -110,7 +110,7 @@ function SocialButton({
   );
 }
 
-export function SocialLoginButtons({ onError, redirectTo = "/marketplace" }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ onError, redirectTo = "/#browse" }: SocialLoginButtonsProps) {
   const [loading, setLoading] = useState<SocialProvider | null>(null);
 
   const handleSocialLogin = async (provider: SocialProvider) => {

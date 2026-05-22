@@ -108,7 +108,7 @@ export function AccountHome() {
         <section className="hub-panel p-6">
           <h2 className="hub-panel-title">Quick actions</h2>
           <div className="hub-action-grid mt-4">
-            <Link href="/marketplace" className="hub-action-tile">
+            <Link href="/#browse" className="hub-action-tile">
               <span className="hub-action-icon">🛒</span>
               <span className="hub-action-label">Browse & buy</span>
               <span className="hub-action-desc">Starter & Partner packages</span>

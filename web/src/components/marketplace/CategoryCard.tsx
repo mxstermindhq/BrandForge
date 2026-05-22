@@ -18,7 +18,7 @@ export function CategoryCard({ category, index = 0 }: CategoryCardProps) {
       transition={{ delay: index * 0.03 }}
       whileHover={{ y: -4, scale: 1.02 }}
     >
-      <Link href={`/marketplace/${category.slug}`} className="mp-category-card">
+      <Link href={`/?term=starter&category=${encodeURIComponent(category.name)}#browse`} className="mp-category-card">
         <span className="mp-category-ember" aria-hidden />
         <span className="mp-category-name">{category.name}</span>
         <span className="mp-category-desc">{category.description}</span>

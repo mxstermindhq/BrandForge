@@ -72,7 +72,7 @@ export function AccountShell({ children, title, subtitle }: AccountShellProps) {
         </nav>
 
         <div className="hub-sidebar-footer">
-          <Link href="/marketplace" className="hub-nav-link">
+          <Link href="/#browse" className="hub-nav-link">
             Browse marketplace
           </Link>
           {username ? (

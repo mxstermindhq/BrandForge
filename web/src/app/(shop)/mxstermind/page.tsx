@@ -36,7 +36,7 @@ export default function MxstermindBridgePage() {
           <ForgeButton href="https://mxstermind.com" variant="primary" external dataTrack="mxstermind_cta">
             Open Mxstermind →
           </ForgeButton>
-          <ForgeButton href="/marketplace" variant="secondary">
+          <ForgeButton href="/#browse" variant="secondary">
             Back to marketplace
           </ForgeButton>
         </div>

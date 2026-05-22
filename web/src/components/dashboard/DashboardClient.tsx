@@ -146,14 +146,14 @@ export function DashboardClient() {
           <section className="hub-panel overflow-hidden">
             <div className="flex items-center justify-between border-b border-[var(--forge-border)] px-6 py-4">
               <h2 className="hub-panel-title">Recent orders</h2>
-              <Link href="/marketplace" className="text-sm text-[var(--forge-gold)] hover:underline">
+              <Link href="/#browse" className="text-sm text-[var(--forge-gold)] hover:underline">
                 Browse offers →
               </Link>
             </div>
             {!buyer?.orders?.length ? (
               <div className="px-6 py-12 text-center">
                 <p className="text-[var(--forge-text-muted)]">No orders yet.</p>
-                <Link href="/marketplace" className="forge-btn forge-btn-primary mt-4 inline-flex">
+                <Link href="/#browse" className="forge-btn forge-btn-primary mt-4 inline-flex">
                   Find a service
                 </Link>
               </div>

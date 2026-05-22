@@ -1,23 +1,21 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import { normalizeListingTerm, PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 import { ListingFilters } from "./ListingFilters";
 
 export function ListingBrowse() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const term = normalizeListingTerm(searchParams.get("term"));
-  const basePath = pathname === "/marketplace" ? "/marketplace" : "/";
+  const basePath = "/";
 
   const setTerm = useCallback(
     (next: ListingTerm) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set("term", next);
-      const hash = basePath === "/" ? "#browse" : "";
-      router.replace(`${basePath}?${params.toString()}${hash}`, { scroll: false });
+      router.replace(`${basePath}?${params.toString()}#browse`, { scroll: false });
     },
     [router, searchParams, basePath],
   );

@@ -194,7 +194,7 @@ export function generateWebSiteJsonLd(): WebSiteData {
     url: "https://brandforge.gg",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://brandforge.gg/marketplace?q={search_term_string}",
+      target: "https://brandforge.gg/?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };

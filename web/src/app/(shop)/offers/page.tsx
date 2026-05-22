@@ -13,7 +13,7 @@ export default function OffersPage() {
   return (
     <main className="forge-page">
       <div className="forge-container forge-page-inner">
-        <Link href="/marketplace" className="forge-back-link">
+        <Link href="/#browse" className="forge-back-link">
           ← Marketplace
         </Link>
         <p className="forge-section-eyebrow forge-page-eyebrow">Limited drops</p>
