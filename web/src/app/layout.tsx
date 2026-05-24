@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/tokens.css";
+import "@/styles/summer-sky.css";
 import { DirectoryAnalytics } from "@/components/analytics/DirectoryAnalytics";
+import { SummerSkyBackground } from "@/components/theme/SummerSkyBackground";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AuthMeProvider } from "@/providers/AuthMeProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -111,7 +113,7 @@ export default function RootLayout({
               (function() {
                 const saved = localStorage.getItem('brandforge-theme');
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                let theme = saved || 'dark';
+                let theme = saved || 'light';
                 let resolved = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
                 document.documentElement.classList.add(resolved);
               })();
@@ -125,14 +127,17 @@ export default function RootLayout({
         />
       </head>
       <body className={bodyFont.className}>
-        <ThemeProvider defaultTheme="dark">
-          <AuthProvider>
-            <AuthMeProvider>
-              <DirectoryAnalytics />
-              {children}
-            </AuthMeProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <SummerSkyBackground />
+        <div className="site-content-root">
+          <ThemeProvider defaultTheme="light">
+            <AuthProvider>
+              <AuthMeProvider>
+                <DirectoryAnalytics />
+                {children}
+              </AuthMeProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </div>
       </body>
     </html>
   );

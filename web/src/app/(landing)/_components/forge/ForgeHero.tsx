@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { FORGE_ORBIT_CARDS, FORGE_TRUST } from "@/content/forge-marketplace";
 import { ConversionCTA } from "@/components/conversion/ConversionCTA";
-import { StellarForgeCanvas } from "./StellarForgeCanvas";
 import { useForgeParallax } from "./useForgeParallax";
 
 const orbitPositions = [
@@ -20,14 +19,6 @@ export function ForgeHero() {
 
   return (
     <section id="hero" className="forge-hero">
-      <div className="forge-hero-bg">
-        <StellarForgeCanvas variant="hero" className="absolute inset-0 h-full w-full" />
-        <div className="forge-heat-shimmer" aria-hidden />
-        <div className="forge-smoke forge-smoke-1" aria-hidden />
-        <div className="forge-smoke forge-smoke-2" aria-hidden />
-        <div className="forge-vignette" aria-hidden />
-      </div>
-
       <div
         className="forge-hero-orbit-layer"
         style={{

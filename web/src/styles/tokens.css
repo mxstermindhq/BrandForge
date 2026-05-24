@@ -57,7 +57,7 @@
 }
 
 body {
-  background: var(--color-bg);
+  background: transparent;
   color: var(--color-text-primary);
   font-family: var(--font-body);
 }

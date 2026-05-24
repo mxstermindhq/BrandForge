@@ -1,0 +1,341 @@
+/* ─── Summer sky — site-wide animated background ─── */
+
+.summer-sky-root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.summer-sky-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #5eb3ff 0%,
+    #87cefa 18%,
+    #b8e2ff 42%,
+    #d9efff 68%,
+    #fff4dc 100%
+  );
+}
+
+.summer-sky-haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 248, 220, 0.55), transparent 70%);
+}
+
+.summer-sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: clamp(4.5rem, 12vw, 7rem);
+  height: clamp(4.5rem, 12vw, 7rem);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffef0 0%, #ffe566 35%, #ffc933 100%);
+  box-shadow:
+    0 0 40px rgba(255, 220, 100, 0.85),
+    0 0 100px rgba(255, 200, 80, 0.45);
+  animation: summer-sun-pulse 8s ease-in-out infinite;
+}
+
+.summer-sun-rays {
+  position: absolute;
+  top: 4%;
+  right: 8%;
+  width: clamp(8rem, 20vw, 12rem);
+  height: clamp(8rem, 20vw, 12rem);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 240, 180, 0.35) 0%, transparent 68%);
+  animation: summer-sun-pulse 8s ease-in-out infinite reverse;
+}
+
+@keyframes summer-sun-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.92;
+  }
+}
+
+.summer-cloud-track {
+  position: absolute;
+  left: -35%;
+  width: 35%;
+  animation: summer-cloud-drift linear infinite;
+  will-change: transform;
+}
+
+.summer-cloud-track--far {
+  filter: blur(1px);
+}
+
+.summer-cloud-track--mid {
+  filter: blur(0.5px);
+}
+
+.summer-cloud-shape {
+  position: relative;
+  width: 220px;
+  height: 72px;
+}
+
+.summer-cloud-puff {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(120, 180, 230, 0.2);
+}
+
+.summer-cloud-puff-a {
+  width: 72px;
+  height: 72px;
+  left: 0;
+  bottom: 0;
+}
+
+.summer-cloud-puff-b {
+  width: 96px;
+  height: 96px;
+  left: 48px;
+  bottom: 8px;
+}
+
+.summer-cloud-puff-c {
+  width: 80px;
+  height: 80px;
+  left: 112px;
+  bottom: 0;
+}
+
+.summer-cloud-puff-d {
+  width: 56px;
+  height: 56px;
+  left: 168px;
+  bottom: 12px;
+}
+
+@keyframes summer-cloud-drift {
+  from {
+    transform: translateX(-10vw);
+  }
+  to {
+    transform: translateX(145vw);
+  }
+}
+
+.site-content-root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ─── Light summer forge tokens (override dark forge) ─── */
+
+:root,
+html.light,
+.forge-layout {
+  --forge-bg: transparent;
+  --forge-surface: rgba(255, 255, 255, 0.78);
+  --forge-surface-2: rgba(255, 255, 255, 0.92);
+  --forge-fire: #0284c7;
+  --forge-ember: #38bdf8;
+  --forge-gold: #0369a1;
+  --forge-molten: #0ea5e9;
+  --forge-text: #0c4a6e;
+  --forge-text-muted: rgba(12, 74, 110, 0.72);
+  --forge-border: rgba(14, 165, 233, 0.28);
+  --forge-glow: rgba(56, 189, 248, 0.35);
+}
+
+html,
+body {
+  background: transparent !important;
+  color: var(--forge-text, #0c4a6e);
+}
+
+.forge-layout {
+  background: transparent;
+  color: var(--forge-text);
+}
+
+.forge-nav-scrolled {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom: 1px solid var(--forge-border);
+  box-shadow: 0 8px 32px rgba(14, 165, 233, 0.12);
+}
+
+.forge-nav-mark {
+  color: var(--forge-fire);
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
+}
+
+.forge-nav-link:hover {
+  color: var(--forge-fire);
+  background: rgba(14, 165, 233, 0.1);
+}
+
+.forge-nav-link-active {
+  color: var(--forge-fire) !important;
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.forge-btn-primary,
+.forge-layout .btn-primary,
+.forge-layout .sticky-cta-button,
+.forge-layout .profile-sticky-cta-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 24px var(--forge-glow),
+    0 4px 16px rgba(14, 165, 233, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.forge-btn-primary:hover,
+.forge-layout .btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 32px var(--forge-glow),
+    0 6px 22px rgba(14, 165, 233, 0.3);
+}
+
+.forge-btn-secondary,
+.forge-layout .btn-secondary {
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--forge-text);
+  border-color: var(--forge-border);
+}
+
+.forge-btn-secondary:hover,
+.forge-layout .btn-secondary:hover {
+  border-color: var(--forge-fire);
+  box-shadow: 0 0 18px rgba(14, 165, 233, 0.15);
+}
+
+.forge-btn-ghost {
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--forge-text);
+  border-color: var(--forge-border);
+}
+
+.forge-section-alt {
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.35) 50%, transparent);
+}
+
+.forge-section-eyebrow {
+  color: var(--forge-fire);
+}
+
+.forge-surface-card,
+.forge-page-card,
+.hub-panel,
+.mp-card,
+.hub-stat-card,
+.forge-detail-article {
+  background: var(--forge-surface);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(14, 165, 233, 0.08);
+}
+
+.forge-surface-card:hover,
+.mp-card:hover {
+  border-color: color-mix(in srgb, var(--forge-fire) 45%, transparent);
+  box-shadow: 0 12px 36px rgba(14, 165, 233, 0.14);
+}
+
+.forge-page-card {
+  box-shadow: 0 16px 48px rgba(14, 165, 233, 0.1);
+}
+
+.forge-tag {
+  background: rgba(14, 165, 233, 0.12);
+  color: var(--forge-fire);
+}
+
+.mp-card-badge {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--forge-fire);
+}
+
+.forge-headline-molten {
+  background: linear-gradient(
+    90deg,
+    #0284c7 0%,
+    #38bdf8 25%,
+    #7dd3fc 50%,
+    #0ea5e9 75%,
+    #0284c7 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(14, 165, 233, 0.25);
+  animation: forge-molten-flow 5s linear infinite;
+  filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.35));
+}
+
+.forge-orbit-card {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 8px 32px rgba(14, 165, 233, 0.12),
+    0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.forge-hero-bg {
+  display: none;
+}
+
+.forge-vignette,
+.forge-heat-shimmer,
+.forge-smoke,
+.forge-page-bg-vignette {
+  display: none;
+}
+
+.forge-page-bg {
+  opacity: 0;
+}
+
+.forge-eyebrow {
+  color: var(--forge-fire);
+}
+
+.forge-input,
+.forge-label,
+.hub-nav-link,
+.hub-action-tile {
+  color: inherit;
+}
+
+.forge-input {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--forge-border);
+  color: var(--forge-text);
+}
+
+.forge-footer {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+.hub-avatar {
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summer-cloud-track,
+  .summer-sun,
+  .summer-sun-rays {
+    animation: none !important;
+  }
+}
