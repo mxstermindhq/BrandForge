@@ -1,30 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { CATEGORIES as MARKETPLACE_CATEGORIES } from "@/lib/marketplace/data";
-
-const CATEGORY_CHIPS = ["All", ...MARKETPLACE_CATEGORIES.map((c) => c.name)];
-import type { ListingSort, MarketplaceListing } from "@/lib/listings-types";
+import { useCallback, useEffect, useState } from "react";
+import {
+  MARKETPLACE_CATEGORY_CHIPS,
+  normalizeMarketplaceCategory,
+} from "@/lib/marketplace-categories";
+import type { MarketplaceListing } from "@/lib/listings-types";
 import { PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 import { ListingCard } from "./ListingCard";
 
 type ListingFiltersProps = {
   term: ListingTerm;
-  showCategoryChips?: boolean;
   initialCategory?: string;
 };
 
-const SORTS: { key: ListingSort; label: string }[] = [
-  { key: "newest", label: "Newest" },
-  { key: "price-asc", label: "Price ↑" },
-  { key: "price-desc", label: "Price ↓" },
-  { key: "ending", label: "Ending soon" },
-];
-
-export function ListingFilters({ term, showCategoryChips = true, initialCategory = "All" }: ListingFiltersProps) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>(initialCategory || "All");
-  const [sort, setSort] = useState<ListingSort>(term === "starter" ? "ending" : "newest");
+export function ListingFilters({ term, initialCategory = "All" }: ListingFiltersProps) {
+  const [category, setCategory] = useState(() => normalizeMarketplaceCategory(initialCategory));
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +26,7 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
     try {
       const params = new URLSearchParams({
         term,
-        sort,
         category: category === "All" ? "" : category,
-        q: query.trim(),
       });
       const res = await fetch(`/api/marketplace/listings?${params}`);
       const data = (await res.json()) as { listings?: MarketplaceListing[]; error?: string };
@@ -49,72 +38,35 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
     } finally {
       setLoading(false);
     }
-  }, [term, sort, category, query]);
+  }, [term, category]);
 
   useEffect(() => {
-    const t = window.setTimeout(() => void load(), query ? 280 : 0);
-    return () => window.clearTimeout(t);
-  }, [load, query]);
-
-  useEffect(() => {
-    setSort(term === "starter" ? "ending" : "newest");
-  }, [term]);
-
-  const sortOptions = useMemo(
-    () => (term === "partner" ? SORTS.filter((s) => s.key !== "ending") : SORTS),
-    [term],
-  );
+    void load();
+  }, [load]);
 
   const tierLabel = term === "starter" ? PACKAGE_TIERS.starter.label : PACKAGE_TIERS.partner.label;
 
   return (
     <div>
-      <div className="mp-filters-bar">
-        <div className="mp-search-wrap">
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={
-              term === "starter"
-                ? "Search Starter packages…"
-                : "Search Partner packages…"
-            }
-            className="mp-search-input"
-            aria-label="Search listings"
-          />
-        </div>
-        <div className="mp-sort-wrap">
-          {sortOptions.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => setSort(s.key)}
-              className={`mp-sort-chip ${sort === s.key ? "mp-sort-chip-active" : ""}`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+      <div className="mp-chip-row mp-chip-row-simple" role="tablist" aria-label="Role category">
+        {MARKETPLACE_CATEGORY_CHIPS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            role="tab"
+            aria-selected={category === c}
+            onClick={() => setCategory(c)}
+            className={`mp-chip ${category === c ? "mp-chip-active" : ""}`}
+          >
+            {c}
+          </button>
+        ))}
       </div>
 
-      {showCategoryChips ? (
-        <div className="mp-chip-row">
-          {CATEGORY_CHIPS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCategory(c)}
-              className={`mp-chip ${category === c ? "mp-chip-active" : ""}`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
       <p className="mp-results-count">
-        {loading ? "Loading…" : `${listings.length} ${tierLabel} packages`}
+        {loading
+          ? "Loading…"
+          : `${listings.length} ${tierLabel} ${category === "All" ? "packages" : `· ${category}`}`}
       </p>
 
       {error ? (
@@ -133,12 +85,9 @@ export function ListingFilters({ term, showCategoryChips = true, initialCategory
         <div className="forge-surface-card py-12 text-center">
           <p className="text-sm text-[var(--forge-text-muted)]">
             {term === "starter"
-              ? "No Starter packages in this category yet. Official catalog fills each category with up to three tiers."
-              : "No Partner packages in this category yet. Partner listings support retainers ($500–$2k) and scale engagements up to $15k."}
+              ? "No Starter packages in this category yet."
+              : "No Partner subscriptions in this category yet."}
           </p>
-          <a href="/login" className="forge-btn forge-btn-primary mt-6 inline-flex">
-            Sign in to list
-          </a>
         </div>
       ) : null}
     </div>

@@ -22,8 +22,8 @@ export const PACKAGE_TIERS = {
   },
 } as const;
 
-/** Three slots per marketplace category: 1 starter + 2 partner price bands. */
-export const SLOTS_PER_CATEGORY = 3 as const;
+/** One Starter + one Partner per role category. */
+export const SLOTS_PER_CATEGORY = 2 as const;
 
 export function normalizeListingTerm(raw: string | null | undefined): ListingTerm {
   const v = String(raw || "").toLowerCase();

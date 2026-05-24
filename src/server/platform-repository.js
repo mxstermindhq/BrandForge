@@ -6,6 +6,7 @@ const { normalizeIntelligence } = require('./listing-intelligence');
 const {
   normalizeListingTerm,
   normalizeListingType,
+  normalizeMarketplaceCategory,
   formatTierPriceLabel,
   validateListingPrice,
 } = require('./package-tiers');
@@ -5284,9 +5285,9 @@ async function createPlatformRepository(previewRepository) {
       if (listingType === 'starter') {
         query = query.or(`ends_at.is.null,ends_at.gt.${nowIso}`);
       }
-      const cat = String(category || '').trim();
-      if (cat && cat !== 'All') {
-        query = query.ilike('category', `%${cat}%`);
+      const cat = normalizeMarketplaceCategory(category);
+      if (cat) {
+        query = query.eq('category', cat);
       }
       const search = String(q || '').trim();
       if (search) {
@@ -5317,8 +5318,8 @@ async function createPlatformRepository(previewRepository) {
           const end = row.ends_at || meta.ends_at;
           if (end && new Date(end).getTime() <= Date.now()) return false;
         }
-        const cat = String(category || '').trim();
-        if (cat && cat !== 'All' && !String(row.category || '').toLowerCase().includes(cat.toLowerCase())) {
+        const cat = normalizeMarketplaceCategory(category);
+        if (cat && String(row.category || '') !== cat) {
           return false;
         }
         const search = String(q || '').trim().toLowerCase();
@@ -5386,7 +5387,7 @@ async function createPlatformRepository(previewRepository) {
     for (const row of listings) {
       const key = row.category || 'General';
       const n = perCategory.get(key) || 0;
-      if (n < 3) {
+      if (n < 1) {
         perCategory.set(key, n + 1);
         capped.push(row);
       }

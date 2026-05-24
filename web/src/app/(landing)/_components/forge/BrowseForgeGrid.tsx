@@ -17,7 +17,7 @@ export function BrowseForgeGrid() {
           <p className="forge-section-eyebrow">Marketplace</p>
           <h2 className="forge-section-title">Browse the Forge</h2>
           <p className="forge-section-desc">
-            AI, Discord, brands, dev, content, bots, templates — one furnace for everything digital.
+            Developer, Designer, or Video Editor — Starter fixed price or Partner monthly.
           </p>
         </motion.div>
 

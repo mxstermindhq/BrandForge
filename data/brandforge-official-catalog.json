@@ -3,739 +3,153 @@
     "username": "brandforge",
     "name": "BrandForge",
     "role": "Official forge team",
-    "bio": "High-velocity digital systems — AI, Discord, funnels, and growth. Every package is scoped and delivered with mxstermind as guarantor.",
-    "thumbGradient": "linear-gradient(135deg, #0a0505, #ff2a00, #ffc14d)"
+    "bio": "Developer, designer, and video editor packages — Starter fixed-price or Partner subscription.",
+    "thumbGradient": "linear-gradient(135deg, #7ec8ff, #38bdf8, #0284c7)"
   },
   "listings": [
     {
-      "slug": "ai-automation-starter",
+      "slug": "developer-starter",
       "listingType": "starter",
       "packageSlot": "starter",
-      "title": "AI & Automation — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 597,
-      "deliveryDays": 3,
-      "category": "AI & Automation",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "ai-automation-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "AI & Automation — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1499,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "AI & Automation",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "ai-automation-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "AI & Automation — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 7999,
-      "deliveryDays": 14,
-      "category": "AI & Automation",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "discord-growth-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Discord Growth Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 499,
-      "deliveryDays": 3,
-      "category": "Discord Growth Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "discord-growth-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Discord Growth Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1299,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Discord Growth Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "discord-growth-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Discord Growth Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 5999,
-      "deliveryDays": 14,
-      "category": "Discord Growth Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "content-systems-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Content Creation Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 397,
-      "deliveryDays": 3,
-      "category": "Content Creation Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "content-systems-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Content Creation Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 999,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Content Creation Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "content-systems-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Content Creation Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 4999,
-      "deliveryDays": 14,
-      "category": "Content Creation Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "short-form-video-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Short-form Video Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 697,
-      "deliveryDays": 3,
-      "category": "Short-form Video Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "short-form-video-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Short-form Video Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1799,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Short-form Video Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "short-form-video-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Short-form Video Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 8999,
-      "deliveryDays": 14,
-      "category": "Short-form Video Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "brand-identity-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Brand Identity — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 449,
-      "deliveryDays": 3,
-      "category": "Brand Identity",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "brand-identity-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Brand Identity — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1199,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Brand Identity",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "brand-identity-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Brand Identity — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 4499,
-      "deliveryDays": 14,
-      "category": "Brand Identity",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "landing-funnels-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Landing Pages & Funnels — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
+      "title": "Developer — Starter",
+      "tagline": "Ship a scoped build — landing, app slice, or integration.",
+      "description": "Fixed-price Starter package for developer work. One scope, one price, crypto checkout.",
+      "category": "Developer",
       "price": 799,
-      "deliveryDays": 3,
-      "category": "Landing Pages & Funnels",
+      "deliveryDays": 5,
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Kickoff on Discord",
+        "Fixed scope doc",
+        "Delivery + revision window",
+        "Handoff checklist"
       ],
       "useCases": [
         "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Creators launching",
+        "Teams needing a single win"
       ],
       "popularityScore": 90,
-      "endsInDays": 60
+      "endsInDays": 90
     },
     {
-      "slug": "landing-funnels-partner",
+      "slug": "developer-partner",
       "listingType": "partner",
       "packageSlot": "partner",
-      "title": "Landing Pages & Funnels — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1999,
-      "deliveryDays": 5,
+      "title": "Developer — Partner",
+      "tagline": "Embedded dev partner — monthly shipping and maintenance.",
+      "description": "Partner subscription for ongoing developer support. Monthly cadence, priority queue.",
+      "category": "Developer",
+      "price": 1299,
+      "deliveryDays": 7,
       "billingInterval": "monthly",
-      "category": "Landing Pages & Funnels",
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Monthly strategy sync",
+        "Priority delivery queue",
+        "Slack/Discord channel",
+        "Rolling backlog"
       ],
       "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Scale without hiring",
+        "Consistent output",
+        "Long-term brand build"
       ],
-      "popularityScore": 92,
-      "endsInDays": 60
+      "popularityScore": 92
     },
     {
-      "slug": "landing-funnels-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Landing Pages & Funnels — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 9999,
-      "deliveryDays": 14,
-      "category": "Landing Pages & Funnels",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "lead-generation-starter",
+      "slug": "designer-starter",
       "listingType": "starter",
       "packageSlot": "starter",
-      "title": "Lead Generation Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 649,
-      "deliveryDays": 3,
-      "category": "Lead Generation Systems",
+      "title": "Designer — Starter",
+      "tagline": "Brand, UI, or funnel design — one clear deliverable.",
+      "description": "Fixed-price Starter package for designer work. One scope, one price, crypto checkout.",
+      "category": "Designer",
+      "price": 597,
+      "deliveryDays": 5,
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Kickoff on Discord",
+        "Fixed scope doc",
+        "Delivery + revision window",
+        "Handoff checklist"
       ],
       "useCases": [
         "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Creators launching",
+        "Teams needing a single win"
       ],
       "popularityScore": 90,
-      "endsInDays": 60
+      "endsInDays": 90
     },
     {
-      "slug": "lead-generation-partner",
+      "slug": "designer-partner",
       "listingType": "partner",
       "packageSlot": "partner",
-      "title": "Lead Generation Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1599,
-      "deliveryDays": 5,
+      "title": "Designer — Partner",
+      "tagline": "Design partner — monthly assets, iterations, and systems.",
+      "description": "Partner subscription for ongoing designer support. Monthly cadence, priority queue.",
+      "category": "Designer",
+      "price": 999,
+      "deliveryDays": 7,
       "billingInterval": "monthly",
-      "category": "Lead Generation Systems",
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Monthly strategy sync",
+        "Priority delivery queue",
+        "Slack/Discord channel",
+        "Rolling backlog"
       ],
       "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Scale without hiring",
+        "Consistent output",
+        "Long-term brand build"
       ],
-      "popularityScore": 92,
-      "endsInDays": 60
+      "popularityScore": 92
     },
     {
-      "slug": "lead-generation-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Lead Generation Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 7499,
-      "deliveryDays": 14,
-      "category": "Lead Generation Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "digital-business-starter",
+      "slug": "video-editor-starter",
       "listingType": "starter",
       "packageSlot": "starter",
-      "title": "Digital Business Setup — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 349,
-      "deliveryDays": 3,
-      "category": "Digital Business Setup",
+      "title": "Video Editor — Starter",
+      "tagline": "Short-form pack or edit sprint — hooks, cuts, captions.",
+      "description": "Fixed-price Starter package for video editor work. One scope, one price, crypto checkout.",
+      "category": "Video Editor",
+      "price": 697,
+      "deliveryDays": 5,
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Kickoff on Discord",
+        "Fixed scope doc",
+        "Delivery + revision window",
+        "Handoff checklist"
       ],
       "useCases": [
         "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Creators launching",
+        "Teams needing a single win"
       ],
       "popularityScore": 90,
-      "endsInDays": 60
+      "endsInDays": 90
     },
     {
-      "slug": "digital-business-partner",
+      "slug": "video-editor-partner",
       "listingType": "partner",
       "packageSlot": "partner",
-      "title": "Digital Business Setup — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 899,
-      "deliveryDays": 5,
+      "title": "Video Editor — Partner",
+      "tagline": "Monthly clip pipeline — scripts, edits, and thumbnails.",
+      "description": "Partner subscription for ongoing video editor support. Monthly cadence, priority queue.",
+      "category": "Video Editor",
+      "price": 1199,
+      "deliveryDays": 7,
       "billingInterval": "monthly",
-      "category": "Digital Business Setup",
       "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
+        "Monthly strategy sync",
+        "Priority delivery queue",
+        "Slack/Discord channel",
+        "Rolling backlog"
       ],
       "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
+        "Scale without hiring",
+        "Consistent output",
+        "Long-term brand build"
       ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "digital-business-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Digital Business Setup — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 3999,
-      "deliveryDays": 14,
-      "category": "Digital Business Setup",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "creator-monetization-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Creator Monetization Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 549,
-      "deliveryDays": 3,
-      "category": "Creator Monetization Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "creator-monetization-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Creator Monetization Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1399,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Creator Monetization Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "creator-monetization-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Creator Monetization Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 6499,
-      "deliveryDays": 14,
-      "category": "Creator Monetization Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
-    },
-    {
-      "slug": "marketing-systems-starter",
-      "listingType": "starter",
-      "packageSlot": "starter",
-      "title": "Marketing Systems — Starter",
-      "tagline": "Fixed-scope outcome in days — entry package (–.5k)",
-      "description": "Starter tier: one clear deliverable, fixed timeline, crypto checkout. Built for teams that need a fast win without a retainer.",
-      "price": 899,
-      "deliveryDays": 3,
-      "category": "Marketing Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 90,
-      "endsInDays": 60
-    },
-    {
-      "slug": "marketing-systems-partner",
-      "listingType": "partner",
-      "packageSlot": "partner",
-      "title": "Marketing Systems — Partner",
-      "tagline": "Core partnership — monthly optimization + priority delivery",
-      "description": "Partner tier: ongoing collaboration with monthly checkpoints. Ideal when you want BrandForge embedded in your growth loop.",
-      "price": 1999,
-      "deliveryDays": 5,
-      "billingInterval": "monthly",
-      "category": "Marketing Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 92,
-      "endsInDays": 60
-    },
-    {
-      "slug": "marketing-systems-partner-scale",
-      "listingType": "partner",
-      "packageSlot": "partner_scale",
-      "title": "Marketing Systems — Partner Scale",
-      "tagline": "High-ticket engagement — full system build or quarterly program",
-      "description": "Partner Scale: multi-week or quarterly scope for teams ready to invest in a complete system (up to ).",
-      "price": 12999,
-      "deliveryDays": 14,
-      "category": "Marketing Systems",
-      "deliverables": [
-        "Scoped kickoff on Discord",
-        "Clear delivery checklist",
-        "Revision window per tier",
-        "Handoff + next-step map"
-      ],
-      "useCases": [
-        "Founders shipping fast",
-        "Creators scaling output",
-        "Agencies productizing delivery"
-      ],
-      "popularityScore": 88,
-      "endsInDays": null
+      "popularityScore": 92
     }
   ]
 }

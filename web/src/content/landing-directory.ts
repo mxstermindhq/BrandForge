@@ -8,15 +8,7 @@ export const CONTACT = {
     "Every hire and package is managed by mxstermind — your guarantor for scope, delivery, and payment.",
 } as const;
 
-export const CATEGORIES = [
-  "All",
-  "AI & Automation",
-  "Content & Social",
-  "Web & Apps",
-  "Growth & Ads",
-  "Branding",
-  "Video Editing",
-] as const;
+export const CATEGORIES = ["All", "Developer", "Designer", "Video Editor"] as const;
 
 export type TalentCategory = (typeof CATEGORIES)[number];
 
@@ -157,21 +149,21 @@ export const REQUEST_PREVIEW: LandingRequestPreview[] = [
   {
     id: "rq-1",
     title: "Need a senior design partner for SaaS onboarding flow",
-    category: "Branding",
+    category: "Designer",
     budget: "€2,000 - €5,000",
     timeline: "2-3 weeks",
   },
   {
     id: "rq-2",
     title: "Set up n8n + CRM lead routing + WhatsApp follow-up",
-    category: "AI & Automation",
+    category: "Developer",
     budget: "€800 - €2,500",
     timeline: "5-10 days",
   },
   {
     id: "rq-3",
     title: "Need a UGC editor for 20 short-form assets monthly",
-    category: "Video Editing",
+    category: "Video Editor",
     budget: "€1,200 - €3,000",
     timeline: "Monthly retainer",
   },

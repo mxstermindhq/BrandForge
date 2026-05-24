@@ -52,7 +52,7 @@ export function ServiceDetailView({
         <div className="flex flex-wrap gap-2">
           <span className="forge-tag">{service.category}</span>
           {service.listingType === "partner" ? (
-            <span className="forge-tag">Partner</span>
+            <span className="forge-tag">Subscription</span>
           ) : endsLabel ? (
             <span className="forge-tag">Ends {endsLabel}</span>
           ) : (

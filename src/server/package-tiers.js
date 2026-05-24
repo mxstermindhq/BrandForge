@@ -5,6 +5,20 @@ const PACKAGE_TIERS = {
   partner: { label: 'Partner', minUsd: 500, maxUsd: 15000, coreMaxUsd: 2000 },
 };
 
+const MARKETPLACE_ROLES = ['Developer', 'Designer', 'Video Editor'];
+
+function normalizeMarketplaceCategory(raw) {
+  const v = String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, '-');
+  if (!v || v === 'all') return '';
+  if (v.includes('develop') || v === 'dev' || v === 'developer') return 'Developer';
+  if (v.includes('design') || v === 'designer') return 'Designer';
+  if (v.includes('video') || v === 'video-editor') return 'Video Editor';
+  return String(raw || '').trim();
+}
+
 function normalizeListingTerm(raw) {
   const v = String(raw || '').toLowerCase();
   if (v === 'partner' || v === 'long' || v === 'long_term' || v === 'subscriptions') return 'partner';
@@ -50,13 +64,15 @@ function validateListingPrice(price, listingType) {
     if (tier === 'starter') {
       return `Starter packages must be priced between $${PACKAGE_TIERS.starter.minUsd} and $${PACKAGE_TIERS.starter.maxUsd}.`;
     }
-    return `Partner packages must be between $${PACKAGE_TIERS.partner.minUsd} and $${PACKAGE_TIERS.partner.coreMaxUsd}, or $${PACKAGE_TIERS.partner.coreMaxUsd + 1}–$${PACKAGE_TIERS.partner.maxUsd} for scale engagements.`;
+    return `Partner subscriptions must be between $${PACKAGE_TIERS.partner.minUsd} and $${PACKAGE_TIERS.partner.coreMaxUsd}/mo.`;
   }
   return null;
 }
 
 module.exports = {
   PACKAGE_TIERS,
+  MARKETPLACE_ROLES,
+  normalizeMarketplaceCategory,
   normalizeListingTerm,
   normalizeListingType,
   priceInTier,

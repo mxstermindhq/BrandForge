@@ -23,7 +23,7 @@ export const OPERATOR_SEED: CuratedOperator[] = [
       {
         question: "Starter vs Partner?",
         answer:
-          "Starter packages are fixed-scope one-offs ($300–$1,500). Partner packages are retainers or scale engagements ($500–$15,000) — each category has three official tiers.",
+          "Starter is fixed-price ($300–$1,500) for one deliverable. Partner is a monthly subscription ($500–$2k+) for ongoing Developer, Designer, or Video Editor work.",
       },
       {
         question: "How do I order?",

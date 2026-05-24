@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { normalizeMarketplaceCategory } from "@/lib/marketplace-categories";
 import { normalizeListingTerm, PACKAGE_TIERS, type ListingTerm } from "@/lib/package-tiers";
 import { ListingFilters } from "./ListingFilters";
 
@@ -24,12 +25,12 @@ export function ListingBrowse() {
     <section id="browse" className="forge-section forge-section-alt">
       <div className="forge-container">
         <div className="forge-section-head">
-          <p className="forge-section-eyebrow">Live packages</p>
-          <h2 className="forge-section-title">Browse the forge</h2>
+          <p className="forge-section-eyebrow">Packages</p>
+          <h2 className="forge-section-title">Pick your role</h2>
           <p className="forge-section-desc">
             {term === "starter"
-              ? `Starter packages ($${PACKAGE_TIERS.starter.minUsd}–$${PACKAGE_TIERS.starter.maxUsd.toLocaleString()}) — fixed scope, crypto checkout.`
-              : `Partner packages ($${PACKAGE_TIERS.partner.minUsd}–$${PACKAGE_TIERS.partner.maxUsd.toLocaleString()}) — retainers and scale engagements.`}
+              ? "Starter — fixed price, one deliverable. Developer, Designer, or Video Editor."
+              : "Partner — monthly subscription. Same three roles, ongoing output."}
           </p>
         </div>
 
@@ -42,6 +43,7 @@ export function ListingBrowse() {
             onClick={() => setTerm("starter")}
           >
             Starter
+            <span className="mp-term-tab-sub">Fixed price</span>
           </button>
           <button
             type="button"
@@ -51,12 +53,13 @@ export function ListingBrowse() {
             onClick={() => setTerm("partner")}
           >
             Partner
+            <span className="mp-term-tab-sub">Subscription</span>
           </button>
         </div>
 
         <ListingFilters
           term={term}
-          initialCategory={searchParams.get("category") || "All"}
+          initialCategory={normalizeMarketplaceCategory(searchParams.get("category"))}
         />
       </div>
     </section>

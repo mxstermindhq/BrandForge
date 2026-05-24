@@ -4,6 +4,7 @@ const { officialIntelligenceFromItem } = require('./listing-intelligence');
 const {
   normalizeListingTerm,
   normalizeListingType,
+  normalizeMarketplaceCategory,
   formatTierPriceLabel,
 } = require('./package-tiers');
 
@@ -19,18 +20,11 @@ function loadCatalog() {
 
 function categoryBackgrounds(cat) {
   const m = {
-    'AI & Automation': 'linear-gradient(135deg, #050510, #ff4d00, #ffb800)',
-    'Discord Growth Systems': 'linear-gradient(135deg, #120818, #5865f2, #ff4d00)',
-    'Content Creation Systems': 'linear-gradient(135deg, #0a0505, #ff2a00, #ffc14d)',
-    'Short-form Video Systems': 'linear-gradient(135deg, #ff0000, #ff4d00, #1a0500)',
-    'Brand Identity': 'linear-gradient(135deg, #1a0800, #ff6b00, #ffb800)',
-    'Landing Pages & Funnels': 'linear-gradient(135deg, #050508, #ff6b00, #ff2200)',
-    'Lead Generation Systems': 'linear-gradient(135deg, #0a0018, #ff4d00, #ffb800)',
-    'Digital Business Setup': 'linear-gradient(135deg, #111, #333, #ff4d00)',
-    'Creator Monetization Systems': 'linear-gradient(135deg, #120818, #ff4d00, #ffb800)',
-    'Marketing Systems': 'linear-gradient(135deg, #050508, #ff6b00, #ff2200)',
+    Developer: 'linear-gradient(135deg, #e0f2fe, #38bdf8, #0284c7)',
+    Designer: 'linear-gradient(135deg, #fdf4ff, #c084fc, #7c3aed)',
+    'Video Editor': 'linear-gradient(135deg, #fff7ed, #fb923c, #ea580c)',
   };
-  return m[cat] || 'linear-gradient(135deg, #0a0505, #ff4d00, #ffb800)';
+  return m[cat] || 'linear-gradient(135deg, #dff3ff, #7ec8ff, #0284c7)';
 }
 
 function endsAtFromDays(days) {
@@ -132,6 +126,7 @@ function getOfficialListings({ term = 'starter', q = '', category = '', sort = '
   const listingType = normalizeListingTerm(term);
   let out = listings
     .filter((item) => normalizeListingType(item.listingType) === listingType)
+    .filter((item) => item.packageSlot !== 'partner_scale')
     .map((item) => mapOfficialToMarketplaceListing(item, seller));
 
   const search = String(q || '').trim().toLowerCase();
@@ -143,9 +138,9 @@ function getOfficialListings({ term = 'starter', q = '', category = '', sort = '
         l.category.toLowerCase().includes(search),
     );
   }
-  const cat = String(category || '').trim();
-  if (cat && cat !== 'All') {
-    out = out.filter((l) => l.category.toLowerCase().includes(cat.toLowerCase()));
+  const cat = normalizeMarketplaceCategory(category);
+  if (cat) {
+    out = out.filter((l) => l.category === cat);
   }
 
   if (sort === 'price-asc') out.sort((a, b) => a.price - b.price);

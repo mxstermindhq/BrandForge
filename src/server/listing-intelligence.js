@@ -3,21 +3,11 @@
  */
 
 const DOMAIN_BY_CATEGORY = {
-  'AI & Automation': 'AI',
-  'AI-Powered': 'AI',
-  'Discord Growth Systems': 'Marketing',
-  'Content Creation Systems': 'Marketing',
-  'Short-form Video Systems': 'Marketing',
-  'Brand Identity': 'Branding',
-  'Landing Pages & Funnels': 'Dev',
-  'Lead Generation Systems': 'Marketing',
-  'Digital Business Setup': 'Dev',
-  'Creator Monetization Systems': 'Marketing',
-  'Marketing Systems': 'Marketing',
+  Developer: 'Dev',
+  Designer: 'Branding',
+  'Video Editor': 'Marketing',
+  Dev: 'Dev',
   Design: 'Branding',
-  Development: 'Dev',
-  Content: 'Marketing',
-  Marketing: 'Marketing',
   Video: 'Marketing',
 };
 
