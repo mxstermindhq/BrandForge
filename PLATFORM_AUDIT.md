@@ -1,8 +1,10 @@
 # BrandForge Platform Audit
 
-**Audit date:** 2026-05-19  
+**Audit date:** 2026-05-24  
+**Commit audited:** `bbfb67e` — *Simplify marketplace to Starter/Partner and three role filters*  
 **Scope:** Full repository (`TheOne`) — Next.js web app, Node API, Supabase, legacy assets  
-**Method:** File reads, route mapping, grep/import tracing, migration review. No assumptions without code evidence.
+**Method:** File reads, route mapping, grep/import tracing, migration review. No assumptions without code evidence.  
+**Prior audit:** 2026-05-19 (this document supersedes it).
 
 ---
 
@@ -13,15 +15,12 @@
 | Path | Purpose |
 |------|---------|
 | `web/` | **Primary product** — Next.js 15 App Router, Tailwind, OpenNext/Cloudflare Workers deploy |
-| `src/server/` | **Backend logic** — marketplace, chat, AI, payments, ratings (imported by root `server.js`) |
-| `src/agents/`, `src/core/`, `src/marketplace/`, `src/verticals/` | TypeScript scaffolding for multi-agent workflows; **not wired** into `server.js` routes |
-| `supabase/` | SQL schema baseline + 40 migration files (manual SQL Editor workflow; no `config.toml`) |
+| `src/server/` | **Backend logic** — marketplace commerce, auth, trust, payments, legacy chat/squads |
+| `data/` | `brandforge-official-catalog.json` (6 official listings), platform seed JSON |
+| `supabase/` | SQL schema baseline + **46** migration files (manual SQL Editor workflow; no `config.toml`) |
 | `server.js` | **HTTP API** (~3.2k lines) — all `/api/*` handlers, static file fallback |
 | `scripts/` | Discord bot, asset generation, Resend test |
 | `docs/` | Strategy, architecture, deployment guides |
-| `data/` | `platform-state.json`, `professional-titles.json` (local/seed) |
-| `images/` | Design artifacts (`artifact.tsx`) — not production routes |
-| `js/` | Empty or minimal (not primary) |
 | `production-layer.js` | **Legacy client SPA** (~4.1k lines IIFE) — not imported anywhere in active stack |
 | `auth-client.js` | Legacy auth helper — not referenced by `web/` or `server.js` |
 | `.cursor/`, `.github/` | Tooling / CI |
@@ -34,14 +33,12 @@
 | `package.json` (root) | Node API + wrangler; `dev:all` runs API + web |
 | `web/package.json` | Next 15.5.15, React 18, Framer Motion, Zod 4, OpenNext Cloudflare |
 | `web/tsconfig.json` | `strict: true`, path alias `@/*` → `./src/*` |
-| `web/next.config.mjs` | Standalone output, API rewrites/proxy env, security headers, `images.unoptimized: true`, unique `generateBuildId` |
+| `web/next.config.mjs` | Standalone output, API rewrites/proxy env, security headers, **40+ legacy redirects → `/`**, `/marketplace` → `/` |
 | `web/wrangler.jsonc` | Cloudflare Worker: `brandforge`, vars for API URL + Supabase public keys |
 | `web/tailwind.config.ts` | MD3-style CSS variables from `globals.css`; `darkMode: "class"` |
 | `web/src/middleware.ts` | **Only** proxies `/api/*` to `API_PROXY_DESTINATION` — no auth, no bot blocking |
 | `.env.example` (root) | Supabase, AI keys, Resend, NOWPayments, Discord, cron secret |
-| `web/.env.example` | `NEXT_PUBLIC_*` for web (if present) |
 | `railway.json`, `render.yaml` | API hosting (Render URL in wrangler: `brandforge-api-rwwo.onrender.com`) |
-| `orchestration.config.ts` | Agent workflow config (verticals) |
 
 ### 0.3 Routing structure
 
@@ -51,123 +48,171 @@
 
 | Group | Shell | Public URLs |
 |-------|--------|-------------|
-| `(landing)` | `LandingNav`, `landing-layout` | `/`, `/about`, `/login`, `/help`, `/work/[slug]`, `/offer/[id]`, legal pages |
-| `(main)` | `AppShell` + sidebar | `/marketplace`, `/chat`, `/plans`, `/settings`, `/leaderboard`, `/squads`, `/ai/*`, `/bid/*`, etc. |
-| `(member)` | Landing theme on profiles | `/{username}`, `/{username}/service/[id]`, `/{username}/request/[id]`, `/{username}/blog` |
-| Root | Global providers | `/auth/callback`, `/payment/success`, `/payment/cancelled` |
+| `(landing)` | `ForgeLayoutRouter`, summer-sky | `/`, `/about`, `/login`, `/help`, `/work/[slug]`, legal pages |
+| `(shop)` | `ForgeSiteShell` | `/listing/[id]`, `/dashboard`, `/dashboard/orders/[id]`, `/checkout/success` |
+| `(member)` | Profile layout | `/{username}`, `/{username}/service/[id]`, `/{username}/blog` |
+| `account/` | `ForgeSiteShell` + `OnboardingGate` | `/account`, `/account/listings/*` |
+| `admin/` | Root layout only | `/admin` |
+| `onboarding/` | Onboarding layout | `/onboarding`, `/onboarding/service` |
+| Root | Global providers | `/auth/callback` |
 
-**Redirects (next.config + pages):** `/messages` → `/chat`, `/p/:user` → `/:user`, `/explore` → `/`, `/requests` & `/services` list → `/marketplace`, `/ai/studio` → `/studio` (**no `/studio` page exists**).
+**Removed since May 19:** entire `(main)/` group — no `AppShell`, `Sidebar`, `SimpleChat`, `UnifiedMarketplace`, `/marketplace`, `/chat`, `/plans`, `/leaderboard`, `/squads`, `/ai/*`.
 
-**Next.js API routes** (`web/src/app/api/` — 16 handlers):
+**Homepage funnel:** `ForgeLanding` → `ForgeHero` → `ListingBrowse` (`#browse`) → `ForgeHowItWorks` → `ForgeStats` → `ForgeTalentStrip` → `ForgeFinalCTA`.
+
+Browse URL: `/#browse?term=starter|partner&category=Developer|Designer|Video Editor`.
+
+**Redirects (next.config.mjs):** `/marketplace` → `/`; `/marketplace/:category` → `/?term=starter&category=:category`; legacy app routes (`/chat`, `/plans`, `/store`, `/leaderboard`, `/squads`, `/agents`, `/ai`, `/bid`, `/requests`, `/services`, `/settings`, `/studio`, etc.) → `/`.
+
+#### Next.js API routes (`web/src/app/api/` — 9 handlers)
 
 | Route | Behavior |
 |-------|----------|
-| `/api/bootstrap` | **STUB** — returns `{ test: "worker is working" }` only |
+| `/api/health` | Health check |
+| `/api/events` | Directory analytics → Supabase |
 | `/api/talent` | Proxies to Node `/api/talent` |
 | `/api/auth/me` | Auth proxy |
-| `/api/chat/*` | Chat threads/messages (partial; checks auth on some) |
+| `/api/me/listings` | Seller listings proxy |
+| `/api/marketplace/listings` | Proxies Node marketplace listings |
+| `/api/stats/network` | Network stats proxy |
+| `/api/ai/status` | AI status proxy |
 | `/api/landing-interest` | POST email to Supabase `landing_interest_submissions` |
-| `/api/health`, `/api/stats/network`, `/api/marketplace/*`, `/api/feed`, `/api/activity/recent`, `/api/leaderboard/performance`, `/api/ai/status` | Mix of proxies and local handlers |
+
+**Removed since May 19:** `/api/bootstrap` stub, `/api/chat/*`, `/api/feed`, `/api/leaderboard/*`.
 
 **Production API path:** Browser → Cloudflare Worker → `middleware.ts` fetch → Render Node `server.js` `/api/*`.
 
 #### Node API (`server.js`)
 
-100+ endpoints including: auth, bootstrap, marketplace CRUD, bids, projects, contracts, chat (legacy + unified), AI chat/image, squads, agents, leaderboard, privileges/currency, Stripe chat deposit, NOWPayments IPN stub, cron, sitemaps, feed, reviews, settings.
+Marketplace-critical endpoints:
 
-**Not implemented in `server.js` but documented in `web/src/content/api-reference.ts`:** Stripe webhook, bid escrow checkout, plan crypto-intent, full admin API.
+| Endpoint | Module |
+|----------|--------|
+| `GET /api/marketplace/listings` | `platform-repository.js` + official catalog merge |
+| `POST /api/marketplace/checkout` | `marketplace-commerce.js` |
+| `POST /api/nowpayments/ipn` | HMAC verify → mark order paid |
+| `GET /api/orders/:id`, `GET /api/dashboard/*` | Order hub |
+| `POST /api/orders/:id/:action` | `marketplace-ship-routes.js` |
+| `GET/POST /api/admin/*` | Admin overview, whitelist, disputes, ban |
 
-### 0.4 Components map
+Legacy still live: chat, squads, leaderboard, agents, full bootstrap payload.
 
-#### `web/src/components/` (shared)
+### 0.4 Official catalog (6 listings)
 
-| Folder | Examples | Usage |
-|--------|----------|--------|
-| `layout/` | `AppShell`, `Sidebar`, `OnboardingRedirect`, banners | Active — main app shell |
-| `ui/` | `AuthWall`, `PageRouteLoading`, `IslamicPattern`, skeletons | Mixed — several unused |
-| `marketplace/` | `SmartMatchEngine`, hero stats | Active in `UnifiedMarketplace` |
-| `messages/` | `ChatEmbeds` | Active in `SimpleChat` |
-| `deal-rooms/` | `AIAssistantPanel` | Active in `SimpleChat` |
-| `ai/` | Brief/proposal/career tools | Active with `AuthWall` |
-| `leaderboard/` | `WoWRankingSystem.tsx` (exports `PerformanceLeaderboard`) | Active |
-| `auth/` | `AuthGuard` | **Orphan — never imported** |
-| `agents/`, `deal/`, `squads/`, `trust/`, `landing/` | Various | **Mostly orphan** |
+Source: `data/brandforge-official-catalog.json`
 
-#### Colocated page components
+| Slug | Tier | Category | Price |
+|------|------|----------|-------|
+| `developer-starter` | Starter | Developer | $799 |
+| `developer-partner` | Partner | Developer | $1,299/mo |
+| `designer-starter` | Starter | Designer | $597 |
+| `designer-partner` | Partner | Designer | $999/mo |
+| `video-editor-starter` | Starter | Video Editor | $697 |
+| `video-editor-partner` | Partner | Video Editor | $1,199/mo |
 
-- `(landing)/_components/` — ~25 files; **~15 unused** on current `/` page
-- `(main)/**/_components/` — marketplace, chat, plans, settings, etc.
-- `(member)/[username]/_components/` — `UnifiedProfileView`, `ProfileHeader`, `ProofPanels`, `ProfileCTA`; `ProfileFaq` **unused**
+Loaded by `src/server/brandforge-official-catalog.js`; merged in `platform-repository.js` (1 listing per category cap).
 
-### 0.5 Backend modules (`src/server/`)
+Tier enforcement: `web/src/lib/package-tiers.ts` (Starter $300–$1,500; Partner $500–$15,000).  
+Categories: `web/src/lib/marketplace-categories.ts` — Developer, Designer, Video Editor.
+
+### 0.5 Components map
+
+#### Active marketplace / commerce
+
+| Path | Role |
+|------|------|
+| `web/src/components/marketplace/ListingBrowse.tsx` | Homepage browse section |
+| `web/src/components/marketplace/ListingFilters.tsx` | Tier + category filters |
+| `web/src/components/listings/CryptoCheckoutButton.tsx` | NOWPayments checkout |
+| `web/src/components/listings/ServiceDetailView.tsx` | Listing detail + trust |
+| `web/src/components/orders/OrderDetailClient.tsx` | Order lifecycle + reviews |
+| `web/src/components/admin/AdminPanel.tsx` | Admin ops UI |
+| `web/src/components/conversion/ConversionCTA.tsx` | Buy Now / Discord hierarchy |
+| `web/src/components/theme/SummerSkyBackground.tsx` | Site-wide light theme |
+
+#### Orphan / dead (zero or no page imports)
+
+| Path | Note |
+|------|------|
+| `web/src/components/auth/AuthGuard.tsx` | Never imported |
+| `web/src/components/trust/TrustChipsRow.tsx` | Replaced by `filterProfileTrust` |
+| `web/src/components/marketplace/MarketplaceFilters.tsx` | Replaced by `ListingFilters` |
+| `web/src/components/marketplace/FeaturedCarousel.tsx` | Uses static `web/src/lib/marketplace/data.ts` |
+| `web/src/components/ai/*.tsx` | No page imports |
+| `(landing)/_components/DirectoryHero.tsx`, `TalentDirectory.tsx` | Exported but not on `/` |
+| `(shop)/offers/page.tsx` | `/offers` redirects to `/` |
+| `web/src/lib/marketplace/data.ts` | 20+ fictional products — legacy |
+
+### 0.6 Backend modules (`src/server/`)
 
 | Module | Responsibility |
 |--------|----------------|
-| `platform-repository.js` | Core data access (~6k lines): profiles, services, requests, bids, projects, chat, contracts, bootstrap |
-| `auth-service.js` | Supabase JWT validation, profile/settings bootstrap |
-| `rating-service.js` | RP, tiers, leaderboard, deal win/loss |
-| `currency-service.js` | Honor/Conquest in-app currency |
-| `ai-chat.js` | Multi-provider LLM |
-| `stripe-payments.js` | Checkout sessions (escrow + simple) |
-| `nowpayments.js` | Invoice + IPN signature verify |
-| `notify-email.js` | Resend transactional |
-| `agent-infra-repository.js` | Separate AI agent marketplace tables |
+| `platform-repository.js` | Core data access (~6k lines): profiles, services, marketplace, bootstrap |
+| `marketplace-commerce.js` | Checkout, IPN, order lifecycle, seller whitelist gate |
+| `trust-metrics.js` | Real trust metrics with thresholds |
+| `routes/marketplace-ship-routes.js` | Orders, admin, trust, smart-match APIs |
+| `brandforge-official-catalog.js` | Loads 6-listing JSON catalog |
+| `package-tiers.js` | Server-side tier/category normalize |
+| `auth-service.js` | Supabase JWT validation |
+| `nowpayments.js` | Invoice + IPN HMAC verify |
 | `http-guards.js` | CORS, rate limit (exempts payment webhooks) |
+| `rating-service.js`, `currency-service.js` | Legacy gamification — API redirected, tables remain |
 
-### 0.6 Database
+### 0.7 Database
 
 | Source | Contents |
 |--------|----------|
-| `supabase/schema.sql` | 22 core tables — **no RLS** |
-| `supabase/migrations/*.sql` | Social, squads, gamification, contracts, curated operators, talent directory fields, etc. |
+| `supabase/schema.sql` | 22 core tables — **no RLS** on baseline |
+| `supabase/migrations/*.sql` | 46 files including ship-mode migrations below |
 | App seed | `web/src/content/operator-seed.ts`, `operator-media.ts` |
-| Runtime | `curated_operators` table optional; app falls back to seed |
 
-**Critical migration issues:** conflicting `notifications` schemas, `saved_specialists` column naming (`client_id` vs `user_id`), duplicate squad table definitions, `crypto_payment_intents` alter-only with no CREATE in repo.
+**Ship-mode migrations (must be applied on prod Supabase):**
 
-### 0.7 Third-party integrations
+| File | Summary |
+|------|---------|
+| `20260521_service_listing_terms.sql` | `listing_type`, `ends_at`, `billing_interval` on `service_packages` |
+| `20260522_marketplace_productization.sql` | Roles; `seller_whitelist`; `marketplace_orders`, `marketplace_payment_intents`, `saved_listings`, `listing_views`; RLS |
+| `20260523_marketplace_trust_reviews.sql` | Order statuses (`revision_requested`, `disputed`); `marketplace_order_events`, `marketplace_order_reviews`, `platform_analytics_events` |
+| `20260524_starter_partner_tiers.sql` | `short_term`/`long_term` → `starter`/`partner` |
+
+**Older issues still present:** conflicting `notifications` schemas, `saved_specialists` column naming, duplicate squad table definitions.
+
+### 0.8 Third-party integrations
 
 | Integration | Where | Status |
 |-------------|-------|--------|
-| Supabase Auth + DB + Storage | `auth-service`, `platform-repository`, browser client | **Live** |
-| Cloudflare Workers (OpenNext) | `web/wrangler.jsonc`, deploy scripts | **Live** (frontend) |
-| Render/Railway | Node API | **Live** (per wrangler API URL) |
-| Stripe | `stripe-payments.js`, `POST /api/checkout/chat-deposit` | **Partial** — no webhook route |
-| NOWPayments | `nowpayments.js`, contract crypto-intent | **Partial** — IPN stub |
-| Resend | `notify-email.js`, `.env.example` | **Optional** — depends on env |
-| Discord/Telegram | `scripts/discord-bot.mjs`, env | **Optional** |
-| LLM providers | `ai-chat.js` | **Configurable** via env keys |
-| Sentry/Posthog/GA | — | **Not found in codebase** |
+| Supabase Auth + DB + Storage | `auth-service`, `platform-repository` | **Live** |
+| Cloudflare Workers (OpenNext) | `web/wrangler.jsonc` | **Live** (frontend) |
+| Render/Railway | Node API | **Live** — must redeploy after backend changes |
+| NOWPayments | `nowpayments.js`, `marketplace-commerce.js` | **Shipped** — invoice + HMAC IPN |
+| Stripe | `stripe-payments.js` | **Partial** — no `/api/stripe/webhook` route |
+| Resend | `notify-email.js` | **Optional** — not wired for order events |
+| Discord/Telegram | `scripts/discord-bot.mjs`, CTAs | **Optional** — Discord secondary CTA |
+| LLM providers | `ai-chat.js` | **Legacy** — UI removed |
+| Sentry/Posthog/GA | — | **Not found** |
 
-### 0.8 Utility / lib (`web/src/lib/`)
+### 0.9 Dead / orphan files (evidence: zero imports or redirected)
 
-`api.ts`, `operators.server.ts`, `profile-view-model.ts`, `reserved-paths.ts`, `schemas/operator.schema.ts`, `supabase/browser.ts`, `human-chat-threads.ts`, `image-url.ts`, `metadata-api.ts`, etc.
+**Legacy (repo root):** `production-layer.js`, `auth-client.js`, `test-script.js`.
 
-### 0.9 Dead / orphan files (evidence: zero imports)
+**Web:** See Section 0.5 orphan table.
 
-**Legacy (repo root):** `production-layer.js`, `auth-client.js`, `test-script.js`, root `404.html` / `500.html` (superseded by Next).
+**Scaffolding never routed:** `src/agents/*.ts`, `src/core/*.ts` — not required by `server.js`.
 
-**Web components (no external imports):**  
-`AuthGuard.tsx`, `AgentStudio.tsx`, `AGIAgents.tsx`, `AgentMarketplace.tsx`, `ContractGenerator.tsx`, `EnhancedChatInput.tsx`, `ChatDealRoomList.tsx`, `DealRoomShowcase.tsx`, `OutcomeSquads.tsx` (only self-imports), `TrustChipsRow.tsx`, `Skeleton.tsx`, `SkeletonCard.tsx`, `LastActiveAgo.tsx`, `ShareWinModal.tsx`, deal/* modals.
+### 0.10 Delta from prior audit (May 19 → May 24)
 
-**Landing components not on `/`:**  
-`LandingHero`, `LoginHero`, `OperatorCard`, `TalentFilterBar`, `OfficialPackages`, `MarketplaceShowcase`, `PlansShowcase`, `HowItWorks`, `FeaturesGrid`, `AskAICards`, `AuthRedirect`, `LandingProfileMenu`, etc.
-
-**Duplicate private routes:**  
-`(main)/_requests/**/page.tsx`, `(main)/_services/**/page.tsx` — underscore folders are private segments; canonical routes are `/requests/*`, `/services/*`.
-
-**Scaffolding never routed:**  
-`src/agents/*.ts`, `src/core/*.ts` — not required by `server.js`.
-
-### 0.10 Orphaned features (built but not productized)
-
-| Feature | Evidence |
-|---------|----------|
-| Profile editor modal | `ProfileEditor.tsx` + `useLandingUI` — **no caller** for `openProfileEditor` |
-| Landing email capture UI | Removed from `DirectoryHero`; API + DB table remain |
-| `/studio` route | Redirect target missing |
-| Admin API | Documented only in `api-reference.ts` |
-| `AuthGuard` | Defined, never used — `(main)` routes are **not** server-protected |
+| Area | Before | After |
+|------|--------|-------|
+| Product mode | Directory vs marketplace split brain | Unified: homepage packages + talent strip |
+| `/marketplace` | Primary browse | Removed → `/#browse` |
+| Payments | IPN stub | Crypto checkout end-to-end |
+| Admin | Documented only | Panel + whitelist + disputes |
+| Security | Unauthenticated `POST /api/apply-migration` | **Removed** |
+| Bootstrap | Worker stub at `/api/bootstrap` | Stub **removed** |
+| App shell | `(main)` chat/plans/leaderboard | Removed — `(shop)` commerce only |
+| Design | Dark forge + light landing split | Summer-sky light site-wide |
+| Trust | Fake/gamified metrics | Real, threshold-gated |
+| Catalog | Curated operators focus | 6 official Starter/Partner packages |
 
 ---
 
@@ -175,422 +220,400 @@
 
 ### ARCHITECTURE & STACK
 
-**Status:** PARTIAL — dual-stack works for deploy, but product logic is split and duplicated.
+**Status:** GOOD — product stack is coherent; legacy API surface remains.
 
-**Files audited:** `package.json`, `web/package.json`, `web/next.config.mjs`, `web/tsconfig.json`, `web/wrangler.jsonc`, `web/src/middleware.ts`, `server.js`, `README.md`, `src/server/env.js`
+**Grade: 7/10** (was 6)
+
+**Files audited:** `package.json`, `web/next.config.mjs`, `web/src/middleware.ts`, `server.js`, `src/server/routes/marketplace-ship-routes.js`
 
 #### What's Done & Working
 
-- Next.js 15 App Router only in `web/` — no `pages/` router.
-- TypeScript `strict: true` in web; Zod validation for `CuratedOperator`.
+- Single Next.js 15 app with clear route groups: `(landing)` marketing, `(shop)` commerce, `account/` seller tools.
+- `(main)` removed — no split-brain app shell vs landing.
 - Cloudflare deploy path: `npm run cf:build` → OpenNext → Worker + assets.
-- API proxy: middleware + rewrites send `/api` to Render Node API.
-- Unique `generateBuildId` prevents stale webpack manifest crashes.
+- Marketplace ship routes modularized; tried first in `routeApi`.
+- Bootstrap stub on Worker removed — Node `GET /api/bootstrap` is sole source.
 
 #### What Exists But Is Broken / Unused
 
-- **Two bootstrap paths:** Real data in Node `GET /api/bootstrap`; Cloudflare route `web/src/app/api/bootstrap/route.ts` returns a test stub — if anything hit the Worker-local route instead of proxy, app would break.
-- **Legacy SPA** `production-layer.js` (~4k lines) — parallel UI model, unmaintained.
-- **TypeScript agents** under `src/agents/` — not integrated with HTTP layer.
-- **Root `server.js` also serves static files** — overlapping responsibility with Next.
+- `production-layer.js` — 4k-line parallel SPA still at repo root.
+- Node API still exposes chat/squads/leaderboard/bootstrap payloads for dead clients.
+- Static fictional catalog in `web/src/lib/marketplace/data.ts`.
+- TypeScript agent scaffolding — not wired.
 
 #### What's Missing / Must Be Built
 
-- Single source of truth for which product mode is canonical (curated directory vs full marketplace).
-- CI that runs `web` build + API smoke tests on every push.
-- Supabase CLI migration pipeline (no `config.toml`).
+- CI that runs web build + API smoke tests on every push.
+- Supabase CLI migration pipeline.
+- Feature flags to disable legacy API routes.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🔴 CRITICAL | Delete or wire `web/src/app/api/bootstrap/route.ts` to proxy Node bootstrap | S | HIGH |
-| 🔴 CRITICAL | Remove unauthenticated `POST /api/apply-migration` | S | HIGH |
 | 🟠 HIGH | Archive `production-layer.js` + document deprecation | S | MED |
-| 🟠 HIGH | Add integration test: landing + bootstrap + profile | M | HIGH |
-| 🟡 MEDIUM | Consolidate env docs (`web/.env.local` vs root `.env`) | S | MED |
+| 🟠 HIGH | Gate or remove legacy chat/squad/leaderboard API routes | M | MED |
+| 🟡 MEDIUM | Delete orphan static catalog + dead pages | S | MED |
+| 🟡 MEDIUM | Integration test: browse → checkout → IPN → order | M | HIGH |
 
 ---
 
 ### AUTHENTICATION & SECURITY
 
-**Status:** PARTIAL — Supabase auth works at API layer; web route protection is inconsistent.
+**Status:** PARTIAL — API auth solid; page protection client-only.
 
-**Files audited:** `src/server/auth-service.js`, `server.js` (requireUser), `web/src/components/auth/AuthGuard.tsx`, `web/src/components/layout/OnboardingRedirect.tsx`, `web/src/providers/AuthProvider.tsx`, `web/src/middleware.ts`, `src/server/http-guards.js`, `server.js` L412-467
+**Grade: 6/10** (was 4)
+
+**Files audited:** `src/server/auth-service.js`, `server.js`, `web/src/middleware.ts`, `src/server/http-guards.js`, `src/server/routes/marketplace-ship-routes.js`, `web/src/components/auth/AuthGuard.tsx`
 
 #### What's Done & Working
 
-- API mutations use `requireUser()` → Bearer JWT → `getUserFromAccessToken` (`server.js` L353-361).
+- API mutations use `requireUser()` → Bearer JWT → Supabase validation.
+- **`POST /api/apply-migration` removed** (critical fix from prior audit).
+- Admin APIs use `requireAdmin` — DB role check (`admin` | `moderator`).
+- NOWPayments IPN: raw body + HMAC-SHA512; rate-limit exempt.
+- Order access: buyer/seller only via `loadOrderParty`.
+- RLS on `marketplace_orders`, `seller_whitelist`.
+- Security headers on all routes (`next.config.mjs`).
 - Cron endpoints use `verifyCronSecret`.
-- Security headers on all routes (`next.config.mjs` L123-148).
-- CORS allowlist when configured (`http-guards.js`).
-- Rate limiting on mutating methods (exempts payment webhooks).
 
 #### What Exists But Is Broken / Unused
 
-- **`AuthGuard.tsx`** — complete redirect-to-`/` logic, **never imported**.
-- **`(main)` layout** — no auth wrapper; `/chat`, `/settings` load for anonymous users (API 401s / empty UI).
-- **`POST /api/apply-migration`** — runs DDL via service role **with no auth** (`server.js` L412-467).
-- **`GET /api/auth/config`** — returns `anonKey` to any caller (`server.js` L469-475) — public by design but increases key surface.
-- **`isPlatformAdmin`** typed in `BootstrapProvider` but **never set** by API bootstrap.
-- Admin whitelist (`mxstermind.com@gmail.com`) — **not implemented** in server code.
+- **`AuthGuard.tsx`** — complete redirect logic, **never imported**.
+- **`/admin`, `/dashboard`, `/account/*`** — client-side `useEffect` redirect only; no Next middleware gate. Any logged-in user can load `/admin` UI (API returns 403).
+- CORS allows `*` fallback when origins unset.
+- No `isPlatformAdmin` in bootstrap.
 
 #### What's Missing / Must Be Built
 
-- Middleware or layout-level session gate for `(main)/*`.
-- Server-side admin role checks for privileged routes.
-- Stripe/NOWPayments webhook signature verification on live routes.
-- RLS on `profiles`, `projects`, `messages` if any client uses anon key directly.
+- Server-side admin page guard (middleware or layout with role check).
+- Stripe webhook (documented in `api-reference.ts`, not routed).
+- RLS audit on core `profiles` if anon client writes expand.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🔴 CRITICAL | Remove or auth-gate `/api/apply-migration` | S | HIGH |
-| 🔴 CRITICAL | Wrap `(main)/layout` with session check (or use AuthGuard) | M | HIGH |
-| 🟠 HIGH | Implement `isPlatformAdmin` in bootstrap + guard admin routes | M | HIGH |
-| 🟠 HIGH | Complete NOWPayments IPN + Stripe webhook handlers | L | HIGH |
-| 🟡 MEDIUM | Audit Supabase anon policies — no broad INSERT on sensitive tables | M | MED |
+| 🟠 HIGH | Server-side admin role gate on `/admin` layout | S | HIGH |
+| 🟠 HIGH | Middleware session check for `/dashboard`, `/account/*` | M | HIGH |
+| 🟡 MEDIUM | Remove CORS `*` fallback in production | S | MED |
+| 🟢 LOW | Delete unused `AuthGuard` or wire it | S | LOW |
 
-**SEO / crawler 403 note:** No middleware lines block crawlers. `web/src/middleware.ts` only proxies API. `robots.ts` allows `/` and disallows `/chat`, `/api`, etc. **403s for Googlebot would come from Cloudflare Bot Fight Mode or WAF — not from this repo's Next middleware.**
+**SEO / crawler 403 note:** No middleware lines block crawlers. 403s for Googlebot would come from Cloudflare Bot Fight Mode or WAF — not from this repo's Next middleware.
 
 ---
 
 ### DATABASE & DATA LAYER
 
-**Status:** PARTIAL — rich schema in migrations; production state uncertain; RLS incomplete.
+**Status:** PARTIAL — ship migrations well-scoped; production apply state unknown.
 
-**Files audited:** `supabase/schema.sql`, `supabase/migrations/20260518_curated_operators.sql`, `20260516_talent_directory_fields.sql`, `project_contracts_unified_embed_rls.sql`, `profiles_role_member_moderator.sql`, `web/src/lib/operators.server.ts`, `src/server/platform-repository.js` (samples)
+**Grade: 6.5/10** (was 5)
+
+**Files audited:** `supabase/schema.sql`, `20260521`–`20260524` migrations, `platform-repository.js`, `marketplace-commerce.js`
 
 #### What's Done & Working
 
-- Core marketplace tables in `schema.sql`: profiles, services, requests, bids, projects, dual chat systems.
-- `curated_operators` migration with public SELECT RLS.
-- `operators.server.ts` fetches curated rows with Zod validation; falls back to `OPERATOR_SEED`.
-- Server uses **service role** for most operations — bypasses missing RLS on core tables.
-- Talent directory API + profile fields migration (`availability`, `directory_category`, etc.).
+- Marketplace schema: orders, payment intents, order events, reviews, analytics events.
+- Seller whitelist table + server gate `canUserCreateListings`.
+- Starter/Partner tier migration with data backfill.
+- Trust metrics computed from real order/review data only.
+- Server uses service role — bypasses incomplete RLS on legacy tables.
 
 #### What Exists But Is Broken / Unused
 
-- **`curated_operators` table** may be unapplied — build logs showed `getCuratedOperators: fetch failed 404`; seed fallback masks this.
-- **Conflicting migrations** for notifications, squads, saved_specialists (documented in Section 0.6).
-- **`crypto_payment_intents`** — alter migration only; CREATE missing.
-- **Role model drift:** `schema.sql` uses `client`/`specialist`; later migration uses `member`/`moderator`.
+- Older migration conflicts (notifications, squads) still in repo — not reconciled.
+- `curated_operators` + seed migrations exist; homepage falls back to `OPERATOR_SEED` if DB fetch fails.
+- `refunded` status — not in order status check constraints; not wired in UI.
+- Role model drift: `schema.sql` vs later migrations (`member`, `buyer`, `seller`).
 
 #### What's Missing / Must Be Built
 
-- Migration runner + single canonical social/notification schema.
-- RLS policies for profiles/projects if client-side Supabase writes expand.
-- Indexes audit for leaderboard and marketplace list queries.
-- Seed script for `curated_operators` matching `operator-seed.ts`.
+- Confirmed production apply of `20260521`–`20260524`.
+- Migration runner + documented apply order.
+- Indexes audit under load.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🔴 CRITICAL | Apply `20260518_curated_operators.sql` + seed in Supabase | S | HIGH |
-| 🔴 CRITICAL | Freeze migration order; resolve `notifications` / `squads` conflicts | L | HIGH |
-| 🟠 HIGH | Add RLS or ban direct anon writes on `profiles` | M | HIGH |
-| 🟡 MEDIUM | Add `crypto_payment_intents` CREATE migration | S | MED |
+| 🔴 CRITICAL | Apply `20260521`–`20260524` on production Supabase | S | HIGH |
+| 🟠 HIGH | Smoke test: checkout creates row in `marketplace_orders` | S | HIGH |
+| 🟡 MEDIUM | Reconcile notifications/squads migration conflicts | L | MED |
+| 🟢 LOW | Add `refunded` status if refunds are in scope | M | LOW |
 
 ---
 
 ### DESIGN SYSTEM & UI
 
-**Status:** PARTIAL — two visual systems (landing light tokens vs MD3 dark app).
+**Status:** GOOD — unified light summer-sky theme site-wide.
 
-**Files audited:** `web/src/styles/tokens.css`, `web/src/app/globals.css`, `web/tailwind.config.ts`, `web/src/app/layout.tsx`, `(landing)/layout.tsx`, `(member)/layout.tsx`, `TalentDirectory.tsx`, `OperatorCard.tsx` (orphan)
+**Grade: 7.5/10** (was 6)
+
+**Files audited:** `web/src/styles/summer-sky.css`, `web/src/app/layout.tsx`, `web/src/app/globals.css`, `web/tailwind.config.ts`, `(shop)/layout.tsx`, `(landing)/layout.tsx`
 
 #### What's Done & Working
 
-- Semantic tokens in `tokens.css` + landing CSS variables in `globals.css` (`landing-layout`).
-- Fonts: Cormorant Garamond, DM Sans, Geist Mono via `next/font`.
-- Framer Motion on landing directory (reduced-motion respected).
-- `IslamicPattern.tsx` for texture (landing/profile).
-- Shared UI primitives: `PageRouteLoading`, `AuthWall`, `AnimatedCounter`.
+- `summer-sky.css` + `SummerSkyBackground.tsx` — animated sky, light forge tokens globally.
+- Root layout defaults to **light** theme; dark forge vignette disabled.
+- `(shop)` + `(account)` share `ForgeSiteShell`; landing uses `ForgeLayoutRouter`.
+- Consistent CTA styling: `forge-btn-primary` / `forge-btn-secondary`.
+- Framer Motion + reduced-motion respected on landing.
+- Fonts: Cormorant Garamond, DM Sans, Geist Mono.
 
 #### What Exists But Is Broken / Unused
 
-- **Tailwind theme** maps MD3 variables (`--color-primary`, surfaces) — landing uses different `--color-text-primary` tokens — **inconsistent**.
-- **Dark mode** configured (`darkMode: "class"`) but landing is light-first; app shell defaults differ.
-- **Orphan components** with old styling (`LandingHero`, `OperatorCard`) diverge from inline `TalentDirectory` cards.
-- **`ProfileFaq`** built but not in `UnifiedProfileView` (tabs: About, Work, Reviews only).
+- `globals.css` still contains legacy Warcraft/dark MD3 blocks underneath summer-sky overrides.
+- Orphan landing components: `DirectoryHero`, `TalentDirectory`, `MarketplaceFilters`, `FeaturedCarousel`.
+- `(shop)/offers/page.tsx` exists but `/offers` redirects to `/`.
 
 #### What's Missing / Must Be Built
 
-- Single token file consumed by both `(landing)` and `(main)`.
-- Component audit pass — delete unused landing sections.
-- Systematic loading/error/empty states on all `(main)` routes.
-- a11y audit (focus rings exist on some landing work; not verified globally).
+- Full token purge (single source of truth).
+- Systematic empty/error states on all account pages.
+- Global a11y audit.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Unify tokens: landing + app from one `tokens.css` | M | HIGH |
-| 🟠 HIGH | Delete or merge orphan landing components | M | MED |
-| 🟡 MEDIUM | Wire `ProfileFaq` or remove file | S | LOW |
-| 🟡 MEDIUM | Standardize skeleton/empty across marketplace + chat | M | MED |
+| 🟡 MEDIUM | Delete orphan components + static `data.ts` catalog | M | MED |
+| 🟡 MEDIUM | Purge unused dark/WoW CSS from `globals.css` | M | MED |
+| 🟢 LOW | Remove dead `(shop)/offers` page | S | LOW |
 
 ---
 
 ### MARKETPLACE CORE
 
-**Status:** PARTIAL — backend CRUD exists; product positioning shifted to curated directory.
+**Status:** SHIPPED — focused crypto marketplace with official catalog.
 
-**Files audited:** `server.js` (marketplace routes), `platform-repository.js` (grep), `UnifiedMarketplace.tsx`, `TalentDirectory.tsx`, `NewRequestForm.tsx`, `BidPageClient.tsx`, `(member)/[username]/*`
+**Grade: 8/10** (was 5)
+
+**Files audited:** `ListingBrowse.tsx`, `ListingFilters.tsx`, `marketplace-commerce.js`, `brandforge-official-catalog.js`, `platform-repository.js`, `ConversionCTA.tsx`
 
 #### What's Done & Working
 
-- Create/list services and requests via API.
-- Bid flow: POST bid, accept/reject, counter-offer (`server.js`).
-- Smart match POST `/api/marketplace/smart-match`.
-- Public marketplace UI: `UnifiedMarketplace` with search, tabs, collections, bookmarks.
-- Curated landing directory: profiles/services/work views with URL state (`?view=&filter=&q=`).
-- Member public profiles at `/{username}` with curated + registered logic.
+- Homepage browse: Starter/Partner tabs + Developer / Designer / Video Editor filters.
+- 6 official listings with tier/category normalization.
+- Listing detail at `/listing/[id]` with trust fetch, `CryptoCheckoutButton`, auto-start via `?checkout=1`.
+- Seller listing CRUD at `/account/listings/*` with whitelist gate.
+- Smart match API (`POST /api/marketplace/smart-match`).
+- Curated talent strip on homepage (`ForgeTalentStrip`).
+- CTA hierarchy: **Buy Now** primary, **Ask Questions** (Discord) secondary.
 
 #### What Exists But Is Broken / Unused
 
-- **List routes redirect:** `/requests`, `/services` → `/marketplace` — old list clients orphaned.
-- **`RequestsClient` / `ServicesClient`** — never imported.
-- **Transactional marketplace UX** vs landing copy ("Start a conversation" / Telegram) — **misaligned**.
-- **Bid accept** does not trigger escrow checkout in route layer.
-- **Specialist readiness gate** in `platform-repository.js` still references `role === 'specialist'` while roles migrated to `member`.
+- Old bid/request/project flows — API exists, UI removed/redirected.
+- `/offer/[id]` page redirects to `/listing/[id]` but file remains.
+- Partner subscription billing renewal — checkout creates invoice; recurring billing loop not evident.
 
 #### What's Missing / Must Be Built
 
-- Clear "directory-only" mode: disable or hide open bidding if not product goal.
-- End-to-end deal flow: bid → contract → payment → delivery (partially in DB, not wired in UI).
-- Registered users in landing directory (removed; only curated seed operators).
+- Seller payout / Connect flow (manual ops assumed).
+- Dispute resolution workflow beyond status flag + admin list.
+- Refund path.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Decide: marketplace vs directory — hide unused flows | M | HIGH |
-| 🟠 HIGH | Fix role checks (`specialist` → `member`) in repository | S | MED |
-| 🟡 MEDIUM | Connect bid accept to Stripe escrow session | L | HIGH |
-| 🟢 LOW | Remove dead `RequestsClient` / `ServicesClient` | S | LOW |
+| 🟠 HIGH | Document Partner subscription renewal ops | S | HIGH |
+| 🟠 HIGH | Admin dispute resolution actions (refund, force-complete) | M | HIGH |
+| 🟡 MEDIUM | Remove dead offer/bid API surface or gate behind admin | M | MED |
+
+---
+
+### TRUST & REVIEWS
+
+**Status:** SHIPPED — real metrics only, threshold-gated.
+
+**Grade: 8/10** (new department)
+
+**Files audited:** `src/server/trust-metrics.js`, `web/src/lib/trust-thresholds.ts`, `20260523_marketplace_trust_reviews.sql`, `OrderDetailClient.tsx`, `ServiceDetailView.tsx`
+
+#### What's Done & Working
+
+- Server thresholds: min 3 completed orders, 3 reviews, etc.
+- Frontend mirrors thresholds — **hides** sub-threshold metrics (no fake zeros).
+- Review flow: completed order → buyer submits rating/headline/body → `marketplace_order_reviews`.
+- Trust on profiles and listing detail pages.
+- APIs: `GET /api/profiles/:username/trust`, `GET /api/listings/:id/trust`.
+
+#### What's Missing / Must Be Built
+
+- Admin moderation of reviews.
+- Dispute impact on seller trust score.
+
+---
+
+### ORDERS & FULFILLMENT
+
+**Status:** SHIPPED
+
+**Grade: 7.5/10** (new department)
+
+**Files audited:** `marketplace-commerce.js`, `marketplace-ship-routes.js`, `OrderDetailClient.tsx`, `web/src/app/(shop)/dashboard/**`
+
+#### What's Done & Working
+
+**Lifecycle:** `pending` → (IPN) → `paid` → `in_progress` → `delivered` → (`revision_requested` | `completed` | `disputed`)
+
+- Seller: start, deliver (note/URL).
+- Buyer: approve, request revision, open dispute, submit review.
+- Dashboard: `/dashboard`, `/dashboard/orders/[id]`.
+- Order events logged in `marketplace_order_events`.
+- Checkout success page polls order status.
+
+#### What's Missing / Must Be Built
+
+- Admin force-complete / refund from UI.
+- `refunded` status not implemented.
+- Email notifications on status change.
 
 ---
 
 ### CHAT & MESSAGING
 
-**Status:** PARTIAL — large client implementation; dual backend chat models.
+**Status:** DEPRECATED in product — API legacy remains.
 
-**Files audited:** `SimpleChat.tsx` (header + structure), `ChatEmbeds.tsx`, `server.js` chat routes, `supabase/schema.sql` (chat tables), `web/src/app/api/chat/**`
+**Grade: 2/10** (was 5)
+
+**Files audited:** `server.js` chat routes, `supabase/schema.sql` chat tables
 
 #### What's Done & Working
 
-- **`SimpleChat.tsx`** (~1,700 lines): AI models, agents, human deal rooms, embeds, sidebar threads from bootstrap.
-- APIs: `/api/chat/:id/messages`, `/api/chats`, legacy + unified paths in `server.js`.
-- Message embeds for contracts, listings, milestones (`ChatEmbeds.tsx`).
-- `AIAssistantPanel` in deal sidebar.
-- Typing/presence tracked in-memory on API server (`presenceByUserId`).
+- Nothing in current product UI — `/chat`, `/messages` redirect to `/`.
 
 #### What Exists But Is Broken / Unused
 
-- **`EnhancedChatInput`**, **`ChatDealRoomList`** — not imported.
-- **Realtime:** no Supabase realtime subscription in SimpleChat — likely polling/refetch.
-- **Dual schemas:** `conversations`/`messages` vs `unified_chats`/`unified_messages` — complexity + migration risk.
-- **No route auth** — guests can open `/chat` UI.
-
-#### What's Missing / Must Be Built
-
-- Message delivery guarantees, read receipts consistency across chat types.
-- File upload pipeline end-to-end test.
-- Push/email on new message (`notify-email.js` exists but coverage unclear).
+- Full chat API in `server.js`: threads, messages, typing, files.
+- Dual chat schemas in DB (`conversations` vs `unified_chats`).
+- Bootstrap still returns chat slices for `production-layer.js`.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Require auth on `/chat` routes | S | HIGH |
-| 🟠 HIGH | Pick unified vs legacy chat — deprecate one | L | HIGH |
-| 🟡 MEDIUM | Wire notifications for new messages | M | MED |
-| 🟢 LOW | Remove unused chat components | S | LOW |
+| 🟡 MEDIUM | Return 410 on chat routes or remove handlers | M | MED |
+| 🟢 LOW | Archive chat components if any remain | S | LOW |
 
 ---
 
 ### AI & AGENTS
 
-**Status:** PARTIAL — LLM chat live; agent marketplace separate; task tree not productized.
+**Status:** DEPRECATED in product UI.
 
-**Files audited:** `src/server/ai-chat.js`, `src/server/ai-content-generator.js`, `ai-image.js`, `SimpleChat.tsx`, `src/server/agent-infra-repository.js`, `web/src/app/(main)/ai/**`, `src/agents/*.ts`
+**Grade: 2/10** (was 5)
 
-#### What's Done & Working
+- `/ai/*`, `/studio`, `/agents` all redirect home.
+- `web/src/components/ai/*` — orphan (no page imports).
+- `POST /api/ai/chat` may still exist on Node API.
+- Agent infra tables + repository remain.
 
-- Multi-provider AI chat API (`POST /api/ai/chat`) with provider env keys.
-- AI tools pages: brief generator, proposal writer, career assistant (with `AuthWall`).
-- Image generation endpoint.
-- Model list in SimpleChat (GPT, Grok, Gemini, Claude).
-- Agent infra tables + repository for template marketplace.
-
-#### What Exists But Is Broken / Unused
-
-- **`/ai/studio` → `/studio`** — broken redirect.
-- **`StudioClient.tsx`** — orphan.
-- **TypeScript agent swarm** (`src/core/orchestration-engine.ts`) — not called from API.
-- **Agent components** (`AgentStudio`, `AGIAgents`) — orphan.
-
-#### What's Missing / Must Be Built
-
-- Plan-based token limits enforced server-side (UI copy mentions quotas; enforcement unclear).
-- Streaming responses in UI (if desired).
-- Agent mode task tree / live progress — not found in production UI.
-
-#### Recommendations
-
-| Priority | Action | Effort | Impact |
-|----------|--------|--------|--------|
-| 🟠 HIGH | Fix or remove `/ai/studio` redirect | S | MED |
-| 🟡 MEDIUM | Enforce AI usage limits per `top_member` / plan | M | HIGH |
-| 🟢 LOW | Delete unused agent TS scaffolding or wire one vertical | L | LOW |
+**Recommendation:** Return 410 on AI routes or document as internal-only.
 
 ---
 
 ### PAYMENTS & MONETIZATION
 
-**Status:** BROKEN for production monetization — partial implementations only.
+**Status:** GOOD for crypto marketplace — Stripe not wired.
 
-**Files audited:** `stripe-payments.js`, `stripe-connect-service.js`, `nowpayments.js`, `server.js` (checkout, IPN), `PlansClient.tsx`, `plan_payment_intents.sql`, `crypto_payment_intents_nowpayments.sql`
+**Grade: 7/10** (was 2)
+
+**Files audited:** `marketplace-commerce.js`, `nowpayments.js`, `server.js` IPN route, `CryptoCheckoutButton.tsx`, `src/server/env.js`
 
 #### What's Done & Working
 
-- Stripe client + `createEscrowCheckoutSession` + `createSimpleUsdCheckoutSession`.
-- `POST /api/checkout/chat-deposit` when `STRIPE_SECRET_KEY` set.
-- `POST /api/contracts/:id/crypto-intent` creates NOWPayments invoice.
-- Plans UI with tiers ($0 / $29 / $79 / $199) and crypto checkout attempt.
+- **Full NOWPayments flow:**
+  - `POST /api/marketplace/checkout` → creates order + payment intent → NOWPayments invoice URL.
+  - `POST /api/nowpayments/ipn` → HMAC verify → `markMarketplaceOrderPaid`.
+  - Success page polls `GET /api/orders/:id`.
+- Loud checkout failures in UI — no silent Discord redirect on fail.
 - 15% platform fee math (`marketplace-fees.js`).
-- Payment success/cancel pages exist.
+- Env: `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET`, `NOWPAYMENTS_SANDBOX`.
 
 #### What Exists But Is Broken / Unused
 
-- **`POST /api/nowpayments/ipn`** — empty handler, returns `{ ok: true }` (`server.js` L2200-2207).
-- **Stripe webhook** — not routed; `constructWebhookEvent` unused.
-- **Stripe Connect** — stubs throw "not implemented".
-- **Plan crypto-intent** — referenced in `PlansClient`, **no matching `server.js` route** found.
-- **Bid escrow checkout** — library only.
+- **No Stripe webhook route** — `constructWebhookEvent` unused.
+- Plan crypto-intent UI removed with `/plans` redirect.
+- Partner recurring charges — single invoice at checkout; renewal unclear.
 
 #### What's Missing / Must Be Built
 
-- Idempotent webhook handlers updating `plan_payment_intents` / `contract_payment_intents`.
-- Feature gating tied to payment status (not just `top_member` flag).
-- Billing portal / subscription management.
+- Idempotent webhook replay handling / dead-letter logging.
+- Refund IPN handling.
+- Seller payout automation.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🔴 CRITICAL | Implement NOWPayments IPN with `verifyNowpaymentsIpnSignature` | M | HIGH |
-| 🔴 CRITICAL | Add Stripe webhook → fulfill checkout sessions | M | HIGH |
-| 🟠 HIGH | Implement `POST /api/plans/crypto-intent` or remove Plans checkout UI | M | HIGH |
-| 🟡 MEDIUM | Stripe Connect or simplify to manual invoicing for directory model | XL | MED |
+| 🔴 CRITICAL | Verify NOWPayments keys + IPN URL on Render production | S | HIGH |
+| 🟠 HIGH | End-to-end payment smoke test (sandbox → paid order) | S | HIGH |
+| 🟡 MEDIUM | Webhook idempotency + structured logging | M | MED |
+| 🟢 LOW | Remove Stripe references from docs or implement webhook | L | LOW |
 
 ---
 
 ### ONBOARDING & USER FLOWS
 
-**Status:** PARTIAL
+**Status:** GOOD
 
-**Files audited:** `OnboardingRedirect.tsx`, `WelcomeClient.tsx`, `ProfileEditor.tsx`, `SettingsClient.tsx`, `server.js` onboarding routes, `onboarding_completed_at.sql`
+**Grade: 7/10** (was 6)
+
+**Files audited:** `OnboardingGate.tsx`, `web/src/app/onboarding/**`, `CreateListingForm.tsx`, `AccountHome.tsx`
 
 #### What's Done & Working
 
-- `/welcome` flow for username + title (`pendingOnboarding` from auth me).
-- `POST /api/onboarding/complete`.
-- Profile PUT APIs; avatar upload; username availability check.
-- `ProfileSetupBanner` in app shell.
-- Settings page with plan display, profile fields, social import.
-
-#### What Exists But Is Broken / Unused
-
-- **Landing `ProfileEditor`** — no UI opens it (`useLandingUI` dead).
-- **Email capture** on hero removed; `landing_interest_submissions` API remains.
+- `OnboardingGate` on landing + account layout.
+- `/onboarding`, `/onboarding/service` for post-signup.
+- Login with `?next=` return path (checkout, dashboard).
+- Seller whitelist messaging in account flows.
 
 #### What's Missing / Must Be Built
 
-- Role selection (specialist vs client) if still needed — roles collapsed to `member`.
 - Email verification UX.
-- Directory onboarding for curated operators (admin tooling).
-
-#### Recommendations
-
-| Priority | Action | Effort | Impact |
-|----------|--------|--------|--------|
-| 🟠 HIGH | Wire profile editor entry from nav or remove dead code | S | MED |
-| 🟡 MEDIUM | Align onboarding with directory-first positioning | M | MED |
+- Buyer vs seller role selection (collapsed to buyer default + whitelist for sellers).
 
 ---
 
 ### LEADERBOARD & RANKING
 
-**Status:** PARTIAL — gamification-heavy, conflicts with "no gamification" product goal.
+**Status:** REMOVED from product.
 
-**Files audited:** `rating-service.js`, `WoWRankingSystem.tsx`, `StoreClient.tsx`, `server.js` leaderboard routes, `20260403_currency_rating.sql`
+**Grade: 1/10** (was 4)
 
-#### What's Done & Working
-
-- `GET /api/leaderboard/:type` — rating, honor, conquest, performance, etc.
-- Leaderboard page uses `PerformanceLeaderboard` component.
-- Deal win/loss updates RP (`processDealWin`).
-- Bootstrap includes leaderboard slice.
-
-#### What Exists But Is Broken / Unused
-
-- **Honor / Conquest store** (`/store`) — full gamification economy live in UI.
-- **RP tiers** with names like `gladiator`, `undisputed` — gaming lexicon.
-- **Activity RP** for messages/bids (`processActivity`) — incentivizes noise.
-
-#### What's Missing / Must Be Built
-
-- If product is trust-first directory: replace RP with **verified milestones**, **years exp**, **completion rate** (already on curated cards).
-- Server-side ranking for directory operators separate from game RP.
-
-#### Recommendations
-
-| Priority | Action | Effort | Impact |
-|----------|--------|--------|--------|
-| 🟠 HIGH | Hide `/store` and RP mechanics for directory MVP | M | HIGH |
-| 🟡 MEDIUM | Expose close rate / delivery metrics on profiles (real data) | L | HIGH |
-| 🟢 LOW | Rename tiers to professional language if keeping system | S | MED |
+- `/leaderboard`, `/store` redirect home.
+- RP/Honor/Conquest API + DB tables still in repo.
+- Correct for current positioning — trust metrics replace gamification.
 
 ---
 
 ### SEO & DISCOVERABILITY
 
-**Status:** PARTIAL — good metadata on key pages; sitemap/robots drift from actual routes.
+**Status:** GOOD — updated for new routes.
 
-**Files audited:** `robots.ts`, `sitemap.ts`, `(landing)/page.tsx`, `(member)/[username]/page.tsx`, `next.config.mjs` redirects
+**Grade: 7.5/10** (was 7)
+
+**Files audited:** `robots.ts`, `sitemap.ts`, `(landing)/page.tsx`, `(member)/[username]/page.tsx`
 
 #### What's Done & Working
 
-- Root + landing metadata, OG images, JSON-LD on homepage.
-- Dynamic sitemap with profiles, services, requests, squads.
-- `metadataBase` set to `https://brandforge.gg`.
-- Profile URLs at `/{username}` with redirects from `/p/`.
+- `robots.ts` — no stale `/marketplace`, `/chat`, `/studio` allows; disallows `/api/`, `/auth/`.
+- `sitemap.ts` — fetches live starter/partner listings + talent profiles from API.
+- Homepage metadata + JSON-LD.
+- Profile URLs at `/{username}`.
 
 #### What Exists But Is Broken / Unused
 
-- **robots.ts** allows `/marketplace`, `/agents`, `/studio/` — some redirect or don't exist as intended.
-- **Sitemap** includes legacy `/p/` URLs at low priority.
-- **Metadata on work/offer pages** — should verify per-route (curated work pages exist).
-
-#### What's Missing / Must Be Built
-
-- Canonical tags on duplicate paths.
-- Structured data for `Person` / `Service` on operator profiles.
-- Cloudflare Bot Fight documentation (external).
+- `robots.ts` still allows `/offer/` (redirects to listing).
+- Sitemap omits listings if API fetch fails (degrades to static only).
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Align `robots.ts` + sitemap with actual public routes | S | MED |
-| 🟡 MEDIUM | Add JSON-LD for curated profiles and service offers | M | MED |
+| 🟡 MEDIUM | Add JSON-LD `Product`/`Service` on listing pages | M | MED |
 | 🟡 MEDIUM | Document Cloudflare crawler allowlist (dashboard setting) | S | MED |
-
-**Middleware 403:** Not caused by app code. Check Cloudflare **Security → Bots** and WAF rules.
 
 ---
 
@@ -598,135 +621,116 @@
 
 **Status:** PARTIAL
 
-**Files audited:** `next.config.mjs`, `web/package.json`, `wrangler.jsonc`, `platform-repository.js` (pagination grep implied), image config
+**Grade: 6.5/10** (was 6)
+
+**Files audited:** `next.config.mjs`, `wrangler.jsonc`, `render.yaml`
 
 #### What's Done & Working
 
-- `images.unoptimized: true` for Cloudflare compatibility.
-- Long-cache static assets in production headers.
-- `compress: true`, `reactStrictMode`.
-- API rate limiting per IP.
+- Lighter frontend without 1.7k-line `SimpleChat`.
+- `images.unoptimized: true` for Cloudflare.
+- API rate limiting (IPN/webhook exempt).
+- Unique `generateBuildId`.
 
 #### What Exists But Is Broken / Unused
 
-- **No image optimization** — larger LCP on portfolio imagery.
-- **SimpleChat** bundle weight — 1.7k lines client component.
-- **In-memory presence** on API — not durable across instances.
-
-#### What's Missing / Must Be Built
-
-- Error monitoring (Sentry).
-- Pagination audit on marketplace lists.
-- Multi-instance presence (Redis).
+- Render cold start on first API hit after idle.
+- No error monitoring (Sentry).
+- In-memory presence on legacy chat API.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Code-split `SimpleChat` / lazy load heavy routes | M | MED |
-| 🟡 MEDIUM | Add Sentry or Cloudflare Workers logging | M | MED |
-| 🟡 MEDIUM | CDN cache policy for `/public/images/**` | S | MED |
+| 🟠 HIGH | Render health ping / keep-warm for checkout path | S | MED |
+| 🟡 MEDIUM | Add Sentry on web + API | M | MED |
 
 ---
 
 ### CONVERSION & GROWTH
 
-**Status:** PARTIAL — landing optimized for directory; funnels fragmented.
+**Status:** GOOD — unified crypto-buy funnel.
 
-**Files audited:** `(landing)/page.tsx`, `DirectoryHero.tsx`, `ProfileCTA.tsx`, `GuarantorStrip.tsx`, `landing-interest` route, `PlansClient.tsx`
+**Grade: 8/10** (was 7)
+
+**Files audited:** `ConversionCTA.tsx`, `ForgeLanding.tsx`, `ForgeHero.tsx`, `web/src/lib/analytics.client.ts`
 
 #### What's Done & Working
 
-- Clear directory-first homepage flow.
-- Telegram/mxstermind CTAs on cards and profiles.
-- Trust copy blocks (`TrustStandards`, `GuarantorStrip`, FAQ).
-- Curated operator cards with work/service deep links.
+- Primary CTA hierarchy: **Buy Now** → `/listing/[id]?checkout=1`; **Ask Questions** → Discord.
+- Homepage hero → `#browse` → listing → checkout.
+- Analytics events: `checkout_start`, `checkout_redirect`, `checkout_error`.
+- Trust copy blocks on landing.
 
 #### What Exists But Is Broken / Unused
 
-- Removed hero email capture; interest API orphaned.
-- **Plans showcase** on landing not rendered.
-- **Signup** goes to `/login` — no dedicated conversion landing A/B.
-
-#### What's Missing / Must Be Built
-
-- Single primary CTA metric tracking.
-- Operator intake form → admin publish pipeline.
-- Pricing page aligned with directory (not marketplace escrow).
+- Some legal/marketing pages may still mention Telegram-first flows.
+- `landing-interest` API exists; hero email capture removed.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | One CTA path: Telegram + optional interest form | S | HIGH |
-| 🟡 MEDIUM | Admin workflow to publish operators from seed → DB | M | HIGH |
-| 🟢 LOW | Remove dead Plans/OfficialPackages components | S | LOW |
+| 🟡 MEDIUM | Copy audit: align all pages to crypto checkout funnel | S | MED |
+| 🟡 MEDIUM | Funnel dashboard from `platform_analytics_events` | M | MED |
 
 ---
 
 ### NOTIFICATIONS & COMMS
 
-**Status:** PARTIAL
+**Status:** PARTIAL — unchanged.
 
-**Files audited:** `notify-email.js`, `NotificationCenter.tsx`, `supabase/schema.sql` (notifications), migrations
+**Grade: 4/10** (was 4)
+
+**Files audited:** `notify-email.js`, notification migrations
 
 #### What's Done & Working
 
-- `notifications` table (multiple schema variants in migrations).
-- `NotificationCenter.tsx` component exists.
 - Resend integration stubbed in env.
-- Discord bot scripts for deals channel.
+- Discord bot scripts for ops.
 
 #### What Exists But Is Broken / Unused
 
 - Notification schema conflicts across migrations.
-- Email templates not found as dedicated files.
-- Push notifications — not present.
-
-#### What's Missing / Must Be Built
-
-- Reliable in-app notification delivery + read state.
-- Transactional email for bid/message events.
-- User notification preferences enforcement.
+- No transactional emails wired for order events.
+- In-app notification center not in current UI.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
+| 🟡 MEDIUM | Wire Resend for order status events | M | MED |
 | 🟡 MEDIUM | Pick one notifications schema and migrate | M | MED |
-| 🟡 MEDIUM | Wire Resend for key events (bid, message) | M | MED |
 
 ---
 
 ### ADMIN & OPERATIONS
 
-**Status:** NOT STARTED (as a product surface)
+**Status:** SHIPPED (minimal viable)
 
-**Files audited:** `api-reference.ts`, `BootstrapProvider.tsx`, grep admin in `server.js`
+**Grade: 7.5/10** (was 1)
+
+**Files audited:** `AdminPanel.tsx`, `marketplace-ship-routes.js`, `20260522_marketplace_productization.sql`
 
 #### What's Done & Working
 
-- `profiles.role` includes `admin`, `moderator`.
-- Discord scripts for operational notifications.
-- Cron endpoints for honor/RP decay (if configured).
+- `/admin` → `AdminPanel`: overview KPIs, orders list, disputes, seller whitelist CRUD, user ban (`is_public: false`).
+- Server-enforced `requireAdmin` on all `/api/admin/*`.
+- Seller whitelist gates listing creation.
 
 #### What Exists But Is Broken / Unused
 
-- **Admin API** documented, not implemented.
-- **`isPlatformAdmin`** never populated.
-- No admin UI routes.
-
-#### What's Missing / Must Be Built
-
-- Admin panel: user management, curated operator CRUD, interest submissions review.
-- Secure admin guard (email allowlist or role).
+- No server-side page guard on `/admin`.
+- No curated operator CRUD in admin.
+- No refund/dispute resolution actions.
 
 #### Recommendations
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
-| 🟠 HIGH | Minimal admin: curated_operators CRUD + interest list | L | HIGH |
-| 🟡 MEDIUM | Implement bootstrap `isPlatformAdmin` + route guards | M | MED |
+| 🟠 HIGH | Server-side admin gate on `/admin` | S | HIGH |
+| 🟠 HIGH | Dispute resolution actions in admin | M | HIGH |
+| 🟡 MEDIUM | Curated operator CRUD in admin | L | MED |
 
 ---
 
@@ -734,28 +738,21 @@
 
 | # | Department | Finding | Priority | Effort | Impact | Action |
 |---|-----------|---------|----------|--------|--------|--------|
-| 1 | Security | Unauthenticated `POST /api/apply-migration` | 🔴 CRITICAL | S | HIGH | Remove or require admin JWT in `server.js` |
-| 2 | Payments | NOWPayments IPN is no-op | 🔴 CRITICAL | M | HIGH | Implement signature verify + DB fulfill in `server.js` |
-| 3 | Payments | No Stripe webhook | 🔴 CRITICAL | M | HIGH | Add `POST /api/stripe/webhook` using `constructWebhookEvent` |
-| 4 | Architecture | Bootstrap API route returns stub on Worker | 🔴 CRITICAL | S | HIGH | Proxy `web/src/app/api/bootstrap/route.ts` to Node |
-| 5 | Database | `curated_operators` table may be missing | 🔴 CRITICAL | S | HIGH | Apply migration + seed in Supabase |
-| 6 | Auth | `(main)` routes not session-gated | 🔴 CRITICAL | M | HIGH | Use `AuthGuard` or middleware on app shell |
-| 7 | Product | Two visions: marketplace vs curated directory | 🟠 HIGH | M | HIGH | Product decision + hide dead marketplace UX |
-| 8 | Database | Migration conflicts (notifications, squads) | 🟠 HIGH | L | HIGH | Reconcile migrations; document apply order |
-| 9 | Payments | Plans crypto checkout calls missing API | 🟠 HIGH | M | HIGH | Implement `/api/plans/crypto-intent` or disable UI |
-| 10 | SEO | robots/sitemap reference stale routes | 🟠 HIGH | S | MED | Update `robots.ts` + `sitemap.ts` |
-| 11 | Design | Dual token systems (landing vs app) | 🟠 HIGH | M | MED | Unify `tokens.css` usage |
-| 12 | Chat | Dual chat schemas | 🟠 HIGH | L | HIGH | Deprecate legacy or unified |
-| 13 | Leaderboard | RP/Honor/Conquest contradicts trust directory | 🟠 HIGH | M | HIGH | Hide store/RP for MVP |
-| 14 | Code health | ~30 orphan components | 🟡 MEDIUM | M | MED | Delete or wire landing components |
-| 15 | Routing | `/ai/studio` → missing `/studio` | 🟡 MEDIUM | S | MED | Fix redirect target |
-| 16 | Profile | `ProfileEditor` never opened | 🟡 MEDIUM | S | MED | Add nav action or remove |
-| 17 | Marketplace | `specialist` role checks outdated | 🟡 MEDIUM | S | MED | Update `platform-repository.js` |
-| 18 | Observability | No Sentry/analytics | 🟡 MEDIUM | M | MED | Add error tracking |
-| 19 | Performance | SimpleChat monolith | 🟡 MEDIUM | M | MED | Code-split chat |
-| 20 | Admin | No admin panel | 🟡 MEDIUM | L | HIGH | Build minimal ops UI |
-| 21 | Legacy | `production-layer.js` unused | 🟢 LOW | S | LOW | Archive |
-| 22 | API docs | `api-reference.ts` ahead of implementation | 🟢 LOW | M | LOW | Mark unimplemented endpoints |
+| 1 | Database | Ship migrations may be unapplied on prod | 🔴 CRITICAL | S | HIGH | Apply `20260521`–`20260524` on Supabase; smoke test checkout |
+| 2 | Payments | NOWPayments env must be live on Render | 🔴 CRITICAL | S | HIGH | Verify API key, IPN secret, callback URL on production |
+| 3 | Ops | Backend changes require Render redeploy | 🔴 CRITICAL | S | HIGH | Redeploy API after latest commits; Cloudflare alone insufficient |
+| 4 | Security | `/admin` UI not role-gated at page level | 🟠 HIGH | S | HIGH | Server-side admin check in layout/middleware |
+| 5 | Security | Dashboard/account client-only auth | 🟠 HIGH | M | HIGH | Middleware session gate |
+| 6 | Marketplace | Partner subscription renewal undefined | 🟠 HIGH | M | HIGH | Document/implement renewal billing |
+| 7 | Admin | Disputes list-only, no resolution actions | 🟠 HIGH | M | HIGH | Add force-complete, refund, message buyer/seller |
+| 8 | Legacy | Chat/squad/leaderboard API still live | 🟡 MEDIUM | M | MED | Return 410 or remove handlers |
+| 9 | Code health | Orphan static catalog + dead pages | 🟡 MEDIUM | S | MED | Delete `data.ts` products, offers page, unused components |
+| 10 | Payments | No Stripe webhook | 🟡 MEDIUM | L | LOW | Remove from docs or implement if needed |
+| 11 | Observability | No Sentry | 🟡 MEDIUM | M | MED | Add error tracking on checkout path |
+| 12 | SEO | Listing JSON-LD missing | 🟡 MEDIUM | M | MED | Add structured data on `/listing/[id]` |
+| 13 | Notifications | No order status emails | 🟡 MEDIUM | M | MED | Wire Resend for paid/delivered/completed |
+| 14 | Database | Old migration conflicts unresolved | 🟡 MEDIUM | L | MED | Reconcile notifications/squads |
+| 15 | Legacy | `production-layer.js` | 🟢 LOW | S | LOW | Archive |
 
 ---
 
@@ -763,63 +760,77 @@
 
 ### Platform Readiness Score (0–10)
 
-| Department | Score | Note |
-|------------|-------|------|
-| Architecture & Stack | 6 | Deploy works; split brain between web/API/legacy |
-| Authentication & Security | 4 | API auth OK; web routes exposed; migration endpoint critical |
-| Database & Data Layer | 5 | Rich schema; migration chaos; RLS gaps |
-| Design System & UI | 6 | Strong landing polish; app/landing split |
-| Marketplace Core | 5 | Backend exists; product pivoted to directory |
-| Chat & Messaging | 5 | Feature-rich but heavy and dual-stack |
-| AI & Agents | 5 | LLM works; agent product immature |
-| Payments & Monetization | 2 | Not production-safe |
-| Onboarding & User Flows | 6 | Welcome flow OK; landing editor dead |
-| Leaderboard & Ranking | 4 | Works but wrong product fit |
-| SEO & Discoverability | 7 | Solid base; route drift |
-| Performance & Infrastructure | 6 | CF deploy OK; monitoring weak |
-| Conversion & Growth | 7 | Landing aligned to directory MVP |
-| Notifications & Comms | 4 | Partial |
-| Admin & Operations | 1 | Effectively absent |
+| Department | May 19 | May 24 | Note |
+|------------|--------|--------|------|
+| Architecture & Stack | 6 | **7** | `(main)` removed; cleaner shop/landing split |
+| Authentication & Security | 4 | **6** | Critical holes fixed; page guards still weak |
+| Database & Data Layer | 5 | **6.5** | Ship migrations solid; prod state unverified |
+| Design System & UI | 6 | **7.5** | Summer-sky unified light theme |
+| Marketplace Core | 5 | **8** | Starter/Partner + 6 listings + browse on `/` |
+| Trust & Reviews | — | **8** | Real metrics, threshold-gated |
+| Orders & Fulfillment | — | **7.5** | Full lifecycle shipped |
+| Chat & Messaging | 5 | **2** | UI removed; API legacy |
+| AI & Agents | 5 | **2** | UI removed |
+| Payments & Monetization | 2 | **7** | Crypto checkout shipped; no Stripe |
+| Onboarding & User Flows | 6 | **7** | OnboardingGate + seller whitelist |
+| Leaderboard & Ranking | 4 | **1** | Correctly de-scoped |
+| SEO & Discoverability | 7 | **7.5** | robots/sitemap updated |
+| Performance & Infrastructure | 6 | **6.5** | Lighter frontend; Render cold start |
+| Conversion & Growth | 7 | **8** | Buy Now primary, homepage browse |
+| Notifications & Comms | 4 | **4** | Unchanged |
+| Admin & Operations | 1 | **7.5** | Admin panel + whitelist shipped |
 
-**Overall platform readiness for paying marketplace users: ~4/10**  
-**Overall readiness for curated directory + manual matching (current positioning): ~6/10**
+### Reality Score
 
-### Top 5 Blockers
+| Scenario | Score | Condition |
+|----------|-------|-----------|
+| **Paying crypto marketplace users** | **7/10** | IF migrations applied + Render redeployed + NOWPayments configured |
+| Same, without prod DB/env | **5/10** | Checkout fails or orders table missing |
+| **Curated directory + manual Discord** | **7.5/10** | Homepage talent strip + Discord CTAs work today |
+| **May 19 baseline** | 4/10 marketplace / 6/10 directory | For comparison |
 
-1. **Payment webhooks not implemented** — money can leave users without platform fulfillment.
-2. **`POST /api/apply-migration` unauthenticated** — arbitrary schema mutation risk.
-3. **No web session protection on `(main)`** — broken UX and data exposure surface.
-4. **Supabase migration state unknown** — `curated_operators`, conflicting social tables.
-5. **Bootstrap stub on Worker** — if proxy misconfigured, entire authenticated app breaks.
+### Top 5 Blockers (production money path)
+
+1. **Supabase migrations `20260521`–`20260524` must be applied** — without them, checkout/order APIs fail.
+2. **Render API must run latest backend** — frontend-only Cloudflare deploy is not enough.
+3. **NOWPayments production keys + IPN URL** — misconfiguration = paid crypto, unpaid order.
+4. **Partner subscription renewal** — unclear automated rebill; risk after month 1.
+5. **Dispute/refund ops** — status exists; no admin resolution workflow.
 
 ### Top 5 Quick Wins
 
-1. Remove or auth-gate `/api/apply-migration` (minutes).
-2. Fix `web/src/app/api/bootstrap/route.ts` to proxy Node (minutes).
-3. Apply `20260518_curated_operators.sql` + seed four operators (hours).
-4. Hide `/store`, `/leaderboard` gamification from nav for directory MVP (hours).
-5. Delete 10+ unused landing components to reduce confusion (hours).
+1. Production smoke test: `/#browse` → listing → checkout → IPN → dashboard order.
+2. Server-side admin gate on `/admin` (1 file).
+3. Delete orphan `web/src/lib/marketplace/data.ts` + unused components.
+4. Render keep-warm ping on `/api/health`.
+5. Copy pass: remove Telegram-first language from help/legal pages.
 
 ### What NOT to Build (defer or kill)
 
-- Full Stripe Connect marketplace escrow — defer until directory proves traction.
-- Agent swarm orchestration (`src/core/*`) — scaffold only; kill or park.
-- Legacy `production-layer.js` SPA — kill.
-- Honor/Conquest economy expansion — conflicts with trust-first positioning.
-- `/studio` AI studio route — fix redirect or kill until spec exists.
-- Documented-but-unimplemented admin API — don't build full surface until minimal CRUD exists.
+- Full Stripe Connect marketplace — crypto path is canonical now.
+- Chat/squads/leaderboard product surfaces — already redirected; kill API next.
+- Agent swarm orchestration (`src/core/*`) — scaffold only.
+- Honor/Conquest economy — conflicts with trust-first model.
+- `/marketplace` standalone page — correctly killed; browse stays on `/`.
+- `production-layer.js` SPA — archive.
 
-### Recommended Build Order (next sprints)
+### Recommended Build Order
 
-1. **Security & stability:** migration endpoint, bootstrap proxy, auth layout, apply curated_operators migration.
-2. **Directory MVP hardening:** unified design tokens, operator content from DB, profile/work/offer pages QA, single CTA path.
-3. **Payments truth:** NOWPayments IPN + Stripe webhook OR disable all checkout buttons until ready.
-4. **De-scope marketplace:** hide bids/requests creation from nav or gate behind feature flag.
-5. **Admin minimal:** interest submissions + curated operator editor.
-6. **SEO pass:** robots, sitemap, JSON-LD for profiles.
-7. **Chat simplification:** auth-gate, deprecate legacy chat schema.
-8. **Observability:** Sentry + basic analytics.
+1. **Prod verification:** apply migrations, redeploy Render, NOWPayments smoke test.
+2. **Ops hardening:** admin dispute actions, order emails, webhook idempotency logging.
+3. **Security:** server-side guards on `/admin`, `/dashboard`, `/account`.
+4. **Legacy cleanup:** remove chat/squad API, static catalog, dead pages.
+5. **Partner billing:** define and implement subscription renewal.
+6. **Observability:** Sentry on checkout + IPN path.
+
+### Operational Checklist (before taking real money)
+
+1. Apply Supabase migrations `20260521`–`20260524`.
+2. Redeploy Render API with latest `server.js` + `src/server/*`.
+3. Set `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` on Render; confirm IPN hits `https://brandforge-api-rwwo.onrender.com/api/nowpayments/ipn`.
+4. Run sandbox payment → confirm order moves `pending` → `paid` → dashboard visible.
+5. Confirm trust UI shows **nothing** (not zeros) for sellers below thresholds.
 
 ---
 
-*End of audit. All findings tied to repository paths read during this session.*
+*End of audit. All findings tied to repository at commit `bbfb67e`.*
