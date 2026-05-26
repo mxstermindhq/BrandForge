@@ -1,0 +1,8 @@
+{
+  "name": "brandforge-site",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  }
+}
