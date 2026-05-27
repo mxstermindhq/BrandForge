@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "preview": "wrangler dev"
+    "preview": "wrangler dev",
+    "assets": "node scripts/generate-favicons.mjs"
   }
 }
