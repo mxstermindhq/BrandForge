@@ -2,7 +2,8 @@
   "name": "brandforge-site",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
+    "predeploy": "node scripts/inject-analytics.mjs",
+    "deploy": "npm run predeploy && wrangler deploy",
     "preview": "wrangler dev",
     "assets": "node scripts/generate-favicons.mjs"
   }
