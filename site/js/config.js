@@ -5,23 +5,23 @@ window.BF_CONFIG={
   packages:{
     "brand-sprint":{
       label:"Brand Sprint",
-      discordMsg:"Hi BrandForge — I'm interested in the Brand Sprint package ($500–$1,200).",
-      telegramMsg:"Hi BrandForge — I'm interested in the Brand Sprint package ($500–$1,200)."
+      discordMsg:"Hi BrandForge — I'm interested in Brand Sprint ($500–$1,200).\n\nProject: \nDeadline: \nReferences: ",
+      telegramMsg:"Hi BrandForge — I'm interested in Brand Sprint ($500–$1,200). Project: [describe]. Deadline: [date]."
     },
     "launch-stack":{
       label:"Launch Stack",
-      discordMsg:"Hi BrandForge — I'm interested in the Launch Stack package ($2,500–$7,500).",
-      telegramMsg:"Hi BrandForge — I'm interested in the Launch Stack package ($2,500–$7,500)."
+      discordMsg:"Hi BrandForge — I'm interested in Launch Stack ($2,500–$7,500).\n\nProject: \nPages/features needed: \nDeadline: \nEscrow: yes/no",
+      telegramMsg:"Hi BrandForge — I'm interested in Launch Stack ($2,500–$7,500). Project: [describe]. Deadline: [date]."
     },
     "growth-engine":{
       label:"Growth Engine",
-      discordMsg:"Hi BrandForge — I'd like to apply for the Growth Engine retainer ($3,500/mo).",
-      telegramMsg:"Hi BrandForge — I'd like to apply for the Growth Engine retainer ($3,500/mo)."
+      discordMsg:"Hi BrandForge — I'd like to apply for Growth Engine ($3,500/mo).\n\nWhat I need monthly: \nCurrent site/product: \nStart date: ",
+      telegramMsg:"Hi BrandForge — I'd like to apply for Growth Engine ($3,500/mo). Monthly needs: [describe]."
     },
     custom:{
-      label:"Custom scope",
-      discordMsg:"Hi BrandForge — I need a custom scope (not sure which package fits). Can you quote me?",
-      telegramMsg:"Hi BrandForge — I need a custom scope (not sure which package fits). Can you quote me?"
+      label:"Custom quote",
+      discordMsg:"Hi BrandForge — I need a quote.\n\nPackage (if known): \nProject: \nDeadline: \nPayment: crypto / escrow\nReferences: ",
+      telegramMsg:"Hi BrandForge — I need a quote. Project: [describe]. Deadline: [date]. Payment: crypto or escrow."
     }
   }
 };

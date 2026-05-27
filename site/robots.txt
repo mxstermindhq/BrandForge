@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 
 Sitemap: https://brandforge.gg/sitemap.xml
+
+# LLM / agent context
+# https://brandforge.gg/llms.txt

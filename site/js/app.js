@@ -81,10 +81,25 @@
     el.setAttribute("href",cfg.discord||"https://discord.gg/a8Nz2R6M55");
     el.addEventListener("click",function(){
       copyText(pkg.discordMsg).then(function(){
-        toast("Copied your "+pkg.label+" message — paste it in Discord when you join.");
+        toast("Copied your "+pkg.label+" intake — paste it in Discord when you join.");
       }).catch(function(){
         toast("Open Discord and mention: "+pkg.label);
       });
     });
   });
+
+  var sticky=document.getElementById("sticky-cta");
+  var contact=document.getElementById("contact");
+  if(sticky&&contact&&!m.matches){
+    document.body.classList.add("has-sticky-cta");
+    var stickyObs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        sticky.classList.toggle("show",!e.isIntersecting&&window.scrollY>400);
+      });
+    },{threshold:0,rootMargin:"0px"});
+    stickyObs.observe(contact);
+    window.addEventListener("scroll",function(){
+      if(window.scrollY<=400)sticky.classList.remove("show");
+    },{passive:true});
+  }
 })();
