@@ -52,4 +52,12 @@
     margin-inline: auto;
     padding-inline: clamp(18px, 4vw, 32px);
   }
+
+  /* Kinetic type — GPU layer hints (transform/opacity only in GSAP) */
+  .bf-char,
+  .bf-word-inner,
+  .bf-line-inner {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
 }

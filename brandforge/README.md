@@ -11,6 +11,14 @@ Awwwards-tier rebuild of brandforge.gg. See `/audit/brandforge-audit.md` for ful
 - Fixed R3F canvas overlay (`pointer-events: none`)
 - `prefers-reduced-motion` at provider level
 
+## Phase 2 — Kinetic typography ✅
+
+- In-house char/word/line split (`src/lib/motion/split-text.ts`) — SplitText-compatible surface without Club plugin
+- Custom cubic-bezier easings (`EASE_KINETIC`, `EASE_HERO_CHAR`)
+- Hero: char stagger + word clip reveal subheading + eyebrow char stagger
+- Section headings: line wipe from below via ScrollTrigger (scrub optional)
+- All animations use `transform` + `opacity` only — no layout properties
+
 ## Install (all phases)
 
 ```bash
