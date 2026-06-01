@@ -11,7 +11,13 @@ Awwwards-tier rebuild of brandforge.gg. See `/audit/brandforge-audit.md` for ful
 - Fixed R3F canvas overlay (`pointer-events: none`)
 - `prefers-reduced-motion` at provider level
 
-## Phase 2 — Kinetic typography ✅
+## Phase 3 — Scrollytelling ✅
+
+- Services: pinned horizontal cinematic sequence (desktop), vertical fade on mobile
+- Packages: scroll-driven stack with scale + blur handoff between cards
+- Portfolio: clip-path mask reveals + parallax depth layers (0.3× / 0.6× / 1×)
+- Hero stats: clip-path reveal blocks
+- Vouches: staggered entrance + 3D mouse-proximity tilt
 
 - In-house char/word/line split (`src/lib/motion/split-text.ts`) — SplitText-compatible surface without Club plugin
 - Custom cubic-bezier easings (`EASE_KINETIC`, `EASE_HERO_CHAR`)

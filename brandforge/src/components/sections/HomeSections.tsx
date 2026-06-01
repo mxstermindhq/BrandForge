@@ -1,23 +1,100 @@
 "use client";
 
 import Link from "next/link";
+import { useGSAP } from "@gsap/react";
+import { useRef } from "react";
+import { HeroStats } from "@/components/sections/HeroStats";
 import {
   EyebrowLabel,
   HeroLine,
   HeroSubheading,
   KineticHero,
-  SectionHeading,
-  SectionLine,
 } from "@/components/typography";
+import { PackageStackSection } from "@/components/sections/PackageStackSection";
+import { PortfolioSection } from "@/components/sections/PortfolioSection";
+import { ServicesPinSection } from "@/components/sections/ServicesPinSection";
+import { VouchesSection } from "@/components/sections/VouchesSection";
 import { SITE } from "@/config/site";
+import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
+import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
 
 export function HomeHero(): React.JSX.Element {
+  const sectionRef = useRef<HTMLElement>(null);
+  const layerSlowRef = useRef<HTMLDivElement>(null);
+  const layerMidRef = useRef<HTMLDivElement>(null);
+  const layerFastRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+
+  useGSAP(
+    () => {
+      registerGsapPlugins();
+      const section = sectionRef.current;
+      if (!section || reducedMotion) return;
+
+      const layers: Array<{ el: HTMLDivElement | null; factor: number }> = [
+        { el: layerSlowRef.current, factor: 0.3 },
+        { el: layerMidRef.current, factor: 0.6 },
+        { el: layerFastRef.current, factor: 1 },
+      ];
+
+      layers.forEach(({ el, factor }) => {
+        if (!el) return;
+        gsap.to(el, {
+          yPercent: 28 * factor,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      });
+
+      return () => {
+        layers.forEach(({ el }) => {
+          if (el) gsap.killTweensOf(el);
+        });
+      };
+    },
+    { scope: sectionRef, dependencies: [reducedMotion] },
+  );
+
   return (
-    <section className="relative flex min-h-screen flex-col justify-center overflow-hidden pt-[120px] pb-20">
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-screen flex-col justify-center overflow-hidden pt-[120px] pb-20"
+    >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_55%_at_15%_50%,rgba(124,58,237,0.13),transparent_60%),radial-gradient(ellipse_35%_35%_at_85%_20%,rgba(124,58,237,0.07),transparent_60%)]"
+        ref={layerSlowRef}
+        className="pointer-events-none absolute inset-0 will-change-transform"
         aria-hidden
+        style={{
+          background:
+            "radial-gradient(ellipse 55% 55% at 15% 50%, rgba(124,58,237,0.13), transparent 60%)",
+        }}
       />
+      <div
+        ref={layerMidRef}
+        className="pointer-events-none absolute inset-0 will-change-transform"
+        aria-hidden
+        style={{
+          background:
+            "radial-gradient(ellipse 35% 35% at 85% 20%, rgba(124,58,237,0.07), transparent 60%)",
+        }}
+      />
+      <div
+        ref={layerFastRef}
+        className="pointer-events-none absolute inset-0 will-change-transform opacity-40"
+        aria-hidden
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(124,58,237,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.055) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+          maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, black 10%, transparent 70%)",
+        }}
+      />
+
       <div className="content-wrap relative">
         <EyebrowLabel text="Design · Development · Growth" />
         <KineticHero ariaLabel="We Build, Optimise and Grow Brands.">
@@ -48,6 +125,7 @@ export function HomeHero(): React.JSX.Element {
             Get a quote on Discord
           </a>
         </div>
+        <HeroStats />
       </div>
     </section>
   );
@@ -56,45 +134,10 @@ export function HomeHero(): React.JSX.Element {
 export function HomeSections(): React.JSX.Element {
   return (
     <>
-      <section id="packages" className="border-t border-b1 bg-s1 py-[100px]">
-        <div className="content-wrap">
-          <EyebrowLabel text="Packages" className="mb-3" delay={0} />
-          <SectionHeading className="mt-0">
-            <SectionLine>Pick your starting point.</SectionLine>
-          </SectionHeading>
-          <p className="mt-4 max-w-lg text-sm text-text-secondary">
-            Fixed price ranges — scope confirmed in 24 hours. Escrow and middleman accepted on every
-            order.
-          </p>
-          <div className="mt-16 grid gap-4 md:grid-cols-3">
-            {(["Brand Sprint", "Launch Stack", "Growth Engine"] as const).map((name) => (
-              <article
-                key={name}
-                className="rounded-md border border-b1 bg-bg p-8 transition-transform hover:-translate-y-1 hover:border-[var(--a-mid)]"
-              >
-                <h3 className="text-xl font-bold">{name}</h3>
-                <p className="mt-2 text-xs text-muted">Phase 3 — scroll-driven card stack.</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="portfolio" className="py-[100px]">
-        <div className="content-wrap">
-          <SectionHeading scrub>
-            <SectionLine>
-              Work we&apos;ve <em className="text-accent-bright not-italic">shipped.</em>
-            </SectionLine>
-          </SectionHeading>
-          <ul className="mt-8 flex flex-wrap gap-4 font-mono text-xs text-text-secondary">
-            <li>cascade.markets</li>
-            <li>drain.cx</li>
-            <li>CarSpot Live</li>
-            <li>dyotravel.com</li>
-          </ul>
-        </div>
-      </section>
+      <ServicesPinSection />
+      <PortfolioSection />
+      <PackageStackSection />
+      <VouchesSection />
     </>
   );
 }
