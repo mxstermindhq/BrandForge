@@ -11,33 +11,33 @@ Awwwards-tier rebuild of brandforge.gg. See `/audit/brandforge-audit.md` for ful
 - Fixed R3F canvas overlay (`pointer-events: none`)
 - `prefers-reduced-motion` at provider level
 
-## Phase 5 — Micro-interactions & polish ✅
+## Phase 2 — Kinetic typography ✅
 
-- Custom cursor: 8px dot + 32px ring, lerped follow, expand on interactive elements
-- Nav: transparent at top → solid surface on scroll (Lenis-synced)
-- GSAP curtain wipe on internal route changes (cover → navigate → reveal)
-- First-visit loading screen: BrandForge char assemble
-- Magnetic CTAs on hero + header Discord
+- In-house char/word/line split (`src/lib/motion/split-text.ts`)
+- Custom cubic-bezier easings (`EASE_KINETIC`, `EASE_HERO_CHAR`)
+- Hero char stagger + word clip subheading + section heading line wipes
 
-- GLSL particle field (3200 desktop / 1200 mobile) — cluster at center, dissolve on scroll
-- Mouse repulsion via lerped `uMouse` uniform
-- Noise displacement plane behind headline grid
-- Magnetic pull on hero primary CTAs
+## Phase 3 — Scrollytelling ✅
+
+- Services pin, package stack, portfolio reveals, hero stats, vouches + tilt
+
+## Phase 4 — WebGL hero ✅
+
+- GLSL particles + displacement plane, mouse repulsion, magnetic CTAs
 - WebGL detection fallback + reduced-motion skip
 
-- Services: pinned horizontal cinematic sequence (desktop), vertical fade on mobile
-- Packages: scroll-driven stack with scale + blur handoff between cards
-- Portfolio: clip-path mask reveals + parallax depth layers (0.3× / 0.6× / 1×)
-- Hero stats: clip-path reveal blocks
-- Vouches: staggered entrance + 3D mouse-proximity tilt
+## Phase 5 — Micro-interactions ✅
 
-- In-house char/word/line split (`src/lib/motion/split-text.ts`) — SplitText-compatible surface without Club plugin
-- Custom cubic-bezier easings (`EASE_KINETIC`, `EASE_HERO_CHAR`)
-- Hero: char stagger + word clip reveal subheading + eyebrow char stagger
-- Section headings: line wipe from below via ScrollTrigger (scrub optional)
-- All animations use `transform` + `opacity` only — no layout properties
+- Custom cursor, scroll-aware nav, page transition curtain, first-visit loader
+- Shared `SiteHeader` / `SiteFooter` on home, terms, privacy
 
-## Install (all phases)
+## Phase 6 — Performance audit ✅
+
+- Lighthouse: `/audit/lighthouse.md` + `audit/lh-*.json`
+- Deferred WebGL, demand frameloop, hero exit unmount, code-split sections
+- `next/image` header logo; dynamic cursor/curtain/canvas imports
+
+## Install
 
 ```bash
 cd brandforge

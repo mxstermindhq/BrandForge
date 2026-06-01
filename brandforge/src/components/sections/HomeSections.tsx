@@ -2,6 +2,7 @@
 
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { useGSAP } from "@gsap/react";
+import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { HeroStats } from "@/components/sections/HeroStats";
 import {
@@ -10,10 +11,38 @@ import {
   HeroSubheading,
   KineticHero,
 } from "@/components/typography";
-import { PackageStackSection } from "@/components/sections/PackageStackSection";
-import { PortfolioSection } from "@/components/sections/PortfolioSection";
-import { ServicesPinSection } from "@/components/sections/ServicesPinSection";
-import { VouchesSection } from "@/components/sections/VouchesSection";
+
+const ServicesPinSection = dynamic(
+  () =>
+    import("@/components/sections/ServicesPinSection").then((mod) => ({
+      default: mod.ServicesPinSection,
+    })),
+  { ssr: true },
+);
+
+const PortfolioSection = dynamic(
+  () =>
+    import("@/components/sections/PortfolioSection").then((mod) => ({
+      default: mod.PortfolioSection,
+    })),
+  { ssr: true },
+);
+
+const PackageStackSection = dynamic(
+  () =>
+    import("@/components/sections/PackageStackSection").then((mod) => ({
+      default: mod.PackageStackSection,
+    })),
+  { ssr: true },
+);
+
+const VouchesSection = dynamic(
+  () =>
+    import("@/components/sections/VouchesSection").then((mod) => ({
+      default: mod.VouchesSection,
+    })),
+  { ssr: true },
+);
 import { SITE } from "@/config/site";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";

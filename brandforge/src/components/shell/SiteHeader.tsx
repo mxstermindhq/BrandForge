@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { SITE } from "@/config/site";
@@ -44,14 +45,15 @@ export function SiteHeader(): React.JSX.Element {
     >
       <div className="content-wrap flex min-h-14 items-center justify-between gap-4 py-3.5">
         <Link href="/" className="inline-flex items-center" aria-label="BrandForge home" data-cursor="hover">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/img/logo-header.png"
             alt="BrandForge.gg"
             width={233}
             height={36}
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             className="h-7 w-auto max-w-[200px]"
-            fetchPriority="high"
           />
         </Link>
         <nav className="hidden items-center gap-5 md:flex" aria-label="Primary">
