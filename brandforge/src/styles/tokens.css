@@ -1,0 +1,43 @@
+/**
+ * BrandForge design tokens — extracted from site/index.html :root
+ * Used by Tailwind @theme and component-level custom properties.
+ */
+:root {
+  --bg: #060608;
+  --s1: #0b0b0f;
+  --s2: #0f0f14;
+  --b1: #181820;
+  --b2: #222230;
+  --a: #7c3aed;
+  --a2: #9d5fff;
+  --a-dim: rgba(124, 58, 237, 0.07);
+  --a-glow: rgba(124, 58, 237, 0.3);
+  --a-mid: rgba(124, 58, 237, 0.45);
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --text: #e2e0ea;
+  --t2: #a09cb8;
+  --muted: #5c5870;
+  --m2: #2a2838;
+  --dc: #5865f2;
+  --tg: #229ed9;
+  --max: 1200px;
+  --r: 4px;
+  --font-display: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --font-mono-stack: var(--font-mono-face), "Space Mono", ui-monospace, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
