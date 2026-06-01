@@ -11,7 +11,13 @@ Awwwards-tier rebuild of brandforge.gg. See `/audit/brandforge-audit.md` for ful
 - Fixed R3F canvas overlay (`pointer-events: none`)
 - `prefers-reduced-motion` at provider level
 
-## Phase 3 — Scrollytelling ✅
+## Phase 4 — WebGL brand element ✅
+
+- GLSL particle field (3200 desktop / 1200 mobile) — cluster at center, dissolve on scroll
+- Mouse repulsion via lerped `uMouse` uniform
+- Noise displacement plane behind headline grid
+- Magnetic pull on hero primary CTAs
+- WebGL detection fallback + reduced-motion skip
 
 - Services: pinned horizontal cinematic sequence (desktop), vertical fade on mobile
 - Packages: scroll-driven stack with scale + blur handoff between cards

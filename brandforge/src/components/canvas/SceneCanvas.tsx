@@ -1,18 +1,25 @@
 "use client";
 
 import { Suspense, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { Canvas } from "@react-three/fiber";
 import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useWebGLSupported } from "@/lib/webgl/scene-uniforms";
+
+const HeroScene = dynamic(
+  () => import("@/components/canvas/HeroScene").then((mod) => mod.HeroScene),
+  { ssr: false },
+);
 
 type SceneCanvasProps = {
   children?: ReactNode;
 };
 
 /** Fixed full-viewport R3F layer — pointer-events none so DOM remains interactive. */
-function SceneCanvasInner({ children }: SceneCanvasProps): React.JSX.Element {
+function SceneCanvasInner(): React.JSX.Element {
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-0"
+      className="pointer-events-none fixed inset-0 z-[1]"
       aria-hidden="true"
       data-r3f-canvas=""
     >
@@ -26,18 +33,22 @@ function SceneCanvasInner({ children }: SceneCanvasProps): React.JSX.Element {
           depth: true,
         }}
         dpr={[1, 1.5]}
-        frameloop="demand"
+        frameloop="always"
+        style={{ background: "transparent" }}
       >
-        <Suspense fallback={null}>{children}</Suspense>
+        <Suspense fallback={null}>
+          <HeroScene />
+        </Suspense>
       </Canvas>
     </div>
   );
 }
 
-export function SceneCanvas({ children }: SceneCanvasProps): React.JSX.Element | null {
+export function SceneCanvas(): React.JSX.Element | null {
   const reducedMotion = useReducedMotion();
+  const webglSupported = useWebGLSupported();
 
-  if (reducedMotion) return null;
+  if (reducedMotion || !webglSupported) return null;
 
-  return <SceneCanvasInner>{children}</SceneCanvasInner>;
+  return <SceneCanvasInner />;
 }

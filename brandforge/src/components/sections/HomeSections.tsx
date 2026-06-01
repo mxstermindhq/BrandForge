@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { MagneticButton } from "@/components/motion/MagneticButton";
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 import { HeroStats } from "@/components/sections/HeroStats";
@@ -62,6 +62,7 @@ export function HomeHero(): React.JSX.Element {
 
   return (
     <section
+      id="hero"
       ref={sectionRef}
       className="relative flex min-h-screen flex-col justify-center overflow-hidden pt-[120px] pb-20"
     >
@@ -110,20 +111,21 @@ export function HomeHero(): React.JSX.Element {
           text=" — built for founders, SaaS teams, and Web3 operators who want fixed USD pricing, not three vendors. Packages from $500. Quote in 24 hours."
         />
         <div className="mt-10 flex flex-wrap gap-3">
-          <Link
+          <MagneticButton
+            asChild
             href="#packages"
-            className="inline-flex items-center rounded bg-accent px-7 py-3.5 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 hover:shadow-[0_10px_30px_var(--a-glow)]"
+            className="rounded bg-accent px-7 py-3.5 text-sm font-bold text-white shadow-none hover:shadow-[0_10px_30px_var(--a-glow)]"
           >
             View packages ↓
-          </Link>
-          <a
+          </MagneticButton>
+          <MagneticButton
             href={SITE.discord}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary transition-colors hover:border-[var(--a-mid)] hover:text-text"
+            className="rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
           >
             Get a quote on Discord
-          </a>
+          </MagneticButton>
         </div>
         <HeroStats />
       </div>
