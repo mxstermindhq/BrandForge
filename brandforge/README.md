@@ -11,7 +11,13 @@ Awwwards-tier rebuild of brandforge.gg. See `/audit/brandforge-audit.md` for ful
 - Fixed R3F canvas overlay (`pointer-events: none`)
 - `prefers-reduced-motion` at provider level
 
-## Phase 4 — WebGL brand element ✅
+## Phase 5 — Micro-interactions & polish ✅
+
+- Custom cursor: 8px dot + 32px ring, lerped follow, expand on interactive elements
+- Nav: transparent at top → solid surface on scroll (Lenis-synced)
+- GSAP curtain wipe on internal route changes (cover → navigate → reveal)
+- First-visit loading screen: BrandForge char assemble
+- Magnetic CTAs on hero + header Discord
 
 - GLSL particle field (3200 desktop / 1200 mobile) — cluster at center, dissolve on scroll
 - Mouse repulsion via lerped `uMouse` uniform

@@ -28,6 +28,13 @@
     color: var(--text);
   }
 
+  html.bf-custom-cursor,
+  html.bf-custom-cursor body,
+  html.bf-custom-cursor a,
+  html.bf-custom-cursor button {
+    cursor: none;
+  }
+
   body {
     font-family: var(--font-display);
     line-height: 1.65;

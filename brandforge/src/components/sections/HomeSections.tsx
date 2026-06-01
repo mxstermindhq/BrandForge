@@ -115,6 +115,7 @@ export function HomeHero(): React.JSX.Element {
             asChild
             href="#packages"
             className="rounded bg-accent px-7 py-3.5 text-sm font-bold text-white shadow-none hover:shadow-[0_10px_30px_var(--a-glow)]"
+            data-cursor="hover"
           >
             View packages ↓
           </MagneticButton>
@@ -123,6 +124,7 @@ export function HomeHero(): React.JSX.Element {
             target="_blank"
             rel="noopener noreferrer"
             className="rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
+            data-cursor="hover"
           >
             Get a quote on Discord
           </MagneticButton>

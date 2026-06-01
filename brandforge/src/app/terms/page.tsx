@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SiteFooter } from "@/components/shell/SiteFooter";
+import { SiteHeader } from "@/components/shell/SiteHeader";
 import { SITE } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -11,15 +13,16 @@ export const metadata: Metadata = {
 export default function TermsPage(): React.JSX.Element {
   return (
     <>
-      <header className="flex items-center justify-between border-b border-b1 px-8 py-4">
-        <Link href="/" className="font-mono text-[11px] text-muted hover:text-text">
-          ← BrandForge.gg
-        </Link>
-        <Link href="/privacy" className="font-mono text-[11px] text-muted hover:text-text">
-          Privacy
-        </Link>
-      </header>
-      <main className="mx-auto max-w-[760px] px-8 py-14 pb-24">
+      <SiteHeader />
+      <main className="mx-auto max-w-[760px] px-8 pb-24 pt-28">
+        <nav className="mb-10 flex justify-between font-mono text-[11px] text-muted">
+          <Link href="/" className="hover:text-text" data-cursor="hover">
+            ← BrandForge.gg
+          </Link>
+          <Link href="/privacy" className="hover:text-text" data-cursor="hover">
+            Privacy
+          </Link>
+        </nav>
         <h1 className="text-[clamp(28px,4vw,40px)] font-bold">Terms of Service</h1>
         <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted">
           Last updated: May 27, 2026
@@ -35,16 +38,17 @@ export default function TermsPage(): React.JSX.Element {
         </p>
         <p className="mt-8 text-sm text-text-secondary">
           Questions:{" "}
-          <a href={SITE.discord} className="text-accent-bright hover:underline">
+          <a href={SITE.discord} className="text-accent-bright hover:underline" data-cursor="hover">
             Discord
           </a>{" "}
           or{" "}
-          <a href={SITE.telegram} className="text-accent-bright hover:underline">
+          <a href={SITE.telegram} className="text-accent-bright hover:underline" data-cursor="hover">
             Telegram
           </a>
           .
         </p>
       </main>
+      <SiteFooter />
     </>
   );
 }

@@ -1,6 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { CustomCursor } from "@/components/motion/CustomCursor";
+import { LoadingScreen } from "@/components/motion/LoadingScreen";
+import { PageTransitionCurtain } from "@/components/motion/PageTransitionCurtain";
 import { SceneCanvas } from "@/components/canvas/SceneCanvas";
 import { GsapProvider } from "@/components/providers/GsapProvider";
 import { LenisProvider } from "@/components/providers/LenisProvider";
@@ -17,6 +20,9 @@ export function AppProviders({ children }: AppProvidersProps): React.JSX.Element
       <GsapProvider>
         <LenisProvider>
           <SceneUniformProvider>
+            <LoadingScreen />
+            <PageTransitionCurtain />
+            <CustomCursor />
             <SceneCanvas />
             <div className="relative z-10">{children}</div>
           </SceneUniformProvider>
