@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogArticle, CTASection, PageHero, PageShell } from "@/components/content";
+import { SITE } from "@/config/site";
 import { BLOG_POSTS, BLOG_SLUGS } from "@/content/blog/index";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -42,7 +43,7 @@ export default async function BlogPostPage({ params }: PageProps): Promise<React
         headline: post.title,
         description: post.metaDescription,
         datePublished: post.datePublished,
-        url: `https://brandforge.gg${path}`,
+        url: `${SITE.url}${path}`,
       }}
     >
       <PageHero eyebrow="BrandForge editorial" title={post.title} subhead={post.metaDescription} />

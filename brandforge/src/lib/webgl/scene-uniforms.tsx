@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap/register-plugins";
+import { registerGsapPlugins, ScrollTrigger } from "@/lib/gsap/register-plugins";
 import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
 
 export type SceneUniformState = {

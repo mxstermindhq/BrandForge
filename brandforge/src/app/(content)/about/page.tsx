@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection, FAQBlock, PageHero, PageShell, TrustBar } from "@/components/content";
 import { HERO_STATS, VOUCHES } from "@/content/home";
-import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({

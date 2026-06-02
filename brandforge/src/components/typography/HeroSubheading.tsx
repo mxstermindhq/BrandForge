@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
 import { revertSplit, splitIntoWords } from "@/lib/motion/split-text";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type HeroSubheadingProps = {
   /** Full subheading copy — split into words for clip reveal. */
@@ -24,7 +24,7 @@ export function HeroSubheading({
   delay = 0.38,
 }: HeroSubheadingProps): React.JSX.Element {
   const ref = useRef<HTMLParagraphElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   const fullText = boldPrefix ? `${boldPrefix}${text}` : text;
 
@@ -32,7 +32,7 @@ export function HeroSubheading({
     () => {
       registerGsapPlugins();
       const el = ref.current;
-      if (!el || reducedMotion) return;
+      if (!el || skipMotion) return;
 
       const words = splitIntoWords(el);
 
@@ -60,7 +60,7 @@ export function HeroSubheading({
         revertSplit(el);
       };
     },
-    { scope: ref, dependencies: [reducedMotion, delay, fullText, boldPrefix] },
+    { scope: ref, dependencies: [skipMotion, delay, fullText, boldPrefix] },
   );
 
   return (

@@ -6,14 +6,14 @@ import { SERVICES } from "@/content/home";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 import { EyebrowLabel, SectionHeading, SectionLine } from "@/components/typography";
 
 export function ServicesPinSection(): React.JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
   const isMobile = useIsMobile();
 
   useGSAP(
@@ -22,7 +22,7 @@ export function ServicesPinSection(): React.JSX.Element {
       const section = sectionRef.current;
       const pin = pinRef.current;
       const track = trackRef.current;
-      if (!section || !pin || !track || reducedMotion || isMobile) return;
+      if (!section || !pin || !track || skipMotion || isMobile) return;
 
       const getScrollDistance = (): number =>
         Math.max(track.scrollWidth - window.innerWidth + 64, window.innerHeight * 0.5);
@@ -65,12 +65,12 @@ export function ServicesPinSection(): React.JSX.Element {
         tween.kill();
       };
     },
-    { scope: sectionRef, dependencies: [reducedMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
   );
 
   useGSAP(
     () => {
-      if (reducedMotion || !isMobile) return;
+      if (skipMotion || !isMobile) return;
       const cards = gsap.utils.toArray<HTMLElement>("[data-svc-card]");
       gsap.fromTo(
         cards,
@@ -89,7 +89,7 @@ export function ServicesPinSection(): React.JSX.Element {
         },
       );
     },
-    { scope: sectionRef, dependencies: [reducedMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
   );
 
   return (

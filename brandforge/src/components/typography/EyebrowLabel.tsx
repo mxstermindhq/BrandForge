@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
 import { revertSplit, splitIntoChars } from "@/lib/motion/split-text";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type EyebrowLabelProps = {
   text: string;
@@ -20,13 +20,13 @@ export function EyebrowLabel({
   delay = 0.05,
 }: EyebrowLabelProps): React.JSX.Element {
   const ref = useRef<HTMLParagraphElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const el = ref.current;
-      if (!el || reducedMotion) return;
+      if (!el || skipMotion) return;
 
       const chars = splitIntoChars(el);
 
@@ -45,7 +45,7 @@ export function EyebrowLabel({
         revertSplit(el);
       };
     },
-    { scope: ref, dependencies: [reducedMotion, delay, text] },
+    { scope: ref, dependencies: [skipMotion, delay, text] },
   );
 
   return (

@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { VOUCHES } from "@/content/home";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 import { TiltCard } from "@/components/motion/TiltCard";
 import { EyebrowLabel, SectionHeading, SectionLine } from "@/components/typography";
 
@@ -15,13 +15,13 @@ function stars(count: number): string {
 
 export function VouchesSection(): React.JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const section = sectionRef.current;
-      if (!section || reducedMotion) return;
+      if (!section || skipMotion) return;
 
       const cards = gsap.utils.toArray<HTMLElement>("[data-vouch-card]", section);
 
@@ -47,7 +47,7 @@ export function VouchesSection(): React.JSX.Element {
         gsap.killTweensOf(cards);
       };
     },
-    { scope: sectionRef, dependencies: [reducedMotion] },
+    { scope: sectionRef, dependencies: [skipMotion] },
   );
 
   return (

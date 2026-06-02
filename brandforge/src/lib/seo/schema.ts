@@ -16,7 +16,7 @@ function organizationSchema(): Record<string, unknown> {
     name: "BrandForge",
     url: SITE.url,
     logo: `${SITE.url}/img/logo-mark-512.png`,
-    sameAs: [SITE.discord, SITE.telegram],
+    sameAs: [SITE.discord, SITE.telegram, SITE.premium],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "sales",

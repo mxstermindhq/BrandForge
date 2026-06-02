@@ -5,7 +5,7 @@ import { useRef, type ReactNode } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
 import { revertSplit, splitIntoLines } from "@/lib/motion/split-text";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type SectionHeadingProps = {
   children: ReactNode;
@@ -23,13 +23,13 @@ export function SectionHeading({
   id,
 }: SectionHeadingProps): React.JSX.Element {
   const ref = useRef<HTMLHeadingElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const heading = ref.current;
-      if (!heading || reducedMotion) return;
+      if (!heading || skipMotion) return;
 
       const lines = splitIntoLines(heading);
 
@@ -59,7 +59,7 @@ export function SectionHeading({
         revertSplit(heading);
       };
     },
-    { scope: ref, dependencies: [reducedMotion, scrub] },
+    { scope: ref, dependencies: [skipMotion, scrub] },
   );
 
   return (

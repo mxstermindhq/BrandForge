@@ -7,6 +7,17 @@
 - Operators who need one team for design + dev + growth (not three vendors)
 - Buyers who prefer fixed USD packages, crypto payment, or escrow
 
+## Key pages
+- Home: https://brandforge.gg/
+- Services: https://brandforge.gg/services/
+- Packages: https://brandforge.gg/packages/
+- Portfolio: https://brandforge.gg/portfolio/
+- About: https://brandforge.gg/about/
+- Contact: https://brandforge.gg/contact/
+- Blog: https://brandforge.gg/blog/
+- Roadmap: https://brandforge.gg/roadmap/
+- Ethics: https://brandforge.gg/ethics-standards/
+
 ## Packages (USD)
 - Brand Sprint: $500–$1,200 — logo, identity, brand assets (1–2 weeks)
 - Launch Stack: $2,500–$7,500 — brand + custom website (3–4 weeks)

@@ -5,7 +5,6 @@ import {
   FAQBlock,
   PageHero,
   PageShell,
-  PortfolioCard,
 } from "@/components/content";
 import { PACKAGES_LIST } from "@/content/home";
 import { SITE, telegramUrl, PACKAGES } from "@/config/site";

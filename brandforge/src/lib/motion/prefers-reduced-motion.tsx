@@ -73,6 +73,12 @@ export function useMobileLite(): boolean {
   return useMotionPreference().mobileLite;
 }
 
+/** Skips GSAP scroll/pin animations on mobile lite or reduced motion. */
+export function useSkipMotion(): boolean {
+  const { reducedMotion, mobileLite } = useMotionPreference();
+  return reducedMotion || mobileLite;
+}
+
 /** Returns a stable callback that no-ops when reduced motion is preferred. */
 export function useMotionGate(): (run: () => void) => void {
   const { reducedMotion } = useMotionPreference();

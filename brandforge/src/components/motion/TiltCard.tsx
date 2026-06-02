@@ -5,7 +5,7 @@ import type { ComponentPropsWithoutRef, MouseEvent } from "react";
 import { useRef } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type TiltCardProps = ComponentPropsWithoutRef<"article">;
 
@@ -16,14 +16,14 @@ export function TiltCard({
   ...rest
 }: TiltCardProps): React.JSX.Element {
   const cardRef = useRef<HTMLElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(() => {
     registerGsapPlugins();
   }, []);
 
   const handleMove = (event: MouseEvent<HTMLElement>): void => {
-    if (reducedMotion) return;
+    if (skipMotion) return;
     const card = cardRef.current;
     if (!card) return;
 
@@ -42,7 +42,7 @@ export function TiltCard({
 
   const handleLeave = (): void => {
     const card = cardRef.current;
-    if (!card || reducedMotion) return;
+    if (!card || skipMotion) return;
 
     gsap.to(card, {
       rotateY: 0,

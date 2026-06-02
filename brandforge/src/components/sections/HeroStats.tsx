@@ -5,17 +5,17 @@ import { useRef } from "react";
 import { HERO_STATS } from "@/content/home";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 export function HeroStats(): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const root = ref.current;
-      if (!root || reducedMotion) return;
+      if (!root || skipMotion) return;
 
       const blocks = gsap.utils.toArray<HTMLElement>("[data-stat-block]", root);
 
@@ -39,7 +39,7 @@ export function HeroStats(): React.JSX.Element {
         gsap.killTweensOf(blocks);
       };
     },
-    { scope: ref, dependencies: [reducedMotion] },
+    { scope: ref, dependencies: [skipMotion] },
   );
 
   return (

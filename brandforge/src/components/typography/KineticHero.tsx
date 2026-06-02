@@ -5,7 +5,7 @@ import { useRef, type ReactNode } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_HERO_CHAR } from "@/lib/motion/easing";
 import { revertSplit, splitIntoChars } from "@/lib/motion/split-text";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type KineticHeroProps = {
   /** Accessible full headline — visible text is split for animation. */
@@ -20,13 +20,13 @@ export function KineticHero({
   className = "",
 }: KineticHeroProps): React.JSX.Element {
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const heading = headingRef.current;
-      if (!heading || reducedMotion) return;
+      if (!heading || skipMotion) return;
 
       const chars = splitIntoChars(heading);
 
@@ -54,7 +54,7 @@ export function KineticHero({
         revertSplit(heading);
       };
     },
-    { scope: headingRef, dependencies: [reducedMotion] },
+    { scope: headingRef, dependencies: [skipMotion] },
   );
 
   return (

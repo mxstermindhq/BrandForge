@@ -50,20 +50,20 @@ const StickyCta = dynamic(
 );
 import { SITE } from "@/config/site";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
 export function HomeHero(): React.JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
   const layerSlowRef = useRef<HTMLDivElement>(null);
   const layerMidRef = useRef<HTMLDivElement>(null);
   const layerFastRef = useRef<HTMLDivElement>(null);
-  const reducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const section = sectionRef.current;
-      if (!section || reducedMotion) return;
+      if (!section || skipMotion) return;
 
       const layers: Array<{ el: HTMLDivElement | null; factor: number }> = [
         { el: layerSlowRef.current, factor: 0.3 },
@@ -91,7 +91,7 @@ export function HomeHero(): React.JSX.Element {
         });
       };
     },
-    { scope: sectionRef, dependencies: [reducedMotion] },
+    { scope: sectionRef, dependencies: [skipMotion] },
   );
 
   return (
