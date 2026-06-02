@@ -1,4 +1,5 @@
 import type { FaqItem } from "@/types/content";
+import { BLOG_EXTRA_SECTIONS } from "./extra-sections";
 
 export type BlogPost = {
   slug: string;
@@ -381,6 +382,17 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     ],
   },
 };
+
+for (const slug of Object.keys(BLOG_POSTS)) {
+  const extra = BLOG_EXTRA_SECTIONS[slug];
+  if (extra) {
+    const post = BLOG_POSTS[slug]!;
+    BLOG_POSTS[slug] = {
+      ...post,
+      sections: [...post.sections, ...extra],
+    };
+  }
+}
 
 export const BLOG_SLUGS = Object.keys(BLOG_POSTS);
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { ESTABLISHED_BUSINESSES_COPY, ESTABLISHED_BUSINESSES_FAQ } from "@/content/niche/established-businesses";
+import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,7 +26,7 @@ export default function EstablishedBusinessesPage(): React.JSX.Element {
         eyebrow="Established businesses"
         title={ESTABLISHED_BUSINESSES_COPY.headline}
         subhead={ESTABLISHED_BUSINESSES_COPY.subhead}
-        primaryCta={{ label: "Apply on Discord", href: "https://discord.gg/a8Nz2R6M55" }}
+        primaryCta={{ label: "Apply on Discord", href: SITE.discord }}
       />
       <section className="py-12">
         <div className="content-wrap grid gap-12 lg:grid-cols-2">

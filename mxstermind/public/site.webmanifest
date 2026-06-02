@@ -1,11 +1,11 @@
 {
-  "name": "BrandForge",
-  "short_name": "BrandForge",
-  "description": "Design, development, and growth packages.",
+  "name": "mxstermind",
+  "short_name": "mxstermind",
+  "description": "Premium bespoke design and development studio.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060608",
-  "theme_color": "#060608",
+  "background_color": "#080807",
+  "theme_color": "#080807",
   "icons": [
     {
       "src": "/img/favicon-32x32.png",

@@ -1,16 +1,13 @@
 import { SiteFooter } from "@/components/shell/SiteFooter";
 import { SiteHeader } from "@/components/shell/SiteHeader";
 import { CTASection, FAQBlock, SchemaInjector } from "@/components/content";
-import { HomeHero, HomeClosingSections, HomeMotionSections } from "@/components/sections/HomeSections";
+import { HomeHero } from "@/components/sections/HomeSections";
 import {
-  DeliverySection,
-  GuaranteeBarSection,
-  IcpSection,
-  LiveStripSection,
-  MxstermindPromoSection,
-  ProcessSection,
-  SupportSection,
-} from "@/components/sections/HomeStaticSections";
+  HomeBelowFoldSections,
+  HomeClosingSections,
+  HomeMotionSections,
+} from "@/components/sections/HomeLazySections";
+import { IcpSection, LiveStripSection, MxstermindPromoSection } from "@/components/sections/HomeStaticSections";
 import { HOME_FAQ } from "@/content/home-sections";
 
 export default function HomePage(): React.JSX.Element {
@@ -36,10 +33,7 @@ export default function HomePage(): React.JSX.Element {
         <LiveStripSection />
         <IcpSection />
         <HomeMotionSections />
-        <ProcessSection />
-        <DeliverySection />
-        <SupportSection />
-        <GuaranteeBarSection />
+        <HomeBelowFoldSections />
         <HomeClosingSections />
         <FAQBlock items={HOME_FAQ} id="faq" title="Straight answers" />
         <MxstermindPromoSection />

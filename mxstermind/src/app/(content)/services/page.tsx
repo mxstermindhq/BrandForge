@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { SERVICE_HUB_CARDS, SERVICES_HUB_FAQ } from "@/content/hubs/services-hub";
+import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -32,7 +33,7 @@ export default function ServicesHubPage(): React.JSX.Element {
           </>
         }
         subhead="Brand, product, engineering, Web3, automation, and growth — quoted as a single outcome when your build demands it."
-        primaryCta={{ label: "Apply on Discord", href: "https://discord.gg/a8Nz2R6M55" }}
+        primaryCta={{ label: "Apply on Discord", href: SITE.discord }}
       />
 
       <section className="py-16">
@@ -40,7 +41,7 @@ export default function ServicesHubPage(): React.JSX.Element {
           <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
             mxstermind does not publish shopping-cart packages. Every engagement starts with fit review on Discord or Telegram,
             then a fixed USD scope document. For productized tiers, see{" "}
-            <a href="https://brandforge.gg/packages/" className="text-accent-bright hover:text-text" rel="noopener noreferrer">
+            <a href={SITE.packages} className="text-accent-bright hover:text-text" rel="noopener noreferrer">
               BrandForge packages
             </a>
             .

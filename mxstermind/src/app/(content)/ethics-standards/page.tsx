@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection, EthicsSection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { MM_ETHICS_FAQ, MM_ETHICS_SECTIONS } from "@/content/ethics";
+import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -31,7 +32,7 @@ export default function EthicsPage(): React.JSX.Element {
         <div className="content-wrap max-w-3xl text-sm text-text-secondary">
           <p>
             Productized packages and operator tiers live at{" "}
-            <Link href="https://brandforge.gg/ethics-standards/" className="text-accent-bright">
+            <Link href={`${SITE.brandforge}ethics-standards/`} className="text-accent-bright">
               BrandForge ethics
             </Link>
             . Philosophy aligns; mxstermind tone is formal for business diligence.

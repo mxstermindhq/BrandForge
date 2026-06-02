@@ -1,7 +1,7 @@
 # SEO & AI-SEO Final Report
 
 **Date:** 2026-05-19  
-**Scope:** brandforge.gg (57 routes) + mxstermind.com (37 routes)
+**Scope:** brandforge.gg (56 routes) + mxstermind.com (37 routes)
 
 ---
 
@@ -24,7 +24,7 @@ Both domains ship as Next.js 15 static exports with per-page metadata, JSON-LD g
 | Service / CreativeWork / Article schema | ✅ Service, portfolio, blog routes |
 | WebSite + SearchAction (home) | ✅ |
 | Visible FAQ blocks | ✅ Hubs, services, portfolio, blog, ethics |
-| Sitemap | ✅ 57 URLs — `brandforge/src/app/sitemap.ts` |
+| Sitemap | ✅ 51 content URLs — `brandforge/src/app/sitemap.ts` |
 | robots.txt AI bots allowed | ✅ |
 | Internal linking | ✅ Hubs → deep dives → portfolio → blog |
 | Deploy | ✅ Cloudflare Workers Assets (`brandforge`) |
@@ -48,7 +48,7 @@ Both domains ship as Next.js 15 static exports with per-page metadata, JSON-LD g
 | robots.txt AI bots allowed | ✅ |
 | Internal linking | ✅ Services ↔ developers ↔ portfolio ↔ blog ↔ apply |
 | Cross-link BrandForge | ✅ Footer + services + ethics + home |
-| Deploy | ⏳ Run `npm run mxstermind:deploy` |
+| Deploy | ✅ Cloudflare Workers Assets (`mxstermind`) |
 
 ### mxstermind route inventory (37 static)
 

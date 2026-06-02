@@ -9,7 +9,7 @@
     "dev": "next dev -p 3004",
     "build": "next build",
     "start": "next start -p 3004",
-    "lint": "next lint",
+    "lint": "eslint .",
     "deploy": "npm run build && npx wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
@@ -18,6 +18,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4.1.7",
     "@types/node": "^20.17.30",
     "@types/react": "^19.0.0",

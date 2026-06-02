@@ -12,8 +12,8 @@ import { useSceneUniformsOptional } from "@/lib/webgl/scene-uniforms";
 const MOBILE_BREAKPOINT = 768;
 
 function particleCount(): number {
-  if (typeof window === "undefined") return 2500;
-  return window.innerWidth < MOBILE_BREAKPOINT ? 1200 : 3200;
+  if (typeof window === "undefined") return 1600;
+  return window.innerWidth < MOBILE_BREAKPOINT ? 600 : 1800;
 }
 
 type ParticleUniforms = {

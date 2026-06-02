@@ -220,6 +220,18 @@ export function GuaranteeBarSection(): React.JSX.Element {
   );
 }
 
+/** Below-fold static sections — lazy-loaded on home for faster first paint. */
+export function HomeBelowFoldSections(): React.JSX.Element {
+  return (
+    <>
+      <ProcessSection />
+      <DeliverySection />
+      <SupportSection />
+      <GuaranteeBarSection />
+    </>
+  );
+}
+
 export function MxstermindPromoSection(): React.JSX.Element {
   return (
     <aside className="border-b border-b1 bg-s1 py-10">

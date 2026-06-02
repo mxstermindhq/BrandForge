@@ -17,6 +17,11 @@ function organizationSchema(): Record<string, unknown> {
     url: SITE.url,
     logo: `${SITE.url}/img/logo-mark-512.png`,
     sameAs: [SITE.discord, SITE.telegram, SITE.premium],
+    parentOrganization: {
+      "@type": "Organization",
+      name: "mxstermind",
+      url: SITE.premium,
+    },
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "sales",

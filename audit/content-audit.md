@@ -7,11 +7,11 @@
 
 ## 1. Repository file inventory (content-relevant)
 
-### brandforge/ — production app (44 `src` files)
+### brandforge/ — production app (56 static routes)
 
 | Area | Files | Role |
 |------|-------|------|
-| `src/app/` | `page.tsx`, `layout.tsx`, `globals.css`, `terms/`, `privacy/`, `robots.ts`, `sitemap.ts` | App Router — **4 public routes** today |
+| `src/app/` | Home, hubs, dynamic `[slug]` routes, terms, privacy, robots, sitemap | **56 public routes** |
 | `src/components/sections/` | HomeSections, ServicesPin, PackageStack, Portfolio, Vouches, HeroStats | Home-only scrollytelling |
 | `src/components/typography/` | KineticHero, SectionHeading, EyebrowLabel, HeroSubheading | Phase 2 motion type |
 | `src/components/shell/` | SiteHeader, SiteFooter | Minimal nav (Packages, Work) |
@@ -33,9 +33,9 @@
 
 Next.js 15 + Supabase + OpenNext. **Not the content target.** Contains `(shop)/mxstermind/page.tsx` bridge only — not mxstermind.com editorial site.
 
-### mxstermind.com — **missing**
+### mxstermind.com — **live** (`mxstermind/`)
 
-No `mxstermind/` app in repo. **25 pages must be scaffolded** as new Next.js static app with Cormorant Garamond + amber tokens per spec.
+37 static routes. Premium bespoke studio — amber/gold tokens, Cormorant + DM Mono. Deploy via `npm run mxstermind:deploy`.
 
 ---
 

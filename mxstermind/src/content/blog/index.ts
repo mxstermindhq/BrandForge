@@ -1,4 +1,5 @@
 import type { FaqItem, BlogCardData } from "@/types/content";
+import { SITE } from "@/config/site";
 
 export type BlogPost = {
   slug: string;
@@ -141,7 +142,7 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     faqs: [
       { question: "GEO vs SEO?", answer: "Both — structured FAQs and schema help AI citations and traditional search." },
       { question: "Timeline?", answer: "First loop in 6–12 weeks depending on product maturity." },
-      { question: "Related services?", answer: "/services/ and BrandForge /services/seo-growth/ for package tier." },
+      { question: "Related services?", answer: `${SITE.url}/services/ and ${SITE.brandforge}services/seo-growth/ for package tier.` },
       { question: "Measurement?", answer: "Define one north-star conversion before scaling spend." },
     ],
   },

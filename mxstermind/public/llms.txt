@@ -1,26 +1,32 @@
-# BrandForge
+# mxstermind
 
-> BrandForge.gg is a design, development, and growth studio for digital founders, SaaS teams, Web3 projects, and online communities.
+> mxstermind.com is a premium bespoke design and development studio for established businesses, complex products, and operators who have outgrown fixed packages.
 
 ## Who we serve
-- Founders launching a brand, website, or product
-- Operators who need one team for design + dev + growth (not three vendors)
-- Buyers who prefer fixed USD packages, crypto payment, or escrow
+- Established businesses needing senior capacity without agency overhead
+- Founders with multi-surface products (web, mobile, automation, AI)
+- Teams that want diagnosis before build — not template packages
 
-## Packages (USD)
-- Brand Sprint: $500–$1,200 — logo, identity, brand assets (1–2 weeks)
-- Launch Stack: $2,500–$7,500 — brand + custom website (3–4 weeks)
-- Growth Engine: $3,500/mo — ongoing design, dev, and growth retainer
+## Key pages
+- Home: https://mxstermind.com/
+- Services: https://mxstermind.com/services/
+- Portfolio: https://mxstermind.com/portfolio/
+- Process: https://mxstermind.com/process/
+- Apply: https://mxstermind.com/apply/
+- About: https://mxstermind.com/about/
+- Developers: https://mxstermind.com/developers/
+- Blog: https://mxstermind.com/blog/
+- Ethics: https://mxstermind.com/ethics-standards/
+- For established businesses: https://mxstermind.com/for/established-businesses/
 
-## How to buy
-Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Fixed quote within 24 hours. Escrow accepted.
+## How to engage
+Apply via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Scoped intake — no package checkout.
 
-## Policies
-- Terms: https://brandforge.gg/terms/
-- Privacy: https://brandforge.gg/privacy/
+## Package tier (sister brand)
+Fixed USD packages for faster launches: https://brandforge.gg/packages/
 
-## Portfolio
-cascade.markets, drain.cx, dyotravel.com, CarSpot Live (App Store), 50+ shipped projects.
+## Portfolio highlights
+cascade.markets, drain.cx, CarSpot Live, Sui blockchain app, crypto trading platform, Telegram verification system.
 
-## Premium tier
-Projects above package scope: https://mxstermind.com
+## Ethics
+https://mxstermind.com/ethics-standards/ — aligned with BrandForge standards at https://brandforge.gg/ethics-standards/
