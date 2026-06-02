@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "mxstermind — Bespoke Studio",
     description:
       "No packages. No templates. Outcome-led design, engineering, and growth for scaling companies.",
-    images: [{ url: "/img/og-image.png", width: 1200, height: 630 }],
+    images: [{ url: "/img/og-image.png", width: 1200, height: 630, alt: "mxstermind — bespoke studio" }],
   },
   twitter: {
     card: "summary_large_image",

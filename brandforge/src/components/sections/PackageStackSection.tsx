@@ -8,7 +8,7 @@ import { SITE, telegramUrl, PACKAGES } from "@/config/site";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion, useMotionInView } from "@/lib/motion/prefers-reduced-motion";
 import { EyebrowLabel, SectionHeading, SectionLine } from "@/components/typography";
 
 export function PackageStackSection(): React.JSX.Element {
@@ -16,13 +16,14 @@ export function PackageStackSection(): React.JSX.Element {
   const stackRef = useRef<HTMLDivElement>(null);
   const skipMotion = useSkipMotion();
   const isMobile = useIsMobile();
+  const motionReady = useMotionInView(sectionRef);
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const section = sectionRef.current;
       const stack = stackRef.current;
-      if (!section || !stack || skipMotion || isMobile) return;
+      if (!section || !stack || skipMotion || isMobile || !motionReady) return;
 
       const cards = gsap.utils.toArray<HTMLElement>("[data-pkg-card]", stack);
 
@@ -69,12 +70,12 @@ export function PackageStackSection(): React.JSX.Element {
         tl.kill();
       };
     },
-    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile, motionReady] },
   );
 
   useGSAP(
     () => {
-      if (skipMotion || !isMobile) return;
+      if (skipMotion || !isMobile || !motionReady) return;
       const cards = gsap.utils.toArray<HTMLElement>("[data-pkg-card]");
       gsap.fromTo(
         cards,
@@ -93,7 +94,7 @@ export function PackageStackSection(): React.JSX.Element {
         },
       );
     },
-    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile, motionReady] },
   );
 
   return (

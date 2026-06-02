@@ -6,7 +6,7 @@ import { SERVICES } from "@/content/home";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion, useMotionInView } from "@/lib/motion/prefers-reduced-motion";
 import { EyebrowLabel, SectionHeading, SectionLine } from "@/components/typography";
 
 export function ServicesPinSection(): React.JSX.Element {
@@ -15,6 +15,7 @@ export function ServicesPinSection(): React.JSX.Element {
   const trackRef = useRef<HTMLDivElement>(null);
   const skipMotion = useSkipMotion();
   const isMobile = useIsMobile();
+  const motionReady = useMotionInView(sectionRef);
 
   useGSAP(
     () => {
@@ -22,7 +23,7 @@ export function ServicesPinSection(): React.JSX.Element {
       const section = sectionRef.current;
       const pin = pinRef.current;
       const track = trackRef.current;
-      if (!section || !pin || !track || skipMotion || isMobile) return;
+      if (!section || !pin || !track || skipMotion || isMobile || !motionReady) return;
 
       const getScrollDistance = (): number =>
         Math.max(track.scrollWidth - window.innerWidth + 64, window.innerHeight * 0.5);
@@ -65,12 +66,12 @@ export function ServicesPinSection(): React.JSX.Element {
         tween.kill();
       };
     },
-    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile, motionReady] },
   );
 
   useGSAP(
     () => {
-      if (skipMotion || !isMobile) return;
+      if (skipMotion || !isMobile || !motionReady) return;
       const cards = gsap.utils.toArray<HTMLElement>("[data-svc-card]");
       gsap.fromTo(
         cards,
@@ -89,7 +90,7 @@ export function ServicesPinSection(): React.JSX.Element {
         },
       );
     },
-    { scope: sectionRef, dependencies: [skipMotion, isMobile] },
+    { scope: sectionRef, dependencies: [skipMotion, isMobile, motionReady] },
   );
 
   return (

@@ -1,5 +1,6 @@
 import type { FaqItem } from "@/types/content";
 import { BLOG_EXTRA_SECTIONS } from "./extra-sections";
+import { BLOG_EXTRA_SECTIONS_2 } from "./extra-sections-2";
 
 export type BlogPost = {
   slug: string;
@@ -391,6 +392,14 @@ for (const slug of Object.keys(BLOG_POSTS)) {
       ...post,
       sections: [...post.sections, ...extra],
     };
+  }
+}
+
+for (const slug of Object.keys(BLOG_POSTS)) {
+  const extra2 = BLOG_EXTRA_SECTIONS_2[slug];
+  if (extra2) {
+    const post = BLOG_POSTS[slug]!;
+    BLOG_POSTS[slug] = { ...post, sections: [...post.sections, ...extra2] };
   }
 }
 

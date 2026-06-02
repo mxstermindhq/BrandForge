@@ -1,5 +1,6 @@
 import type { FaqItem, BlogCardData } from "@/types/content";
 import { SITE } from "@/config/site";
+import { BLOG_EXTRA_SECTIONS } from "./extra-sections";
 
 export type BlogPost = {
   slug: string;
@@ -355,6 +356,14 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     ],
   },
 };
+
+for (const slug of BLOG_SLUGS) {
+  const extra = BLOG_EXTRA_SECTIONS[slug];
+  if (extra) {
+    const post = BLOG_POSTS[slug];
+    BLOG_POSTS[slug] = { ...post, sections: [...post.sections, ...extra] };
+  }
+}
 
 export const BLOG_HUB_CARDS: readonly BlogCardData[] = BLOG_SLUGS.map((slug) => {
   const post = BLOG_POSTS[slug];

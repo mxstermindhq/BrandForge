@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { PORTFOLIO } from "@/content/home";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
-import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useSkipMotion, useMotionInView } from "@/lib/motion/prefers-reduced-motion";
 import { SectionHeading, SectionLine } from "@/components/typography";
 
 export function PortfolioSection(): React.JSX.Element {
@@ -13,12 +13,13 @@ export function PortfolioSection(): React.JSX.Element {
   const backRef = useRef<HTMLDivElement>(null);
   const midRef = useRef<HTMLDivElement>(null);
   const skipMotion = useSkipMotion();
+  const motionReady = useMotionInView(sectionRef);
 
   useGSAP(
     () => {
       registerGsapPlugins();
       const section = sectionRef.current;
-      if (!section || skipMotion) return;
+      if (!section || skipMotion || !motionReady) return;
 
       if (backRef.current) {
         gsap.to(backRef.current, {
@@ -86,7 +87,7 @@ export function PortfolioSection(): React.JSX.Element {
         gsap.killTweensOf([backRef.current, midRef.current, ...cards].filter(Boolean));
       };
     },
-    { scope: sectionRef, dependencies: [skipMotion] },
+    { scope: sectionRef, dependencies: [skipMotion, motionReady] },
   );
 
   return (

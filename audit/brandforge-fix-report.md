@@ -38,6 +38,14 @@ Desktop home perf was **61** pre-lazy-load. Re-run after deploy to measure lazy 
 
 ## Optional future polish
 
-- Push desktop perf further (defer ScrollTrigger until in-view)
-- mxstermind terms/privacy pages if legal URLs needed on that domain
-- Blog posts toward full 1,200-word spec (currently ~500–700 words/post)
+- Re-run Lighthouse on production home (mobile + desktop) after deferred ScrollTrigger deploy
+- Custom mxstermind OG artwork (distinct from BrandForge purple variant) if brand design requires it
+
+---
+
+## Completed in final pass
+
+- Deferred ScrollTrigger via `useMotionInView()` on pin/stack/portfolio/vouches sections
+- mxstermind `/terms/` and `/privacy/` pages + sitemap + footer + redirects
+- Blog expansion: brandforge ~8 sections/post, mxstermind ~5+ sections/post
+- Audit docs and phase checklist updated

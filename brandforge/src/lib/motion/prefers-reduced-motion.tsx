@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
   type ReactNode,
+  type RefObject,
 } from "react";
 
 type MotionContextValue = {
@@ -77,6 +78,34 @@ export function useMobileLite(): boolean {
 export function useSkipMotion(): boolean {
   const { reducedMotion, mobileLite } = useMotionPreference();
   return reducedMotion || mobileLite;
+}
+
+/** Defers heavy ScrollTrigger setup until the section nears the viewport. */
+export function useMotionInView(
+  ref: RefObject<Element | null>,
+  rootMargin = "320px 0px",
+): boolean {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || ready) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, rootMargin, ready]);
+
+  return ready;
 }
 
 /** Returns a stable callback that no-ops when reduced motion is preferred. */

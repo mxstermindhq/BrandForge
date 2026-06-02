@@ -27,6 +27,12 @@ export function SiteFooter(): React.JSX.Element {
           <Link href="/ethics-standards/" className="hover:text-text">
             Ethics
           </Link>
+          <Link href="/terms/" className="hover:text-text">
+            Terms
+          </Link>
+          <Link href="/privacy/" className="hover:text-text">
+            Privacy
+          </Link>
           <Link href="/blog/" className="hover:text-text">
             Blog
           </Link>

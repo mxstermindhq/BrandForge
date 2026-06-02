@@ -15,6 +15,8 @@ const HUBS = [
   "/about/",
   "/developers/",
   "/ethics-standards/",
+  "/terms/",
+  "/privacy/",
   "/blog/",
   "/for/established-businesses/",
 ] as const;
