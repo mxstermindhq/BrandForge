@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Canvas } from "@react-three/fiber";
 import { CanvasInvalidator } from "@/components/canvas/CanvasInvalidator";
 import { useDeferredMount } from "@/hooks/useDeferredMount";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useMobileLite, useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
 import { useSceneUniformsOptional, useWebGLSupported } from "@/lib/webgl/scene-uniforms";
 
 const HeroScene = dynamic(
@@ -77,10 +77,11 @@ function SceneCanvasGate(): React.JSX.Element | null {
 
 export function SceneCanvas(): React.JSX.Element | null {
   const reducedMotion = useReducedMotion();
+  const mobileLite = useMobileLite();
   const webglSupported = useWebGLSupported();
   const deferredReady = useDeferredMount({ fallbackMs: 1400 });
 
-  if (reducedMotion || !webglSupported || !deferredReady) return null;
+  if (reducedMotion || mobileLite || !webglSupported || !deferredReady) return null;
 
   return <SceneCanvasGate />;
 }

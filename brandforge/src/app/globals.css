@@ -36,6 +36,13 @@
     cursor: none;
   }
 
+  html.mobile-lite,
+  html.mobile-lite body,
+  html.mobile-lite a,
+  html.mobile-lite button {
+    cursor: auto;
+  }
+
   body {
     font-family: var(--font-display);
     line-height: 1.65;

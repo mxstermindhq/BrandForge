@@ -11,7 +11,7 @@ import {
 } from "react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { ScrollTrigger } from "@/lib/gsap/register-plugins";
-import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
+import { useMobileLite, useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
 
 type LenisContextValue = {
   lenis: Lenis | null;
@@ -33,10 +33,11 @@ type LenisProviderProps = {
  */
 export function LenisProvider({ children }: LenisProviderProps): React.JSX.Element {
   const reducedMotion = useReducedMotion();
+  const mobileLite = useMobileLite();
   const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
-    if (reducedMotion) {
+    if (reducedMotion || mobileLite) {
       setLenis(null);
       return;
     }
@@ -66,7 +67,7 @@ export function LenisProvider({ children }: LenisProviderProps): React.JSX.Eleme
       instance.destroy();
       setLenis(null);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, mobileLite]);
 
   const value = useMemo(() => ({ lenis }), [lenis]);
 

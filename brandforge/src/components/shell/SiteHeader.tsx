@@ -57,14 +57,23 @@ export function SiteHeader(): React.JSX.Element {
           />
         </Link>
         <nav className="hidden items-center gap-4 lg:flex" aria-label="Primary">
+          <Link href="/#who" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            Who
+          </Link>
           <Link href="/services/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Services
           </Link>
           <Link href="/packages/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Packages
           </Link>
+          <Link href="/#delivery" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            Delivery
+          </Link>
           <Link href="/portfolio/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Work
+          </Link>
+          <Link href="/#faq" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            FAQ
           </Link>
           <Link href="/roadmap/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Roadmap

@@ -43,6 +43,11 @@ const VouchesSection = dynamic(
     })),
   { ssr: true },
 );
+
+const StickyCta = dynamic(
+  () => import("@/components/sections/StickyCta").then((mod) => ({ default: mod.StickyCta })),
+  { ssr: false },
+);
 import { SITE } from "@/config/site";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
@@ -164,13 +169,23 @@ export function HomeHero(): React.JSX.Element {
   );
 }
 
-export function HomeSections(): React.JSX.Element {
+/** Pin, stack sections — client-only motion. */
+export function HomeMotionSections(): React.JSX.Element {
   return (
     <>
       <ServicesPinSection />
       <PortfolioSection />
       <PackageStackSection />
+    </>
+  );
+}
+
+/** Vouches + mobile sticky CTA. */
+export function HomeClosingSections(): React.JSX.Element {
+  return (
+    <>
       <VouchesSection />
+      <StickyCta />
     </>
   );
 }

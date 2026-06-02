@@ -77,8 +77,8 @@ Both domains ship as Next.js 15 static exports with per-page metadata, JSON-LD g
 | mxstermind production DNS cutover | High | Deploy worker + point mxstermind.com |
 | OG image brand variant | Low | Currently shared `/img/og-image.png` from brandforge assets |
 | Blog word count expansion | Medium | mxstermind posts are structured for GEO; expand to 1,200+ words per spec over time |
-| brandforge home ICP/process sections | Medium | Still on legacy `site/index.html` — optional home upgrade |
-| Lighthouse mobile perf | Medium | See `audit/lighthouse.md` — brandforge home below targets |
+| brandforge home ICP/process sections | Done | Live strip, ICP, process, delivery, support, FAQ, trust bar, mxstermind promo, sticky CTA, home JSON-LD |
+| Lighthouse mobile perf | Medium | Mobile lite applied — re-run audit to confirm gains |
 
 ---
 

@@ -35,6 +35,9 @@ Raw JSON reports: `audit/lh-{page}-{desktop|mobile}.json`
 | Code-split below-fold sections (`ServicesPin`, `Portfolio`, `PackageStack`, `Vouches`) | Smaller home route JS (6.9 kB page chunk vs 10.9 kB pre-split) |
 | `next/image` + blur placeholder for header logo | Optimized LCP candidate + zero layout shift |
 | Dynamic `CustomCursor` + `PageTransitionCurtain` | Defer non-critical interaction layers |
+| **Mobile lite mode (≤768px)** | Skips WebGL, Lenis, loader, cursor, and page curtain on mobile |
+| **Font subset** | Space Grotesk weights reduced to 300/400/600/700 (dropped 500) |
+| **Static home sections** | ICP, process, delivery, support, FAQ — server-rendered without GSAP |
 
 ---
 
@@ -51,11 +54,9 @@ Raw JSON reports: `audit/lh-{page}-{desktop|mobile}.json`
 
 ## Gaps vs targets & recommended follow-ups
 
-1. **Mobile TBT (8.7 s on `/`)** — Lighthouse simulates slow 4× CPU; animation stack is inherently heavy. Mitigations for Phase 7+:
-   - Route-level `loading.tsx` skeleton; hydrate motion providers after `requestIdleCallback`
-   - Mobile-specific “lite mode”: skip WebGL entirely below 768px (CSS-only hero)
-   - Tree-shake GSAP to ScrollTrigger-only imports where Flip is unused on home
-2. **Mobile LCP (5.2 s on `/`)** — Font + JS contention; consider subsetting Space Grotesk weights actually used (300/700 vs full set)
+1. **Mobile TBT (8.7 s on `/`)** — Mitigated by mobile lite path (no Three/Lenis/loader). Re-audit recommended.
+   - Further: lazy ScrollTrigger registration per section on desktop
+2. **Mobile LCP (5.2 s on `/`)** — Font subset applied; mobile lite removes WebGL contention
 3. **Desktop perf 60** — Mostly TBT from boot; splitting `LenisProvider` + lazy ScrollTrigger registration per section would help legal pages reach 90+
 4. **INP** — Lab INP on desktop was ~1.3 s (loader + hydration); real-user INP likely lower once `sessionStorage` skips loader
 

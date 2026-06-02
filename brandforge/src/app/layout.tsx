@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { MotionPreferenceProvider } from "@/lib/motion/prefers-reduced-motion";
 import { SITE } from "@/config/site";
 import "./globals.css";
 
 const grotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "600", "700"],
   variable: "--font-grotesk",
   display: "swap",
 });
@@ -58,7 +59,9 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
   return (
     <html lang="en" className={`${grotesk.variable} ${mono.variable}`}>
       <body className="bg-bg text-text antialiased">
-        <AppProviders>{children}</AppProviders>
+        <MotionPreferenceProvider>
+          <AppProviders>{children}</AppProviders>
+        </MotionPreferenceProvider>
       </body>
     </html>
   );
