@@ -3,27 +3,24 @@ import { SITE } from "@/config/site";
 
 export const dynamic = "force-static";
 
+const HUB_ROUTES = [
+  "/",
+  "/services/",
+  "/packages/",
+  "/portfolio/",
+  "/about/",
+  "/contact/",
+  "/terms/",
+  "/privacy/",
+] as const;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date("2026-05-19");
 
-  return [
-    {
-      url: SITE.url,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${SITE.url}/terms/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${SITE.url}/privacy/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-  ];
+  return HUB_ROUTES.map((path) => ({
+    url: path === "/" ? SITE.url : `${SITE.url}${path}`,
+    lastModified,
+    changeFrequency: path === "/" ? "weekly" : "monthly",
+    priority: path === "/" ? 1 : path.includes("services") || path.includes("packages") ? 0.9 : 0.7,
+  }));
 }

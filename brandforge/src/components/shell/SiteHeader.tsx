@@ -56,20 +56,21 @@ export function SiteHeader(): React.JSX.Element {
             className="h-7 w-auto max-w-[200px]"
           />
         </Link>
-        <nav className="hidden items-center gap-5 md:flex" aria-label="Primary">
-          <Link
-            href="/#packages"
-            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
-            data-cursor="hover"
-          >
+        <nav className="hidden items-center gap-4 lg:flex" aria-label="Primary">
+          <Link href="/services/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            Services
+          </Link>
+          <Link href="/packages/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Packages
           </Link>
-          <Link
-            href="/#portfolio"
-            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
-            data-cursor="hover"
-          >
+          <Link href="/portfolio/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
             Work
+          </Link>
+          <Link href="/roadmap/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            Roadmap
+          </Link>
+          <Link href="/blog/" className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text" data-cursor="hover">
+            Blog
           </Link>
         </nav>
         <div className="flex items-center gap-2.5">
