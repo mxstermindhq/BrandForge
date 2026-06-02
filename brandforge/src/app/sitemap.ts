@@ -1,36 +1,83 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/config/site";
+import { BLOG_SLUGS } from "@/content/blog/index";
+import { PORTFOLIO_SLUGS } from "@/content/hubs/portfolio-hub";
 import { SERVICE_SLUGS } from "@/content/hubs/services-hub";
+import { NICHE_SLUGS } from "@/content/niche/pages";
+import { ROADMAP_SLUGS } from "@/content/roadmap/stages";
 
 export const dynamic = "force-static";
 
-const HUB_ROUTES = [
+const HUBS = [
   "/",
   "/services/",
   "/packages/",
   "/portfolio/",
   "/about/",
   "/contact/",
-  "/terms/",
+  "/roadmap/",
+  "/blog/",
+  "/ethics-standards/",
+  "/brand-guide/",
   "/privacy/",
+  "/terms/",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-05-19");
+  const lastModified = new Date("2026-05-21");
+  const url = (path: string) => (path === "/" ? SITE.url : `${SITE.url}${path}`);
 
-  const hubs = HUB_ROUTES.map((path) => ({
-    url: path === "/" ? SITE.url : `${SITE.url}${path}`,
+  const entries: MetadataRoute.Sitemap = HUBS.map((path) => ({
+    url: url(path),
     lastModified,
-    changeFrequency: (path === "/" ? "weekly" : "monthly") as "weekly" | "monthly",
-    priority: path === "/" ? 1 : path.includes("services") || path.includes("packages") ? 0.9 : 0.7,
+    changeFrequency: path === "/" ? "weekly" : "monthly",
+    priority: path === "/" ? 1 : 0.85,
   }));
 
-  const services = SERVICE_SLUGS.map((slug) => ({
-    url: `${SITE.url}/services/${slug}/`,
-    lastModified,
-    changeFrequency: "monthly" as const,
-    priority: 0.85,
-  }));
+  for (const slug of SERVICE_SLUGS) {
+    entries.push({
+      url: `${SITE.url}/services/${slug}/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    });
+  }
 
-  return [...hubs, ...services];
+  for (const slug of PORTFOLIO_SLUGS) {
+    entries.push({
+      url: `${SITE.url}/portfolio/${slug}/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    });
+  }
+
+  for (const slug of ROADMAP_SLUGS) {
+    entries.push({
+      url: `${SITE.url}/roadmap/${slug}/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.75,
+    });
+  }
+
+  for (const slug of NICHE_SLUGS) {
+    entries.push({
+      url: `${SITE.url}/for/${slug}/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.75,
+    });
+  }
+
+  for (const slug of BLOG_SLUGS) {
+    entries.push({
+      url: `${SITE.url}/blog/${slug}/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.65,
+    });
+  }
+
+  return entries;
 }

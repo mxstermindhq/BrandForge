@@ -31,6 +31,7 @@ export type PortfolioItem = {
   chips: readonly string[];
   href?: string;
   linkLabel?: string;
+  caseStudyHref?: string;
 };
 
 export type VouchItem = {
@@ -181,6 +182,7 @@ export const PORTFOLIO: readonly PortfolioItem[] = [
     chips: ["Web3 UI", "Landing Page", "Performance"],
     href: "https://cascade.markets",
     linkLabel: "cascade.markets ↗",
+    caseStudyHref: "/portfolio/cascade-markets/",
   },
   {
     id: "drain",
@@ -191,6 +193,7 @@ export const PORTFOLIO: readonly PortfolioItem[] = [
     chips: ["Next.js", "Tailwind", "Motion"],
     href: "https://drain.cx",
     linkLabel: "drain.cx ↗",
+    caseStudyHref: "/portfolio/drain-cx/",
   },
   {
     id: "carspot",
@@ -201,6 +204,7 @@ export const PORTFOLIO: readonly PortfolioItem[] = [
     chips: ["Mobile", "Firebase", "Real-Time"],
     href: "https://apps.apple.com/us/app/carspot-live/id6739596635",
     linkLabel: "App Store ↗",
+    caseStudyHref: "/portfolio/carspotlive/",
   },
   {
     id: "dyo",
@@ -211,6 +215,7 @@ export const PORTFOLIO: readonly PortfolioItem[] = [
     chips: ["Node.js", "API", "Full Stack"],
     href: "https://dyotravel.com",
     linkLabel: "dyotravel.com ↗",
+    caseStudyHref: "/portfolio/dyotravel/",
   },
 ] as const;
 

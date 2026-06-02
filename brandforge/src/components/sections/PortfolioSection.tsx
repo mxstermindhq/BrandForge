@@ -150,6 +150,14 @@ export function PortfolioSection(): React.JSX.Element {
                   {item.linkLabel}
                 </a>
               ) : null}
+              {item.caseStudyHref ? (
+                <a
+                  href={item.caseStudyHref}
+                  className="mt-2 block font-mono text-[10px] text-muted hover:text-accent-bright"
+                >
+                  Case study →
+                </a>
+              ) : null}
             </article>
           ))}
         </div>

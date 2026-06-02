@@ -2,7 +2,7 @@ import { SiteFooter } from "@/components/shell/SiteFooter";
 import { SiteHeader } from "@/components/shell/SiteHeader";
 import { BreadcrumbNav } from "@/components/content/BreadcrumbNav";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
-import type { BreadcrumbItem, FaqItem, SchemaPageType } from "@/types/content";
+import type { BreadcrumbItem, FaqItem, SchemaInjectorProps, SchemaPageType } from "@/types/content";
 
 type PageShellProps = {
   children: React.ReactNode;
@@ -12,6 +12,8 @@ type PageShellProps = {
   faqs?: readonly FaqItem[];
   serviceName?: string;
   serviceDescription?: string;
+  creativeWork?: SchemaInjectorProps["creativeWork"];
+  article?: SchemaInjectorProps["article"];
   showBreadcrumbs?: boolean;
 };
 
@@ -24,6 +26,8 @@ export function PageShell({
   faqs,
   serviceName,
   serviceDescription,
+  creativeWork,
+  article,
   showBreadcrumbs = true,
 }: PageShellProps): React.JSX.Element {
   return (
@@ -35,6 +39,8 @@ export function PageShell({
         faqs={faqs}
         serviceName={serviceName}
         serviceDescription={serviceDescription}
+        creativeWork={creativeWork}
+        article={article}
       />
       <a
         href="#main"

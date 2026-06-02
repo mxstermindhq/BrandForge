@@ -1,3 +1,4 @@
+export { BlogArticle } from "./BlogArticle";
 export { BlogCard } from "./BlogCard";
 export { BreadcrumbNav } from "./BreadcrumbNav";
 export { CopyButton } from "./CopyButton";
@@ -8,6 +9,7 @@ export { FAQBlock } from "./FAQBlock";
 export { PageHero } from "./PageHero";
 export { PageShell } from "./PageShell";
 export { PortfolioCard } from "./PortfolioCard";
+export { PortfolioPageTemplate } from "./PortfolioPageTemplate";
 export { RoadmapStep } from "./RoadmapStep";
 export { SchemaInjector } from "./SchemaInjector";
 export { ServiceCard } from "./ServiceCard";
