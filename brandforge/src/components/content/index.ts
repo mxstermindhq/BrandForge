@@ -11,5 +11,6 @@ export { PortfolioCard } from "./PortfolioCard";
 export { RoadmapStep } from "./RoadmapStep";
 export { SchemaInjector } from "./SchemaInjector";
 export { ServiceCard } from "./ServiceCard";
+export { ServicePageTemplate } from "./ServicePageTemplate";
 export { TrustBar } from "./TrustBar";
 export { VouchCard } from "./VouchCard";
