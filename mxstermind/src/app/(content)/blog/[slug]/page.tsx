@@ -1,0 +1,54 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { BlogArticle, CTASection, PageHero, PageShell } from "@/components/content";
+import { BLOG_SLUGS, getBlogPost } from "@/content/blog/index";
+import { SITE } from "@/config/site";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+type PageProps = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams(): Array<{ slug: string }> {
+  return BLOG_SLUGS.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getBlogPost(slug);
+  if (!post) return {};
+  return buildPageMetadata({
+    title: post.metaTitle,
+    description: post.metaDescription,
+    path: `/blog/${slug}/`,
+  });
+}
+
+export default async function BlogPostPage({ params }: PageProps): Promise<React.JSX.Element> {
+  const { slug } = await params;
+  const post = getBlogPost(slug);
+  if (!post) notFound();
+
+  const path = `/blog/${slug}/`;
+
+  return (
+    <PageShell
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Blog", href: "/blog/" },
+        { label: post.title, href: path },
+      ]}
+      path={path}
+      schemaType="article"
+      faqs={post.faqs}
+      article={{
+        headline: post.title,
+        description: post.metaDescription,
+        datePublished: post.datePublished,
+        url: `${SITE.url}${path}`,
+      }}
+    >
+      <PageHero eyebrow="mxstermind editorial" title={post.title} subhead={post.metaDescription} />
+      <BlogArticle post={post} />
+      <CTASection title="Apply this to your build" subhead="Discord or Telegram — name this article in your application." />
+    </PageShell>
+  );
+}

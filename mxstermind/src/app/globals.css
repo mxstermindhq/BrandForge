@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@theme {
+  --color-bg: var(--bg);
+  --color-s1: var(--s1);
+  --color-s2: var(--s2);
+  --color-b1: var(--b1);
+  --color-b2: var(--b2);
+  --color-accent: var(--a);
+  --color-accent-bright: var(--a2);
+  --color-text: var(--text);
+  --color-text-secondary: var(--t2);
+  --color-muted: var(--muted);
+  --color-discord: var(--dc);
+  --color-telegram: var(--tg);
+  --font-sans: var(--font-display);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono-stack);
+  --radius-brand: var(--r);
+  --spacing-section: 100px;
+  --width-content: var(--max);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--a-glow);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--a2);
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  .content-wrap {
+    max-width: var(--max);
+    margin-inline: auto;
+    padding-inline: clamp(18px, 4vw, 32px);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

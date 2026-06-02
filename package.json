@@ -10,6 +10,7 @@
     "cf:build": "npm ci --prefix web --include=dev && npm run cf:build --prefix web",
     "cf:deploy": "npm run brandforge:deploy",
     "brandforge:deploy": "npm ci --prefix brandforge --include=dev && npm run deploy --prefix brandforge",
+    "mxstermind:deploy": "npm install --prefix mxstermind --include=dev && npm run deploy --prefix mxstermind",
     "site:deploy": "node site/scripts/inject-analytics.mjs && npx wrangler deploy --config site/wrangler.jsonc",
     "cf:deploy:next": "npm run cf:build && cp -r web/.open-next .open-next",
     "discord:bot": "node --env-file=.env scripts/discord-bot.mjs",

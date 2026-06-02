@@ -1,0 +1,24 @@
+/**
+ * mxstermind.com design tokens — editorial, amber accent
+ */
+:root {
+  --bg: #080807;
+  --s1: #0e0e0c;
+  --s2: #141412;
+  --b1: #1c1c18;
+  --b2: #2a2a24;
+  --a: #c9a96e;
+  --a2: #dfc18a;
+  --a-dim: rgba(201, 169, 110, 0.08);
+  --a-glow: rgba(201, 169, 110, 0.25);
+  --text: #ece8e0;
+  --t2: #b8b0a2;
+  --muted: #6b655c;
+  --m2: #3d3a34;
+  --dc: #5865f2;
+  --tg: #229ed9;
+  --max: 1120px;
+  --r: 2px;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-mono-stack: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+}
