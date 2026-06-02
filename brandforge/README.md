@@ -51,6 +51,15 @@ npm run dev
 # http://localhost:3002
 ```
 
+## Deploy (production)
+
+Static export → Cloudflare Workers Assets (`brandforge.gg`):
+
+```bash
+npm run deploy
+# or from repo root: npm run cf:deploy
+```
+
 ## Stack
 
 | Layer | Package |
@@ -61,4 +70,4 @@ npm run dev
 | Animation | GSAP 3 + ScrollTrigger |
 | 3D | R3F + drei |
 
-Production static site remains in `/site` until cutover.
+Production is deployed from `brandforge/` via `npm run cf:deploy`. Legacy static site remains in `/site` as fallback reference.
