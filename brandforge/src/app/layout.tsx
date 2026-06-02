@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { MotionPreferenceProvider } from "@/lib/motion/prefers-reduced-motion";
 import { SITE } from "@/config/site";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
   return (
     <html lang="en" className={`${grotesk.variable} ${mono.variable}`}>
       <body className="bg-bg text-text antialiased">
+        <GoogleAnalytics />
         <MotionPreferenceProvider>
           <AppProviders>{children}</AppProviders>
         </MotionPreferenceProvider>

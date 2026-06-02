@@ -4,6 +4,7 @@ export const SITE = {
   discord: "https://discord.gg/a8Nz2R6M55",
   telegram: "https://t.me/Notmxstermind",
   premium: "https://mxstermind.com",
+  gaMeasurementId: "G-G3L5EBB195",
 } as const;
 
 export type PackageKey = "brand-sprint" | "launch-stack" | "growth-engine" | "custom";
