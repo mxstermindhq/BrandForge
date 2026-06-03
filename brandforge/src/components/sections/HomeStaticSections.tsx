@@ -64,7 +64,7 @@ export function LiveStripSection(): React.JSX.Element {
 
 export function IcpSection(): React.JSX.Element {
   return (
-    <section id="who" className="border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="who-title">
+    <section id="who" className="bf-below-fold border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="who-title">
       <div className="content-wrap">
         <SectionEyebrow>Who It&apos;s For</SectionEyebrow>
         <SectionTitle id="who-title">
@@ -93,7 +93,7 @@ export function IcpSection(): React.JSX.Element {
 
 export function ProcessSection(): React.JSX.Element {
   return (
-    <section id="process" className="border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="process-title">
+    <section id="process" className="bf-below-fold border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="process-title">
       <div className="content-wrap">
         <SectionEyebrow>Process</SectionEyebrow>
         <SectionTitle id="process-title">
@@ -126,7 +126,7 @@ export function ProcessSection(): React.JSX.Element {
 
 export function DeliverySection(): React.JSX.Element {
   return (
-    <section id="delivery" className="py-[var(--spacing-section)]" aria-labelledby="delivery-title">
+    <section id="delivery" className="bf-below-fold py-[var(--spacing-section)]" aria-labelledby="delivery-title">
       <div className="content-wrap">
         <SectionEyebrow>Delivery</SectionEyebrow>
         <SectionTitle id="delivery-title">
@@ -174,7 +174,7 @@ export function DeliverySection(): React.JSX.Element {
 
 export function SupportSection(): React.JSX.Element {
   return (
-    <section id="support" className="border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="support-title">
+    <section id="support" className="bf-below-fold border-b border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="support-title">
       <div className="content-wrap">
         <SectionEyebrow>Support</SectionEyebrow>
         <SectionTitle id="support-title">

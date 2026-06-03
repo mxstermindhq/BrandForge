@@ -68,6 +68,11 @@
     padding-inline: clamp(18px, 4vw, 32px);
   }
 
+  .bf-below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
   /* Kinetic type — GPU layer hints (transform/opacity only in GSAP) */
   .bf-char,
   .bf-word-inner,

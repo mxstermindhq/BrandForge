@@ -1,9 +1,9 @@
 /**
  * Lighthouse mobile performance audit for every BrandForge sitemap URL.
- * Usage: node scripts/audit-perf-all.mjs
+ * Usage: node scripts/audit-perf-all.mjs [--fresh]
  */
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -112,6 +112,12 @@ function extractMetrics(report) {
 }
 
 mkdirSync(OUT_DIR, { recursive: true });
+
+const fresh = process.argv.includes("--fresh");
+if (fresh && existsSync(OUT_DIR)) {
+  rmSync(OUT_DIR, { recursive: true, force: true });
+  mkdirSync(OUT_DIR, { recursive: true });
+}
 
 const paths = allPaths();
 const results = [];

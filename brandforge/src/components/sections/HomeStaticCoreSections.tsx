@@ -119,7 +119,7 @@ export function HomeHeroStatic(): React.JSX.Element {
 
 export function HomeServicesSectionStatic(): React.JSX.Element {
   return (
-    <section id="services" className="border-y border-b1 bg-s1" aria-labelledby="services-title">
+    <section id="services" className="bf-below-fold border-y border-b1 bg-s1" aria-labelledby="services-title">
       <div className="content-wrap py-16 md:py-20">
         <SectionEyebrow>What We Do</SectionEyebrow>
         <SectionTitle id="services-title">
@@ -159,7 +159,7 @@ export function HomeServicesSectionStatic(): React.JSX.Element {
 
 export function HomePortfolioSectionStatic(): React.JSX.Element {
   return (
-    <section id="portfolio" className="relative overflow-hidden py-[100px]">
+    <section id="portfolio" className="bf-below-fold relative overflow-hidden py-[100px]">
       <div
         className="pointer-events-none absolute -left-1/4 top-0 h-[120%] w-1/2 opacity-30"
         aria-hidden
@@ -288,7 +288,7 @@ function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
 
 export function HomePackagesSectionStatic(): React.JSX.Element {
   return (
-    <section id="packages" className="border-t border-b1 bg-s1 py-[100px]" aria-labelledby="packages-title">
+    <section id="packages" className="bf-below-fold border-t border-b1 bg-s1 py-[100px]" aria-labelledby="packages-title">
       <div className="content-wrap">
         <SectionEyebrow>Packages</SectionEyebrow>
         <SectionTitle id="packages-title">
@@ -310,7 +310,7 @@ export function HomePackagesSectionStatic(): React.JSX.Element {
 
 export function HomeVouchesSectionStatic(): React.JSX.Element {
   return (
-    <section id="vouches" className="py-[100px]" aria-labelledby="vouches-title">
+    <section id="vouches" className="bf-below-fold py-[100px]" aria-labelledby="vouches-title">
       <div className="content-wrap">
         <SectionEyebrow>Vouches</SectionEyebrow>
         <SectionTitle id="vouches-title">
