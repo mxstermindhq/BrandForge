@@ -1,4 +1,3 @@
-import { MagneticButton } from "@/components/motion/MagneticButton";
 import { SITE } from "@/config/site";
 
 type CTASectionProps = {
@@ -23,24 +22,22 @@ export function CTASection({
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-text-secondary">{subhead}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <MagneticButton
+          <a
             href={SITE.discord}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded bg-discord px-7 py-3.5 font-mono text-[11px] font-bold text-white"
-            data-cursor="hover"
           >
             {discordLabel}
-          </MagneticButton>
-          <MagneticButton
+          </a>
+          <a
             href={SITE.telegram}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded border border-b2 px-6 py-3.5 font-mono text-[11px] font-semibold text-text-secondary hover:text-text"
-            data-cursor="hover"
           >
             {telegramLabel}
-          </MagneticButton>
+          </a>
         </div>
         <p className="mt-6 font-mono text-[10px] text-muted">
           Fixed quote within 24 hours · Escrow and crypto accepted

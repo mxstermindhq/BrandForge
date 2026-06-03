@@ -220,7 +220,7 @@ export function GuaranteeBarSection(): React.JSX.Element {
   );
 }
 
-/** Below-fold static sections — lazy-loaded on home for faster first paint. */
+/** Below-fold static sections for the home page. */
 export function HomeBelowFoldSections(): React.JSX.Element {
   return (
     <>

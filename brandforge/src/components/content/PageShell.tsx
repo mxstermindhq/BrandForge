@@ -1,5 +1,5 @@
 import { SiteFooter } from "@/components/shell/SiteFooter";
-import { SiteHeader } from "@/components/shell/SiteHeader";
+import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { BreadcrumbNav } from "@/components/content/BreadcrumbNav";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
 import type { BreadcrumbItem, FaqItem, SchemaInjectorProps, SchemaPageType } from "@/types/content";
@@ -42,7 +42,7 @@ export function PageShell({
         creativeWork={creativeWork}
         article={article}
       />
-      <SiteHeader />
+      <StaticSiteHeader />
       <main id="main" className="min-h-[60vh]">
         {showBreadcrumbs ? (
           <div className="content-wrap pt-[100px]">

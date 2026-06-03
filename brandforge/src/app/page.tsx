@@ -1,13 +1,16 @@
 import { SiteFooter } from "@/components/shell/SiteFooter";
-import { SiteHeader } from "@/components/shell/SiteHeader";
+import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { CTASection, FAQBlock, SchemaInjector } from "@/components/content";
-import { HomeHero } from "@/components/sections/HomeSections";
 import {
   HomeBelowFoldSections,
-  HomeClosingSections,
-  HomeMotionSections,
-} from "@/components/sections/HomeLazySections";
-import { IcpSection, LiveStripSection, MxstermindPromoSection } from "@/components/sections/HomeStaticSections";
+  IcpSection,
+  LiveStripSection,
+  MxstermindPromoSection,
+} from "@/components/sections/HomeStaticSections";
+import {
+  HomeCoreSections,
+  HomeHeroStatic,
+} from "@/components/sections/HomeStaticCoreSections";
 import { HOME_FAQ } from "@/content/home-sections";
 
 export default function HomePage(): React.JSX.Element {
@@ -26,15 +29,14 @@ export default function HomePage(): React.JSX.Element {
         within 24 hours.
       </div>
 
-      <SiteHeader />
+      <StaticSiteHeader />
 
-      <main id="main" className="pb-16 md:pb-0">
-        <HomeHero />
+      <main id="main">
+        <HomeHeroStatic />
         <LiveStripSection />
         <IcpSection />
-        <HomeMotionSections />
+        <HomeCoreSections />
         <HomeBelowFoldSections />
-        <HomeClosingSections />
         <FAQBlock items={HOME_FAQ} id="faq" title="Straight answers" />
         <MxstermindPromoSection />
         <CTASection
