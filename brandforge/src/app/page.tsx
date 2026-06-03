@@ -1,12 +1,14 @@
 import { SiteFooter } from "@/components/shell/SiteFooter";
+import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { CTASection, FAQBlock, SchemaInjector } from "@/components/content";
+import { HomePortfolioPreview } from "@/components/sections/HomePortfolioPreview";
 import {
   HomeBelowFoldSections,
   IcpSection,
-  LiveStripSection,
   MxstermindPromoSection,
 } from "@/components/sections/HomeStaticSections";
+import { LiveWorkMarquee } from "@/components/sections/LiveWorkMarquee";
 import {
   HomeCoreSections,
   HomeHeroStatic,
@@ -30,12 +32,14 @@ export default function HomePage(): React.JSX.Element {
       </div>
 
       <StaticSiteHeader />
+      <ContactActionBar />
 
-      <main id="main">
+      <main id="main" className="pt-12">
         <HomeHeroStatic />
-        <LiveStripSection />
+        <LiveWorkMarquee />
         <IcpSection />
         <HomeCoreSections />
+        <HomePortfolioPreview />
         <HomeBelowFoldSections />
         <FAQBlock items={HOME_FAQ} id="faq" title="Straight answers" />
         <MxstermindPromoSection />

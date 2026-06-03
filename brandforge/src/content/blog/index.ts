@@ -1,4 +1,5 @@
 import type { FaqItem } from "@/types/content";
+import { BUILD_IN_PUBLIC_01 } from "./building-brandforge-in-public-01";
 import { BLOG_EXTRA_SECTIONS } from "./extra-sections";
 import { BLOG_EXTRA_SECTIONS_2 } from "./extra-sections-2";
 
@@ -9,6 +10,7 @@ export type BlogPost = {
   metaDescription: string;
   datePublished: string;
   readingTime: string;
+  series?: string;
   sections: readonly { heading: string; paragraphs: readonly string[] }[];
   faqs: readonly FaqItem[];
 };
@@ -382,6 +384,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       },
     ],
   },
+  "building-brandforge-in-public-01": BUILD_IN_PUBLIC_01,
 };
 
 for (const slug of Object.keys(BLOG_POSTS)) {

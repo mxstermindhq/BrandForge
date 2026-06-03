@@ -46,13 +46,14 @@ export type VouchItem = {
 export type StatItem = {
   value: string;
   label: string;
+  icon?: string;
 };
 
 export const HERO_STATS: readonly StatItem[] = [
-  { value: "50+", label: "Projects delivered" },
-  { value: "24h", label: "Fixed quote turnaround" },
-  { value: "5d", label: "Kickoff after payment" },
-  { value: "Escrow", label: "On every order" },
+  { value: "50+", label: "Projects delivered", icon: "◆" },
+  { value: "24h", label: "Fixed quote turnaround", icon: "⏱" },
+  { value: "97", label: "PageSpeed target", icon: "◎" },
+  { value: "4", label: "Client slots Q3 2026", icon: "▮" },
 ] as const;
 
 export const SERVICES: readonly ServiceItem[] = [

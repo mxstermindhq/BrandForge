@@ -73,6 +73,19 @@
     contain-intrinsic-size: auto 720px;
   }
 
+  @keyframes bf-marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .bf-marquee {
+    animation: bf-marquee-scroll 40s linear infinite;
+  }
+
   /* Kinetic type — GPU layer hints (transform/opacity only in GSAP) */
   .bf-char,
   .bf-word-inner,

@@ -1,11 +1,7 @@
 import Link from "next/link";
-import {
-  HERO_STATS,
-  PACKAGES_LIST,
-  PORTFOLIO,
-  SERVICES,
-  VOUCHES,
-} from "@/content/home";
+import { VouchCard } from "@/components/content/VouchCard";
+import { VisualStatCard } from "@/components/visual";
+import { HERO_STATS, PACKAGES_LIST, SERVICES, VOUCHES } from "@/content/home";
 import { PACKAGES, SITE, telegramUrl } from "@/config/site";
 import type { PackageKey } from "@/config/site";
 
@@ -30,10 +26,6 @@ function SectionTitle({
       {children}
     </h2>
   );
-}
-
-function vouchStars(count: number): string {
-  return "★".repeat(count) + (count < 5 ? "☆" : "");
 }
 
 export function HomeHeroStatic(): React.JSX.Element {
@@ -99,18 +91,15 @@ export function HomeHeroStatic(): React.JSX.Element {
             Get a quote on Discord
           </a>
         </div>
-        <div className="mt-14" aria-label="BrandForge track record">
-          <p className="mb-4 font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--m2)]">
-            Shipped for founders and operators worldwide
-          </p>
-          <div className="flex flex-wrap gap-11">
-            {HERO_STATS.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-mono text-[28px] leading-none text-text">{stat.value}</div>
-                <div className="mt-1 text-[11px] text-muted">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="BrandForge track record">
+          {HERO_STATS.map((stat) => (
+            <VisualStatCard
+              key={stat.label}
+              value={stat.value}
+              label={stat.label}
+              icon={stat.icon}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -152,69 +141,6 @@ export function HomeServicesSectionStatic(): React.JSX.Element {
             </ul>
           </article>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export function HomePortfolioSectionStatic(): React.JSX.Element {
-  return (
-    <section id="portfolio" className="bf-below-fold relative overflow-hidden py-[100px]">
-      <div
-        className="pointer-events-none absolute -left-1/4 top-0 h-[120%] w-1/2 opacity-30"
-        aria-hidden
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(124,58,237,0.12), transparent 70%)",
-        }}
-      />
-      <div className="content-wrap relative">
-        <SectionTitle>
-          Work we&apos;ve <em className="text-accent-bright not-italic">shipped.</em>
-        </SectionTitle>
-        <p className="mt-4 max-w-lg text-sm text-text-secondary">
-          Real projects. Live URLs. Verified by clients.
-        </p>
-        <div className="mt-12 grid gap-3.5 sm:grid-cols-2">
-          {PORTFOLIO.map((item) => (
-            <article
-              key={item.id}
-              className="relative overflow-hidden rounded-md border border-b1 bg-s1 p-6"
-            >
-              <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted">{item.tag}</p>
-              <h3 className="mt-2 text-[17px] font-bold">{item.name}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-text-secondary">{item.description}</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {item.chips.map((chip) => (
-                  <span
-                    key={chip}
-                    className="rounded-sm border border-b2 px-1.5 py-0.5 font-mono text-[9px] text-muted"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-              {item.href ? (
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="mt-3 inline-block font-mono text-[10px] text-accent-bright hover:text-text"
-                >
-                  {item.linkLabel}
-                </a>
-              ) : null}
-              {item.caseStudyHref ? (
-                <a
-                  href={item.caseStudyHref}
-                  className="mt-2 block font-mono text-[10px] text-muted hover:text-accent-bright"
-                >
-                  Case study →
-                </a>
-              ) : null}
-            </article>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -321,24 +247,7 @@ export function HomeVouchesSectionStatic(): React.JSX.Element {
         </p>
         <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
           {VOUCHES.map((vouch) => (
-            <article
-              key={vouch.id}
-              className="relative overflow-hidden rounded-md border border-b1 bg-s1 p-6 before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-gradient-to-b before:from-accent before:to-transparent"
-            >
-              <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted">{vouch.from}</p>
-              <p className="mt-2 text-xs text-[var(--amber)]" aria-label={`${vouch.stars} out of 5 stars`}>
-                {vouchStars(vouch.stars)}
-              </p>
-              <p className="mt-3 text-[13px] italic leading-relaxed text-text-secondary">
-                &ldquo;{vouch.text}&rdquo;
-              </p>
-              <footer className="mt-4">
-                <cite className="font-mono text-[10px] not-italic text-text">{vouch.who}</cite>
-                {vouch.amount ? (
-                  <p className="mt-1 font-mono text-[9px] text-green">{vouch.amount}</p>
-                ) : null}
-              </footer>
-            </article>
+            <VouchCard key={vouch.id} vouch={vouch} />
           ))}
         </div>
       </div>
@@ -351,7 +260,6 @@ export function HomeCoreSections(): React.JSX.Element {
   return (
     <>
       <HomeServicesSectionStatic />
-      <HomePortfolioSectionStatic />
       <HomePackagesSectionStatic />
       <HomeVouchesSectionStatic />
     </>

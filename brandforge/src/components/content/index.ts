@@ -6,6 +6,7 @@ export { CTASection } from "./CTASection";
 export { DevCard } from "./DevCard";
 export { EthicsSection } from "./EthicsSection";
 export { FAQBlock } from "./FAQBlock";
+export { InlineCTA } from "./InlineCTA";
 export { PageHero } from "./PageHero";
 export { PageShell } from "./PageShell";
 export { PortfolioCard } from "./PortfolioCard";

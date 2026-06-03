@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CTASection, FAQBlock, PageHero } from "@/components/content";
+import { CTASection, FAQBlock, InlineCTA, PageHero } from "@/components/content";
 import type { ServiceDetail } from "@/types/service-page";
 
 type ServicePageTemplateProps = {
@@ -43,6 +43,11 @@ export function ServicePageTemplate({ service }: ServicePageTemplateProps): Reac
           </ul>
         </div>
       </section>
+
+      <InlineCTA
+        headline={`Need ${service.hero.eyebrow}?`}
+        subhead="Discord or Telegram — fixed quote in 24 hours. Name this service in your DM."
+      />
 
       <section className="py-14">
         <div className="content-wrap">

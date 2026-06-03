@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import {
-  CTASection,
-  FAQBlock,
-  PageHero,
-  PageShell,
-  PortfolioCard,
-} from "@/components/content";
-import { PORTFOLIO_HUB_CARDS, PORTFOLIO_HUB_FAQ } from "@/content/hubs/portfolio-hub";
+import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
+import { PortfolioFilterGrid } from "@/components/portfolio/PortfolioFilterGrid";
+import { PORTFOLIO_HUB_FAQ } from "@/content/hubs/portfolio-hub";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Portfolio — Shipped Work | BrandForge",
   description:
-    "Case studies: Cascade Markets, Drain.cx, CarSpotLive, ValAccs, Dyo Travel, SUI app, LinkedIn automation, WhiteSky Hosting.",
+    "Live, upcoming, and archived projects: hosting, mobile apps, gaming commerce, creator platforms, AI, and Web3 — verified case studies.",
   path: "/portfolio/",
 });
 
@@ -33,21 +28,17 @@ export default function PortfolioHubPage(): React.JSX.Element {
             Work we&apos;ve <em className="text-accent-bright not-italic">shipped.</em>
           </>
         }
-        subhead="Live URLs, App Store releases, and forum-verified delivery. Each case study documents scope, stack, timeline, and outcome — not mockups."
+        subhead="Filter by Live, Upcoming, or Archived. Every card links to a full case study with scope, stack, visuals, and outcomes — not stock mockups."
       />
 
-      <section className="py-16">
-        <div className="content-wrap grid gap-4 sm:grid-cols-2">
-          {PORTFOLIO_HUB_CARDS.map((project) => (
-            <PortfolioCard key={project.slug} project={project} />
-          ))}
-        </div>
-      </section>
+      <PortfolioFilterGrid />
 
       <FAQBlock items={PORTFOLIO_HUB_FAQ} />
       <CTASection
         title="Want results like these?"
         subhead="Send your niche and references on Discord or Telegram."
+        discordLabel="Get a quote on Discord"
+        telegramLabel="Message on Telegram"
       />
     </PageShell>
   );

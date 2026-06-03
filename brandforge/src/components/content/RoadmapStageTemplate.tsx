@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CopyButton } from "@/components/content/CopyButton";
-import { CTASection, FAQBlock, PageHero } from "@/components/content";
+import { CTASection, FAQBlock, InlineCTA, PageHero } from "@/components/content";
 import type { RoadmapStage } from "@/content/roadmap/stages";
 
 type RoadmapStageTemplateProps = {
@@ -75,6 +75,11 @@ export function RoadmapStageTemplate({ stage }: RoadmapStageTemplateProps): Reac
           </ul>
         </div>
       </section>
+
+      <InlineCTA
+        headline="Ready to move to the next stage?"
+        subhead="Copy the checklist, then DM us on Discord or Telegram with your stage and niche."
+      />
 
       <section className="py-8">
         <div className="content-wrap max-w-3xl">

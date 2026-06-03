@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/shell/SiteFooter";
+import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { SITE } from "@/config/site";
 
@@ -14,7 +15,8 @@ export default function PrivacyPage(): React.JSX.Element {
   return (
     <>
       <StaticSiteHeader />
-      <main className="mx-auto max-w-[760px] px-8 pb-24 pt-28">
+      <ContactActionBar />
+      <main className="mx-auto max-w-[760px] px-8 pb-24 pt-36">
         <nav className="mb-10 flex justify-between font-mono text-[11px] text-muted">
           <Link href="/" className="hover:text-text" data-cursor="hover">
             ← BrandForge.gg

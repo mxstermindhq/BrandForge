@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/content";
 import { PortfolioPageTemplate } from "@/components/content/PortfolioPageTemplate";
-import { PORTFOLIO_SLUGS } from "@/content/hubs/portfolio-hub";
 import { getAllPortfolioSlugs, getPortfolioBySlug } from "@/content/portfolio/details";
 import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -33,7 +32,7 @@ export default async function PortfolioDetailPage({
   const { slug } = await params;
   const project = getPortfolioBySlug(slug);
 
-  if (!project || !PORTFOLIO_SLUGS.includes(project.slug)) {
+  if (!project) {
     notFound();
   }
 

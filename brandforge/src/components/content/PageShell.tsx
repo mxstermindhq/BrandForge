@@ -1,4 +1,5 @@
 import { SiteFooter } from "@/components/shell/SiteFooter";
+import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { BreadcrumbNav } from "@/components/content/BreadcrumbNav";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
@@ -43,9 +44,10 @@ export function PageShell({
         article={article}
       />
       <StaticSiteHeader />
+      <ContactActionBar />
       <main id="main" className="min-h-[60vh]">
         {showBreadcrumbs ? (
-          <div className="content-wrap pt-[100px]">
+          <div className="content-wrap pt-[148px]">
             <BreadcrumbNav items={breadcrumbs} />
           </div>
         ) : null}
