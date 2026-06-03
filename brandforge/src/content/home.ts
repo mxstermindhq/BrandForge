@@ -222,6 +222,36 @@ export const PORTFOLIO: readonly PortfolioItem[] = [
 
 export const VOUCHES: readonly VouchItem[] = [
   {
+    id: "headstartup-frontend",
+    from: "Telegram · Sep 2025",
+    stars: 5,
+    text: "Super fast and smooth frontend development.",
+    who: "@headstartup",
+  },
+  {
+    id: "headstartup-milestone",
+    from: "Telegram · Sep 2025",
+    stars: 5,
+    text: "First milestone approved — $350 released from $1.5k total for full stack site and Discord + Telegram bots. Project paused for weeks due to another opportunity coming in.",
+    who: "@headstartup",
+    amount: "$350 released · $1.5k total scope",
+  },
+  {
+    id: "iordmx",
+    from: "Telegram · Aug 2025",
+    stars: 5,
+    text: "Made 9 old emails match our new branding in 24 hours!",
+    who: "@IordMX and team",
+  },
+  {
+    id: "zyllls",
+    from: "Telegram · Feb 2025",
+    stars: 5,
+    text: "Amazing logos and graphics! $500+ in deals. Went smooth and easy.",
+    who: "@zyllls",
+    amount: "$500+ verified",
+  },
+  {
     id: "crum",
     from: "Discord · Jan 2026",
     stars: 4,

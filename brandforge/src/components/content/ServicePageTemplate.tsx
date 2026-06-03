@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA, PageHero } from "@/components/content";
+import { ServiceHeroVisual } from "@/components/content/ServiceHeroVisual";
 import type { ServiceDetail } from "@/types/service-page";
 
 type ServicePageTemplateProps = {
@@ -15,6 +16,8 @@ export function ServicePageTemplate({ service }: ServicePageTemplateProps): Reac
         title={service.hero.title}
         subhead={service.hero.subhead}
       />
+
+      <ServiceHeroVisual slug={service.slug} />
 
       <section className="py-12">
         <div className="content-wrap max-w-3xl space-y-6">

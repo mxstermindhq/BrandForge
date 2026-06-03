@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CTASection, FAQBlock, PageHero, PageShell, RoadmapStep } from "@/components/content";
+import { CTASection, FAQBlock, InlineCTA, PageHero, PageShell, RoadmapStep } from "@/components/content";
 import { ROADMAP_HUB_FAQ, ROADMAP_STAGES, ROADMAP_SLUGS } from "@/content/roadmap/stages";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -62,6 +62,11 @@ export default function RoadmapHubPage(): React.JSX.Element {
           ))}
         </div>
       </section>
+
+      <InlineCTA
+        headline="Not sure which stage you're in?"
+        subhead="Tell us what you've shipped — we'll point you to the right roadmap stage and package on Discord or Telegram."
+      />
 
       <FAQBlock items={ROADMAP_HUB_FAQ} />
       <CTASection

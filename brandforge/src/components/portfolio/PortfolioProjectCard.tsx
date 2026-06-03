@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProjectMockup, ProjectStatusBadge, TechChip } from "@/components/visual";
+import { resolveProjectScreenshot } from "@/lib/portfolio/screenshot-url";
 import type { PortfolioProject } from "@/types/portfolio";
 
 type PortfolioProjectCardProps = {
@@ -10,6 +11,7 @@ export function PortfolioProjectCard({ project }: PortfolioProjectCardProps): Re
   const isArchived = project.status === "archived";
   const isUpcoming = project.status === "upcoming";
   const caseHref = `/portfolio/${project.slug}/`;
+  const screenshotUrl = resolveProjectScreenshot(project);
 
   return (
     <article
@@ -30,7 +32,7 @@ export function PortfolioProjectCard({ project }: PortfolioProjectCardProps): Re
         <ProjectMockup
           type={project.mockupType}
           projectName={project.name}
-          screenshotUrl={project.ogImageUrl}
+          screenshotUrl={screenshotUrl}
           gradientFrom={project.brandGradient[0]}
           gradientTo={project.brandGradient[1]}
           className={isUpcoming ? "opacity-90" : ""}

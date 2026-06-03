@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
+import { resolveProjectScreenshot } from "@/lib/portfolio/screenshot-url";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -8,6 +9,11 @@ type PortfolioPageTemplateProps = {
 };
 
 export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): React.JSX.Element {
+  const screenshotUrl = resolveProjectScreenshot({
+    slug: project.slug,
+    ogImageUrl: project.ogImageUrl,
+  });
+
   return (
     <>
       <header className="border-b border-b1 pb-12 pt-4">
@@ -37,7 +43,7 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
           <ProjectMockup
             type={project.mockupType}
             projectName={project.name}
-            screenshotUrl={project.ogImageUrl}
+            screenshotUrl={screenshotUrl}
             gradientFrom={project.brandGradient[0]}
             gradientTo={project.brandGradient[1]}
             overlay={<ProjectStatusBadge status={project.status} />}
@@ -108,7 +114,7 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
                 <ProjectMockup
                   type={v.mockupType ?? project.mockupType}
                   projectName={`${project.name} — ${v.label}`}
-                  screenshotUrl={project.ogImageUrl}
+                  screenshotUrl={screenshotUrl}
                   gradientFrom={project.brandGradient[0]}
                   gradientTo={project.brandGradient[1]}
                 />
