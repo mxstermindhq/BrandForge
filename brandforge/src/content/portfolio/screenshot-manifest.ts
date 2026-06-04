@@ -15,6 +15,7 @@ export const SCREENSHOT_FILES: Partial<Record<string, string>> = {
   "drain-cx": "drain-cx.png",
   directfiber: "DirectFiber.png",
   boostingfactory: "boostingfactory.png",
+  "fluorite-store": "flueritestore.png",
 };
 
 /** Extra shots for case study “Screenshots & product surfaces” (primary may repeat as hero). */
@@ -46,4 +47,5 @@ export const SCREENSHOT_GALLERY: Partial<Record<string, readonly string[]>> = {
     "boostingfactory2.png",
     "boostingfactory3.png",
   ],
+  "fluorite-store": ["flueritestore.png", "fluorite1.png", "fluorite2.png"],
 };

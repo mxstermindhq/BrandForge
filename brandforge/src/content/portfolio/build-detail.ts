@@ -57,6 +57,11 @@ const GALLERY_VISUAL_LABELS: Partial<
     { label: "Order", caption: "Order flow and SKU selection", mockupType: "browser" },
     { label: "Trust", caption: "Trust signals and checkout surfaces", mockupType: "browser" },
   ],
+  "fluorite-store": [
+    { label: "Storefront", caption: "Fluorite.store gaming tools hero", mockupType: "browser" },
+    { label: "Catalog", caption: "MLBB, Free Fire, and COD Mobile products", mockupType: "browser" },
+    { label: "Product", caption: "Product detail and delivery UX", mockupType: "browser" },
+  ],
 };
 
 function buildVisuals(
