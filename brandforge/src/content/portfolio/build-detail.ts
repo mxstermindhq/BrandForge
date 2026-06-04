@@ -33,6 +33,18 @@ const GALLERY_VISUAL_LABELS: Partial<
     { label: "Capture", caption: "Spot capture flow", mockupType: "phone" },
     { label: "Community", caption: "Social and community surfaces", mockupType: "phone" },
   ],
+  whiteskyhosting: [
+    { label: "Home", caption: "Hosting homepage and hero", mockupType: "browser" },
+    { label: "Plans", caption: "VPS plan comparison and pricing", mockupType: "browser" },
+    { label: "Product", caption: "Product detail and trust surfaces", mockupType: "browser" },
+    { label: "Mobile", caption: "Responsive layout on smaller viewports", mockupType: "browser" },
+  ],
+  "drain-cx": [
+    { label: "Storefront", caption: "Gaming tools storefront hero", mockupType: "browser" },
+    { label: "Catalog", caption: "Game-specific product categories", mockupType: "browser" },
+    { label: "Product", caption: "Product page and purchase flow", mockupType: "browser" },
+    { label: "Support", caption: "FAQ and buyer trust content", mockupType: "browser" },
+  ],
 };
 
 function buildVisuals(
@@ -41,8 +53,15 @@ function buildVisuals(
   const gallery = SCREENSHOT_GALLERY[project.slug];
   const custom = GALLERY_VISUAL_LABELS[project.slug];
 
-  if (gallery?.length && custom?.length) {
-    return custom.slice(0, gallery.length);
+  if (gallery?.length) {
+    if (custom?.length) {
+      return custom.slice(0, gallery.length);
+    }
+    return gallery.map((_, index) => ({
+      label: index === 0 ? "Hero" : `Screen ${index + 1}`,
+      caption: `${project.name} product surface ${index + 1}`,
+      mockupType: project.mockupType,
+    }));
   }
 
   return [

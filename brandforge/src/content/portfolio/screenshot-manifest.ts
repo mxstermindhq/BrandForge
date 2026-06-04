@@ -11,6 +11,8 @@
  */
 export const SCREENSHOT_FILES: Partial<Record<string, string>> = {
   carspotlive: "carspotlive.webp.jpg",
+  whiteskyhosting: "whiteskyhosting.png",
+  "drain-cx": "drain-cx.png",
 };
 
 /** Extra shots for case study “Screenshots & product surfaces” (primary may repeat as hero). */
@@ -23,4 +25,11 @@ export const SCREENSHOT_GALLERY: Partial<Record<string, readonly string[]>> = {
     "carspotlive-4.webp.png",
     "carspotlive-5.webp.jpg",
   ],
+  whiteskyhosting: [
+    "whiteskyhosting.png",
+    "whiteskyhosting-1.png",
+    "whiteskyhosting-2.png",
+    "whiteskyhosting-3.png",
+  ],
+  "drain-cx": ["drain-cx.png", "drain-cx1.png", "drain-cx2.png", "drain-cx3.png"],
 };
