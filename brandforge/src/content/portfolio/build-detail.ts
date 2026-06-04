@@ -45,6 +45,18 @@ const GALLERY_VISUAL_LABELS: Partial<
     { label: "Product", caption: "Product page and purchase flow", mockupType: "browser" },
     { label: "Support", caption: "FAQ and buyer trust content", mockupType: "browser" },
   ],
+  directfiber: [
+    { label: "Portal", caption: "Enterprise ISP customer portal", mockupType: "browser" },
+    { label: "Plans", caption: "Plan management and billing views", mockupType: "browser" },
+    { label: "Usage", caption: "Usage dashboards for account holders", mockupType: "browser" },
+    { label: "Admin", caption: "Admin and account management surfaces", mockupType: "browser" },
+  ],
+  boostingfactory: [
+    { label: "Home", caption: "Boosting storefront hero", mockupType: "browser" },
+    { label: "Catalog", caption: "Multi-game service catalog", mockupType: "browser" },
+    { label: "Order", caption: "Order flow and SKU selection", mockupType: "browser" },
+    { label: "Trust", caption: "Trust signals and checkout surfaces", mockupType: "browser" },
+  ],
 };
 
 function buildVisuals(
