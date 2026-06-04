@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
-import { resolveProjectScreenshot } from "@/lib/portfolio/screenshot-url";
+import {
+  resolveProjectGallery,
+  resolveProjectScreenshot,
+} from "@/lib/portfolio/screenshot-url";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -13,6 +16,23 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
     slug: project.slug,
     ogImageUrl: project.ogImageUrl,
   });
+  const galleryUrls = resolveProjectGallery(project.slug);
+  const screenshotShots =
+    galleryUrls.length > 0
+      ? galleryUrls.map((url, index) => ({
+          url,
+          label: project.visuals[index]?.label ?? `Screen ${index + 1}`,
+          caption:
+            project.visuals[index]?.caption ??
+            `${project.name} product surface ${index + 1}`,
+          mockupType: project.visuals[index]?.mockupType ?? project.mockupType,
+        }))
+      : project.visuals.map((v) => ({
+          url: screenshotUrl,
+          label: v.label,
+          caption: v.caption,
+          mockupType: v.mockupType ?? project.mockupType,
+        }));
 
   return (
     <>
@@ -109,16 +129,16 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
         <div className="content-wrap">
           <h2 className="text-lg font-bold">Screenshots &amp; product surfaces</h2>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {project.visuals.map((v) => (
-              <figure key={v.label}>
+            {screenshotShots.map((shot) => (
+              <figure key={`${shot.label}-${shot.url}`}>
                 <ProjectMockup
-                  type={v.mockupType ?? project.mockupType}
-                  projectName={`${project.name} — ${v.label}`}
-                  screenshotUrl={screenshotUrl}
+                  type={shot.mockupType}
+                  projectName={`${project.name} — ${shot.label}`}
+                  screenshotUrl={shot.url}
                   gradientFrom={project.brandGradient[0]}
                   gradientTo={project.brandGradient[1]}
                 />
-                <figcaption className="mt-2 font-mono text-[9px] text-muted">{v.caption}</figcaption>
+                <figcaption className="mt-2 font-mono text-[9px] text-muted">{shot.caption}</figcaption>
               </figure>
             ))}
           </div>

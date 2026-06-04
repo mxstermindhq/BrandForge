@@ -1,3 +1,4 @@
+import { SCREENSHOT_GALLERY } from "@/content/portfolio/screenshot-manifest";
 import type { PortfolioDetail } from "@/types/portfolio";
 import type { PortfolioProject } from "@/types/portfolio";
 
@@ -20,6 +21,36 @@ const DEFAULT_FAQ = [
     answer: "Retainer tiers (Automator through Full-Stack) or scoped fixes in the same Discord thread.",
   },
 ] as const;
+
+const GALLERY_VISUAL_LABELS: Partial<
+  Record<string, readonly { label: string; caption: string; mockupType?: PortfolioDetail["mockupType"] }[]>
+> = {
+  carspotlive: [
+    { label: "Home", caption: "App home and discovery", mockupType: "phone" },
+    { label: "Spot feed", caption: "Live spotting feed", mockupType: "phone" },
+    { label: "Map", caption: "Real-time map and pins", mockupType: "phone" },
+    { label: "Profile", caption: "User profile and garage", mockupType: "phone" },
+    { label: "Capture", caption: "Spot capture flow", mockupType: "phone" },
+    { label: "Community", caption: "Social and community surfaces", mockupType: "phone" },
+  ],
+};
+
+function buildVisuals(
+  project: PortfolioProject,
+): PortfolioDetail["visuals"] {
+  const gallery = SCREENSHOT_GALLERY[project.slug];
+  const custom = GALLERY_VISUAL_LABELS[project.slug];
+
+  if (gallery?.length && custom?.length) {
+    return custom.slice(0, gallery.length);
+  }
+
+  return [
+    { label: "Hero", caption: `${project.name} primary interface`, mockupType: project.mockupType },
+    { label: "Product", caption: "Core user flow and conversion surfaces", mockupType: project.mockupType },
+    { label: "Mobile", caption: "Responsive or native surfaces where applicable", mockupType: "phone" },
+  ];
+}
 
 export function buildPortfolioDetail(project: PortfolioProject): PortfolioDetail {
   const liveLabel = project.url
@@ -52,11 +83,7 @@ export function buildPortfolioDetail(project: PortfolioProject): PortfolioDetail
     budgetPublic: project.budgetPublic,
     outcomeMetric: project.outcomeMetric,
     outcome: project.outcome,
-    visuals: [
-      { label: "Hero", caption: `${project.name} primary interface`, mockupType: project.mockupType },
-      { label: "Product", caption: "Core user flow and conversion surfaces", mockupType: project.mockupType },
-      { label: "Mobile", caption: "Responsive or native surfaces where applicable", mockupType: "phone" },
-    ],
+    visuals: buildVisuals(project),
     vouch: project.vouch,
     relatedServices: project.relatedServices,
     faqs: DEFAULT_FAQ,
