@@ -19,9 +19,11 @@
 - Ethics: https://brandforge.gg/ethics-standards/
 
 ## Packages (USD)
-- Brand Sprint: $500–$1,200 — logo, identity, brand assets (1–2 weeks)
-- Launch Stack: $2,500–$7,500 — brand + custom website (3–4 weeks)
-- Growth Engine: $3,500/mo — ongoing design, dev, and growth retainer
+- Tier 1 — The Blueprint: $300–$500 one-time — logo, lander, funnel structure (1–2 weeks)
+- Tier 2 — The Automator: $1,500–$3,000/mo — workflow & CRM automation retainer
+- Tier 3 — The MVP Engine: $5,000/mo — continuous MVP / web app feature shipping
+- Tier 4 — The AI & Community: $7,500/mo — AI assistants, Discord bots, video pipelines
+- Tier 5 — The Full-Stack Powerhouse: $10,000+/mo — dedicated design, dev, and growth streams
 
 ## How to buy
 Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Fixed quote within 24 hours. Escrow accepted.

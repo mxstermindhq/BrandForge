@@ -40,7 +40,7 @@ export const BUILD_IN_PUBLIC_01 = {
     {
       heading: "What is working",
       ...p([
-        "Fixed packages reduce friction. When someone knows Brand Sprint vs Launch Stack vs Growth Engine, the Discord message is shorter and quotes are faster.",
+        "Fixed packages reduce friction. When someone knows Blueprint vs Automator vs MVP Engine tiers, the Discord message is shorter and quotes are faster.",
         "Showing archived work builds range without pretending every client is still live. Operators respect honesty — \"we delivered, they discontinued\" is still proof.",
         "Static-first architecture improved mobile performance materially. CLS on the home page went to zero. That matters for forum traffic on phones.",
       ]),

@@ -17,7 +17,7 @@ const DEFAULT_FAQ = [
   },
   {
     question: "Ongoing work after launch?",
-    answer: "Growth Engine retainer or scoped fixes in the same Discord thread.",
+    answer: "Retainer tiers (Automator through Full-Stack) or scoped fixes in the same Discord thread.",
   },
 ] as const;
 

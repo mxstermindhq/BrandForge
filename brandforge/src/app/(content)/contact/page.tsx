@@ -25,12 +25,12 @@ const CONTACT_FAQ = [
   {
     question: "Does BrandForge offer phone or video calls?",
     answer:
-      "Calls are available for Growth Engine and larger scopes after initial chat. Package buyers typically close scope in Discord/Telegram without meetings — faster for operators in different time zones.",
+      "Calls are available for Tier 3+ retainers and enterprise scopes after initial chat. Package buyers typically close scope in Discord/Telegram without meetings — faster for operators in different time zones.",
   },
   {
     question: "Can I reach BrandForge for support after delivery?",
     answer:
-      "Yes. Launch Stack includes 30-day post-launch support. Growth Engine includes ongoing monthly access. Support stays on the same Discord/Telegram thread — no ticket portal.",
+      "Yes. The Blueprint includes 7 days for export fixes. Tiers 2–5 include ongoing support while your retainer is active. Tier 5 adds priority Slack access. Support stays on the same Discord/Telegram thread — no ticket portal.",
   },
 ] as const;
 

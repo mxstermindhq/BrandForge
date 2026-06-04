@@ -15,12 +15,15 @@ export type PackageItem = {
   description: string;
   price: string;
   priceSub: string;
-  range: string;
+  availability: string;
+  capacityLimit: string;
+  valueProposition: string;
   time: string;
   features: readonly string[];
   handoff: string;
   avg: string;
   popular?: boolean;
+  slotLimited?: boolean;
 };
 
 export type PortfolioItem = {
@@ -103,73 +106,111 @@ export const SERVICES: readonly ServiceItem[] = [
 
 export const PACKAGES_LIST: readonly PackageItem[] = [
   {
-    key: "brand-sprint",
-    tier: "01 / Design",
-    name: "Brand Sprint",
-    description:
-      "For operators who need to look legitimate, fast. Logo, identity, and assets delivered clean and ready to use everywhere.",
-    price: "$500",
-    priceSub: "– $1,200",
-    range: "Scales with asset complexity & rounds of revisions",
-    time: "⏱ 1–2 week delivery",
+    key: "blueprint",
+    tier: "Tier 1: The Blueprint (Starter)",
+    name: "The Blueprint",
+    description: "Fast, high-converting launchpad for early ideas.",
+    price: "$300",
+    priceSub: " – $500",
+    availability: "Open for new projects",
+    capacityLimit: "Up to 3 core assets per project (1 Logo, 1 Lander, 1 Funnel structure)",
+    valueProposition: "Fast, high-converting launchpad for early ideas.",
+    time: "⏱ One-time project · 1–2 weeks",
     features: [
-      "Logo + 3 variations (SVG + PNG)",
-      "Colour system & typography guide",
-      "Brand guidelines document",
-      "3 key asset templates",
-      "Discord banner & server icon",
-      "2 full rounds of revisions included",
-      "Website not included",
+      "Logo, colours, typography, social templates",
+      "High-converting single landing page or basic CRM setup",
+      "Creator monetization funnel structure setup",
+      "2 full rounds of design tweaks",
     ],
-    handoff: "Handoff: SVG/PNG exports, brand PDF, and editable templates.",
-    avg: "Most orders land around $700",
+    handoff: "Handoff: SVG/PNG + deployment access + basic guidelines.",
+    avg: "7 days post-launch export fixes",
   },
   {
-    key: "launch-stack",
-    tier: "02 / Design + Dev",
-    name: "Launch Stack",
-    description:
-      "Brand identity plus a custom website that actually converts. Everything to go from invisible to credible in one package.",
-    price: "$2,500",
-    priceSub: "– $7,500",
-    range: "Scales with pages, features & tech complexity",
-    time: "⏱ 3–4 week delivery",
+    key: "automator",
+    tier: "Tier 2: The Automator (Mid-Tier Retainer)",
+    name: "The Automator",
+    description: "Reclaim your time. Continuous workflow automation and data integration.",
+    price: "$1,500",
+    priceSub: " – $3,000 / mo",
+    availability: "⚠️ ONLY 1 SLOT REMAINING (2/3 slots filled)",
+    capacityLimit: "Up to 3 active automation workflows / CRM integrations at once",
+    valueProposition: "Reclaim your time. Continuous workflow automation and data integration.",
+    time: "⏱ Ongoing monthly · cancel anytime",
     features: [
-      "Everything in Brand Sprint",
-      "Custom website (5–10 pages)",
-      "Mobile-first, 97+ PageSpeed score",
-      "SEO foundations & sitemap",
-      "Analytics & conversion setup",
-      "Payment gateway integration",
-      "30-day post-launch support",
-      "2 design rounds + 1 website revision round",
+      "Continuous workflow & CRM automation (n8n / Make)",
+      "API integrations between your tools",
+      "Monthly CRO audits, A/B testing, and GEO strategy",
+      "Continuous adjustment within monthly scope",
     ],
-    handoff: "Handoff: source files, deploy access, and a short launch checklist.",
-    avg: "Most startups land around $4,500",
+    handoff: "Handoff: clean repo updates, automation flow maps, live dashboards.",
+    avg: "Included while retainer is active",
+    slotLimited: true,
+  },
+  {
+    key: "mvp-engine",
+    tier: "Tier 3: The MVP Engine (Scale-Up Retainer)",
+    name: "The MVP Engine",
+    description: "Rapid product shipping. Continuous feature updates without internal dev overhead.",
+    price: "$5,000",
+    priceSub: " / mo",
+    availability: "⚠️ ONLY 1 SLOT REMAINING (2/3 slots filled)",
+    capacityLimit: "Up to 3 core feature deployments shipped per monthly sprint",
+    valueProposition: "Rapid product shipping. Continuous feature updates without internal dev overhead.",
+    time: "⏱ Ongoing monthly · cancel anytime",
+    features: [
+      "Custom Web App / MVP development",
+      "Continuous feature shipping each sprint",
+      "Full Web App UI/UX + motion systems",
+      "Funnel infrastructure & targeted traffic strategy",
+      "Sprint-based continuous iteration",
+    ],
+    handoff: "Handoff: source code access, feature deployment logs, asset library.",
+    avg: "Included while retainer is active",
+    slotLimited: true,
+  },
+  {
+    key: "ai-community",
+    tier: "Tier 4: The AI & Community (Tech-Forward Retainer)",
+    name: "The AI & Community",
+    description: "Scale engagement. Next-gen community infrastructure driven by custom AI.",
+    price: "$7,500",
+    priceSub: " / mo",
+    availability: "⚠️ ONLY 1 SLOT REMAINING (2/3 slots filled)",
+    capacityLimit: "Up to 3 active automated assets (1 AI agent, 1 Discord bot, 1 video pipeline)",
+    valueProposition: "Scale your engagement. Next-gen community infrastructure driven by custom AI.",
+    time: "⏱ Ongoing monthly · cancel anytime",
+    features: [
+      "Custom AI Assistant + Knowledge Base updates",
+      "Discord bots + server branding & assets",
+      "Short-form video pipelines + creator monetization systems",
+      "Agile adjustments based on community / AI feedback",
+    ],
+    handoff: "Handoff: AI deployment keys, bot hosting setups, server ownership.",
+    avg: "Included while retainer is active",
+    slotLimited: true,
+  },
+  {
+    key: "full-stack-enterprise",
+    tier: "Tier 5: The Full-Stack Powerhouse (Enterprise Retainer)",
+    name: "The Full-Stack Powerhouse",
+    description: "Your entire technical, creative, and marketing department outsourced to an elite squad.",
+    price: "$10,000",
+    priceSub: "+ / mo",
+    availability: "⚠️ ONLY 1 SLOT REMAINING (2/3 slots filled)",
+    capacityLimit: "Up to 3 dedicated work streams across Design, Dev, and Growth concurrently",
+    valueProposition:
+      "Your entire technical, creative, and marketing department outsourced to an elite squad.",
+    time: "⏱ Dedicated squad · ongoing retainer",
+    features: [
+      "Interactive 3D Web assets + custom pitch / slide decks",
+      "Native mobile apps (iOS / Android) + deep infrastructure",
+      "Full paid ads management, ROAS tracking, aggressive GEO",
+      "Priority execution, zero-bottleneck revisions",
+    ],
+    handoff: "Handoff: complete architecture blueprints, full IP transfer, live reporting.",
+    avg: "24/7 priority developer Slack channel access",
+    slotLimited: true,
     popular: true,
-  },
-  {
-    key: "growth-engine",
-    tier: "03 / Full Stack",
-    name: "Growth Engine",
-    description:
-      "For brands ready to scale with a dedicated team running design, dev, and growth every month without you having to manage it.",
-    price: "$3,500",
-    priceSub: "/ mo",
-    range: "Scales with weekly hours & team depth needed",
-    time: "⏱ Ongoing from month 2",
-    features: [
-      "Everything in Launch Stack",
-      "AI SEO (GEO) monthly execution",
-      "CRO retainer & A/B testing",
-      "Short-form video & ad templates",
-      "Creator funnel infrastructure",
-      "Monthly performance report",
-      "Pause or cancel anytime",
-      "Ongoing iteration within agreed monthly scope",
-    ],
-    handoff: "Handoff: monthly reports, asset library, and documented change log.",
-    avg: "No long-term contract required",
   },
 ] as const;
 

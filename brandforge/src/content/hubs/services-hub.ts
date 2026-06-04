@@ -85,7 +85,7 @@ export const SERVICES_HUB_FAQ = [
   {
     question: "Does BrandForge sell individual services or only packages?",
     answer:
-      "Both. Packages (Brand Sprint, Launch Stack, Growth Engine) bundle the most common scope. Individual services on this page let you buy one discipline — brand only, dev only, or growth only — with a fixed quote in 24 hours.",
+      "Both. Five package tiers on /packages/ bundle the most common scope. Individual services on this page let you buy one discipline — brand only, dev only, or growth only — with a fixed quote in 24 hours.",
   },
   {
     question: "How do I know which service I need?",

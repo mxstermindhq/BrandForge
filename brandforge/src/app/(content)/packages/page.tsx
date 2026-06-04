@@ -8,12 +8,13 @@ import {
 } from "@/components/content";
 import { PACKAGES_LIST } from "@/content/home";
 import { SITE, telegramUrl, PACKAGES } from "@/config/site";
+import type { PackageKey } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Packages & Pricing — BrandForge",
   description:
-    "Fixed USD packages: Brand Sprint from $500, Launch Stack $2.5k–$7.5k, Growth Engine $3.5k/mo. Quote in 24 hours. Escrow accepted.",
+    "Five fixed USD tiers: Blueprint $300–$500, Automator $1.5k–$3k/mo, MVP Engine $5k/mo, AI & Community $7.5k/mo, Full-Stack $10k+/mo. Quote in 24 hours. Escrow accepted.",
   path: "/packages/",
 });
 
@@ -29,7 +30,7 @@ const PACKAGES_FAQ = [
       "Yes. Every BrandForge order supports escrow-friendly workflows and crypto payment where both sides agree. We work with forum operators who will not pay without middleman protection.",
   },
   {
-    question: "What if my project is bigger than Growth Engine?",
+    question: "What if my project is bigger than Tier 5?",
     answer:
       "For bespoke scope above package tiers, mxstermind.com handles premium engagements — custom teams, longer timelines, outcome-based structuring. BrandForge packages stay fast and bounded.",
   },
@@ -37,6 +38,11 @@ const PACKAGES_FAQ = [
     question: "How fast does work start after I pay?",
     answer:
       "Kickoff typically within five business days once payment or escrow is confirmed. Rush delivery is quoted separately if you need overnight turnaround like our forum clients have received.",
+  },
+  {
+    question: "What do the capacity limits mean?",
+    answer:
+      "Each tier caps concurrent deliverables (e.g. 3 workflows, 3 feature deployments, 3 automated assets). Extra scope is quoted before work starts — no silent overruns.",
   },
 ] as const;
 
@@ -54,35 +60,45 @@ export default function PackagesPage(): React.JSX.Element {
         eyebrow="Packages"
         title={
           <>
-            Fixed USD. <em className="text-accent-bright not-italic">No guesswork.</em>
+            The 5 <em className="text-accent-bright not-italic">Packages.</em>
           </>
         }
-        subhead="Three starting points for operators who want one invoice, one team, and a clear handoff — not a six-month retainer with vague deliverables."
+        subhead="From one-time blueprint to enterprise retainer — fixed USD, capacity limits per tier, and a clear delivery matrix on the home page. Quote in 24 hours on Discord or Telegram."
       />
 
       <section className="py-16">
         <div className="content-wrap space-y-8">
           {PACKAGES_LIST.map((pkg) => {
-            const config = PACKAGES[pkg.key];
+            const config = PACKAGES[pkg.key as PackageKey];
+            const isRetainer = pkg.key !== "blueprint";
             return (
               <article
                 key={pkg.key}
-                className={`rounded-md border bg-s1 p-8 ${pkg.popular ? "border-accent" : "border-b1"}`}
+                className={`rounded-md border bg-s1 p-8 ${pkg.popular ? "border-accent" : "border-b1"} ${pkg.slotLimited ? "ring-1 ring-amber/30" : ""}`}
               >
                 {pkg.popular ? (
                   <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-accent-bright">
-                    Most popular
+                    Enterprise tier
+                  </p>
+                ) : null}
+                {pkg.slotLimited ? (
+                  <p className="mt-2 font-mono text-[9px] font-semibold uppercase tracking-wider text-amber">
+                    Limited slots
                   </p>
                 ) : null}
                 <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">{pkg.tier}</p>
                 <h2 className="mt-2 text-2xl font-bold">{pkg.name}</h2>
-                <p className="mt-3 max-w-2xl text-sm text-text-secondary">{pkg.description}</p>
+                <p className="mt-3 max-w-2xl text-sm text-accent-bright">{pkg.valueProposition}</p>
                 <p className="mt-4 font-mono text-2xl font-bold text-accent-bright">
                   {pkg.price}
                   <span className="text-lg text-text-secondary">{pkg.priceSub}</span>
                 </p>
-                <p className="mt-1 text-xs text-muted">{pkg.range}</p>
-                <p className="mt-2 font-mono text-[10px] text-muted">{pkg.time}</p>
+                <p className="mt-2 text-xs text-muted">{pkg.availability}</p>
+                <p className="mt-1 font-mono text-[10px] text-muted">{pkg.time}</p>
+                <p className="mt-4 rounded border border-b1 bg-bg p-4 text-sm text-text-secondary">
+                  <span className="font-semibold text-text">Capacity: </span>
+                  {pkg.capacityLimit}
+                </p>
                 <ul className="mt-6 grid gap-2 sm:grid-cols-2">
                   {pkg.features.map((feature) => (
                     <li key={feature} className="text-sm text-text-secondary">
@@ -99,7 +115,7 @@ export default function PackagesPage(): React.JSX.Element {
                     rel="noopener noreferrer"
                     className="rounded bg-discord px-5 py-2.5 font-mono text-[11px] font-bold text-white"
                   >
-                    Order on Discord
+                    {isRetainer ? "Apply on Discord" : "Order on Discord"}
                   </a>
                   <a
                     href={telegramUrl(config.telegramMsg)}
@@ -107,7 +123,7 @@ export default function PackagesPage(): React.JSX.Element {
                     rel="noopener noreferrer"
                     className="rounded border border-b2 px-5 py-2.5 font-mono text-[11px] text-text-secondary hover:text-text"
                   >
-                    Order on Telegram
+                    {isRetainer ? "Apply on Telegram" : "Order on Telegram"}
                   </a>
                 </div>
               </article>
@@ -115,7 +131,11 @@ export default function PackagesPage(): React.JSX.Element {
           })}
         </div>
         <p className="content-wrap mt-10 text-sm text-text-secondary">
-          Compare individual lines on the{" "}
+          Compare deliverables in the{" "}
+          <Link href="/#delivery" className="text-accent-bright">
+            delivery matrix
+          </Link>{" "}
+          on the home page, or individual lines on the{" "}
           <Link href="/services/" className="text-accent-bright">
             services hub
           </Link>

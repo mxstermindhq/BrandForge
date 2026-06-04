@@ -5,6 +5,7 @@ import {
   ICP_CARDS,
   INTAKE_CHECKLIST,
   LIVE_PROJECT_URLS,
+  PACKAGE_TIER_COLUMNS,
   PROCESS_STEPS,
   SUPPORT_CARDS,
 } from "@/content/home-sections";
@@ -128,7 +129,7 @@ export function DeliverySection(): React.JSX.Element {
   return (
     <section id="delivery" className="bf-below-fold py-[var(--spacing-section)]" aria-labelledby="delivery-title">
       <div className="content-wrap">
-        <SectionEyebrow>Delivery</SectionEyebrow>
+        <SectionEyebrow>Delivery Matrix</SectionEyebrow>
         <SectionTitle id="delivery-title">
           What you <em className="text-accent-bright not-italic">actually get.</em>
         </SectionTitle>
@@ -136,32 +137,34 @@ export function DeliverySection(): React.JSX.Element {
           Every package ends with usable files and clear handoff — not just mockups in a Figma link.
         </p>
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[960px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-b2">
-                <th scope="col" className="py-3 pr-4 font-mono text-[10px] uppercase tracking-wider text-muted">
+                <th scope="col" className="sticky left-0 bg-bg py-3 pr-4 font-mono text-[10px] uppercase tracking-wider text-muted">
                   Deliverable
                 </th>
-                <th scope="col" className="py-3 px-4 font-mono text-[10px] uppercase tracking-wider text-muted">
-                  Brand Sprint
-                </th>
-                <th scope="col" className="py-3 px-4 font-mono text-[10px] uppercase tracking-wider text-muted">
-                  Launch Stack
-                </th>
-                <th scope="col" className="py-3 pl-4 font-mono text-[10px] uppercase tracking-wider text-muted">
-                  Growth Engine
-                </th>
+                {PACKAGE_TIER_COLUMNS.map((col) => (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    className="min-w-[140px] py-3 px-3 font-mono text-[10px] uppercase tracking-wider text-muted"
+                  >
+                    {col.label}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {DELIVERY_ROWS.map((row) => (
                 <tr key={row.deliverable} className="border-b border-b1">
-                  <th scope="row" className="py-3 pr-4 font-semibold text-text">
+                  <th scope="row" className="sticky left-0 bg-bg py-3 pr-4 font-semibold text-text">
                     {row.deliverable}
                   </th>
-                  <td className="py-3 px-4 text-text-secondary">{row.sprint}</td>
-                  <td className="py-3 px-4 text-text-secondary">{row.launch}</td>
-                  <td className="py-3 pl-4 text-text-secondary">{row.growth}</td>
+                  <td className="py-3 px-3 text-xs text-text-secondary">{row.blueprint}</td>
+                  <td className="py-3 px-3 text-xs text-text-secondary">{row.automator}</td>
+                  <td className="py-3 px-3 text-xs text-text-secondary">{row.mvpEngine}</td>
+                  <td className="py-3 px-3 text-xs text-text-secondary">{row.aiCommunity}</td>
+                  <td className="py-3 px-3 text-xs text-text-secondary">{row.fullStack}</td>
                 </tr>
               ))}
             </tbody>

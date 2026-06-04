@@ -160,11 +160,11 @@ function PackageCard({ pkg, stacked, zIndex }: PackageCardProps): React.JSX.Elem
       ) : null}
       <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--m2)]">{pkg.tier}</p>
       <h3 className="mt-2 text-[21px] font-bold">{pkg.name}</h3>
-      <p className="mt-2 text-xs leading-relaxed text-muted">{pkg.description}</p>
+      <p className="mt-2 text-xs leading-relaxed text-accent-bright">{pkg.valueProposition}</p>
       <div className="mt-5 font-mono text-4xl leading-none">
         {pkg.price} <sub className="text-sm text-muted">{pkg.priceSub}</sub>
       </div>
-      <p className="mt-1 font-mono text-[10px] text-muted">{pkg.range}</p>
+      <p className="mt-2 font-mono text-[10px] text-muted">{pkg.availability}</p>
       <p className="mt-1 font-mono text-[10px] text-accent-bright">{pkg.time}</p>
       <ul className="mt-5 flex-1 space-y-0 border-t border-b1 pt-4">
         {pkg.features.map((feat) => (
@@ -226,7 +226,7 @@ function PackageDiscordCta({
           : "border-accent text-accent-bright hover:bg-accent hover:text-white"
       }`}
     >
-      {packageKey === "growth-engine" ? "Apply on Discord →" : "Order on Discord →"}
+      {packageKey !== "blueprint" ? "Apply on Discord →" : "Order on Discord →"}
     </button>
   );
 }

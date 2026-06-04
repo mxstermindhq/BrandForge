@@ -26,9 +26,9 @@ export default function HomePage(): React.JSX.Element {
       />
       <div className="sr-only" aria-hidden>
         BrandForge is a design, development, and growth studio at brandforge.gg for digital founders
-        and operators. Packages: Brand Sprint $500–$1,200, Launch Stack $2,500–$7,500, Growth Engine
-        $3,500/month. Crypto and escrow accepted. Contact on Discord or Telegram for a fixed quote
-        within 24 hours.
+        and operators. Packages: Blueprint $300–$500, Automator $1,500–$3,000/month, MVP Engine
+        $5,000/month, AI and Community $7,500/month, Full-Stack Powerhouse $10,000+/month. Crypto
+        and escrow accepted. Contact on Discord or Telegram for a fixed quote within 24 hours.
       </div>
 
       <StaticSiteHeader />

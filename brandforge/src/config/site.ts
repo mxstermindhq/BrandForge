@@ -7,7 +7,13 @@ export const SITE = {
   gaMeasurementId: "G-G3L5EBB195",
 } as const;
 
-export type PackageKey = "brand-sprint" | "launch-stack" | "growth-engine" | "custom";
+export type PackageKey =
+  | "blueprint"
+  | "automator"
+  | "mvp-engine"
+  | "ai-community"
+  | "full-stack-enterprise"
+  | "custom";
 
 export type PackageConfig = {
   label: string;
@@ -16,26 +22,40 @@ export type PackageConfig = {
 };
 
 export const PACKAGES: Record<PackageKey, PackageConfig> = {
-  "brand-sprint": {
-    label: "Brand Sprint",
+  blueprint: {
+    label: "The Blueprint",
     discordMsg:
-      "Hi BrandForge — I'm interested in Brand Sprint ($500–$1,200).\n\nProject: \nDeadline: \nReferences: ",
+      "Hi BrandForge — I'm interested in Tier 1: The Blueprint ($300–$500).\n\nProject: \nDeadline: \nReferences: ",
     telegramMsg:
-      "Hi BrandForge — I'm interested in Brand Sprint ($500–$1,200). Project: [describe]. Deadline: [date].",
+      "Hi BrandForge — Tier 1: The Blueprint ($300–$500). Project: [describe]. Deadline: [date].",
   },
-  "launch-stack": {
-    label: "Launch Stack",
+  automator: {
+    label: "The Automator",
     discordMsg:
-      "Hi BrandForge — I'm interested in Launch Stack ($2,500–$7,500).\n\nProject: \nPages/features needed: \nDeadline: \nEscrow: yes/no",
+      "Hi BrandForge — I'm interested in Tier 2: The Automator ($1,500–$3,000/mo).\n\nWorkflows needed: \nTools (n8n/Make): \nStart date: ",
     telegramMsg:
-      "Hi BrandForge — I'm interested in Launch Stack ($2,500–$7,500). Project: [describe]. Deadline: [date].",
+      "Hi BrandForge — Tier 2: The Automator retainer. Monthly automation needs: [describe].",
   },
-  "growth-engine": {
-    label: "Growth Engine",
+  "mvp-engine": {
+    label: "The MVP Engine",
     discordMsg:
-      "Hi BrandForge — I'd like to apply for Growth Engine ($3,500/mo).\n\nWhat I need monthly: \nCurrent site/product: \nStart date: ",
+      "Hi BrandForge — I'm interested in Tier 3: The MVP Engine ($5,000/mo).\n\nProduct: \nFeatures this sprint: \nStart date: ",
     telegramMsg:
-      "Hi BrandForge — I'd like to apply for Growth Engine ($3,500/mo). Monthly needs: [describe].",
+      "Hi BrandForge — Tier 3: The MVP Engine ($5,000/mo). Product scope: [describe].",
+  },
+  "ai-community": {
+    label: "The AI & Community",
+    discordMsg:
+      "Hi BrandForge — I'm interested in Tier 4: AI & Community ($7,500/mo).\n\nAI / Discord / video needs: \nStart date: ",
+    telegramMsg:
+      "Hi BrandForge — Tier 4: AI & Community ($7,500/mo). Scope: [describe].",
+  },
+  "full-stack-enterprise": {
+    label: "The Full-Stack Powerhouse",
+    discordMsg:
+      "Hi BrandForge — I'm interested in Tier 5: Full-Stack Powerhouse ($10,000+/mo).\n\nStreams needed (Design/Dev/Growth): \nStart date: ",
+    telegramMsg:
+      "Hi BrandForge — Tier 5: Full-Stack Powerhouse ($10,000+/mo). Scope: [describe].",
   },
   custom: {
     label: "Custom quote",

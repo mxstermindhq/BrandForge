@@ -73,7 +73,7 @@ export function HomeHeroStatic(): React.JSX.Element {
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-text-secondary">
           <strong className="font-semibold text-text">One studio for brand, website, and growth</strong>
-          {" — built for founders, SaaS teams, and Web3 operators who want fixed USD pricing, not three vendors. Packages from $500. Quote in 24 hours."}
+          {" — built for founders, SaaS teams, and Web3 operators who want fixed USD pricing, not three vendors. Packages from $300. Quote in 24 hours."}
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
@@ -114,9 +114,10 @@ export function HomeServicesSectionStatic(): React.JSX.Element {
         <SectionTitle id="services-title">
           Three disciplines. <em className="text-accent-bright not-italic">One team.</em>
         </SectionTitle>
-        <p className="mt-4 max-w-lg text-sm text-text-secondary">
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">
           Design, development, and growth under one roof — no handoffs, no gaps, no chasing three
-          vendors.
+          vendors. We are a <strong className="font-semibold text-text">development-first squad</strong>{" "}
+          that builds, automates, and scales your digital ecosystem.
         </p>
       </div>
       <div className="content-wrap grid gap-4 pb-16 md:grid-cols-3">
@@ -152,26 +153,36 @@ type StaticPackageCardProps = {
 
 function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
   const pkgConfig = PACKAGES[pkg.key as PackageKey];
+  const isRetainer = pkg.key !== "blueprint";
 
   return (
     <article
       className={`flex flex-col rounded-md border border-b1 bg-bg p-8 md:p-9 ${
         pkg.popular ? "border-accent bg-gradient-to-br from-bg to-[rgba(124,58,237,0.07)]" : ""
-      }`}
+      } ${pkg.slotLimited ? "ring-1 ring-amber/30" : ""}`}
     >
       {pkg.popular ? (
         <p className="mb-3 inline-block w-fit bg-accent px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-white">
-          Most Popular
+          Enterprise tier
+        </p>
+      ) : null}
+      {pkg.slotLimited ? (
+        <p className="mb-3 inline-block w-fit bg-amber/15 px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-wider text-amber">
+          Limited slots
         </p>
       ) : null}
       <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--m2)]">{pkg.tier}</p>
       <h3 className="mt-2 text-[21px] font-bold">{pkg.name}</h3>
-      <p className="mt-2 text-xs leading-relaxed text-muted">{pkg.description}</p>
+      <p className="mt-2 text-xs leading-relaxed text-accent-bright">{pkg.valueProposition}</p>
       <div className="mt-5 font-mono text-4xl leading-none">
         {pkg.price} <sub className="text-sm text-muted">{pkg.priceSub}</sub>
       </div>
-      <p className="mt-1 font-mono text-[10px] text-muted">{pkg.range}</p>
+      <p className="mt-2 font-mono text-[10px] text-muted">{pkg.availability}</p>
       <p className="mt-1 font-mono text-[10px] text-accent-bright">{pkg.time}</p>
+      <p className="mt-3 rounded border border-b1 bg-s2 p-3 text-[11px] leading-snug text-text-secondary">
+        <span className="font-semibold text-text">Capacity: </span>
+        {pkg.capacityLimit}
+      </p>
       <ul className="mt-5 flex-1 space-y-0 border-t border-b1 pt-4">
         {pkg.features.map((feat) => (
           <li
@@ -197,7 +208,7 @@ function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
             : "border-accent text-accent-bright hover:bg-accent hover:text-white"
         }`}
       >
-        {pkg.key === "growth-engine" ? "Apply on Discord →" : "Order on Discord →"}
+        {isRetainer ? "Apply on Discord →" : "Order on Discord →"}
       </a>
       <a
         href={telegramUrl(pkgConfig.telegramMsg)}
@@ -218,13 +229,13 @@ export function HomePackagesSectionStatic(): React.JSX.Element {
       <div className="content-wrap">
         <SectionEyebrow>Packages</SectionEyebrow>
         <SectionTitle id="packages-title">
-          Pick your starting point.
+          The 5 <em className="text-accent-bright not-italic">Packages.</em>
         </SectionTitle>
-        <p className="mt-4 max-w-lg text-sm text-text-secondary">
-          Fixed price ranges — scope confirmed in 24 hours. Escrow and middleman accepted on every
-          order.
+        <p className="mt-4 max-w-2xl text-sm text-text-secondary">
+          From one-time blueprint to enterprise retainer — fixed USD, capacity limits per tier, quote
+          in 24 hours. Escrow and middleman accepted on every order.
         </p>
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {PACKAGES_LIST.map((pkg) => (
             <StaticPackageCard key={pkg.key} pkg={pkg} />
           ))}

@@ -12,6 +12,82 @@ export const LIVE_PROJECT_URLS = [
   },
 ] as const;
 
+export const PACKAGE_TIER_COLUMNS = [
+  { key: "blueprint", label: "Tier 1: Blueprint" },
+  { key: "automator", label: "Tier 2: Automator" },
+  { key: "mvpEngine", label: "Tier 3: MVP Engine" },
+  { key: "aiCommunity", label: "Tier 4: AI & Community" },
+  { key: "fullStack", label: "Tier 5: Full-Stack" },
+] as const;
+
+export type DeliveryRow = {
+  deliverable: string;
+  blueprint: string;
+  automator: string;
+  mvpEngine: string;
+  aiCommunity: string;
+  fullStack: string;
+};
+
+export const DELIVERY_ROWS: readonly DeliveryRow[] = [
+  {
+    deliverable: "01 / Design",
+    blueprint: "Logo, colors, typography, social templates.",
+    automator: "Continuous UI/UX updates, short-form video ad templates.",
+    mvpEngine: "Full Web App UI/UX, motion systems, custom interactions.",
+    aiCommunity: "Enterprise Design System, Discord server branding & assets.",
+    fullStack: "Interactive 3D Web assets, custom pitch/slide decks.",
+  },
+  {
+    deliverable: "02 / Dev (Core)",
+    blueprint: "High-converting single landing page or basic CRM setup.",
+    automator: "Continuous workflow & CRM automation (n8n/Make), API integrations.",
+    mvpEngine: "Custom Web App/MVP development & continuous feature shipping.",
+    aiCommunity: "Custom AI Assistant, Knowledge Base updates, Discord bots.",
+    fullStack: "Native Mobile Apps (iOS/Android) & deep infrastructure maintenance.",
+  },
+  {
+    deliverable: "03 / Growth",
+    blueprint: "Creator monetization funnel structure setup.",
+    automator: "Monthly CRO audits, A/B testing, and GEO strategy.",
+    mvpEngine: "Funnel infrastructure setup and targeted traffic strategy.",
+    aiCommunity: "Short-form video pipelines and creator monetization systems.",
+    fullStack: "Full Paid Ads Management, ROAS tracking, aggressive GEO.",
+  },
+  {
+    deliverable: "Revisions",
+    blueprint: "2 full rounds of design tweaks.",
+    automator: "Continuous adjustment within monthly scope.",
+    mvpEngine: "Sprint-based continuous iteration.",
+    aiCommunity: "Agile adjustments based on community/AI feedback.",
+    fullStack: "Priority execution, zero-bottleneck revisions.",
+  },
+  {
+    deliverable: "Timeline",
+    blueprint: "1–2 weeks (Fixed delivery).",
+    automator: "Ongoing monthly retainer (Cancel anytime).",
+    mvpEngine: "Ongoing monthly retainer (Cancel anytime).",
+    aiCommunity: "Ongoing monthly retainer (Cancel anytime).",
+    fullStack: "Ongoing monthly retainer (Dedicated squad).",
+  },
+  {
+    deliverable: "Handoff",
+    blueprint: "SVG/PNG + deployment access + basic guidelines.",
+    automator: "Clean repository updates, automation flow maps, live dashboards.",
+    mvpEngine: "Source code access, feature deployment logs, asset library.",
+    aiCommunity: "AI model deployment keys, bot hosting setups, server ownership.",
+    fullStack: "Complete architecture blueprints, full IP transfer, live reporting.",
+  },
+  {
+    deliverable: "Support",
+    blueprint: "7 days for post-launch export fixes.",
+    automator: "Included continuously while retainer is active.",
+    mvpEngine: "Included continuously while retainer is active.",
+    aiCommunity: "Included continuously while retainer is active.",
+    fullStack: "24/7 priority developer Slack channel access.",
+  },
+] as const;
+
 export const ICP_CARDS = [
   {
     title: "Founders launching",
@@ -31,7 +107,7 @@ export const PROCESS_STEPS = [
   {
     step: "01",
     title: "Pick or scope",
-    body: "Choose a package or describe custom needs. Fixed quote in 24 hours.",
+    body: "Choose a tier or describe custom needs. Fixed quote in 24 hours.",
   },
   {
     step: "02",
@@ -51,12 +127,12 @@ export const PROCESS_STEPS = [
   {
     step: "05",
     title: "Handoff + support",
-    body: "Full file handoff with docs. Post-delivery support per package terms.",
+    body: "Full file handoff with docs. Post-delivery support per tier terms.",
   },
 ] as const;
 
 export const INTAKE_CHECKLIST = [
-  "Which package — or custom if unsure",
+  "Which tier — or custom if unsure",
   "What you're building (product, community, store, app)",
   "Target launch date or deadline",
   "Reference links or competitors you like",
@@ -64,57 +140,26 @@ export const INTAKE_CHECKLIST = [
   "Any must-have features (payments, auth, bots, etc.)",
 ] as const;
 
-export const DELIVERY_ROWS = [
-  {
-    deliverable: "Brand assets",
-    sprint: "Logo, colours, type, guidelines, templates",
-    launch: "Full brand system",
-    growth: "Ongoing brand updates",
-  },
-  {
-    deliverable: "Website / product",
-    sprint: "—",
-    launch: "5–10 page site, mobile-first, SEO base",
-    growth: "New pages, features, CRO tests",
-  },
-  {
-    deliverable: "Revisions",
-    sprint: "2 full rounds",
-    launch: "2 design + 1 site round",
-    growth: "Within monthly scope",
-  },
-  {
-    deliverable: "Timeline",
-    sprint: "1–2 weeks",
-    launch: "3–4 weeks",
-    growth: "Ongoing from month 2",
-  },
-  {
-    deliverable: "Handoff",
-    sprint: "SVG/PNG + PDF + templates",
-    launch: "Source files + deploy access + checklist",
-    growth: "Reports + asset library",
-  },
-  {
-    deliverable: "Post-delivery support",
-    sprint: "7 days for export fixes",
-    launch: "30 days post-launch",
-    growth: "Included while active",
-  },
-] as const;
-
 export const SUPPORT_CARDS = [
   {
-    title: "Brand Sprint",
+    title: "The Blueprint",
     body: "7 days of support for export issues, file formats, and minor asset tweaks. Major scope changes are quoted separately.",
   },
   {
-    title: "Launch Stack",
-    body: "30 days post-launch for bug fixes, deploy help, and small content swaps. New pages or features scoped as add-ons.",
+    title: "The Automator",
+    body: "Ongoing support while retainer is active — automation maps, CRM integrations, and flow adjustments within monthly capacity.",
   },
   {
-    title: "Growth Engine",
-    body: "Active retainer includes ongoing support, iteration, and monthly performance reviews. Pause or cancel with 14 days notice.",
+    title: "The MVP Engine",
+    body: "Sprint support includes deployment help and bug fixes within scope. New features beyond capacity are quoted for the next sprint.",
+  },
+  {
+    title: "The AI & Community",
+    body: "Bot hosting handoff, AI knowledge updates, and community asset tweaks while retainer is active.",
+  },
+  {
+    title: "Full-Stack Powerhouse",
+    body: "Priority Slack channel access with dedicated squad coverage across design, dev, and growth streams.",
   },
 ] as const;
 
@@ -122,7 +167,7 @@ export const GUARANTEE_ITEMS = [
   "Escrow & middleman accepted",
   "Crypto (BTC · LTC · USDC)",
   "Money-back guarantee · Terms apply",
-  "Revisions defined per package",
+  "Revisions defined per tier",
   "Reply within 24h on weekdays",
 ] as const;
 
@@ -140,12 +185,12 @@ export const HOME_FAQ: readonly FaqItem[] = [
   {
     question: "How many revisions are included?",
     answer:
-      "Brand Sprint: 2 full revision rounds. Launch Stack: 2 design rounds plus 1 website revision round. Growth Engine: ongoing iteration within agreed monthly scope.",
+      "The Blueprint: 2 full design rounds. Retainers (Tiers 2–5): continuous iteration within monthly capacity limits — see the delivery matrix on this page.",
   },
   {
     question: "What post-delivery support do I get?",
     answer:
-      "Brand Sprint includes 7 days for export fixes. Launch Stack includes 30 days post-launch. Growth Engine includes ongoing support while your retainer is active.",
+      "The Blueprint includes 7 days for export fixes. Tiers 2–5 include ongoing support while your retainer is active. Tier 5 adds priority Slack access.",
   },
   {
     question: "What payment methods do you accept?",
@@ -153,24 +198,24 @@ export const HOME_FAQ: readonly FaqItem[] = [
       "Crypto including USDC, BTC, and LTC. Payment details confirmed over Discord or Telegram before work begins.",
   },
   {
-    question: "Can I customise a package?",
+    question: "Can I customise a tier?",
     answer:
-      "Absolutely. Packages are starting points. DM us with extra pages, bots, or integrations — fixed quote in 24 hours.",
+      "Absolutely. Tiers are starting points with capacity limits. DM us with extra workflows, features, or streams — fixed quote in 24 hours.",
   },
   {
     question: "What if I need an MVP or full app?",
     answer:
-      "We build those too — iOS and Android apps, web apps, Discord bots, and full-stack platforms. DM us for custom scope.",
+      "Tier 3 (MVP Engine) or Tier 5 (Full-Stack Powerhouse) cover product shipping. DM us if unsure which tier fits.",
   },
   {
     question: "How long does delivery actually take?",
     answer:
-      "Brand Sprint: 1–2 weeks. Launch Stack: 3–4 weeks. Full apps and MVPs: typically 2–4 weeks depending on scope.",
+      "The Blueprint: 1–2 weeks. Retainers start ongoing after kickoff. Rush timelines quoted separately on Discord.",
   },
   {
     question: "Is there a bigger option for serious projects?",
     answer:
-      "Yes. For larger bespoke engagements, visit mxstermind.com — premium studio for established businesses and complex builds.",
+      "Yes. Tier 5 is the enterprise retainer, or mxstermind.com for fully bespoke engagements above package capacity.",
   },
   {
     question: "What data do you collect?",

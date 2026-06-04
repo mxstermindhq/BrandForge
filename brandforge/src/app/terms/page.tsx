@@ -35,8 +35,8 @@ export default function TermsPage(): React.JSX.Element {
         </p>
         <h2 className="mt-8 text-lg text-accent-bright">Services &amp; packages</h2>
         <p className="mt-3 text-sm text-text-secondary">
-          BrandForge offers fixed-scope packages (Brand Sprint, Launch Stack, Growth Engine) and custom
-          scopes quoted in writing before work begins.
+          BrandForge offers five fixed-scope tiers (Blueprint, Automator, MVP Engine, AI &amp;
+          Community, Full-Stack Powerhouse) and custom scopes quoted in writing before work begins.
         </p>
         <p className="mt-8 text-sm text-text-secondary">
           Questions:{" "}
