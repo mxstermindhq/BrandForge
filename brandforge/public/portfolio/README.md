@@ -72,6 +72,12 @@ Register in manifest:
 
 ---
 
+## Do not put PDFs here
+
+PDFs and scans belong outside `public/portfolio/` — they get copied to the live site on deploy. A `.gitignore` blocks git only; keep docs elsewhere.
+
+---
+
 ## Checklist before commit
 
 - [ ] Image is WebP or JPG (not 2MB PNG)
