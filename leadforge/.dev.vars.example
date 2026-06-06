@@ -1,0 +1,7 @@
+# Copy to .dev.vars (gitignored) for local development with `wrangler dev`.
+GEMINI_API_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_API_KEY=
+JWT_SECRET=
+ADMIN_EMAIL=

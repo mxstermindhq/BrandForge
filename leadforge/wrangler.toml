@@ -1,0 +1,35 @@
+name = "leadforge"
+main = ".open-next/worker.js"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# @opennextjs/cloudflare deploys a Worker (not Pages). Static assets are served
+# from the generated .open-next/assets directory via the ASSETS binding.
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "leadforge-db"
+database_id = "PLACEHOLDER_REPLACE_AFTER_CREATE"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "PLACEHOLDER_REPLACE_AFTER_CREATE"
+
+[[queues.producers]]
+binding = "CAMPAIGN_QUEUE"
+queue = "leadforge-campaigns"
+
+# NOTE: the queue consumer is wired to the custom worker entry in Milestone 2
+# (the default .open-next/worker.js only exports fetch; we add queue() there).
+[[queues.consumers]]
+queue = "leadforge-campaigns"
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 2
+
+[vars]
+APP_ENV = "production"
+APP_URL = "https://leadforge.pages.dev"
