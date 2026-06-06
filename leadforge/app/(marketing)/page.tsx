@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { PACKS, PLATFORMS } from "@/lib/constants";
+import { PACKS, PLATFORMS, WELCOME_CREDITS } from "@/lib/constants";
 
 const STEPS = [
-  { n: "01", title: "Describe", body: "Your product and ideal customer." },
-  { n: "02", title: "Select sources", body: "Toggle Reddit, Google, LinkedIn, and more." },
-  { n: "03", title: "Launch", body: "Pay with credits and start the run." },
-  { n: "04", title: "Export", body: "AI-scored leads with emails and pitch angles." },
+  { n: "01", title: "Describe", body: "Your product and ideal customer in plain language." },
+  { n: "02", title: "Select sources", body: "Toggle Reddit, Google, LinkedIn, Instagram, and more." },
+  { n: "03", title: "Launch", body: "Spend credits and start the run — we scrape and enrich." },
+  { n: "04", title: "Export", body: "AI-scored leads with emails, fit, and a pitch angle each." },
 ] as const;
 
 export default function LandingPage(): React.JSX.Element {
@@ -16,7 +16,7 @@ export default function LandingPage(): React.JSX.Element {
           B2B + B2C lead generation
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl font-display text-6xl font-light leading-tight md:text-7xl">
-          Find <span className="text-gold">700</span> peptide buyers in minutes.
+          Describe your buyer. <span className="text-gold">Get enriched leads.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-tx-muted">
           Describe your customer, choose your platforms, and receive enriched
@@ -27,7 +27,7 @@ export default function LandingPage(): React.JSX.Element {
             href="/auth/register"
             className="rounded bg-gold px-6 py-3 font-medium text-bg hover:bg-gold-light"
           >
-            Start Free — 500 Leads
+            Start Free — {WELCOME_CREDITS} credits
           </Link>
           <Link
             href="/pricing"
@@ -71,6 +71,14 @@ export default function LandingPage(): React.JSX.Element {
               <p className="mt-1 text-sm text-tx-muted">{pack.credits} credits</p>
             </div>
           ))}
+        </div>
+        <div className="mt-10">
+          <Link
+            href="/auth/register"
+            className="rounded bg-gold px-6 py-3 font-medium text-bg hover:bg-gold-light"
+          >
+            Get started
+          </Link>
         </div>
       </section>
     </div>
