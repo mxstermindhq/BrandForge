@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import type { UserSession } from "@/types";
+import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "@/lib/session-cookie";
 
-export const SESSION_COOKIE = "lf_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
+export { SESSION_COOKIE };
 const BCRYPT_ROUNDS = 10;
 
 /** Thrown by requireAuth/requireAdmin; routes map .status to an HTTP response. */
