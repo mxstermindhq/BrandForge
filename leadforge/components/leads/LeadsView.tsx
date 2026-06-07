@@ -26,6 +26,8 @@ export function LeadsView({ campaignId }: { campaignId?: string }): React.JSX.El
   const [data, setData] = React.useState<PaginatedResponse<Lead> | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [active, setActive] = React.useState<Lead | null>(null);
+  const [exporting, setExporting] = React.useState(false);
+  const [exportError, setExportError] = React.useState<string | null>(null);
 
   const buildQuery = React.useCallback(
     (forExport = false): string => {
@@ -75,6 +77,45 @@ export function LeadsView({ campaignId }: { campaignId?: string }): React.JSX.El
     patchLeadLocal(updated);
   }
 
+  // Download as a blob so the browser always triggers a file save (a plain
+  // <a href> to the API route gets intercepted by the client router and can't
+  // surface auth/empty errors).
+  async function exportCsv(): Promise<void> {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const res = await fetch(`/api/leads/export?${buildQuery(true)}`, {
+        credentials: "same-origin",
+      });
+      if (!res.ok) {
+        let message = `Export failed (${res.status})`;
+        try {
+          const body = (await res.json()) as { error?: string };
+          if (body?.error) message = body.error;
+        } catch {
+          /* non-JSON error body */
+        }
+        throw new Error(message);
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("content-disposition") ?? "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename = match?.[1] ?? `leadforge-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
@@ -105,13 +146,19 @@ export function LeadsView({ campaignId }: { campaignId?: string }): React.JSX.El
           <option value="score">Top score</option>
           <option value="company_name">Company A–Z</option>
         </Select>
-        <a
-          href={`/api/leads/export?${buildQuery(true)}`}
-          className="ml-auto inline-flex items-center rounded border border-border px-4 py-2 text-sm text-tx hover:border-border-hover"
+        <Button
+          variant="secondary"
+          className="ml-auto"
+          loading={exporting}
+          disabled={exporting || (data?.total ?? 0) === 0}
+          onClick={exportCsv}
         >
           Export CSV
-        </a>
+        </Button>
       </div>
+      {exportError && (
+        <p className="mt-2 text-right text-sm text-red-400">{exportError}</p>
+      )}
 
       <div className="mt-5">
         {loading && !data ? (
