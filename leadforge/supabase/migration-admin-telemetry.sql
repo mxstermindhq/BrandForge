@@ -33,3 +33,6 @@ CREATE INDEX IF NOT EXISTS idx_model_usage_provider ON public.model_usage (provi
 ALTER TABLE public.admin_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.model_usage ENABLE ROW LEVEL SECURITY;
 -- No policies: only service-role API routes read/write these tables.
+
+GRANT ALL ON public.admin_logs TO service_role;
+GRANT ALL ON public.model_usage TO service_role;

@@ -20,6 +20,20 @@ export interface UsageInput {
   meta?: Record<string, unknown>;
 }
 
+/** PostgREST uses PGRST205; Postgres uses 42P01 — treat both as "run migration". */
+export function isMissingTelemetryTable(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  if (error.code === "42P01" || error.code === "PGRST205" || error.code === "PGRST116") {
+    return true;
+  }
+  const msg = (error.message ?? "").toLowerCase();
+  return (
+    msg.includes("could not find the table") ||
+    msg.includes("does not exist") ||
+    msg.includes("schema cache")
+  );
+}
+
 function getDb() {
   try {
     return getSupabaseAdmin();
@@ -48,7 +62,7 @@ export function appendAdminLog(input: LogInput): void {
         meta: meta ?? {},
         user_id: userId ?? null,
       });
-      if (error?.code === "42P01") return; // table missing — run migration
+      if (isMissingTelemetryTable(error)) return;
       if (error) console.warn("[admin-telemetry] log insert failed:", error.message);
     })(),
   );
@@ -70,7 +84,7 @@ export function recordModelUsage(input: UsageInput): void {
         user_id: input.userId ?? null,
         meta: input.meta ?? {},
       });
-      if (error?.code === "42P01") return;
+      if (isMissingTelemetryTable(error)) return;
       if (error) console.warn("[admin-telemetry] usage insert failed:", error.message);
     })(),
   );
@@ -80,9 +94,15 @@ export async function getAdminLogs(options: {
   limit?: number;
   level?: AdminLogLevel | "";
   source?: string;
-}): Promise<{ items: AdminLogEntry[]; tableReady: boolean }> {
+}): Promise<{ items: AdminLogEntry[]; tableReady: boolean; hint?: string }> {
   const db = getDb();
-  if (!db) return { items: [], tableReady: false };
+  if (!db) {
+    return {
+      items: [],
+      tableReady: false,
+      hint: "Supabase admin client unavailable — check env vars.",
+    };
+  }
 
   const limit = Math.min(200, Math.max(1, options.limit ?? 100));
   let q = db
@@ -95,8 +115,17 @@ export async function getAdminLogs(options: {
   if (options.source?.trim()) q = q.ilike("source", `%${options.source.trim()}%`);
 
   const { data, error } = await q;
-  if (error?.code === "42P01") return { items: [], tableReady: false };
-  if (error) throw new Error(error.message);
+  if (isMissingTelemetryTable(error)) {
+    return {
+      items: [],
+      tableReady: false,
+      hint: "Run supabase/migration-admin-telemetry.sql in Supabase SQL Editor.",
+    };
+  }
+  if (error) {
+    console.warn("[admin-telemetry] getAdminLogs:", error.message);
+    return { items: [], tableReady: false, hint: error.message };
+  }
 
   return {
     tableReady: true,
@@ -110,14 +139,28 @@ export async function getModelUsage(options: {
   summary: ModelUsageSummary[];
   recent: ModelUsageEvent[];
   tableReady: boolean;
+  hint?: string;
 }> {
   const db = getDb();
-  if (!db) return { summary: [], recent: [], tableReady: false };
+  if (!db) {
+    return {
+      summary: [],
+      recent: [],
+      tableReady: false,
+      hint: "Supabase admin client unavailable — check env vars.",
+    };
+  }
 
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [allRes, recentRes] = await Promise.all([
-    db.from("model_usage").select("provider, model, operation, success, duration_ms, created_at"),
+    db
+      .from("model_usage")
+      .select("provider, model, operation, success, duration_ms, created_at")
+      .gte("created_at", since30d)
+      .order("created_at", { ascending: false })
+      .limit(5000),
     db
       .from("model_usage")
       .select("*")
@@ -125,11 +168,23 @@ export async function getModelUsage(options: {
       .limit(Math.min(100, options.recentLimit ?? 50)),
   ]);
 
-  if (allRes.error?.code === "42P01" || recentRes.error?.code === "42P01") {
-    return { summary: [], recent: [], tableReady: false };
+  const tableErr = allRes.error ?? recentRes.error;
+  if (isMissingTelemetryTable(tableErr)) {
+    return {
+      summary: [],
+      recent: [],
+      tableReady: false,
+      hint: "Run supabase/migration-admin-telemetry.sql in Supabase SQL Editor.",
+    };
   }
-  if (allRes.error) throw new Error(allRes.error.message);
-  if (recentRes.error) throw new Error(recentRes.error.message);
+  if (allRes.error) {
+    console.warn("[admin-telemetry] getModelUsage aggregate:", allRes.error.message);
+    return { summary: [], recent: [], tableReady: false, hint: allRes.error.message };
+  }
+  if (recentRes.error) {
+    console.warn("[admin-telemetry] getModelUsage recent:", recentRes.error.message);
+    return { summary: [], recent: [], tableReady: false, hint: recentRes.error.message };
+  }
 
   const buckets = new Map<string, ModelUsageSummary>();
 

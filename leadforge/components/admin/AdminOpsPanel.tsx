@@ -36,8 +36,10 @@ export function AdminOpsPanel(): React.JSX.Element {
   const [usageSummary, setUsageSummary] = React.useState<ModelUsageSummary[]>([]);
   const [usageRecent, setUsageRecent] = React.useState<ModelUsageEvent[]>([]);
   const [usageReady, setUsageReady] = React.useState(true);
+  const [usageHint, setUsageHint] = React.useState<string | null>(null);
   const [logs, setLogs] = React.useState<AdminLogEntry[]>([]);
   const [logsReady, setLogsReady] = React.useState(true);
+  const [logsHint, setLogsHint] = React.useState<string | null>(null);
   const [logLevel, setLogLevel] = React.useState<AdminLogLevel | "">("");
   const [loading, setLoading] = React.useState(false);
 
@@ -47,17 +49,23 @@ export function AdminOpsPanel(): React.JSX.Element {
 
   const loadUsage = React.useCallback(() => {
     setLoading(true);
-    apiFetch<{ summary: ModelUsageSummary[]; recent: ModelUsageEvent[]; tableReady: boolean }>(
-      "/api/admin/usage?recent=50",
-    )
+    apiFetch<{
+      summary: ModelUsageSummary[];
+      recent: ModelUsageEvent[];
+      tableReady: boolean;
+      hint?: string;
+    }>("/api/admin/usage?recent=50")
       .then((r) => {
         setUsageSummary(r.summary);
         setUsageRecent(r.recent);
         setUsageReady(r.tableReady);
+        setUsageHint(r.hint ?? null);
       })
       .catch(() => {
         setUsageSummary([]);
         setUsageRecent([]);
+        setUsageReady(false);
+        setUsageHint("Request failed — refresh or check admin session.");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -65,12 +73,17 @@ export function AdminOpsPanel(): React.JSX.Element {
   const loadLogs = React.useCallback(() => {
     setLoading(true);
     const q = logLevel ? `?level=${logLevel}&limit=150` : "?limit=150";
-    apiFetch<{ items: AdminLogEntry[]; tableReady: boolean }>(`/api/admin/logs${q}`)
+    apiFetch<{ items: AdminLogEntry[]; tableReady: boolean; hint?: string }>(`/api/admin/logs${q}`)
       .then((r) => {
         setLogs(r.items);
         setLogsReady(r.tableReady);
+        setLogsHint(r.hint ?? null);
       })
-      .catch(() => setLogs([]))
+      .catch(() => {
+        setLogs([]);
+        setLogsReady(false);
+        setLogsHint("Request failed — refresh or check admin session.");
+      })
       .finally(() => setLoading(false));
   }, [logLevel]);
 
@@ -205,8 +218,12 @@ export function AdminOpsPanel(): React.JSX.Element {
         <div className="mt-6 space-y-6">
           {!usageReady && (
             <div className="rounded-lg border border-gold/30 bg-gold-bg/20 px-4 py-3 text-sm text-tx-muted">
-              Run <code className="text-gold">supabase/migration-admin-telemetry.sql</code> in
-              Supabase to enable usage tracking.
+              {usageHint ?? (
+                <>
+                  Run <code className="text-gold">supabase/migration-admin-telemetry.sql</code> in
+                  Supabase to enable usage tracking.
+                </>
+              )}
             </div>
           )}
           <div className="flex justify-end">
@@ -314,8 +331,12 @@ export function AdminOpsPanel(): React.JSX.Element {
         <div className="mt-6 space-y-4">
           {!logsReady && (
             <div className="rounded-lg border border-gold/30 bg-gold-bg/20 px-4 py-3 text-sm text-tx-muted">
-              Run <code className="text-gold">supabase/migration-admin-telemetry.sql</code> in
-              Supabase to persist logs. Until then, check Vercel function logs.
+              {logsHint ?? (
+                <>
+                  Run <code className="text-gold">supabase/migration-admin-telemetry.sql</code> in
+                  Supabase to persist logs. Until then, check Vercel function logs.
+                </>
+              )}
             </div>
           )}
           <div className="flex flex-wrap items-center gap-3">
