@@ -1,5 +1,9 @@
 import { buildIntentQueries } from "@/lib/channel-search";
-import type { ExtractedPersona, SiteBusinessProfile, WebsiteAnalysis } from "@/types";
+import {
+  defaultChannelsForType,
+  sanitizeChannelsForType,
+} from "@/lib/campaign-type";
+import type { CampaignType, ExtractedPersona, SiteBusinessProfile, WebsiteAnalysis } from "@/types";
 
 const B2C_TITLE_SIGNALS =
   /\b(creator|influencer|consumer|shopify store|indie hacker|content creator|youtuber|streamer)\b/i;
@@ -25,36 +29,43 @@ export function inferB2bFromAnalysis(analysis: WebsiteAnalysis): boolean {
   return analysis.market_position !== "budget";
 }
 
-export function suggestedChannelsFromAnalysis(analysis: WebsiteAnalysis): string[] {
-  const b2b = inferB2bFromAnalysis(analysis);
-  const allowed = new Set([
-    "google",
-    "reddit",
-    "youtube",
-    "instagram",
-    "tiktok",
-    "twitter",
-    "linkedin",
-    "web",
-  ]);
+export function suggestedChannelsFromAnalysis(
+  analysis: WebsiteAnalysis,
+  campaignType?: CampaignType,
+): string[] {
+  const b2b = campaignType ? campaignType === "b2b" : inferB2bFromAnalysis(analysis);
+  const allowed = new Set(channelsForType(b2b));
 
   const fromCongregate: string[] = [];
   if (analysis.where_buyers_congregate.subreddits.length > 0) fromCongregate.push("reddit");
   if (analysis.where_buyers_congregate.twitter_communities.length > 0) {
     fromCongregate.push("twitter");
   }
-  if (analysis.where_buyers_congregate.linkedin_signals.length > 0) {
+  if (b2b && analysis.where_buyers_congregate.linkedin_signals.length > 0) {
     fromCongregate.push("linkedin");
+  }
+  if (!b2b) {
+    fromCongregate.push("instagram", "youtube", "tiktok");
   }
 
   const base = b2b
-    ? ["linkedin", "google", "web", "reddit"]
-    : ["instagram", "tiktok", "youtube", "reddit", "twitter"];
+    ? defaultChannelsForType("b2b")
+    : defaultChannelsForType("b2c");
 
   return [...new Set([...fromCongregate, ...base])].filter((c) => allowed.has(c)).slice(0, 5);
 }
 
-export function websiteAnalysisToPersona(analysis: WebsiteAnalysis): ExtractedPersona {
+function channelsForType(b2b: boolean): string[] {
+  return b2b
+    ? ["google", "reddit", "youtube", "instagram", "tiktok", "twitter", "linkedin", "web"]
+    : ["google", "reddit", "youtube", "instagram", "tiktok", "twitter", "web"];
+}
+
+export function websiteAnalysisToPersona(
+  analysis: WebsiteAnalysis,
+  campaignType?: CampaignType,
+): ExtractedPersona {
+  const b2b = campaignType ? campaignType === "b2b" : inferB2bFromAnalysis(analysis);
   return {
     titles: analysis.icp.titles.slice(0, 5),
     industries: analysis.icp.industries.slice(0, 4),
@@ -63,9 +74,26 @@ export function websiteAnalysisToPersona(analysis: WebsiteAnalysis): ExtractedPe
     pain_points: analysis.pain_points.slice(0, 5),
     keywords: analysis.intent_signals.slice(0, 8),
     budget_signal: analysis.icp.budget_range || analysis.price_signal || "",
-    b2b: inferB2bFromAnalysis(analysis),
-    suggested_channels: suggestedChannelsFromAnalysis(analysis),
+    b2b,
+    suggested_channels: suggestedChannelsFromAnalysis(analysis, campaignType),
     product_context: analysis.product_summary,
+  };
+}
+
+/** Re-apply audience mode after user toggles B2B/B2C without re-analyzing. */
+export function applyCampaignTypeToPersona(
+  persona: ExtractedPersona,
+  campaignType: CampaignType,
+): ExtractedPersona {
+  return {
+    ...persona,
+    b2b: campaignType === "b2b",
+    suggested_channels: sanitizeChannelsForType(
+      persona.suggested_channels.length
+        ? persona.suggested_channels
+        : defaultChannelsForType(campaignType),
+      campaignType,
+    ),
   };
 }
 
@@ -114,10 +142,11 @@ export function websiteAnalysisToPersonaText(analysis: WebsiteAnalysis): string 
 export function buildSearchPreviewFromAnalysis(
   analysis: WebsiteAnalysis,
   channels: string[],
+  campaignType?: CampaignType,
 ): Record<string, string> {
   const preview: Record<string, string> = {};
   for (const ch of channels.slice(0, 8)) {
-    const queries = buildIntentQueries(ch, analysis);
+    const queries = buildIntentQueries(ch, analysis, campaignType);
     preview[ch] = queries[0] ?? "";
   }
   return preview;
@@ -127,8 +156,10 @@ export function heuristicWebsiteAnalysis(
   corpus: string,
   url: string,
   companyName: string,
-  options?: { fallbackReason?: string; corpusChars?: number },
+  options?: { fallbackReason?: string; corpusChars?: number; campaignType?: CampaignType },
 ): WebsiteAnalysis {
+  const campaignType = options?.campaignType ?? "b2b";
+  const isB2c = campaignType === "b2c";
   const isAgency = /\b(agency|design|development|dev shop|studio)\b/i.test(corpus);
   const isSaas = /\b(saas|software|platform|subscription)\b/i.test(corpus);
   const isEcom = /\b(e-?commerce|shopify|store|dtc)\b/i.test(corpus);
@@ -168,13 +199,15 @@ export function heuristicWebsiteAnalysis(
       "need a solution for",
       "alternatives to",
     ];
-  } else if (isEcom) {
-    titles = ["Shopify Store Owner", "E-commerce Operator", "DTC Founder"];
-    industries = ["E-commerce", "Retail"];
+  } else if (isEcom || isB2c) {
+    titles = ["Shopify Store Owner", "E-commerce Operator", "Content Creator", "DTC Founder"];
+    industries = ["E-commerce", "Retail", "Creator Economy"];
     intent_signals = [
       "anyone recommend a shopify app",
       "need help with my store",
-      "ecommerce marketing help",
+      "best tool for my small business",
+      "looking for recommendations",
+      "what do you use for",
     ];
   }
 
@@ -218,12 +251,14 @@ export function heuristicWebsiteAnalysis(
     buying_triggers: ["launch deadline", "growth milestone"],
     intent_signals,
     where_buyers_congregate: {
-      subreddits: isAgency
-        ? ["r/SaaS", "r/entrepreneur", "r/startups"]
-        : ["r/entrepreneur", "r/smallbusiness"],
-      twitter_communities: ["#buildinpublic", "#indiehackers"],
-      linkedin_signals: ["building in public", "bootstrapped"],
-      other: [],
+      subreddits: isB2c
+        ? ["r/Entrepreneur", "r/smallbusiness", "r/ecommerce"]
+        : isAgency
+          ? ["r/SaaS", "r/entrepreneur", "r/startups"]
+          : ["r/entrepreneur", "r/smallbusiness"],
+      twitter_communities: isB2c ? ["#smallbusiness", "#shopify"] : ["#buildinpublic", "#indiehackers"],
+      linkedin_signals: isB2c ? [] : ["building in public", "bootstrapped"],
+      other: isB2c ? ["Instagram creators", "TikTok shop sellers"] : [],
     },
     email_patterns: {
       likely_domains: ["gmail.com"],

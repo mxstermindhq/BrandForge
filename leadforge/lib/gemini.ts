@@ -1,4 +1,6 @@
+import { enrichmentModeBlock } from "@/lib/campaign-type";
 import type {
+  CampaignType,
   ColdEmailOutput,
   EmailConfidence,
   EmailSource,
@@ -362,7 +364,7 @@ import {
   buildWebsiteAnalysisPrompt,
   normalizeWebsiteAnalysis,
   parseWebsiteAnalysisResponse,
-  WEBSITE_ANALYSIS_SYSTEM,
+  websiteAnalysisSystemInstruction,
 } from "@/lib/website-analysis-coerce";
 
 export async function analyzeWebsite(
@@ -370,10 +372,16 @@ export async function analyzeWebsite(
   url: string,
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
+  campaignType: CampaignType = "b2b",
 ): Promise<WebsiteAnalysis> {
-  const prompt = buildWebsiteAnalysisPrompt(content, url);
+  const prompt = buildWebsiteAnalysisPrompt(content, url, campaignType);
 
-  const raw = await callGeminiPriority(prompt, WEBSITE_ANALYSIS_SYSTEM, apiKey, model);
+  const raw = await callGeminiPriority(
+    prompt,
+    websiteAnalysisSystemInstruction(campaignType),
+    apiKey,
+    model,
+  );
   const result = parseWebsiteAnalysisResponse(raw, url);
   if (!result) {
     throw new Error(
@@ -470,7 +478,15 @@ export async function enrichLeadWithPersona(
   analysis: WebsiteAnalysis | ExtractedPersona | null,
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
+  campaignType?: CampaignType,
 ): Promise<PersonaEnrichmentOutput> {
+  const mode =
+    campaignType ??
+    (analysis && "b2b" in analysis && typeof analysis.b2b === "boolean"
+      ? analysis.b2b
+        ? "b2b"
+        : "b2c"
+      : "b2b");
   const intentSignals =
     analysis && "intent_signals" in analysis
       ? analysis.intent_signals
@@ -505,6 +521,8 @@ Lead data:
 
 Ideal buyer profile:
 ${personaBlock}
+
+${enrichmentModeBlock(mode)}
 
 Return JSON:
 {

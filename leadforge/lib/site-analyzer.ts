@@ -14,7 +14,7 @@ import {
   websiteAnalysisToPersonaText,
   websiteAnalysisToSiteProfile,
 } from "@/lib/website-analysis-bridge";
-import type { SiteAnalysisResult, WebsiteAnalysis } from "@/types";
+import type { CampaignType, SiteAnalysisResult, WebsiteAnalysis } from "@/types";
 
 const MAX_TEXT_PER_PAGE = 8000;
 const MAX_COMBINED_TEXT = 14_000;
@@ -184,12 +184,13 @@ async function runWebsiteAnalysis(
   geminiModel: string | undefined,
   groqKey: string,
   groqModel: string | undefined,
+  campaignType: CampaignType,
 ): Promise<{ analysis: WebsiteAnalysis; source: SiteAnalysisResult["analysis_source"] }> {
   let lastError = "";
 
   if (geminiKey.trim()) {
     try {
-      const analysis = await analyzeWebsite(corpus, baseUrl, geminiKey, geminiModel);
+      const analysis = await analyzeWebsite(corpus, baseUrl, geminiKey, geminiModel, campaignType);
       return { analysis, source: "gemini" };
     } catch (err) {
       lastError = err instanceof Error ? err.message : "Gemini failed";
@@ -205,7 +206,7 @@ async function runWebsiteAnalysis(
 
   if (groqKey.trim()) {
     try {
-      const analysis = await groqWebsiteAnalysis(corpus, baseUrl, groqKey, groqModel);
+      const analysis = await groqWebsiteAnalysis(corpus, baseUrl, groqKey, groqModel, campaignType);
       return { analysis, source: "groq" };
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Groq failed";
@@ -224,6 +225,7 @@ async function runWebsiteAnalysis(
         ? `Rule-based analysis — ${lastError.slice(0, 120)}`
         : undefined,
       corpusChars: corpus.length,
+      campaignType,
     }),
     source: "heuristic",
   };
@@ -237,6 +239,7 @@ export async function analyzeWebsiteForBuyers(
   model?: string,
   groqKey?: string,
   groqModel?: string,
+  campaignType: CampaignType = "b2b",
 ): Promise<SiteAnalysisResult> {
   const baseUrl = normalizeSiteUrl(siteUrlInput);
   const snapshots = await crawlSite(baseUrl);
@@ -252,16 +255,17 @@ export async function analyzeWebsiteForBuyers(
     model,
     groqKey ?? "",
     groqModel,
+    campaignType,
   );
 
-  const persona = websiteAnalysisToPersona(website_analysis);
-  const suggested = suggestedChannelsFromAnalysis(website_analysis);
+  const persona = websiteAnalysisToPersona(website_analysis, campaignType);
+  const suggested = suggestedChannelsFromAnalysis(website_analysis, campaignType);
   persona.suggested_channels = suggested.length ? suggested : persona.suggested_channels;
 
   const site = websiteAnalysisToSiteProfile(website_analysis, baseUrl);
   const persona_text = websiteAnalysisToPersonaText(website_analysis);
   const intent_summary = website_analysis.icp.one_liner;
-  const search_preview = buildSearchPreviewFromAnalysis(website_analysis, channels);
+  const search_preview = buildSearchPreviewFromAnalysis(website_analysis, channels, campaignType);
 
   return {
     persona,
@@ -275,5 +279,6 @@ export async function analyzeWebsiteForBuyers(
     persona_text,
     website_analysis,
     analysis_source,
+    campaign_type: campaignType,
   };
 }

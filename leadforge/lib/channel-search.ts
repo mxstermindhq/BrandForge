@@ -1,8 +1,14 @@
 import type { SearchKeys, WebSearchHit } from "@/lib/search";
 import { searchWeb } from "@/lib/search";
 import { extractEmailsFromContent } from "@/lib/email-extract";
-import type { EmailConfidence, EmailSource, ExtractedPersona, WebsiteAnalysis } from "@/types";
-import { isWebsiteAnalysis } from "@/lib/website-analysis-bridge";
+import type {
+  CampaignType,
+  EmailConfidence,
+  EmailSource,
+  ExtractedPersona,
+  WebsiteAnalysis,
+} from "@/types";
+import { isWebsiteAnalysis, inferB2bFromAnalysis } from "@/lib/website-analysis-bridge";
 
 export interface RawLead {
   name: string;
@@ -19,7 +25,12 @@ export interface RawLead {
   instagram?: string;
 }
 
-export function buildIntentQueries(channel: string, analysis: WebsiteAnalysis): string[] {
+export function buildIntentQueries(
+  channel: string,
+  analysis: WebsiteAnalysis,
+  campaignType?: CampaignType,
+): string[] {
+  const b2b = campaignType ? campaignType === "b2b" : inferB2bFromAnalysis(analysis);
   const { icp, intent_signals, where_buyers_congregate } = analysis;
 
   const topTitles = icp.titles.slice(0, 2);
@@ -38,6 +49,19 @@ export function buildIntentQueries(channel: string, analysis: WebsiteAnalysis): 
     .slice(0, 2)
     .map((s) => `"${s}"`)
     .join(" OR ");
+
+  if (!b2b) {
+    return buildB2cIntentQueries(channel, {
+      titleStr,
+      industryStr,
+      loc,
+      intentPairs,
+      topSignals,
+      topTitles,
+      icp,
+      where_buyers_congregate,
+    });
+  }
 
   switch (channel) {
     case "linkedin":
@@ -118,18 +142,91 @@ export function buildIntentQueries(channel: string, analysis: WebsiteAnalysis): 
   }
 }
 
+type QueryParts = {
+  titleStr: string;
+  industryStr: string;
+  loc: string;
+  intentPairs: string[];
+  topSignals: string[];
+  topTitles: string[];
+  icp: WebsiteAnalysis["icp"];
+  where_buyers_congregate: WebsiteAnalysis["where_buyers_congregate"];
+};
+
+/** B2C: consumers, creators, personal buyers — social + recommendation intent. */
+function buildB2cIntentQueries(channel: string, p: QueryParts): string[] {
+  const { titleStr, industryStr, loc, intentPairs, topSignals, topTitles, icp } = p;
+  const subs = p.where_buyers_congregate.subreddits;
+  const subStr =
+    subs.length > 0
+      ? `(${subs
+          .slice(0, 3)
+          .map((s) => `site:reddit.com${s.startsWith("/") ? s : `/${s.replace(/^r\//, "r/")}`}`)
+          .join(" OR ")})`
+      : "site:reddit.com";
+
+  switch (channel) {
+    case "reddit":
+      return [
+        `${subStr} (${intentPairs[0] || `"${topSignals[0] || "recommend"}"`}) ${industryStr}`,
+        `site:reddit.com "recommend" OR "suggestions" (${topTitles.map((t) => `"${t}"`).join(" OR ")})`,
+        `${subStr} "looking for" ${industryStr}`,
+        `site:reddit.com ${titleStr} ${industryStr} help OR advice`,
+      ].filter(Boolean);
+
+    case "instagram":
+      return [
+        `site:instagram.com ${industryStr} ${titleStr}`,
+        `instagram ${icp.psychographics[0] || industryStr} creator OR influencer`,
+        `site:instagram.com "${topSignals[0] || "recommend"}" ${industryStr}`,
+      ].filter(Boolean);
+
+    case "tiktok":
+      return [
+        `site:tiktok.com ${industryStr} ${titleStr}`,
+        `tiktok "${topSignals[0] || "recommend"}" ${industryStr}`,
+        `site:tiktok.com @ ${industryStr} small business OR creator`,
+      ].filter(Boolean);
+
+    case "youtube":
+      return [
+        `youtube ${industryStr} ${titleStr} review OR recommend`,
+        `"${topSignals[0] || ""}" youtube ${industryStr} channel`,
+        `site:youtube.com ${industryStr} creator OR vlog`,
+      ].filter(Boolean);
+
+    case "twitter":
+      return [
+        `(${intentPairs[0] || `"${topSignals[0]}"`}) ${industryStr} site:twitter.com OR site:x.com`,
+        `site:twitter.com ${titleStr} ${industryStr} recommend`,
+        `"${topSignals[0] || ""}" ${loc} site:x.com`,
+      ].filter(Boolean);
+
+    case "google":
+    case "web":
+    default:
+      return [
+        `(${intentPairs[0] || `"${topSignals[0]}"`}) ${industryStr}${loc ? ` ${loc}` : ""} email OR contact`,
+        `${titleStr} ${industryStr} "gmail.com" OR personal email`,
+        `"${topSignals[0] || ""}" ${industryStr} forum OR community`,
+        `${industryStr} ${topSignals[1] || topSignals[0] || ""} blog OR review`,
+      ].filter(Boolean);
+  }
+}
+
 export async function searchChannel(
   channel: string,
   analysis: WebsiteAnalysis | ExtractedPersona,
   limit: number,
   keys: SearchKeys,
   signal?: AbortSignal,
+  campaignType?: CampaignType,
 ): Promise<RawLead[]> {
   const websiteAnalysis: WebsiteAnalysis = isWebsiteAnalysis(analysis)
     ? analysis
     : personaToMinimalAnalysis(analysis);
 
-  const queries = buildIntentQueries(channel, websiteAnalysis);
+  const queries = buildIntentQueries(channel, websiteAnalysis, campaignType);
   const results: RawLead[] = [];
   const seenUrls = new Set<string>();
 
@@ -251,9 +348,10 @@ function parseResult(result: WebSearchHit, channel: string): RawLead {
 export function buildChannelQuery(
   analysis: WebsiteAnalysis | ExtractedPersona,
   channel: string,
+  campaignType?: CampaignType,
 ): string {
   const websiteAnalysis = isWebsiteAnalysis(analysis)
     ? analysis
     : personaToMinimalAnalysis(analysis);
-  return buildIntentQueries(channel, websiteAnalysis)[0] ?? "";
+  return buildIntentQueries(channel, websiteAnalysis, campaignType)[0] ?? "";
 }

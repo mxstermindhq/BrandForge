@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { getEnv } from "@/lib/cloudflare";
 import { VALID_SEARCH_CHANNELS } from "@/lib/constants";
+import { parseCampaignType, defaultChannelsForType, sanitizeChannelsForType } from "@/lib/campaign-type";
 import { analyzeWebsiteForBuyers, normalizeSiteUrl } from "@/lib/site-analyzer";
 import { fail, handleError, ok } from "@/lib/http";
 
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     const body = (await req.json().catch(() => null)) as {
       site_url?: string;
       channels?: string[];
+      campaign_type?: "b2b" | "b2c";
     } | null;
 
     const site_url = body?.site_url?.trim() ?? "";
@@ -25,8 +27,12 @@ export async function POST(req: NextRequest): Promise<Response> {
       return fail(400, "site_url is required");
     }
 
-    const channels = (body?.channels ?? ["google", "linkedin", "web"]).filter((c) =>
-      VALID_CHANNELS.includes(c),
+    const campaignType = parseCampaignType(body?.campaign_type);
+    const channels = sanitizeChannelsForType(
+      (body?.channels ?? defaultChannelsForType(campaignType)).filter((c) =>
+        VALID_CHANNELS.includes(c),
+      ),
+      campaignType,
     );
     if (channels.length === 0) {
       return fail(400, "Select at least one channel");
@@ -41,6 +47,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       env.GEMINI_MODEL,
       env.GROQ_API_KEY,
       env.GROQ_MODEL,
+      campaignType,
     );
 
     return ok(analysis);

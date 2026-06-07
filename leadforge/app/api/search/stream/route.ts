@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth";
 import { buildChannelQuery, searchChannel } from "@/lib/channel-search";
 import { getEnv } from "@/lib/cloudflare";
 import { calculateCampaignCost, VALID_SEARCH_CHANNELS } from "@/lib/constants";
+import { parseCampaignType, sanitizeChannelsForType } from "@/lib/campaign-type";
 import {
   createCampaign,
   createLead,
@@ -57,10 +58,15 @@ export async function POST(req: NextRequest): Promise<Response> {
     extracted_persona?: ExtractedPersona;
     intent_summary?: string;
     clarifying_answers?: Record<string, string>;
+    campaign_type?: "b2b" | "b2c";
   } | null;
 
+  const campaignType = parseCampaignType(body?.campaign_type);
   const quantity = Math.min(5000, Math.max(1, Number(body?.quantity) || 25));
-  const selectedChannels = (body?.channels ?? []).filter((c) => VALID_CHANNELS.includes(c));
+  const selectedChannels = sanitizeChannelsForType(
+    (body?.channels ?? []).filter((c) => VALID_CHANNELS.includes(c)),
+    campaignType,
+  );
   if (selectedChannels.length === 0) {
     return Response.json({ success: false, error: "Select at least one channel" }, { status: 400 });
   }
@@ -135,7 +141,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           return;
         }
 
-        persona = websiteAnalysisToPersona(websiteAnalysis);
+        persona = websiteAnalysisToPersona(websiteAnalysis, campaignType);
         if (body?.clarifying_answers && Object.keys(body.clarifying_answers).length > 0) {
           persona = applyClarifyingAnswers(persona, body.clarifying_answers);
         }
@@ -159,7 +165,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         const campaign = await createCampaign(env.DB, {
           user_id: userId,
           name: `Site: ${websiteAnalysis.company_name || persona.keywords[0] || "Lead search"}`,
-          type: persona.b2b ? "b2b" : "b2c",
+          type: campaignType,
           product_name: websiteAnalysis.company_name,
           product_description: websiteAnalysis.product_summary,
           target_description:
@@ -184,7 +190,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           source: "search/stream",
           message: `Search started: ${quantity} leads × ${selectedChannels.join(", ")}`,
           userId,
-          meta: { site_url, campaign_id: campaignId, channels: selectedChannels },
+          meta: { site_url, campaign_id: campaignId, channels: selectedChannels, campaign_type: campaignType },
         });
 
         send("status", {
@@ -194,7 +200,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         for (const channel of selectedChannels) {
           send("channel_start", {
             channel,
-            query: buildChannelQuery(websiteAnalysis, channel),
+            query: buildChannelQuery(websiteAnalysis, channel, campaignType),
           });
         }
 
@@ -205,6 +211,8 @@ export async function POST(req: NextRequest): Promise<Response> {
               websiteAnalysis as WebsiteAnalysis,
               leadsPerChannel,
               searchKeys,
+              undefined,
+              campaignType,
             );
             return { channel, rawLeads };
           }),
@@ -267,6 +275,7 @@ export async function POST(req: NextRequest): Promise<Response> {
             websiteAnalysis,
             env.GEMINI_API_KEY,
             env.GEMINI_MODEL,
+            campaignType,
           );
 
           const leadInput = rawToLeadInput(raw, enriched, campaign.id, userId, raw.channel);

@@ -5,6 +5,7 @@
  */
 
 import type {
+  CampaignType,
   EnrichedLeadAIOutput,
   ExtractedPersona,
   PersonaEnrichmentOutput,
@@ -14,7 +15,7 @@ import type {
 import {
   buildWebsiteAnalysisPrompt,
   parseWebsiteAnalysisResponse,
-  WEBSITE_ANALYSIS_SYSTEM,
+  websiteAnalysisSystemInstruction,
 } from "@/lib/website-analysis-coerce";
 import { appendAdminLog, recordModelUsage } from "@/lib/admin-telemetry";
 
@@ -326,9 +327,15 @@ export async function groqWebsiteAnalysis(
   url: string,
   apiKey: string,
   model: string = DEFAULT_GROQ_MODEL,
+  campaignType: CampaignType = "b2b",
 ): Promise<WebsiteAnalysis> {
-  const prompt = buildWebsiteAnalysisPrompt(content, url);
-  const raw = await callGroqJson(prompt, WEBSITE_ANALYSIS_SYSTEM, apiKey, model);
+  const prompt = buildWebsiteAnalysisPrompt(content, url, campaignType);
+  const raw = await callGroqJson(
+    prompt,
+    websiteAnalysisSystemInstruction(campaignType),
+    apiKey,
+    model,
+  );
   const result = parseWebsiteAnalysisResponse(raw, url);
   if (!result) {
     throw new Error("Groq website analysis returned invalid ICP JSON");

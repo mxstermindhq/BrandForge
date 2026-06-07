@@ -147,6 +147,8 @@ export interface SiteAnalysisResult extends SearchIntentAnalysis {
   website_analysis: WebsiteAnalysis;
   /** Which engine produced the analysis. */
   analysis_source: "gemini" | "groq" | "heuristic";
+  /** User-selected B2B vs B2C audience mode. */
+  campaign_type: CampaignType;
 }
 
 export type MarketPosition = "budget" | "mid-market" | "premium" | "enterprise";

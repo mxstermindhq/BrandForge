@@ -2,7 +2,8 @@
  * Coerce and repair Gemini/Groq website analysis JSON into a consistent shape.
  */
 
-import type { WebsiteAnalysis } from "@/types";
+import { campaignTypePromptBlock } from "@/lib/campaign-type";
+import type { CampaignType, WebsiteAnalysis } from "@/types";
 
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -124,8 +125,14 @@ export function repairWebsiteAnalysis(
   return coerced;
 }
 
-export function buildWebsiteAnalysisPrompt(content: string, url: string): string {
-  return `Website URL: ${url}
+export function buildWebsiteAnalysisPrompt(
+  content: string,
+  url: string,
+  campaignType: CampaignType = "b2b",
+): string {
+  return `${campaignTypePromptBlock(campaignType)}
+
+Website URL: ${url}
 
 Website content:
 ---
@@ -176,12 +183,21 @@ Critical rules:
 - If the website is vague, lower confidence and list ambiguity in data_quality_issues`;
 }
 
-export const WEBSITE_ANALYSIS_SYSTEM = `You are a senior B2B sales strategist with 15 years of experience profiling ideal customers.
+export function websiteAnalysisSystemInstruction(campaignType: CampaignType = "b2b"): string {
+  const mode =
+    campaignType === "b2c"
+      ? "consumer and creator buyers (B2C)"
+      : "business decision-makers (B2B)";
+  return `You are a senior sales strategist with 15 years of experience profiling ideal customers for ${mode}.
 A company has provided their website content. Your job is NOT to describe what they sell.
 Your job is to deeply profile WHO buys it — the specific human being who is the ideal customer.
 Think like this: "Who wakes up in the morning and THIS product solves their exact problem?"
 Return ONLY valid JSON. No markdown. No preamble. No explanation. Just the JSON object.
 The icp field MUST be a nested object with one_liner inside it — never flatten to icp_one_liner.`;
+}
+
+/** @deprecated Use websiteAnalysisSystemInstruction(type) */
+export const WEBSITE_ANALYSIS_SYSTEM = websiteAnalysisSystemInstruction("b2b");
 
 function normalizeMarketPosition(value: unknown): WebsiteAnalysis["market_position"] {
   const v = String(value ?? "mid-market").toLowerCase();

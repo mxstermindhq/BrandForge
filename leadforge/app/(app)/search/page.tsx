@@ -2,22 +2,31 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
+import { AudienceToggle } from "@/components/search/AudienceToggle";
 import { ChannelBar } from "@/components/search/ChannelBar";
 import { IntentReview } from "@/components/search/IntentReview";
 import { PersonaChips } from "@/components/search/PersonaChips";
 import { SiteUrlInput } from "@/components/search/SiteUrlInput";
 import { StreamLeadCard } from "@/components/search/StreamLeadCard";
+import {
+  applyCampaignTypeToPersona,
+} from "@/lib/website-analysis-bridge";
+import {
+  channelsForCampaignType,
+  defaultChannelsForType,
+  sanitizeChannelsForType,
+} from "@/lib/campaign-type";
 import { CHANNEL_META } from "@/lib/constants";
-import type { ExtractedPersona, SiteAnalysisResult, StreamLead } from "@/types";
+import type { CampaignType, ExtractedPersona, SiteAnalysisResult, StreamLead } from "@/types";
 
-const ALL_CHANNELS = Object.keys(CHANNEL_META);
-const DEFAULT_CHANNELS = ["google", "linkedin", "web"];
+const DEFAULT_CHANNELS_B2B: string[] = defaultChannelsForType("b2b");
 
 type Phase = "input" | "analyzing" | "confirm" | "searching" | "done";
 
 export default function SearchPage(): React.JSX.Element {
+  const [campaignType, setCampaignType] = useState<CampaignType>("b2b");
   const [siteUrl, setSiteUrl] = useState("");
-  const [selectedChannels, setSelectedChannels] = useState<string[]>(DEFAULT_CHANNELS);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>(DEFAULT_CHANNELS_B2B);
   const [quantity, setQuantity] = useState(25);
 
   const [phase, setPhase] = useState<Phase>("input");
@@ -69,6 +78,7 @@ export default function SearchPage(): React.JSX.Element {
             extracted_persona: intent.persona,
             intent_summary: intent.intent_summary,
             clarifying_answers: clarifyingAnswers,
+            campaign_type: campaignType,
           }),
           signal: abortRef.current.signal,
         });
@@ -175,7 +185,7 @@ export default function SearchPage(): React.JSX.Element {
         }
       }
     },
-    [selectedChannels, quantity],
+    [selectedChannels, quantity, campaignType],
   );
 
   const handleAnalyzeSite = useCallback(async () => {
@@ -196,6 +206,7 @@ export default function SearchPage(): React.JSX.Element {
         body: JSON.stringify({
           site_url: siteUrl,
           channels: selectedChannels,
+          campaign_type: campaignType,
         }),
         signal: abortRef.current.signal,
       });
@@ -218,7 +229,7 @@ export default function SearchPage(): React.JSX.Element {
       setPersona(json.data.persona);
 
       const suggested = json.data.persona.suggested_channels.filter((c) =>
-        ALL_CHANNELS.includes(c),
+        channelsForCampaignType(campaignType).includes(c),
       );
       if (suggested.length > 0) {
         setSelectedChannels(suggested);
@@ -232,7 +243,24 @@ export default function SearchPage(): React.JSX.Element {
         setPhase("input");
       }
     }
-  }, [siteUrl, selectedChannels, phase, resetSearchState]);
+  }, [siteUrl, selectedChannels, campaignType, phase, resetSearchState]);
+
+  const handleAudienceChange = useCallback(
+    (type: CampaignType) => {
+      if (phase === "analyzing" || phase === "searching") return;
+      setCampaignType(type);
+      setSelectedChannels(defaultChannelsForType(type));
+      if (analysis) {
+        setAnalysis({
+          ...analysis,
+          campaign_type: type,
+          persona: applyCampaignTypeToPersona(analysis.persona, type),
+        });
+        setPersona(applyCampaignTypeToPersona(analysis.persona, type));
+      }
+    },
+    [analysis, phase],
+  );
 
   const handleConfirmSearch = useCallback(async () => {
     if (!analysis) return;
@@ -255,9 +283,10 @@ export default function SearchPage(): React.JSX.Element {
 
   function toggleChannel(ch: string): void {
     if (phase === "searching" || phase === "analyzing") return;
-    setSelectedChannels((prev) =>
-      prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch],
-    );
+    setSelectedChannels((prev) => {
+      const next = prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch];
+      return sanitizeChannelsForType(next.length ? next : [ch], campaignType);
+    });
   }
 
   function handleAnswer(id: string, value: string): void {
@@ -265,6 +294,7 @@ export default function SearchPage(): React.JSX.Element {
   }
 
   const isBusy = phase === "analyzing" || phase === "searching";
+  const availableChannels = channelsForCampaignType(campaignType);
 
   return (
     <div className="relative -mx-6 -my-8 min-h-[calc(100vh-4rem)] bg-[#080808] px-6 py-10 text-white">
@@ -279,6 +309,12 @@ export default function SearchPage(): React.JSX.Element {
           </p>
         </div>
 
+        <AudienceToggle
+          value={campaignType}
+          onChange={handleAudienceChange}
+          disabled={isBusy}
+        />
+
         <SiteUrlInput
           value={siteUrl}
           onChange={setSiteUrl}
@@ -291,7 +327,7 @@ export default function SearchPage(): React.JSX.Element {
         />
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {ALL_CHANNELS.map((ch) => {
+          {availableChannels.map((ch) => {
             const meta = CHANNEL_META[ch];
             const active = selectedChannels.includes(ch);
             return (
@@ -302,7 +338,9 @@ export default function SearchPage(): React.JSX.Element {
                 disabled={isBusy}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-150 ${
                   active
-                    ? "border-white/20 bg-white/10 text-white"
+                    ? campaignType === "b2b"
+                      ? "border-white/20 bg-white/10 text-white"
+                      : "border-violet-500/30 bg-violet-500/10 text-violet-200"
                     : "border-white/5 bg-transparent text-zinc-600 hover:text-zinc-400"
                 }`}
               >
