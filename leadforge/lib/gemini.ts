@@ -35,9 +35,12 @@ export async function callGemini(
 ): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  // An empty-string env var (GEMINI_MODEL=) bypasses the default param, so
+  // coerce any blank value back to the default model.
+  const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
 
   try {
-    const res = await fetch(`${geminiUrl(model)}?key=${apiKey}`, {
+    const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,

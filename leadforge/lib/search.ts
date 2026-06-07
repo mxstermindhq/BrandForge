@@ -153,22 +153,27 @@ async function searchSerper(
   apiKey: string,
   signal?: AbortSignal,
 ): Promise<WebSearchHit[]> {
-  const res = await fetchWithTimeout(
-    "https://google.serper.dev/search",
-    {
-      method: "POST",
-      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ q: query, page: page + 1, num: 20 }),
-    },
-    signal,
-  );
-  if (!res.ok) return [];
-  const json = (await res.json()) as {
-    organic?: { link?: string; title?: string }[];
-  };
-  return (json.organic ?? [])
-    .filter((o): o is { link: string; title?: string } => typeof o.link === "string")
-    .map((o) => ({ url: o.link, title: o.title ?? o.link }));
+  try {
+    const res = await fetchWithTimeout(
+      "https://google.serper.dev/search",
+      {
+        method: "POST",
+        headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
+        // Serper free tier only allows num<=10; 20 returns a 400.
+        body: JSON.stringify({ q: query, page: page + 1, num: 10 }),
+      },
+      signal,
+    );
+    if (!res.ok) return [];
+    const json = (await res.json()) as {
+      organic?: { link?: string; title?: string }[];
+    };
+    return (json.organic ?? [])
+      .filter((o): o is { link: string; title?: string } => typeof o.link === "string")
+      .map((o) => ({ url: o.link, title: o.title ?? o.link }));
+  } catch {
+    return [];
+  }
 }
 
 // ── Google Custom Search JSON API ────────────────────────────────────────────
