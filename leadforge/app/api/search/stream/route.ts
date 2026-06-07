@@ -17,6 +17,7 @@ import {
 import { enrichLeadWithPersona, scoreToFitLabel, textToAnalysis } from "@/lib/gemini";
 import { applyClarifyingAnswers } from "@/lib/search-intent";
 import { leadToStreamLead } from "@/lib/stream-lead";
+import { appendAdminLog } from "@/lib/admin-telemetry";
 import {
   websiteAnalysisToPersona,
   websiteAnalysisToPersonaText,
@@ -178,6 +179,14 @@ export async function POST(req: NextRequest): Promise<Response> {
         campaignId = campaign.id;
         send("campaign", { id: campaign.id });
 
+        appendAdminLog({
+          level: "info",
+          source: "search/stream",
+          message: `Search started: ${quantity} leads × ${selectedChannels.join(", ")}`,
+          userId,
+          meta: { site_url, campaign_id: campaignId, channels: selectedChannels },
+        });
+
         send("status", {
           message: `Searching ${selectedChannels.length} channel${selectedChannels.length > 1 ? "s" : ""} in parallel...`,
         });
@@ -283,14 +292,29 @@ export async function POST(req: NextRequest): Promise<Response> {
           total: totalFound,
           credits_used: totalFound > 0 ? actualCost : 0,
         });
+        appendAdminLog({
+          level: "info",
+          source: "search/stream",
+          message: `Search complete: ${totalFound} leads, ${totalFound > 0 ? actualCost : 0} credits`,
+          userId,
+          meta: { campaign_id: campaignId, total: totalFound },
+        });
       } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "Search failed";
         if (campaignId) {
           await updateCampaignStatus(env.DB, campaignId, {
             status: "failed",
-            error_message: err instanceof Error ? err.message : "Search failed",
+            error_message: errMsg,
           }).catch(() => undefined);
         }
-        send("error", { message: err instanceof Error ? err.message : "Search failed" });
+        appendAdminLog({
+          level: "error",
+          source: "search/stream",
+          message: errMsg,
+          userId,
+          meta: { campaign_id: campaignId || null },
+        });
+        send("error", { message: errMsg });
       } finally {
         clearInterval(heartbeat);
         controller.close();

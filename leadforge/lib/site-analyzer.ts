@@ -3,6 +3,7 @@
  */
 
 import { analyzeWebsite } from "@/lib/gemini";
+import { appendAdminLog } from "@/lib/admin-telemetry";
 import { groqWebsiteAnalysis } from "@/lib/enrich-fallback";
 import { PROCESSING_USER_AGENT, SCRAPE_TIMEOUT_MS } from "@/lib/constants";
 import {
@@ -192,7 +193,11 @@ async function runWebsiteAnalysis(
       return { analysis, source: "gemini" };
     } catch (err) {
       lastError = err instanceof Error ? err.message : "Gemini failed";
-      console.warn("[site-analyzer] Gemini failed:", lastError);
+      appendAdminLog({
+        level: "warn",
+        source: "site-analyzer",
+        message: `Gemini failed: ${lastError}`,
+      });
     }
   } else {
     lastError = "GEMINI_API_KEY not configured";
@@ -204,7 +209,11 @@ async function runWebsiteAnalysis(
       return { analysis, source: "groq" };
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Groq failed";
-      console.warn("[site-analyzer] Groq failed:", msg);
+      appendAdminLog({
+        level: "warn",
+        source: "site-analyzer",
+        message: `Groq failed: ${msg}`,
+      });
       lastError = lastError ? `${lastError}; ${msg}` : msg;
     }
   }

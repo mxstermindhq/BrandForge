@@ -1,5 +1,6 @@
 import type { ApiResponse } from "@/types";
 import { AuthError } from "@/lib/auth";
+import { appendAdminLog } from "@/lib/admin-telemetry";
 
 export function jsonResponse<T>(
   body: ApiResponse<T>,
@@ -28,7 +29,7 @@ export function fail(status: number, error: string): Response {
 export function handleError(err: unknown): Response {
   if (err instanceof AuthError) return fail(err.status, err.message);
   const message = err instanceof Error ? err.message : "Internal error";
-  console.error("Route error:", message);
+  appendAdminLog({ level: "error", source: "api", message });
   return fail(500, "Something went wrong");
 }
 

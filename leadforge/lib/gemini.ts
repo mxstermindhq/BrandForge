@@ -16,6 +16,7 @@ import type {
   WebsiteAnalysis,
 } from "@/types";
 import { DEFAULT_GEMINI_MODEL, GEMINI_DELAY_MS, GEMINI_TIMEOUT_MS } from "@/lib/constants";
+import { appendAdminLog, recordModelUsage } from "@/lib/admin-telemetry";
 import {
   enrichCandidateDataFallback,
   enrichLeadWithPersonaFallback,
@@ -69,6 +70,7 @@ async function geminiFetch(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
   const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
+  const started = Date.now();
 
   try {
     const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey.trim()}`, {
@@ -104,7 +106,28 @@ async function geminiFetch(
     };
     const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Gemini returned empty response");
+    recordModelUsage({
+      provider: "gemini",
+      model: resolvedModel,
+      operation: "generateContent",
+      success: true,
+      durationMs: Date.now() - started,
+    });
     return text;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Gemini request failed";
+    recordModelUsage({
+      provider: "gemini",
+      model: resolvedModel,
+      operation: "generateContent",
+      success: false,
+      durationMs: Date.now() - started,
+      meta: { attempt, error: message.slice(0, 200) },
+    });
+    if (attempt >= 2) {
+      appendAdminLog({ level: "error", source: "gemini", message, meta: { model: resolvedModel } });
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

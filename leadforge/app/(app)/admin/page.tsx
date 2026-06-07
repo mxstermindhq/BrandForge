@@ -10,6 +10,7 @@ import {
   StatCard,
 } from "@/components/ui";
 import { apiFetch } from "@/lib/client/api";
+import { AdminOpsPanel } from "@/components/admin/AdminOpsPanel";
 import type { AdminStats, AdminUserRow, PaginatedResponse } from "@/types";
 
 export default function AdminPage(): React.JSX.Element {
@@ -133,6 +134,8 @@ export default function AdminPage(): React.JSX.Element {
           </Card>
         )}
       </div>
+
+      <AdminOpsPanel />
     </div>
   );
 }

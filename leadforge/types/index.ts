@@ -593,3 +593,63 @@ export interface AdminCreditInput {
   amount: number;
   note?: string;
 }
+
+export type AdminLogLevel = "debug" | "info" | "warn" | "error";
+
+export interface AdminLogEntry {
+  id: string;
+  level: AdminLogLevel;
+  source: string;
+  message: string;
+  meta: Record<string, unknown>;
+  user_id: string | null;
+  created_at: string;
+}
+
+export interface AdminKeyStatus {
+  envVar: string;
+  label: string;
+  category: "ai" | "search" | "billing" | "auth" | "email" | "integrations";
+  configured: boolean;
+  preview: string | null;
+  note?: string;
+}
+
+export interface AdminSystemInfo {
+  appEnv: string;
+  appUrl: string;
+  adminEmail: string | null;
+  searchProvider: string;
+  models: { gemini: string; groq: string };
+  keys: AdminKeyStatus[];
+  supabaseUrl: string | null;
+  supabaseConfigured: boolean;
+  runtime: "vercel" | "cloudflare" | "local";
+  nodeVersion: string;
+  vercel: boolean;
+}
+
+export interface ModelUsageSummary {
+  provider: string;
+  model: string;
+  operation: string;
+  call_count: number;
+  success_count: number;
+  error_count: number;
+  calls_24h: number;
+  total_duration_ms: number;
+  avg_duration_ms: number;
+  last_called_at: string;
+}
+
+export interface ModelUsageEvent {
+  id: string;
+  provider: string;
+  model: string;
+  operation: string;
+  success: boolean;
+  duration_ms: number;
+  user_id: string | null;
+  meta: Record<string, unknown>;
+  created_at: string;
+}

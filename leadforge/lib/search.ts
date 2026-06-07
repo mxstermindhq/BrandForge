@@ -1,4 +1,5 @@
 import { PROCESSING_USER_AGENT, SCRAPE_TIMEOUT_MS } from "@/lib/constants";
+import { appendAdminLog, recordModelUsage } from "@/lib/admin-telemetry";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Pluggable web-search layer. The campaign processor only ever calls
@@ -203,17 +204,56 @@ export async function webSearch(
   signal?: AbortSignal,
 ): Promise<WebSearchHit[]> {
   const provider = resolveProvider(keys);
+  const started = Date.now();
   try {
     if (provider === "serper" && keys.serperApiKey) {
-      return await searchSerper(query, page, keys.serperApiKey, signal);
+      const hits = await searchSerper(query, page, keys.serperApiKey, signal);
+      recordModelUsage({
+        provider: "serper",
+        model: "google",
+        operation: "search",
+        success: true,
+        durationMs: Date.now() - started,
+        meta: { results: hits.length },
+      });
+      return hits;
     }
     if (provider === "google_cse" && keys.googleCseKey && keys.googleCseCx) {
-      return await searchGoogleCse(query, page, keys.googleCseKey, keys.googleCseCx, signal);
+      const hits = await searchGoogleCse(query, page, keys.googleCseKey, keys.googleCseCx, signal);
+      recordModelUsage({
+        provider: "google_cse",
+        model: keys.googleCseCx,
+        operation: "search",
+        success: true,
+        durationMs: Date.now() - started,
+        meta: { results: hits.length },
+      });
+      return hits;
     }
-    console.warn("[search] Using DuckDuckGo fallback — results may be lower quality");
+    appendAdminLog({
+      level: "warn",
+      source: "search",
+      message: "Using DuckDuckGo fallback — results may be lower quality",
+    });
     const hits = await searchDuckDuckGo(query, page, signal);
+    recordModelUsage({
+      provider: "duckduckgo",
+      model: "",
+      operation: "search",
+      success: true,
+      durationMs: Date.now() - started,
+      meta: { results: hits.length },
+    });
     return hits.slice(0, 5);
-  } catch {
+  } catch (err) {
+    recordModelUsage({
+      provider,
+      model: "",
+      operation: "search",
+      success: false,
+      durationMs: Date.now() - started,
+      meta: { error: err instanceof Error ? err.message.slice(0, 120) : "search failed" },
+    });
     return [];
   }
 }

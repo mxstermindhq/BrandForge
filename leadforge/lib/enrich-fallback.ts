@@ -16,6 +16,7 @@ import {
   parseWebsiteAnalysisResponse,
   WEBSITE_ANALYSIS_SYSTEM,
 } from "@/lib/website-analysis-coerce";
+import { appendAdminLog, recordModelUsage } from "@/lib/admin-telemetry";
 
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant";
@@ -54,6 +55,7 @@ async function callGroqJson(
 ): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
+  const started = Date.now();
 
   try {
     const res = await fetch(GROQ_CHAT_URL, {
@@ -88,7 +90,26 @@ async function callGroqJson(
     };
     const text = json.choices?.[0]?.message?.content;
     if (!text) throw new Error("Groq returned empty response");
+    recordModelUsage({
+      provider: "groq",
+      model,
+      operation: "chat.completions",
+      success: true,
+      durationMs: Date.now() - started,
+    });
     return text;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Groq request failed";
+    recordModelUsage({
+      provider: "groq",
+      model,
+      operation: "chat.completions",
+      success: false,
+      durationMs: Date.now() - started,
+      meta: { error: message.slice(0, 200) },
+    });
+    appendAdminLog({ level: "warn", source: "groq", message, meta: { model } });
+    throw err;
   } finally {
     clearTimeout(timeout);
   }
