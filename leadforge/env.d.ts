@@ -28,6 +28,9 @@ interface CloudflareEnv {
   SERPER_API_KEY?: string;
   GOOGLE_CSE_KEY?: string;
   GOOGLE_CSE_CX?: string;
+  APOLLO_API_KEY?: string;
+  APIFY_API_KEY?: string;
+  APIFY_USER_ID?: string;
 }
 
 // Supabase (set in Vercel / .env.local):

@@ -332,3 +332,9 @@ export function deduplicateLeads(
 
   return [...byKey.values()];
 }
+
+export {
+  buildScraperBlueprint,
+  routeScraperByPlatform,
+  sourceIdentifierForLead,
+} from "@/lib/scraper-router";

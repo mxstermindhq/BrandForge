@@ -40,6 +40,9 @@ function buildSupabaseEnv(): CloudflareEnv {
     SERPER_API_KEY: readEnvString("SERPER_API_KEY") || undefined,
     GOOGLE_CSE_KEY: readEnvString("GOOGLE_CSE_KEY") || undefined,
     GOOGLE_CSE_CX: readEnvString("GOOGLE_CSE_CX") || undefined,
+    APOLLO_API_KEY: readEnvString("APOLLO_API_KEY") || undefined,
+    APIFY_API_KEY: readEnvString("APIFY_API_KEY") || undefined,
+    APIFY_USER_ID: readEnvString("APIFY_USER_ID") || undefined,
     CAMPAIGN_QUEUE: undefined as unknown as Queue<CampaignQueueMessage>,
   };
   env.CAMPAIGN_QUEUE = buildQueueStub(env);

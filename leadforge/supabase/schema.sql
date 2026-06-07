@@ -95,8 +95,25 @@ CREATE TABLE IF NOT EXISTS public.leads (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Chunked campaign processor cache (replaces KV on Vercel/Supabase).
+-- Row-based dedup cache (6h TTL via purge_expired_campaign_candidates).
 CREATE TABLE IF NOT EXISTS public.campaign_candidates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  campaign_id UUID NOT NULL REFERENCES public.campaigns(id) ON DELETE CASCADE,
+  platform TEXT NOT NULL,
+  source_identifier TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (campaign_id, source_identifier)
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaign_candidates_dedup
+  ON public.campaign_candidates (campaign_id, source_identifier);
+
+CREATE INDEX IF NOT EXISTS idx_campaign_candidates_created
+  ON public.campaign_candidates (created_at);
+
+-- Chunked processor JSON staging (legacy chunk resume).
+CREATE TABLE IF NOT EXISTS public.campaign_staging_cache (
   campaign_id UUID PRIMARY KEY REFERENCES public.campaigns(id) ON DELETE CASCADE,
   candidates JSONB NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '6 hours')
@@ -130,6 +147,24 @@ BEGIN
   WHERE user_id = p_user_id AND balance >= p_amount;
   GET DIAGNOSTICS rows_changed = ROW_COUNT;
   RETURN rows_changed > 0;
+END;
+$$;
+
+-- Purge dedup rows older than 6 hours.
+CREATE OR REPLACE FUNCTION public.purge_expired_campaign_candidates()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM public.campaign_candidates
+  WHERE created_at < now() - interval '6 hours';
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  DELETE FROM public.campaign_staging_cache WHERE expires_at < now();
+  RETURN deleted_count;
 END;
 $$;
 

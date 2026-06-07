@@ -57,7 +57,7 @@ export function createSupabaseCampaignCache(db: SupabaseClient): CampaignCache {
   return {
     async put(campaignId, candidates) {
       const expires = new Date(Date.now() + TTL_HOURS * 3600 * 1000).toISOString();
-      await db.from("campaign_candidates").upsert({
+      await db.from("campaign_staging_cache").upsert({
         campaign_id: campaignId,
         candidates,
         expires_at: expires,
@@ -65,19 +65,19 @@ export function createSupabaseCampaignCache(db: SupabaseClient): CampaignCache {
     },
     async get(campaignId) {
       const { data } = await db
-        .from("campaign_candidates")
+        .from("campaign_staging_cache")
         .select("candidates, expires_at")
         .eq("campaign_id", campaignId)
         .maybeSingle();
       if (!data) return null;
       if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        await db.from("campaign_candidates").delete().eq("campaign_id", campaignId);
+        await db.from("campaign_staging_cache").delete().eq("campaign_id", campaignId);
         return null;
       }
       return data.candidates as ExtractedLeadData[];
     },
     async delete(campaignId) {
-      await db.from("campaign_candidates").delete().eq("campaign_id", campaignId);
+      await db.from("campaign_staging_cache").delete().eq("campaign_id", campaignId);
     },
   };
 }

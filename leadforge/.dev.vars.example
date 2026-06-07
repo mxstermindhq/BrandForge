@@ -24,7 +24,11 @@ SERPER_API_KEY=
 GOOGLE_CSE_KEY=
 GOOGLE_CSE_CX=
 
-# Billing + email (optional locally)
+# Third-party lead sources
+APOLLO_API_KEY=
+APIFY_API_KEY=
+APIFY_USER_ID=
+# Optional per-platform Apify actor overrides (e.g. APIFY_ACTOR_REDDIT=owner/actor)
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 RESEND_API_KEY=

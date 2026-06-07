@@ -510,6 +510,52 @@ export async function getRecentTransactions(
   return (data ?? []) as Transaction[];
 }
 
+// ── Campaign candidate dedup cache ───────────────────────────────────────────
+export async function purgeExpiredCandidates(db: Db): Promise<number> {
+  const { data, error } = await db.rpc("purge_expired_campaign_candidates");
+  if (error) {
+    console.warn("[db] purge_expired_campaign_candidates:", error.message);
+    return 0;
+  }
+  return typeof data === "number" ? data : 0;
+}
+
+export async function getExistingCandidateIdentifiers(
+  db: Db,
+  campaignId: string,
+): Promise<Set<string>> {
+  const { data, error } = await db
+    .from("campaign_candidates")
+    .select("source_identifier")
+    .eq("campaign_id", campaignId);
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map((r) => String(r.source_identifier)));
+}
+
+export async function registerCandidates(
+  db: Db,
+  rows: {
+    user_id: string;
+    campaign_id: string;
+    platform: string;
+    source_identifier: string;
+  }[],
+): Promise<void> {
+  if (rows.length === 0) return;
+  for (let i = 0; i < rows.length; i += D1_BATCH_SIZE) {
+    const chunk = rows.slice(i, i + D1_BATCH_SIZE);
+    const { error } = await db
+      .from("campaign_candidates")
+      .upsert(chunk, { onConflict: "campaign_id,source_identifier", ignoreDuplicates: true });
+    if (error) throw new Error(error.message);
+  }
+}
+
+export async function clearCampaignCandidates(db: Db, campaignId: string): Promise<void> {
+  const { error } = await db.from("campaign_candidates").delete().eq("campaign_id", campaignId);
+  if (error) throw new Error(error.message);
+}
+
 // ── Admin helpers ────────────────────────────────────────────────────────────
 export async function getAdminStats(db: Db): Promise<AdminStats> {
   const [users, campaigns, leads, transactions, campaignRows, todayLeads] = await Promise.all([

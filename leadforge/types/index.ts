@@ -333,6 +333,36 @@ export interface LeadStats {
 }
 
 // ── Scraper outputs ────────────────────────────────────────────────────────────
+/** Unified multi-channel scraper output (Apollo / Apify / Serper). */
+export interface RawScrapedLead {
+  name: string;
+  title: string;
+  company: string;
+  email: string;
+  social_links: Record<string, string>;
+  raw_bio_text: string;
+  platform: string;
+}
+
+/** Structured query blueprint extracted from a campaign persona. */
+export interface ScraperBlueprint {
+  industry: string;
+  location: string;
+  keywords: string[];
+  titles: string[];
+  pain_points: string[];
+}
+
+export interface ScraperEnvKeys {
+  apolloApiKey?: string;
+  apifyApiKey?: string;
+  apifyUserId?: string;
+  searchProvider?: string;
+  serperApiKey?: string;
+  googleCseKey?: string;
+  googleCseCx?: string;
+}
+
 export interface RawScrapedResult {
   url: string;
   title: string;
@@ -391,6 +421,14 @@ export interface PersonaEnrichmentOutput {
   email_guess: string;
   contact_name: string;
   company_name: string;
+}
+
+export interface EnrichedLeadAIOutput {
+  clean_company_name: string;
+  suitability_score: number;
+  fit_reasoning: string;
+  pain_point: string;
+  pitch_angle: string;
 }
 
 export interface ProductContext {

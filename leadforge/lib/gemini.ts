@@ -1,5 +1,6 @@
 import type {
   ColdEmailOutput,
+  EnrichedLeadAIOutput,
   EstimatedSize,
   ExtractedLeadData,
   ExtractedPersona,
@@ -8,6 +9,8 @@ import type {
   Lead,
   PersonaEnrichmentOutput,
   ProductContext,
+  RawScrapedLead,
+  ScraperBlueprint,
 } from "@/types";
 import { DEFAULT_GEMINI_MODEL, GEMINI_TIMEOUT_MS } from "@/lib/constants";
 
@@ -336,6 +339,100 @@ function scoreToFitLabel(score: number): FitLabel {
 }
 
 export { scoreToFitLabel };
+
+const BLUEPRINT_SYSTEM = `You are a lead generation query planner. Extract structured search parameters from a campaign description.
+Return ONLY valid JSON with this exact shape:
+{
+  "industry": "string",
+  "location": "string",
+  "keywords": ["string"],
+  "titles": ["string"],
+  "pain_points": ["string"]
+}
+Rules:
+- keywords must be search-query-ready (3-8 items)
+- titles are job roles (Founder, Marketing Director, etc.)
+- pain_points are buyer problems (2-4 items)
+- location is a city/region/country or empty string if not specified`;
+
+export async function extractScraperBlueprint(
+  prompt: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<ScraperBlueprint> {
+  const userPrompt = `Campaign target description: "${prompt.replace(/"/g, '\\"')}"`;
+  try {
+    const raw = await callGemini(userPrompt, BLUEPRINT_SYSTEM, apiKey, model);
+    const parsed = safeParse<Partial<ScraperBlueprint>>(raw);
+    if (!parsed) throw new Error("parse failed");
+    return {
+      industry: String(parsed.industry ?? ""),
+      location: String(parsed.location ?? ""),
+      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.map(String).slice(0, 8) : [],
+      titles: Array.isArray(parsed.titles) ? parsed.titles.map(String).slice(0, 5) : [],
+      pain_points: Array.isArray(parsed.pain_points)
+        ? parsed.pain_points.map(String).slice(0, 4)
+        : [],
+    };
+  } catch {
+    const words = prompt.split(/\s+/).filter(Boolean);
+    return {
+      industry: words.slice(0, 3).join(" "),
+      location: "",
+      keywords: words.slice(0, 8),
+      titles: [],
+      pain_points: [],
+    };
+  }
+}
+
+const CANDIDATE_ENRICH_SYSTEM = `You are a B2B/B2C lead qualification analyst.
+Clean and score a scraped candidate against a target buyer persona.
+Return ONLY a JSON object with EXACTLY this shape:
+{
+  "clean_company_name": "string",
+  "suitability_score": <integer 0-100>,
+  "fit_reasoning": "string",
+  "pain_point": "string",
+  "pitch_angle": "string"
+}
+Scoring: weigh data completeness, persona match, platform signal strength, and buying intent.
+Be conservative — weak or incomplete signals score below 40.`;
+
+export async function enrichCandidateData(
+  candidate: RawScrapedLead,
+  targetPersona: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<EnrichedLeadAIOutput> {
+  const prompt = JSON.stringify({
+    target_persona: targetPersona,
+    candidate: {
+      name: candidate.name,
+      title: candidate.title,
+      company: candidate.company,
+      email: candidate.email,
+      platform: candidate.platform,
+      social_links: candidate.social_links,
+      raw_bio_text: candidate.raw_bio_text,
+    },
+  });
+
+  const raw = await callGemini(prompt, CANDIDATE_ENRICH_SYSTEM, apiKey, model);
+  const parsed = safeParse<Partial<EnrichedLeadAIOutput>>(raw);
+  if (!parsed) {
+    throw new Error("Failed to parse Gemini candidate enrichment JSON");
+  }
+
+  return {
+    clean_company_name:
+      String(parsed.clean_company_name ?? candidate.company ?? "Unknown").trim() || "Unknown",
+    suitability_score: clampScore(parsed.suitability_score),
+    fit_reasoning: String(parsed.fit_reasoning ?? "").trim(),
+    pain_point: String(parsed.pain_point ?? "").trim(),
+    pitch_angle: String(parsed.pitch_angle ?? "").trim(),
+  };
+}
 
 const COLD_EMAIL_SYSTEM = `You write concise, personalized B2B/B2C cold outreach emails.
 Use the lead's pitch angle and likely needs. Be specific, warm, non-spammy, and
