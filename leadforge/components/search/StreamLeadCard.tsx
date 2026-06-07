@@ -69,6 +69,21 @@ export function StreamLeadCard({ lead, index }: Props): React.JSX.Element {
         <div className="flex-shrink-0">
           <ScoreBar score={lead.score || 0} />
         </div>
+        {lead.email && (
+          <a
+            href={`mailto:${lead.email}`}
+            onClick={(e) => e.stopPropagation()}
+            className={`ml-2 flex flex-shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+              lead.email_confidence === "high"
+                ? "border-green-500/30 bg-green-500/10 text-green-400"
+                : lead.email_confidence === "medium"
+                  ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                  : "border-zinc-700 bg-white/[0.03] text-zinc-500"
+            }`}
+          >
+            ✉ {lead.email}
+          </a>
+        )}
       </div>
 
       {lead.pitch_angle && (

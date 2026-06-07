@@ -2,14 +2,17 @@
  * Fetch and analyze a business website to infer ideal buyer persona + search intent.
  */
 
-import { buildSearchIntentAnalysis, heuristicPersona } from "@/lib/search-intent";
-import { callGeminiPriority } from "@/lib/gemini";
+import { analyzeWebsite } from "@/lib/gemini";
 import { PROCESSING_USER_AGENT, SCRAPE_TIMEOUT_MS } from "@/lib/constants";
-import type {
-  ExtractedPersona,
-  SiteAnalysisResult,
-  SiteBusinessProfile,
-} from "@/types";
+import {
+  buildSearchPreviewFromAnalysis,
+  heuristicWebsiteAnalysis,
+  suggestedChannelsFromAnalysis,
+  websiteAnalysisToPersona,
+  websiteAnalysisToPersonaText,
+  websiteAnalysisToSiteProfile,
+} from "@/lib/website-analysis-bridge";
+import type { SiteAnalysisResult, WebsiteAnalysis } from "@/types";
 
 const MAX_TEXT_PER_PAGE = 8000;
 const MAX_COMBINED_TEXT = 14_000;
@@ -136,181 +139,17 @@ function hostName(url: string): string {
   }
 }
 
-function detectOfferType(text: string): SiteBusinessProfile["offer_type"] {
-  const lower = text.toLowerCase();
-  if (/\b(saas|software|platform|api|dashboard|subscription)\b/.test(lower)) return "saas";
-  if (/\b(agency|consulting|consultancy|services firm)\b/.test(lower)) return "agency";
-  if (/\b(shop|store|ecommerce|e-commerce|buy now|add to cart)\b/.test(lower)) return "ecommerce";
-  if (/\b(service|services|we help|we build|we design)\b/.test(lower)) return "service";
-  if (/\b(product|products|tool|tools)\b/.test(lower)) return "product";
-  return "mixed";
-}
-
-function extractAudienceHint(text: string): string {
-  const forMatch = text.match(/\bfor\s+([^.!?\n]{10,80})/i);
-  if (forMatch?.[1]) return forMatch[1].trim();
-  const builtMatch = text.match(/\bbuilt for\s+([^.!?\n]{10,80})/i);
-  if (builtMatch?.[1]) return builtMatch[1].trim();
-  return "";
-}
-
-function heuristicSiteProfile(snapshots: SitePageSnapshot[], baseUrl: string): SiteBusinessProfile {
-  const home = snapshots[0];
-  const combined = snapshots.map((s) => `${s.title} ${s.meta_description} ${s.text}`).join("\n");
-  const company = home.title.split(/[|\-–—·]/)[0].trim() || hostName(baseUrl);
-
-  const priceMatch = combined.match(
-    /\$\d[\d,]*(?:\s*\/\s*(?:mo|month|yr|year))?|\b(?:from|starting at)\s+\$\d[\d,]*/i,
-  );
-
-  return {
-    url: baseUrl,
-    company_name: company.slice(0, 120),
-    tagline: home.meta_description.slice(0, 200) || home.title.slice(0, 200),
-    offer_type: detectOfferType(combined),
-    what_they_sell: home.meta_description || home.text.slice(0, 300),
-    value_proposition: home.text.slice(0, 400),
-    price_signal: priceMatch?.[0] ?? "",
-    stated_audience: extractAudienceHint(combined),
-  };
-}
-
-function buildPersonaText(site: SiteBusinessProfile, persona: ExtractedPersona): string {
-  return [
-    `Business: ${site.company_name} (${site.url})`,
-    `Offers: ${site.what_they_sell}`,
-    `Value: ${site.value_proposition.slice(0, 200)}`,
-    `Ideal buyers: ${persona.titles.join(", ")} in ${persona.industries.join(", ")}`,
-    `Pain points solved: ${persona.pain_points.join("; ")}`,
-    site.price_signal ? `Pricing: ${site.price_signal}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
-const SITE_BUYER_SYSTEM = `You are a B2B/B2C go-to-market strategist.
-Analyze a business website and infer their IDEAL BUYER PERSONA (who they should sell to).
-Return ONLY valid JSON:
-{
-  "site": {
-    "company_name": "string",
-    "tagline": "string",
-    "offer_type": "product|service|saas|agency|ecommerce|mixed",
-    "what_they_sell": "string",
-    "value_proposition": "string",
-    "price_signal": "string",
-    "stated_audience": "string"
-  },
-  "persona": {
-    "titles": ["string"],
-    "industries": ["string"],
-    "locations": ["string"],
-    "company_sizes": ["string"],
-    "pain_points": ["string"],
-    "keywords": ["string"],
-    "budget_signal": "string",
-    "b2b": boolean,
-    "suggested_channels": ["google|reddit|youtube|instagram|tiktok|twitter|linkedin|web"],
-    "product_context": "string"
-  },
-  "intent_summary": "one sentence: who to find and why they need this offer",
-  "confidence": <integer 0-100>
-}
-Rules:
-- Infer buyers from what the business SELLS, not who they are
-- B2B SaaS/agency → linkedin, google, web; DTC/creator → instagram, tiktok, youtube
-- keywords = search-ready phrases to find these buyers online
-- pain_points = problems this offer solves for buyers
-- product_context = pitch context referencing the actual offer`;
-
-function safeParse<T>(raw: string): T | null {
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-    try {
-      return JSON.parse(cleaned) as T;
-    } catch {
-      return null;
-    }
-  }
-}
-
-function normalizePersona(parsed: Partial<ExtractedPersona>, fallback: ExtractedPersona): ExtractedPersona {
-  const allowed = new Set([
-    "google", "reddit", "youtube", "instagram", "tiktok", "twitter", "linkedin", "web",
-  ]);
-  return {
-    titles: (parsed.titles?.length ? parsed.titles : fallback.titles).map(String).slice(0, 5),
-    industries: (parsed.industries?.length ? parsed.industries : fallback.industries).map(String).slice(0, 4),
-    locations: (parsed.locations ?? fallback.locations).map(String).slice(0, 3),
-    company_sizes: (parsed.company_sizes ?? fallback.company_sizes).map(String).slice(0, 3),
-    pain_points: (parsed.pain_points?.length ? parsed.pain_points : fallback.pain_points).map(String).slice(0, 4),
-    keywords: (parsed.keywords?.length ? parsed.keywords : fallback.keywords).map(String).slice(0, 8),
-    budget_signal: String(parsed.budget_signal ?? fallback.budget_signal),
-    b2b: parsed.b2b ?? fallback.b2b,
-    suggested_channels: (parsed.suggested_channels ?? fallback.suggested_channels)
-      .map(String)
-      .filter((c) => allowed.has(c))
-      .slice(0, 5),
-    product_context: String(parsed.product_context ?? fallback.product_context),
-  };
-}
-
-async function analyzeSiteWithAi(
-  snapshots: SitePageSnapshot[],
-  baseUrl: string,
-  apiKey: string,
-  model?: string,
-): Promise<{
-  site: SiteBusinessProfile;
-  persona: ExtractedPersona;
-  intent_summary: string;
-  confidence: number;
-} | null> {
-  const corpus = snapshots
+function buildCorpus(snapshots: SitePageSnapshot[]): string {
+  return snapshots
     .map(
       (s) =>
         `--- ${s.url} ---\nTitle: ${s.title}\nMeta: ${s.meta_description}\n${s.text.slice(0, 3500)}`,
     )
     .join("\n\n")
     .slice(0, MAX_COMBINED_TEXT);
-
-  const prompt = `Website URL: ${baseUrl}\n\nPage content:\n${corpus}\n\nInfer the ideal buyer persona for outbound lead gen.`;
-
-  const raw = await callGeminiPriority(prompt, SITE_BUYER_SYSTEM, apiKey, model);
-  const parsed = safeParse<{
-    site?: Partial<SiteBusinessProfile>;
-    persona?: Partial<ExtractedPersona>;
-    intent_summary?: string;
-    confidence?: number;
-  }>(raw);
-
-  if (!parsed?.persona) return null;
-
-  const heuristicSite = heuristicSiteProfile(snapshots, baseUrl);
-  const heuristicPersonaResult = heuristicPersona(corpus);
-
-  const site: SiteBusinessProfile = {
-    url: baseUrl,
-    company_name: String(parsed.site?.company_name ?? heuristicSite.company_name),
-    tagline: String(parsed.site?.tagline ?? heuristicSite.tagline),
-    offer_type: (parsed.site?.offer_type as SiteBusinessProfile["offer_type"]) ?? heuristicSite.offer_type,
-    what_they_sell: String(parsed.site?.what_they_sell ?? heuristicSite.what_they_sell),
-    value_proposition: String(parsed.site?.value_proposition ?? heuristicSite.value_proposition),
-    price_signal: String(parsed.site?.price_signal ?? heuristicSite.price_signal),
-    stated_audience: String(parsed.site?.stated_audience ?? heuristicSite.stated_audience),
-  };
-
-  return {
-    site,
-    persona: normalizePersona(parsed.persona, heuristicPersonaResult),
-    intent_summary: String(parsed.intent_summary ?? `Find ideal buyers for ${site.company_name}.`),
-    confidence: typeof parsed.confidence === "number" ? Math.min(100, Math.max(0, parsed.confidence)) : 75,
-  };
 }
 
-/** Full pipeline: crawl site → AI buyer persona → search intent package. */
+/** Full pipeline: crawl site → AI buyer ICP → search intent package. */
 export async function analyzeWebsiteForBuyers(
   siteUrlInput: string,
   channels: string[],
@@ -319,45 +158,42 @@ export async function analyzeWebsiteForBuyers(
 ): Promise<SiteAnalysisResult> {
   const baseUrl = normalizeSiteUrl(siteUrlInput);
   const snapshots = await crawlSite(baseUrl);
-  const corpus = snapshots.map((s) => s.text).join(" ");
-  const heuristicSite = heuristicSiteProfile(snapshots, baseUrl);
-  const fallbackPersona = heuristicPersona(
-    `${heuristicSite.what_they_sell} ${heuristicSite.value_proposition} ${corpus.slice(0, 2000)}`,
-  );
-  fallbackPersona.product_context = `${heuristicSite.company_name}: ${heuristicSite.what_they_sell}`;
+  const corpus = buildCorpus(snapshots);
+  const home = snapshots[0];
+  const companyName = home.title.split(/[|\-–—·]/)[0].trim() || hostName(baseUrl);
 
-  let site = heuristicSite;
-  let persona = fallbackPersona;
-  let intent_summary = `Find ${fallbackPersona.titles[0] ?? "buyers"} who need ${heuristicSite.what_they_sell.slice(0, 80)}.`;
-  let confidence = 55;
+  let website_analysis: WebsiteAnalysis;
 
   if (apiKey?.trim()) {
     try {
-      const ai = await analyzeSiteWithAi(snapshots, baseUrl, apiKey, model);
-      if (ai) {
-        site = ai.site;
-        persona = ai.persona;
-        intent_summary = ai.intent_summary;
-        confidence = ai.confidence;
-      }
+      website_analysis = await analyzeWebsite(corpus, baseUrl, apiKey, model);
     } catch (err) {
       console.warn("[site-analyzer] AI analysis failed:", err instanceof Error ? err.message : err);
-      confidence = 50;
+      website_analysis = heuristicWebsiteAnalysis(corpus, baseUrl, companyName);
     }
+  } else {
+    website_analysis = heuristicWebsiteAnalysis(corpus, baseUrl, companyName);
   }
 
-  const intent = buildSearchIntentAnalysis(persona, buildPersonaText(site, persona), channels, {
-    intent_summary,
-    confidence,
-    clarifying_questions: [],
-  });
+  const persona = websiteAnalysisToPersona(website_analysis);
+  const suggested = suggestedChannelsFromAnalysis(website_analysis);
+  persona.suggested_channels = suggested.length ? suggested : persona.suggested_channels;
+
+  const site = websiteAnalysisToSiteProfile(website_analysis, baseUrl);
+  const persona_text = websiteAnalysisToPersonaText(website_analysis);
+  const intent_summary = website_analysis.icp.one_liner;
+  const search_preview = buildSearchPreviewFromAnalysis(website_analysis, channels);
 
   return {
-    ...intent,
-    ready_to_search: true,
+    persona,
+    confidence: website_analysis.confidence,
+    intent_summary,
     clarifying_questions: [],
+    ready_to_search: website_analysis.confidence >= 60,
+    search_preview,
     source_url: baseUrl,
     site,
-    persona_text: buildPersonaText(site, persona),
+    persona_text,
+    website_analysis,
   };
 }

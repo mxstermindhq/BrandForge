@@ -44,7 +44,7 @@ export default function DashboardPage(): React.JSX.Element {
         <p className="text-xs uppercase tracking-widest text-gold">Start here</p>
         <h2 className="mt-2 font-display text-2xl font-light">Start a new search</h2>
         <p className="mt-1 text-sm text-tx-muted">
-          Describe your ideal buyer in plain English — leads stream in live.
+          Paste your website — we analyze your buyers and scrape matching leads live.
         </p>
       </Link>
 
@@ -52,7 +52,16 @@ export default function DashboardPage(): React.JSX.Element {
         <StatCard label="Credits" value={me.credits.balance.toLocaleString()} accent />
         <StatCard label="Total leads" value={stats ? stats.total.toLocaleString() : "—"} />
         <StatCard label="Hot (70+)" value={stats ? stats.hot.toLocaleString() : "—"} />
-        <StatCard label="With email" value={stats ? stats.withEmail.toLocaleString() : "—"} />
+        <StatCard
+          label="With email"
+          value={
+            stats
+              ? stats.total > 0
+                ? `${stats.emailCoveragePct}% (${stats.withEmail})`
+                : stats.withEmail.toLocaleString()
+              : "—"
+          }
+        />
       </div>
 
       {stats && stats.total > 0 && (

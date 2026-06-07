@@ -173,6 +173,10 @@ export function heuristicPersonaEnrichment(
     estimated_company_size: persona?.company_sizes[0] ?? "unknown",
     location_guess: persona?.locations[0] ?? "",
     email_guess: lead.email ?? "",
+    email_from_bio: lead.email ?? "",
+    company_domain: "",
+    email_confidence: lead.email ? "medium" : null,
+    email_source: lead.email ? "pattern" : null,
     contact_name: lead.name || "Unknown",
     company_name: company,
   };
@@ -250,6 +254,10 @@ Return JSON:
     estimated_company_size: String(parsed.estimated_company_size ?? "unknown"),
     location_guess: String(parsed.location_guess ?? ""),
     email_guess: String(parsed.email_guess ?? lead.email ?? ""),
+    email_from_bio: String(parsed.email_guess ?? lead.email ?? ""),
+    company_domain: "",
+    email_confidence: lead.email ? "medium" : null,
+    email_source: lead.email ? "pattern" : null,
     contact_name: String(parsed.contact_name ?? lead.name ?? "Unknown"),
     company_name: String(parsed.company_name ?? lead.company ?? "Unknown"),
   };

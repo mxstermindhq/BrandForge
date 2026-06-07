@@ -1,10 +1,13 @@
 "use client";
 
+import { buildIntentQueries } from "@/lib/channel-search";
 import { CHANNEL_META } from "@/lib/constants";
-import type { ClarifyingQuestion, SiteAnalysisResult, SiteBusinessProfile } from "@/types";
+import { ConfidenceRing } from "@/components/search/ConfidenceRing";
+import type { ClarifyingQuestion, SiteAnalysisResult } from "@/types";
 
 interface Props {
   analysis: SiteAnalysisResult;
+  selectedChannels: string[];
   answers: Record<string, string>;
   onAnswer: (id: string, value: string) => void;
   onConfirm: () => void;
@@ -13,17 +16,9 @@ interface Props {
   quantity: number;
 }
 
-const OFFER_LABELS: Record<SiteBusinessProfile["offer_type"], string> = {
-  product: "Product",
-  service: "Service",
-  saas: "SaaS",
-  agency: "Agency",
-  ecommerce: "E-commerce",
-  mixed: "Mixed offer",
-};
-
 export function IntentReview({
   analysis,
+  selectedChannels,
   answers,
   onAnswer,
   onConfirm,
@@ -31,114 +26,102 @@ export function IntentReview({
   isLoading,
   quantity,
 }: Props): React.JSX.Element {
-  const { site, persona, confidence, intent_summary, clarifying_questions, search_preview } =
-    analysis;
+  const { website_analysis, clarifying_questions } = analysis;
+  const wa = website_analysis;
 
   return (
     <div className="mt-6 space-y-4">
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-        <p className="text-[10px] uppercase tracking-widest text-zinc-600">We analyzed</p>
-        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+        <div className="mb-4 flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-white">{site.company_name}</h2>
-            <a
-              href={site.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-zinc-500 hover:text-zinc-300"
-            >
-              {site.url}
-            </a>
-            {site.tagline && (
-              <p className="mt-2 text-sm text-zinc-400">{site.tagline}</p>
-            )}
+            <p className="mb-1 text-[10px] uppercase tracking-widest text-zinc-600">We analyzed</p>
+            <p className="text-base font-semibold text-white">{wa.company_name}</p>
+            <p className="mt-0.5 text-xs text-zinc-500">{wa.product_summary}</p>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-400">
-            {OFFER_LABELS[site.offer_type]}
-          </span>
-        </div>
-        <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
-          <div>
-            <dt className="text-zinc-600">What you sell</dt>
-            <dd className="text-zinc-300">{site.what_they_sell}</dd>
-          </div>
-          {site.price_signal && (
-            <div>
-              <dt className="text-zinc-600">Pricing signal</dt>
-              <dd className="text-zinc-300">{site.price_signal}</dd>
-            </div>
-          )}
-        </dl>
-      </div>
-
-      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-emerald-600/80">
-              Ideal buyer profile
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-zinc-200">{intent_summary}</p>
-          </div>
-          <div className="shrink-0 text-right">
-            <p className="text-[10px] uppercase tracking-widest text-zinc-600">Confidence</p>
-            <p
-              className={`mt-1 text-lg font-semibold tabular-nums ${
-                confidence >= 70 ? "text-emerald-400" : confidence >= 50 ? "text-amber-400" : "text-zinc-400"
-              }`}
-            >
-              {confidence}%
+          <div className="flex-shrink-0 text-right">
+            <ConfidenceRing value={wa.confidence} />
+            <p className="mt-1 max-w-[120px] text-right text-[10px] text-zinc-600">
+              {wa.confidence_reason}
             </p>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {persona.titles.slice(0, 3).map((t) => (
-            <span key={t} className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs text-blue-400">
-              {t}
-            </span>
-          ))}
-          {persona.industries.slice(0, 2).map((i) => (
-            <span key={i} className="rounded-full bg-violet-500/10 px-2.5 py-1 text-xs text-violet-400">
-              {i}
-            </span>
-          ))}
-          {persona.pain_points.slice(0, 2).map((p) => (
-            <span key={p} className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-400">
-              {p}
-            </span>
-          ))}
-        </div>
-
-        {persona.suggested_channels.length > 0 && (
-          <p className="mt-3 text-xs text-zinc-500">
-            Recommended channels:{" "}
-            {persona.suggested_channels.map((c) => CHANNEL_META[c]?.label ?? c).join(", ")}
+        <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.04] p-3">
+          <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-600">
+            Ideal Buyer Profile
           </p>
+          <p className="text-sm leading-relaxed text-zinc-200">{wa.icp.one_liner}</p>
+        </div>
+
+        <div className="mb-4 grid grid-cols-3 gap-3 text-xs">
+          <div>
+            <p className="mb-1 text-zinc-600">Titles</p>
+            <p className="text-zinc-300">{wa.icp.titles.slice(0, 3).join(", ") || "—"}</p>
+          </div>
+          <div>
+            <p className="mb-1 text-zinc-600">Stage</p>
+            <p className="text-zinc-300">{wa.icp.company_stage.slice(0, 2).join(", ") || "—"}</p>
+          </div>
+          <div>
+            <p className="mb-1 text-zinc-600">Budget Signal</p>
+            <p className="text-zinc-300">{wa.price_signal || wa.icp.budget_range || "—"}</p>
+          </div>
+        </div>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11px] text-zinc-600 transition-colors hover:text-zinc-400">
+            <span className="inline-block transition-transform group-open:rotate-90">›</span>
+            Buying intent signals · {wa.intent_signals.length}
+          </summary>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {wa.intent_signals.map((signal) => (
+              <span
+                key={signal}
+                className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] text-amber-400"
+              >
+                &ldquo;{signal}&rdquo;
+              </span>
+            ))}
+          </div>
+        </details>
+
+        <details className="group mt-3">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11px] text-zinc-600 transition-colors hover:text-zinc-400">
+            <span className="inline-block transition-transform group-open:rotate-90">›</span>
+            Preview search queries per channel
+          </summary>
+          <div className="mt-2 space-y-1.5">
+            {selectedChannels.map((ch) => {
+              const queries = buildIntentQueries(ch, wa);
+              return (
+                <div key={ch} className="text-xs">
+                  <span className="font-medium text-zinc-600">
+                    {CHANNEL_META[ch]?.label ?? ch}:
+                  </span>
+                  <span className="ml-2 font-mono text-[11px] text-zinc-500">{queries[0]}</span>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+
+        {wa.data_quality_issues.length > 0 && (
+          <div className="mt-3 rounded-lg border border-amber-500/10 bg-amber-500/5 p-2.5">
+            <p className="text-[10px] text-amber-600">
+              Low confidence: {wa.data_quality_issues.join(" · ")}
+            </p>
+          </div>
         )}
       </div>
 
       {clarifying_questions.length > 0 && (
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.03] p-5">
           <p className="text-xs text-zinc-500">Optional refinements:</p>
           {clarifying_questions.map((q) => (
             <QuestionField key={q.id} question={q} value={answers[q.id] ?? ""} onChange={onAnswer} />
           ))}
         </div>
       )}
-
-      <details className="group rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-        <summary className="cursor-pointer text-xs text-zinc-600 transition-colors hover:text-zinc-400">
-          Preview search queries per channel
-        </summary>
-        <div className="mt-2 space-y-1.5 pb-1">
-          {Object.entries(search_preview).map(([ch, query]) => (
-            <div key={ch} className="rounded-lg bg-black/30 px-3 py-2 text-xs">
-              <span className="font-medium text-zinc-500">{CHANNEL_META[ch]?.label ?? ch}: </span>
-              <span className="text-zinc-400">{query}</span>
-            </div>
-          ))}
-        </div>
-      </details>
 
       <div className="flex items-center justify-between gap-3 pt-2">
         <button

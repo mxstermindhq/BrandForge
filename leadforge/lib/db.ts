@@ -281,6 +281,9 @@ function leadRow(lead: LeadCreateInput): Record<string, unknown> {
     company_name: lead.company_name ?? null,
     contact_name: lead.contact_name ?? null,
     email: lead.email ?? null,
+    email_confidence: lead.email_confidence ?? null,
+    email_source: lead.email_source ?? null,
+    company_domain: lead.company_domain ?? null,
     phone: lead.phone ?? null,
     website: lead.website ?? null,
     linkedin_url: lead.linkedin_url ?? null,
@@ -443,6 +446,10 @@ export async function getLeadStats(db: Db, userId: string): Promise<LeadStats> {
     rejected: rows.filter((r) => r.status === "rejected").length,
     hot: rows.filter((r) => Number(r.score) >= 70).length,
     withEmail: rows.filter((r) => r.email).length,
+    emailCoveragePct:
+      rows.length > 0
+        ? Math.round((rows.filter((r) => r.email).length / rows.length) * 100)
+        : 0,
     avgScore: Math.round(avg),
   };
 }

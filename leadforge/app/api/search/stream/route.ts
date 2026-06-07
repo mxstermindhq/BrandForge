@@ -10,10 +10,26 @@ import {
   getCreditBalance,
   updateCampaignStatus,
 } from "@/lib/db";
-import { enrichLeadWithPersona, scoreToFitLabel } from "@/lib/gemini";
+import {
+  extractEmailFromContactPage,
+  isKnownSocialUrl,
+} from "@/lib/email-extract";
+import { enrichLeadWithPersona, scoreToFitLabel, textToAnalysis } from "@/lib/gemini";
 import { applyClarifyingAnswers } from "@/lib/search-intent";
 import { leadToStreamLead } from "@/lib/stream-lead";
-import type { ExtractedPersona, LeadCreateInput, SiteBusinessProfile } from "@/types";
+import {
+  websiteAnalysisToPersona,
+  websiteAnalysisToPersonaText,
+  websiteAnalysisToSiteProfile,
+} from "@/lib/website-analysis-bridge";
+import type {
+  ExtractedPersona,
+  LeadCreateInput,
+  PersonaEnrichmentOutput,
+  SiteBusinessProfile,
+  WebsiteAnalysis,
+} from "@/types";
+import type { RawLead } from "@/lib/channel-search";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -31,6 +47,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 
   const body = (await req.json().catch(() => null)) as {
+    website_analysis?: WebsiteAnalysis;
     site_url?: string;
     site?: SiteBusinessProfile;
     persona_text?: string;
@@ -41,33 +58,23 @@ export async function POST(req: NextRequest): Promise<Response> {
     clarifying_answers?: Record<string, string>;
   } | null;
 
-  const persona_text = body?.persona_text?.trim() ?? "";
   const quantity = Math.min(5000, Math.max(1, Number(body?.quantity) || 25));
-  const site = body?.site;
-  const site_url = body?.site_url?.trim() ?? site?.url ?? "";
-
-  if (!persona_text) {
-    return Response.json({ success: false, error: "Run site analysis first" }, { status: 400 });
-  }
-
-  if (!body?.extracted_persona) {
-    return Response.json(
-      {
-        success: false,
-        error: "Run site analysis first (/api/search/analyze-site) before streaming.",
-      },
-      { status: 400 },
-    );
-  }
-
   const selectedChannels = (body?.channels ?? []).filter((c) => VALID_CHANNELS.includes(c));
   if (selectedChannels.length === 0) {
     return Response.json({ success: false, error: "Select at least one channel" }, { status: 400 });
   }
 
-  let persona = body.extracted_persona;
-  if (body.clarifying_answers && Object.keys(body.clarifying_answers).length > 0) {
-    persona = applyClarifyingAnswers(persona, body.clarifying_answers);
+  let websiteAnalysis: WebsiteAnalysis | null = body?.website_analysis ?? null;
+  let persona = body?.extracted_persona ?? null;
+  let persona_text = body?.persona_text?.trim() ?? "";
+  let site = body?.site;
+  const site_url = body?.site_url?.trim() ?? site?.url ?? "";
+
+  if (!websiteAnalysis && !persona_text && !body?.extracted_persona) {
+    return Response.json(
+      { success: false, error: "Provide website_analysis or persona_text" },
+      { status: 400 },
+    );
   }
 
   const estimatedCost = calculateCampaignCost(quantity, selectedChannels, true);
@@ -113,23 +120,52 @@ export async function POST(req: NextRequest): Promise<Response> {
       let campaignId = "";
 
       try {
+        if (!websiteAnalysis && persona_text) {
+          send("status", { message: "Analyzing buyer description..." });
+          websiteAnalysis = await textToAnalysis(
+            persona_text,
+            env.GEMINI_API_KEY,
+            env.GEMINI_MODEL,
+          );
+        }
+
+        if (!websiteAnalysis) {
+          send("error", { message: "Run site analysis first" });
+          return;
+        }
+
+        persona = websiteAnalysisToPersona(websiteAnalysis);
+        if (body?.clarifying_answers && Object.keys(body.clarifying_answers).length > 0) {
+          persona = applyClarifyingAnswers(persona, body.clarifying_answers);
+        }
+
+        if (!persona_text) {
+          persona_text = websiteAnalysisToPersonaText(websiteAnalysis);
+        }
+        if (!site && site_url) {
+          site = websiteAnalysisToSiteProfile(websiteAnalysis, site_url);
+        }
+
         send("status", { message: "Scraping leads that match your ideal buyer profile..." });
         send("persona", persona);
         send("intent", {
-          summary: body?.intent_summary ?? "",
+          summary: body?.intent_summary ?? websiteAnalysis.icp.one_liner,
           channels: selectedChannels,
           site_url,
-          company: site?.company_name ?? "",
+          company: websiteAnalysis.company_name,
         });
 
         const campaign = await createCampaign(env.DB, {
           user_id: userId,
-          name: `Site: ${site?.company_name ?? persona.keywords[0] ?? "Lead search"}`,
+          name: `Site: ${websiteAnalysis.company_name || persona.keywords[0] || "Lead search"}`,
           type: persona.b2b ? "b2b" : "b2c",
-          product_name: site?.company_name ?? persona.product_context ?? "Unknown",
-          product_description: site?.what_they_sell ?? persona_text,
-          target_description: persona.titles.join(", ") || body?.intent_summary?.slice(0, 100) || persona_text.slice(0, 100),
-          price_point: site?.price_signal || persona.budget_signal || "Unknown",
+          product_name: websiteAnalysis.company_name,
+          product_description: websiteAnalysis.product_summary,
+          target_description:
+            websiteAnalysis.icp.one_liner ||
+            persona.titles.join(", ") ||
+            persona_text.slice(0, 100),
+          price_point: websiteAnalysis.price_signal || websiteAnalysis.icp.budget_range || "Unknown",
           location: persona.locations.join(", ") || null,
           quantity_requested: quantity,
           platforms: selectedChannels,
@@ -147,14 +183,17 @@ export async function POST(req: NextRequest): Promise<Response> {
         });
 
         for (const channel of selectedChannels) {
-          send("channel_start", { channel, query: buildChannelQuery(persona, channel) });
+          send("channel_start", {
+            channel,
+            query: buildChannelQuery(websiteAnalysis, channel),
+          });
         }
 
         const scrapeResults = await Promise.allSettled(
           selectedChannels.map(async (channel) => {
             const rawLeads = await searchChannel(
               channel,
-              persona,
+              websiteAnalysis as WebsiteAnalysis,
               leadsPerChannel,
               searchKeys,
             );
@@ -162,7 +201,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           }),
         );
 
-        type RawItem = Awaited<ReturnType<typeof searchChannel>>[number] & { channel: string };
+        type RawItem = RawLead & { channel: string };
         const queue: RawItem[] = [];
 
         for (const result of scrapeResults) {
@@ -192,15 +231,31 @@ export async function POST(req: NextRequest): Promise<Response> {
 
         let totalFound = 0;
         for (let i = 0; i < toProcess.length; i++) {
-          const raw = toProcess[i];
+          let raw = toProcess[i];
           send("status", {
             message: `Enriching lead ${i + 1} of ${toProcess.length}...`,
             progress: { current: i + 1, total: toProcess.length },
           });
 
+          if (!raw.email && raw.url && !isKnownSocialUrl(raw.url)) {
+            try {
+              const contacted = await extractEmailFromContactPage(raw.url);
+              if (contacted.length > 0) {
+                raw = {
+                  ...raw,
+                  email: contacted[0].email,
+                  email_confidence: contacted[0].confidence,
+                  email_source: contacted[0].source,
+                };
+              }
+            } catch {
+              /* best effort */
+            }
+          }
+
           const enriched = await enrichLeadWithPersona(
             raw,
-            persona,
+            websiteAnalysis,
             env.GEMINI_API_KEY,
             env.GEMINI_MODEL,
           );
@@ -254,28 +309,8 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 function rawToLeadInput(
-  raw: {
-    name: string;
-    title: string;
-    company: string;
-    url: string;
-    bio: string;
-    email?: string;
-    platform: string;
-  },
-  enriched: {
-    score: number;
-    score_reason: string;
-    fit_tags: string[];
-    pitch_angle: string;
-    likely_pain: string;
-    best_contact_channel: string;
-    estimated_company_size: string;
-    location_guess: string;
-    email_guess: string;
-    contact_name: string;
-    company_name: string;
-  },
+  raw: RawLead,
+  enriched: PersonaEnrichmentOutput,
   campaignId: string,
   userId: string,
   channel: string,
@@ -288,7 +323,13 @@ function rawToLeadInput(
     company_name: enriched.company_name || raw.company || null,
     contact_name: enriched.contact_name || raw.name || null,
     email: enriched.email_guess || raw.email || null,
+    email_confidence: enriched.email_confidence ?? raw.email_confidence ?? null,
+    email_source: enriched.email_source ?? raw.email_source ?? null,
+    company_domain: enriched.company_domain || null,
     website: raw.url || null,
+    linkedin_url: raw.linkedin || null,
+    twitter_handle: raw.twitter || null,
+    instagram_url: raw.instagram || null,
     location: enriched.location_guess || null,
     niche: raw.title || null,
     score,

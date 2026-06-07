@@ -1,5 +1,7 @@
 import type {
   ColdEmailOutput,
+  EmailConfidence,
+  EmailSource,
   EnrichedLeadAIOutput,
   EstimatedSize,
   ExtractedLeadData,
@@ -11,12 +13,17 @@ import type {
   ProductContext,
   RawScrapedLead,
   ScraperBlueprint,
+  WebsiteAnalysis,
 } from "@/types";
 import { DEFAULT_GEMINI_MODEL, GEMINI_DELAY_MS, GEMINI_TIMEOUT_MS } from "@/lib/constants";
 import {
   enrichCandidateDataFallback,
   enrichLeadWithPersonaFallback,
 } from "@/lib/enrich-fallback";
+import {
+  emailBonus,
+  resolveLeadEmail,
+} from "@/lib/email-extract";
 
 function geminiUrl(model: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -74,7 +81,7 @@ async function geminiFetch(
         generationConfig: {
           responseMimeType: "application/json",
           temperature: 0.35,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
         },
       }),
     });
@@ -328,8 +335,212 @@ Rules:
   }
 }
 
+const WEBSITE_ANALYSIS_SYSTEM = `You are a senior B2B sales strategist with 15 years of experience profiling ideal customers.
+A company has provided their website content. Your job is NOT to describe what they sell.
+Your job is to deeply profile WHO buys it — the specific human being who is the ideal customer.
+Think like this: "Who wakes up in the morning and THIS product solves their exact problem?"
+Return ONLY valid JSON. No markdown. No preamble. No explanation. Just the JSON object.`;
+
+function normalizeMarketPosition(value: unknown): WebsiteAnalysis["market_position"] {
+  const v = String(value ?? "mid-market").toLowerCase();
+  if (v === "budget" || v === "premium" || v === "enterprise") return v;
+  return "mid-market";
+}
+
+function normalizeWebsiteAnalysis(parsed: Partial<WebsiteAnalysis>): WebsiteAnalysis {
+  const icp = (parsed.icp ?? {}) as Partial<WebsiteAnalysis["icp"]>;
+  return {
+    company_name: String(parsed.company_name ?? "Unknown"),
+    product_summary: String(parsed.product_summary ?? ""),
+    price_signal: String(parsed.price_signal ?? "unknown"),
+    market_position: normalizeMarketPosition(parsed.market_position),
+    icp: {
+      one_liner: String(icp.one_liner ?? ""),
+      titles: Array.isArray(icp.titles) ? icp.titles.map(String).slice(0, 5) : [],
+      seniority: Array.isArray(icp.seniority) ? icp.seniority.map(String) : [],
+      company_stage: Array.isArray(icp.company_stage) ? icp.company_stage.map(String) : [],
+      company_size: Array.isArray(icp.company_size) ? icp.company_size.map(String) : [],
+      industries: Array.isArray(icp.industries) ? icp.industries.map(String).slice(0, 4) : [],
+      locations: Array.isArray(icp.locations) ? icp.locations.map(String) : [],
+      technical_level: String(icp.technical_level ?? "unknown"),
+      psychographics: Array.isArray(icp.psychographics) ? icp.psychographics.map(String) : [],
+      budget_range: String(icp.budget_range ?? "unknown"),
+    },
+    pain_points: Array.isArray(parsed.pain_points) ? parsed.pain_points.map(String).slice(0, 5) : [],
+    buying_triggers: Array.isArray(parsed.buying_triggers)
+      ? parsed.buying_triggers.map(String)
+      : [],
+    intent_signals: Array.isArray(parsed.intent_signals)
+      ? parsed.intent_signals.map(String).slice(0, 10)
+      : [],
+    where_buyers_congregate: {
+      subreddits: Array.isArray(parsed.where_buyers_congregate?.subreddits)
+        ? parsed.where_buyers_congregate.subreddits.map(String)
+        : [],
+      twitter_communities: Array.isArray(parsed.where_buyers_congregate?.twitter_communities)
+        ? parsed.where_buyers_congregate.twitter_communities.map(String)
+        : [],
+      linkedin_signals: Array.isArray(parsed.where_buyers_congregate?.linkedin_signals)
+        ? parsed.where_buyers_congregate.linkedin_signals.map(String)
+        : [],
+      other: Array.isArray(parsed.where_buyers_congregate?.other)
+        ? parsed.where_buyers_congregate.other.map(String)
+        : [],
+    },
+    email_patterns: {
+      likely_domains: Array.isArray(parsed.email_patterns?.likely_domains)
+        ? parsed.email_patterns.likely_domains.map(String)
+        : [],
+      format: String(parsed.email_patterns?.format ?? "unknown"),
+    },
+    confidence:
+      typeof parsed.confidence === "number"
+        ? Math.min(100, Math.max(0, Math.round(parsed.confidence)))
+        : 50,
+    confidence_reason: String(parsed.confidence_reason ?? ""),
+    data_quality_issues: Array.isArray(parsed.data_quality_issues)
+      ? parsed.data_quality_issues.map(String)
+      : [],
+  };
+}
+
+export async function analyzeWebsite(
+  content: string,
+  url: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<WebsiteAnalysis> {
+  const prompt = `Website URL: ${url}
+
+Website content:
+---
+${content.slice(0, 6000)}
+---
+
+Return ONLY valid JSON with this exact shape:
+{
+  "company_name": "string",
+  "product_summary": "string",
+  "price_signal": "string",
+  "market_position": "budget" | "mid-market" | "premium" | "enterprise",
+  "icp": {
+    "one_liner": "string",
+    "titles": ["string"],
+    "seniority": ["string"],
+    "company_stage": ["string"],
+    "company_size": ["string"],
+    "industries": ["string"],
+    "locations": ["string"],
+    "technical_level": "string",
+    "psychographics": ["string"],
+    "budget_range": "string"
+  },
+  "pain_points": ["string"],
+  "buying_triggers": ["string"],
+  "intent_signals": ["string"],
+  "where_buyers_congregate": {
+    "subreddits": ["string"],
+    "twitter_communities": ["string"],
+    "linkedin_signals": ["string"],
+    "other": ["string"]
+  },
+  "email_patterns": {
+    "likely_domains": ["string"],
+    "format": "string"
+  },
+  "confidence": number,
+  "confidence_reason": "string",
+  "data_quality_issues": ["string"]
+}
+
+Critical rules:
+- icp.one_liner must describe the BUYER, not the product. Complete: "My ideal buyer is a [specific person] who [specific situation] and needs [specific outcome]"
+- intent_signals must be literal search phrases a real human would type (6-10 items), not marketing language
+- titles must be specific role names — never use "sales" unless the product is literally a sales tool
+- Never hallucinate industries that aren't supported by the website content
+- If the website is vague, lower confidence and list ambiguity in data_quality_issues`;
+
+  const raw = await callGeminiPriority(prompt, WEBSITE_ANALYSIS_SYSTEM, apiKey, model);
+  const parsed = safeParse<Partial<WebsiteAnalysis>>(raw);
+  if (!parsed?.icp?.one_liner || !parsed.intent_signals?.length) {
+    throw new Error(
+      `Website analysis failed to produce valid ICP. Raw: ${raw.slice(0, 200)}`,
+    );
+  }
+  return normalizeWebsiteAnalysis(parsed);
+}
+
+const TEXT_TO_ANALYSIS_SYSTEM = `You convert free-text buyer descriptions into structured ICP profiles for lead generation.
+Return ONLY valid JSON matching the schema. No markdown.`;
+
+export async function textToAnalysis(
+  personaText: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<WebsiteAnalysis> {
+  const prompt = `Convert this buyer description into a structured ICP profile.
+
+Description: "${personaText.replace(/"/g, '\\"')}"
+
+Return JSON with the same schema as website analysis:
+{
+  "company_name": "Unknown",
+  "product_summary": "Unknown",
+  "price_signal": "unknown",
+  "market_position": "mid-market",
+  "icp": {
+    "one_liner": "string",
+    "titles": ["string"],
+    "seniority": ["string"],
+    "company_stage": ["string"],
+    "company_size": ["string"],
+    "industries": ["string"],
+    "locations": ["string"],
+    "technical_level": "string",
+    "psychographics": ["string"],
+    "budget_range": "unknown"
+  },
+  "pain_points": ["string"],
+  "buying_triggers": ["string"],
+  "intent_signals": ["string"],
+  "where_buyers_congregate": {
+    "subreddits": ["string"],
+    "twitter_communities": ["string"],
+    "linkedin_signals": ["string"],
+    "other": ["string"]
+  },
+  "email_patterns": { "likely_domains": [], "format": "unknown" },
+  "confidence": 70,
+  "confidence_reason": "Based on direct description",
+  "data_quality_issues": []
+}
+
+Rules:
+- icp.one_liner describes the BUYER not the product
+- intent_signals: 6-8 literal search phrases this buyer would type`;
+
+  const raw = await callGeminiPriority(prompt, TEXT_TO_ANALYSIS_SYSTEM, apiKey, model);
+  const parsed = safeParse<Partial<WebsiteAnalysis>>(raw);
+  if (!parsed?.icp?.one_liner) {
+    throw new Error("textToAnalysis failed to produce valid ICP");
+  }
+  const normalized = normalizeWebsiteAnalysis(parsed);
+  if (normalized.intent_signals.length === 0) {
+    normalized.intent_signals = normalized.pain_points.slice(0, 6);
+  }
+  normalized.confidence = normalized.confidence || 70;
+  normalized.confidence_reason = normalized.confidence_reason || "Based on direct description";
+  return normalized;
+}
+
 const PERSONA_ENRICH_SYSTEM = `You are a senior sales intelligence analyst. Enrich leads for a sales team.
 Return ONLY valid JSON. No markdown, no preamble.`;
+
+function intentMatchBonus(bio: string, intentSignals: string[]): number {
+  const bioLower = bio.toLowerCase();
+  const hit = intentSignals.some((s) => bioLower.includes(s.toLowerCase()));
+  return hit ? 15 : 0;
+}
 
 export async function enrichLeadWithPersona(
   lead: {
@@ -340,19 +551,34 @@ export async function enrichLeadWithPersona(
     platform: string;
     bio: string;
     email?: string;
+    email_confidence?: EmailConfidence | null;
+    email_source?: EmailSource | null;
   },
-  persona: ExtractedPersona | null,
+  analysis: WebsiteAnalysis | ExtractedPersona | null,
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<PersonaEnrichmentOutput> {
-  try {
-    const personaBlock = persona
-      ? `- Looking for: ${persona.titles.join(", ")}
-- Industries: ${persona.industries.join(", ")}
-- Pain points: ${persona.pain_points.join(", ")}
-- Product context: ${persona.product_context}`
-      : "Not specified";
+  const intentSignals =
+    analysis && "intent_signals" in analysis
+      ? analysis.intent_signals
+      : analysis?.keywords ?? [];
 
+  const personaBlock =
+    analysis && "icp" in analysis
+      ? `- Ideal buyer: ${analysis.icp.one_liner}
+- Titles: ${analysis.icp.titles.join(", ")}
+- Industries: ${analysis.icp.industries.join(", ")}
+- Pain points: ${analysis.pain_points.join(", ")}
+- Intent signals: ${analysis.intent_signals.join("; ")}
+- Product: ${analysis.product_summary}`
+      : analysis
+        ? `- Looking for: ${analysis.titles.join(", ")}
+- Industries: ${analysis.industries.join(", ")}
+- Pain points: ${analysis.pain_points.join(", ")}
+- Product context: ${analysis.product_context}`
+        : "Not specified";
+
+  try {
     const prompt = `Enrich this lead for a sales team.
 
 Lead data:
@@ -362,6 +588,7 @@ Lead data:
 - URL: ${lead.url || ""}
 - Platform: ${lead.platform}
 - Bio/Description: ${lead.bio || ""}
+- Email already found: ${lead.email || "none"}
 
 Ideal buyer profile:
 ${personaBlock}
@@ -377,6 +604,8 @@ Return JSON:
   "estimated_company_size": "string",
   "location_guess": "string",
   "email_guess": "string",
+  "email_from_bio": "string",
+  "company_domain": "string",
   "contact_name": "string",
   "company_name": "string"
 }`;
@@ -385,16 +614,36 @@ Return JSON:
     const parsed = safeParse<Partial<PersonaEnrichmentOutput>>(raw);
     if (!parsed) throw new Error("Failed to parse persona enrichment JSON");
 
+    const resolved = resolveLeadEmail(lead, {
+      email_from_bio: String(parsed.email_from_bio ?? ""),
+      company_domain: String(parsed.company_domain ?? ""),
+      email_guess: String(parsed.email_guess ?? lead.email ?? ""),
+    });
+
+    let score = clampScore(parsed.score);
+    const eBonus = emailBonus(resolved.email_confidence);
+    const iBonus = intentMatchBonus(lead.bio, intentSignals);
+    score = Math.min(100, score + eBonus + iBonus);
+
+    const bonusReasons = [
+      eBonus > 0 ? `Email available (${resolved.email_confidence} confidence).` : "",
+      iBonus > 0 ? "Active buying signal detected in profile." : "",
+    ].filter(Boolean);
+
     return {
-      score: clampScore(parsed.score),
-      score_reason: String(parsed.score_reason ?? ""),
+      score,
+      score_reason: [String(parsed.score_reason ?? ""), ...bonusReasons].filter(Boolean).join(" "),
       fit_tags: Array.isArray(parsed.fit_tags) ? parsed.fit_tags.slice(0, 4).map(String) : [],
       pitch_angle: String(parsed.pitch_angle ?? ""),
       likely_pain: String(parsed.likely_pain ?? ""),
       best_contact_channel: String(parsed.best_contact_channel ?? "email"),
       estimated_company_size: String(parsed.estimated_company_size ?? "unknown"),
       location_guess: String(parsed.location_guess ?? ""),
-      email_guess: String(parsed.email_guess ?? lead.email ?? ""),
+      email_guess: resolved.email,
+      email_from_bio: String(parsed.email_from_bio ?? ""),
+      company_domain: resolved.company_domain ?? "",
+      email_confidence: resolved.email_confidence,
+      email_source: resolved.email_source,
       contact_name: String(parsed.contact_name ?? lead.name ?? "Unknown"),
       company_name: String(parsed.company_name ?? lead.company ?? "Unknown"),
     };
@@ -403,7 +652,30 @@ Return JSON:
       "[enrich] Gemini persona enrich failed, using fallback:",
       err instanceof Error ? err.message : err,
     );
-    return enrichLeadWithPersonaFallback(lead, persona, err);
+    const fallback = await enrichLeadWithPersonaFallback(
+      lead,
+      analysis && "titles" in analysis ? analysis : null,
+      err,
+    );
+    const resolved = resolveLeadEmail(lead, {
+      email_from_bio: fallback.email_guess,
+      company_domain: "",
+      email_guess: fallback.email_guess,
+    });
+    let score = fallback.score;
+    score = Math.min(
+      100,
+      score + emailBonus(resolved.email_confidence) + intentMatchBonus(lead.bio, intentSignals),
+    );
+    return {
+      ...fallback,
+      score,
+      email_guess: resolved.email,
+      email_confidence: resolved.email_confidence,
+      email_source: resolved.email_source,
+      email_from_bio: fallback.email_guess,
+      company_domain: resolved.company_domain ?? "",
+    };
   }
 }
 

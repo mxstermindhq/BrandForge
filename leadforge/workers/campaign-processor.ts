@@ -1,6 +1,8 @@
 import type {
   Campaign,
   CampaignQueueMessage,
+  EmailConfidence,
+  EmailSource,
   ExtractedLeadData,
   ExtractedPersona,
   LeadCreateInput,
@@ -18,6 +20,11 @@ import {
   updateCampaignStatus,
 } from "@/lib/db";
 import { enrichCandidateData, extractScraperBlueprint, scoreToFitLabel } from "@/lib/gemini";
+import {
+  extractEmailFromContactPage,
+  isKnownSocialUrl,
+  resolveLeadEmail,
+} from "@/lib/email-extract";
 import { buildScraperBlueprint, routeScraperByPlatform, sourceIdentifierForLead } from "@/lib/scraper";
 import { sendLeadsReady } from "@/lib/resend";
 
@@ -80,6 +87,11 @@ function rawToLeadInput(
   campaign: Campaign,
   lead: RawScrapedLead,
   enriched?: Awaited<ReturnType<typeof enrichCandidateData>>,
+  emailMeta?: {
+    email_confidence: EmailConfidence | null;
+    email_source: EmailSource | null;
+    company_domain: string | null;
+  },
 ): LeadCreateInput {
   const score = enriched?.suitability_score ?? 0;
   return {
@@ -89,6 +101,9 @@ function rawToLeadInput(
     company_name: enriched?.clean_company_name ?? lead.company ?? null,
     contact_name: lead.name || null,
     email: lead.email || null,
+    email_confidence: emailMeta?.email_confidence ?? null,
+    email_source: emailMeta?.email_source ?? null,
+    company_domain: emailMeta?.company_domain ?? null,
     website:
       socialUrl(lead, lead.platform) ??
       socialUrl(lead, "linkedin") ??
@@ -192,16 +207,50 @@ export async function processCampaignPipeline(
     const personaText = promptText;
 
     for (const candidate of capped) {
+      let working = { ...candidate };
+
+      const website =
+        working.social_links.web ??
+        working.social_links.website ??
+        Object.values(working.social_links).find((u) => u && !isKnownSocialUrl(u)) ??
+        "";
+
+      if (!working.email && website && !isKnownSocialUrl(website)) {
+        try {
+          const contacted = await extractEmailFromContactPage(website);
+          if (contacted.length > 0) {
+            working = { ...working, email: contacted[0].email };
+          }
+        } catch {
+          /* best effort */
+        }
+      }
+
+      const resolved = resolveLeadEmail(
+        { name: working.name, email: working.email, url: website },
+        { email_from_bio: working.email, company_domain: "" },
+      );
+
+      if (resolved.email) {
+        working = { ...working, email: resolved.email };
+      }
+
+      const emailMeta = {
+        email_confidence: resolved.email_confidence,
+        email_source: resolved.email_source,
+        company_domain: resolved.company_domain,
+      };
+
       if (campaign.enrich !== 0) {
         const enriched = await enrichCandidateData(
-          candidate,
+          working,
           personaText,
           env.GEMINI_API_KEY,
           env.GEMINI_MODEL,
         );
-        leadInputs.push(rawToLeadInput(campaign, candidate, enriched));
+        leadInputs.push(rawToLeadInput(campaign, working, enriched, emailMeta));
       } else {
-        leadInputs.push(rawToLeadInput(campaign, candidate));
+        leadInputs.push(rawToLeadInput(campaign, working, undefined, emailMeta));
       }
     }
 

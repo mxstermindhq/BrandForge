@@ -62,6 +62,7 @@ export default function SearchPage(): React.JSX.Element {
           body: JSON.stringify({
             site_url: intent.source_url,
             site: intent.site,
+            website_analysis: intent.website_analysis,
             persona_text: intent.persona_text,
             channels: selectedChannels,
             quantity,
@@ -321,6 +322,7 @@ export default function SearchPage(): React.JSX.Element {
         {phase === "confirm" && analysis && (
           <IntentReview
             analysis={analysis}
+            selectedChannels={selectedChannels}
             answers={answers}
             onAnswer={handleAnswer}
             onConfirm={() => void handleConfirmSearch()}

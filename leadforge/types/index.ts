@@ -143,6 +143,52 @@ export interface SiteAnalysisResult extends SearchIntentAnalysis {
   site: SiteBusinessProfile;
   /** Human-readable summary for campaign storage / enrichment context. */
   persona_text: string;
+  /** Structured buyer intelligence from website analysis. */
+  website_analysis: WebsiteAnalysis;
+}
+
+export type MarketPosition = "budget" | "mid-market" | "premium" | "enterprise";
+export type EmailConfidence = "high" | "medium" | "low";
+export type EmailSource = "mailto" | "pattern" | "generated";
+
+export interface WebsiteAnalysis {
+  company_name: string;
+  product_summary: string;
+  price_signal: string;
+  market_position: MarketPosition;
+
+  icp: {
+    one_liner: string;
+    titles: string[];
+    seniority: string[];
+    company_stage: string[];
+    company_size: string[];
+    industries: string[];
+    locations: string[];
+    technical_level: string;
+    psychographics: string[];
+    budget_range: string;
+  };
+
+  pain_points: string[];
+  buying_triggers: string[];
+  intent_signals: string[];
+
+  where_buyers_congregate: {
+    subreddits: string[];
+    twitter_communities: string[];
+    linkedin_signals: string[];
+    other: string[];
+  };
+
+  email_patterns: {
+    likely_domains: string[];
+    format: string;
+  };
+
+  confidence: number;
+  confidence_reason: string;
+  data_quality_issues: string[];
 }
 
 export type StreamEventType =
@@ -270,6 +316,9 @@ export interface Lead {
   company_name: string | null;
   contact_name: string | null;
   email: string | null;
+  email_confidence: EmailConfidence | null;
+  email_source: EmailSource | null;
+  company_domain: string | null;
   phone: string | null;
   website: string | null;
   linkedin_url: string | null;
@@ -319,6 +368,9 @@ export interface LeadCreateInput {
   company_name?: string | null;
   contact_name?: string | null;
   email?: string | null;
+  email_confidence?: EmailConfidence | null;
+  email_source?: EmailSource | null;
+  company_domain?: string | null;
   phone?: string | null;
   website?: string | null;
   linkedin_url?: string | null;
@@ -369,6 +421,7 @@ export interface LeadStats {
   rejected: number;
   hot: number; // score >= 70
   withEmail: number;
+  emailCoveragePct: number;
   avgScore: number;
 }
 
@@ -459,6 +512,10 @@ export interface PersonaEnrichmentOutput {
   estimated_company_size: string;
   location_guess: string;
   email_guess: string;
+  email_from_bio: string;
+  company_domain: string;
+  email_confidence: EmailConfidence | null;
+  email_source: EmailSource | null;
   contact_name: string;
   company_name: string;
 }

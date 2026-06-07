@@ -1,0 +1,211 @@
+import { buildIntentQueries } from "@/lib/channel-search";
+import type { ExtractedPersona, SiteBusinessProfile, WebsiteAnalysis } from "@/types";
+
+const B2C_TITLE_SIGNALS =
+  /\b(creator|influencer|consumer|shopify store|indie hacker|content creator|youtuber|streamer)\b/i;
+
+const B2B_TITLE_SIGNALS =
+  /\b(founder|ceo|cto|director|manager|vp|head of|operator|saas|startup|agency)\b/i;
+
+export function isWebsiteAnalysis(value: unknown): value is WebsiteAnalysis {
+  if (!value || typeof value !== "object") return false;
+  const v = value as WebsiteAnalysis;
+  return Boolean(v.icp?.one_liner && Array.isArray(v.intent_signals) && v.intent_signals.length > 0);
+}
+
+export function inferB2bFromAnalysis(analysis: WebsiteAnalysis): boolean {
+  const blob = [
+    analysis.icp.one_liner,
+    ...analysis.icp.titles,
+    ...analysis.icp.industries,
+    ...analysis.icp.seniority,
+  ].join(" ");
+  if (B2C_TITLE_SIGNALS.test(blob)) return false;
+  if (B2B_TITLE_SIGNALS.test(blob)) return true;
+  return analysis.market_position !== "budget";
+}
+
+export function suggestedChannelsFromAnalysis(analysis: WebsiteAnalysis): string[] {
+  const b2b = inferB2bFromAnalysis(analysis);
+  const allowed = new Set([
+    "google",
+    "reddit",
+    "youtube",
+    "instagram",
+    "tiktok",
+    "twitter",
+    "linkedin",
+    "web",
+  ]);
+
+  const fromCongregate: string[] = [];
+  if (analysis.where_buyers_congregate.subreddits.length > 0) fromCongregate.push("reddit");
+  if (analysis.where_buyers_congregate.twitter_communities.length > 0) {
+    fromCongregate.push("twitter");
+  }
+  if (analysis.where_buyers_congregate.linkedin_signals.length > 0) {
+    fromCongregate.push("linkedin");
+  }
+
+  const base = b2b
+    ? ["linkedin", "google", "web", "reddit"]
+    : ["instagram", "tiktok", "youtube", "reddit", "twitter"];
+
+  return [...new Set([...fromCongregate, ...base])].filter((c) => allowed.has(c)).slice(0, 5);
+}
+
+export function websiteAnalysisToPersona(analysis: WebsiteAnalysis): ExtractedPersona {
+  return {
+    titles: analysis.icp.titles.slice(0, 5),
+    industries: analysis.icp.industries.slice(0, 4),
+    locations: analysis.icp.locations.slice(0, 3),
+    company_sizes: analysis.icp.company_size.slice(0, 3),
+    pain_points: analysis.pain_points.slice(0, 5),
+    keywords: analysis.intent_signals.slice(0, 8),
+    budget_signal: analysis.icp.budget_range || analysis.price_signal || "",
+    b2b: inferB2bFromAnalysis(analysis),
+    suggested_channels: suggestedChannelsFromAnalysis(analysis),
+    product_context: analysis.product_summary,
+  };
+}
+
+export function websiteAnalysisToSiteProfile(
+  analysis: WebsiteAnalysis,
+  url: string,
+): SiteBusinessProfile {
+  const offerType = inferOfferType(analysis);
+  return {
+    url,
+    company_name: analysis.company_name,
+    tagline: analysis.product_summary,
+    offer_type: offerType,
+    what_they_sell: analysis.product_summary,
+    value_proposition: analysis.icp.one_liner,
+    price_signal: analysis.price_signal,
+    stated_audience: analysis.icp.one_liner,
+  };
+}
+
+function inferOfferType(analysis: WebsiteAnalysis): SiteBusinessProfile["offer_type"] {
+  const blob = `${analysis.product_summary} ${analysis.icp.industries.join(" ")}`.toLowerCase();
+  if (/\b(saas|software|platform|api)\b/.test(blob)) return "saas";
+  if (/\b(agency|consulting)\b/.test(blob)) return "agency";
+  if (/\b(e-?commerce|shop|store|dtc)\b/.test(blob)) return "ecommerce";
+  if (/\b(service|services)\b/.test(blob)) return "service";
+  if (/\b(product|tool)\b/.test(blob)) return "product";
+  return "mixed";
+}
+
+export function websiteAnalysisToPersonaText(analysis: WebsiteAnalysis): string {
+  return [
+    `Business: ${analysis.company_name}`,
+    `Product: ${analysis.product_summary}`,
+    `Ideal buyer: ${analysis.icp.one_liner}`,
+    `Titles: ${analysis.icp.titles.join(", ")}`,
+    `Stages: ${analysis.icp.company_stage.join(", ")}`,
+    `Pain points: ${analysis.pain_points.join("; ")}`,
+    `Intent signals: ${analysis.intent_signals.join("; ")}`,
+    analysis.price_signal ? `Pricing: ${analysis.price_signal}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+export function buildSearchPreviewFromAnalysis(
+  analysis: WebsiteAnalysis,
+  channels: string[],
+): Record<string, string> {
+  const preview: Record<string, string> = {};
+  for (const ch of channels.slice(0, 8)) {
+    const queries = buildIntentQueries(ch, analysis);
+    preview[ch] = queries[0] ?? "";
+  }
+  return preview;
+}
+
+export function heuristicWebsiteAnalysis(
+  corpus: string,
+  url: string,
+  companyName: string,
+): WebsiteAnalysis {
+  const lower = corpus.toLowerCase();
+  const isAgency = /\b(agency|design|development|dev shop|studio)\b/i.test(corpus);
+  const isSaas = /\b(saas|software|platform|subscription)\b/i.test(corpus);
+  const isEcom = /\b(e-?commerce|shopify|store|dtc)\b/i.test(corpus);
+
+  let titles = ["Founder"];
+  let industries = ["Startups"];
+  let intent_signals = ["looking for help", "recommend a vendor", "need a partner"];
+
+  if (isAgency) {
+    titles = ["Solo Founder", "Indie Hacker", "Bootstrapped Founder"];
+    industries = ["SaaS", "Startups"];
+    intent_signals = [
+      "looking for a developer",
+      "need a landing page",
+      "recommend a dev agency",
+      "building my MVP",
+      "need web development",
+      "freelancer vs agency",
+    ];
+  } else if (isSaas) {
+    titles = ["Head of Growth", "SaaS Founder", "Product Manager"];
+    industries = ["SaaS", "B2B Software"];
+    intent_signals = [
+      "looking for a tool",
+      "anyone recommend software",
+      "need a solution for",
+      "alternatives to",
+    ];
+  } else if (isEcom) {
+    titles = ["Shopify Store Owner", "E-commerce Operator", "DTC Founder"];
+    industries = ["E-commerce", "Retail"];
+    intent_signals = [
+      "anyone recommend a shopify app",
+      "need help with my store",
+      "ecommerce marketing help",
+    ];
+  }
+
+  const priceMatch = corpus.match(
+    /\$\d[\d,]*(?:\s*\/\s*(?:mo|month|yr|year))?|\b(?:from|starting at)\s+\$\d[\d,]*/i,
+  );
+
+  return {
+    company_name: companyName,
+    product_summary: corpus.slice(0, 160).trim() || "Product or service offering",
+    price_signal: priceMatch?.[0] ?? "unknown",
+    market_position: priceMatch ? "mid-market" : "mid-market",
+    icp: {
+      one_liner: `My ideal buyer is a ${titles[0]} in ${industries[0]} who is actively looking for a solution like this.`,
+      titles,
+      seniority: ["founder", "manager"],
+      company_stage: ["pre-seed", "seed", "bootstrapped"],
+      company_size: ["1-5", "6-20"],
+      industries,
+      locations: [],
+      technical_level: "semi-technical",
+      psychographics: ["values speed", "prefers clear pricing"],
+      budget_range: priceMatch?.[0] ?? "unknown",
+    },
+    pain_points: ["manual processes", "lack of expertise", "time constraints"],
+    buying_triggers: ["launch deadline", "growth milestone"],
+    intent_signals,
+    where_buyers_congregate: {
+      subreddits: isAgency
+        ? ["r/SaaS", "r/entrepreneur", "r/startups"]
+        : ["r/entrepreneur", "r/smallbusiness"],
+      twitter_communities: ["#buildinpublic", "#indiehackers"],
+      linkedin_signals: ["building in public", "bootstrapped"],
+      other: [],
+    },
+    email_patterns: {
+      likely_domains: ["gmail.com"],
+      format: "firstname@company.com",
+    },
+    confidence: lower.length > 800 ? 45 : 35,
+    confidence_reason: "Heuristic analysis — site content was limited or AI was unavailable.",
+    data_quality_issues:
+      lower.length < 400 ? ["Limited website content available for analysis"] : [],
+  };
+}
