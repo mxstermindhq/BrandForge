@@ -142,10 +142,12 @@ export async function POST(req: NextRequest): Promise<Response> {
                   env.GEMINI_API_KEY,
                   env.GEMINI_MODEL,
                 );
-              } catch {
+              } catch (err) {
+                const reason = err instanceof Error ? err.message : "Unknown error";
+                console.warn(`[search] enrich failed for ${raw.name}:`, reason);
                 enriched = {
                   score: 30,
-                  score_reason: "Enrichment skipped",
+                  score_reason: `Enrichment failed: ${reason}`,
                   fit_tags: [] as string[],
                   pitch_angle: "",
                   likely_pain: "",

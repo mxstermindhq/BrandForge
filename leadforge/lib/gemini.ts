@@ -12,7 +12,7 @@ import type {
   RawScrapedLead,
   ScraperBlueprint,
 } from "@/types";
-import { DEFAULT_GEMINI_MODEL, GEMINI_TIMEOUT_MS } from "@/lib/constants";
+import { DEFAULT_GEMINI_MODEL, GEMINI_DELAY_MS, GEMINI_TIMEOUT_MS } from "@/lib/constants";
 
 function geminiUrl(model: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -25,11 +25,30 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Serializes Gemini calls so parallel scrapers don't blow the free-tier RPM cap. */
+let geminiChain: Promise<void> = Promise.resolve();
+let lastGeminiCallAt = 0;
+
+function scheduleGemini<T>(fn: () => Promise<T>): Promise<T> {
+  const task = geminiChain.then(async () => {
+    const elapsed = Date.now() - lastGeminiCallAt;
+    const wait = GEMINI_DELAY_MS - elapsed;
+    if (wait > 0) await delay(wait);
+    lastGeminiCallAt = Date.now();
+    return fn();
+  });
+  geminiChain = task.then(
+    () => undefined,
+    () => undefined,
+  );
+  return task;
+}
+
 /**
- * Calls Gemini 1.5 Flash via fetch only (no SDK).
+ * Calls Gemini via fetch only (no SDK).
+ * - Global queue + GEMINI_DELAY_MS spacing (~14 RPM)
  * - 15s AbortController timeout
- * - responseMimeType: application/json forces clean JSON (no markdown fences)
- * - 429 → wait 4000ms, retry once; 503 → wait 2000ms, retry once
+ * - 429 → exponential backoff, up to 3 retries
  */
 export async function callGemini(
   prompt: string,
@@ -38,49 +57,54 @@ export async function callGemini(
   model: string = DEFAULT_GEMINI_MODEL,
   attempt = 0,
 ): Promise<string> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-  // An empty-string env var (GEMINI_MODEL=) bypasses the default param, so
-  // coerce any blank value back to the default model.
-  const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
-
-  try {
-    const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.4,
-          maxOutputTokens: 1024,
-        },
-      }),
-    });
-
-    if (res.status === 429 && attempt === 0) {
-      await delay(4000);
-      return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
-    }
-    if (res.status === 503 && attempt === 0) {
-      await delay(2000);
-      return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
-    }
-    if (!res.ok) {
-      throw new Error(`Gemini error ${res.status}`);
-    }
-
-    const json = (await res.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
-    };
-    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("Gemini returned empty response");
-    return text;
-  } finally {
-    clearTimeout(timeout);
+  if (!apiKey?.trim()) {
+    throw new Error("GEMINI_API_KEY is not configured");
   }
+
+  return scheduleGemini(async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+    const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
+
+    try {
+      const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey.trim()}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.4,
+            maxOutputTokens: 1024,
+          },
+        }),
+      });
+
+      if (res.status === 429 && attempt < 3) {
+        await delay(4000 * (attempt + 1));
+        return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
+      }
+      if (res.status === 503 && attempt < 2) {
+        await delay(2000 * (attempt + 1));
+        return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
+      }
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        throw new Error(`Gemini error ${res.status}${errBody ? `: ${errBody.slice(0, 120)}` : ""}`);
+      }
+
+      const json = (await res.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+      const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned empty response");
+      return text;
+    } finally {
+      clearTimeout(timeout);
+    }
+  });
 }
 
 function safeParse<T>(raw: string): T | null {

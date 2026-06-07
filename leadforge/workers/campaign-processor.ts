@@ -7,7 +7,6 @@ import type {
   RawScrapedLead,
   ScraperEnvKeys,
 } from "@/types";
-import { GEMINI_DELAY_MS } from "@/lib/constants";
 import {
   clearCampaignCandidates,
   createLeadsBatch,
@@ -21,10 +20,6 @@ import {
 import { enrichCandidateData, extractScraperBlueprint, scoreToFitLabel } from "@/lib/gemini";
 import { buildScraperBlueprint, routeScraperByPlatform, sourceIdentifierForLead } from "@/lib/scraper";
 import { sendLeadsReady } from "@/lib/resend";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function nowIso(): string {
   return new Date().toISOString().replace("T", " ").slice(0, 19);
@@ -197,7 +192,7 @@ export async function processCampaignPipeline(
     const personaText = promptText;
 
     for (const candidate of capped) {
-      if (campaign.enrich === 1) {
+      if (campaign.enrich !== 0) {
         try {
           const enriched = await enrichCandidateData(
             candidate,
@@ -206,10 +201,14 @@ export async function processCampaignPipeline(
             env.GEMINI_MODEL,
           );
           leadInputs.push(rawToLeadInput(campaign, candidate, enriched));
-        } catch {
-          leadInputs.push(rawToLeadInput(campaign, candidate));
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : "Unknown error";
+          console.warn(`[pipeline] enrich failed for ${candidate.name}:`, reason);
+          leadInputs.push({
+            ...rawToLeadInput(campaign, candidate),
+            score_reason: `Enrichment failed: ${reason}`,
+          });
         }
-        await delay(GEMINI_DELAY_MS);
       } else {
         leadInputs.push(rawToLeadInput(campaign, candidate));
       }
