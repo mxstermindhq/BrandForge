@@ -3,9 +3,16 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AuthDivider, GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button, Card, ErrorText, Field, Input } from "@/components/ui";
 import { apiFetch } from "@/lib/client/api";
 import type { UserPublic } from "@/types";
+
+const OAUTH_ERRORS: Record<string, string> = {
+  oauth_failed: "Google sign-in failed. Please try again.",
+  oauth_missing_code: "Google sign-in was interrupted. Please try again.",
+  oauth_profile_failed: "Signed in with Google but we could not finish setting up your account.",
+};
 
 export default function LoginPage(): React.JSX.Element {
   return (
@@ -19,6 +26,7 @@ function LoginForm(): React.JSX.Element {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") ?? "/dashboard";
+  const oauthError = OAUTH_ERRORS[params.get("error") ?? ""] ?? "";
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
@@ -45,7 +53,11 @@ function LoginForm(): React.JSX.Element {
     <Card className="p-7">
       <h1 className="font-display text-3xl font-light">Welcome back</h1>
       <p className="mt-1 text-sm text-tx-muted">Sign in to your LeadForge account.</p>
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <div className="mt-6">
+        <GoogleSignInButton next={next} label="Continue with Google" />
+      </div>
+      <AuthDivider />
+      <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email">
           <Input
             type="email"
@@ -64,7 +76,7 @@ function LoginForm(): React.JSX.Element {
             required
           />
         </Field>
-        <ErrorText>{error}</ErrorText>
+        <ErrorText>{oauthError || error}</ErrorText>
         <Button type="submit" loading={loading} className="w-full">
           Sign in
         </Button>

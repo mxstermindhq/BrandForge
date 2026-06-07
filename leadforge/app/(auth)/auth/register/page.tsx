@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AuthDivider, GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button, Card, ErrorText, Field, Input } from "@/components/ui";
 import { apiFetch } from "@/lib/client/api";
 import { WELCOME_CREDITS } from "@/lib/constants";
@@ -39,7 +40,11 @@ export default function RegisterPage(): React.JSX.Element {
       <p className="mt-1 text-sm text-tx-muted">
         Get {WELCOME_CREDITS} free credits to start.
       </p>
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <div className="mt-6">
+        <GoogleSignInButton label="Sign up with Google" />
+      </div>
+      <AuthDivider />
+      <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Name">
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </Field>
