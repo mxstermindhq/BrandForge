@@ -12,3 +12,10 @@ SEARCH_PROVIDER=
 SERPER_API_KEY=
 GOOGLE_CSE_KEY=
 GOOGLE_CSE_CX=
+
+# Vercel production (Turso + Upstash). Not needed for wrangler local dev.
+# TURSO_DATABASE_URL=
+# TURSO_AUTH_TOKEN=
+# UPSTASH_REDIS_REST_URL=
+# UPSTASH_REDIS_REST_TOKEN=
+# APP_URL=https://your-app.vercel.app

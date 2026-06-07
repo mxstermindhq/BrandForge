@@ -1,5 +1,6 @@
-// Cloudflare binding contract for LeadForge. Accessed at runtime via
-// getCloudflareContext().env from "@opennextjs/cloudflare".
+// Runtime binding contract for LeadForge.
+// Cloudflare: D1 + KV + Queues via opennext.
+// Vercel: Turso (libSQL) + Upstash Redis via lib/runtime.ts.
 interface CloudflareEnv {
   DB: D1Database;
   SESSIONS: KVNamespace;
@@ -20,3 +21,7 @@ interface CloudflareEnv {
   GOOGLE_CSE_KEY?: string;
   GOOGLE_CSE_CX?: string;
 }
+
+// Vercel-only (set in Vercel project env):
+// TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
+// UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN

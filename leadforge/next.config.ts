@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
-if (process.env.NODE_ENV === "development") {
+// Cloudflare bindings only apply to wrangler/opennext dev — not Vercel builds.
+if (process.env.NODE_ENV === "development" && !process.env.VERCEL && !process.env.TURSO_DATABASE_URL) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare") as {
+    initOpenNextCloudflareForDev: () => Promise<void>;
+  };
   void initOpenNextCloudflareForDev();
 }
 
