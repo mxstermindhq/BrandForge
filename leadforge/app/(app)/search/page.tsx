@@ -43,6 +43,7 @@ export default function SearchPage(): React.JSX.Element {
     null,
   );
   const [campaignId, setCampaignId] = useState<string | null>(null);
+  const [discarded, setDiscarded] = useState(0);
   const [error, setError] = useState("");
 
   const abortRef = useRef<AbortController | null>(null);
@@ -53,6 +54,7 @@ export default function SearchPage(): React.JSX.Element {
     setChannelStatus({});
     setChannelCounts({});
     setCampaignId(null);
+    setDiscarded(0);
     setEnrichProgress(null);
     setError("");
     setStatusMessage("");
@@ -165,6 +167,9 @@ export default function SearchPage(): React.JSX.Element {
                 case "done":
                   setPhase("done");
                   setEnrichProgress(null);
+                  if (typeof data.discarded === "number" && data.discarded > 0) {
+                    setDiscarded(data.discarded);
+                  }
                   break;
                 case "error":
                   setError(String(data.message ?? "Search failed"));
@@ -435,6 +440,11 @@ export default function SearchPage(): React.JSX.Element {
                 <p className="text-sm text-zinc-400">
                   Search complete · {leads.length} leads found
                 </p>
+                {discarded > 0 && (
+                  <p className="mt-2 text-center text-[11px] text-zinc-700">
+                    {discarded} low-quality results filtered out automatically
+                  </p>
+                )}
                 <Link
                   href="/leads"
                   className="mt-2 inline-block text-xs text-zinc-600 transition-colors hover:text-white"

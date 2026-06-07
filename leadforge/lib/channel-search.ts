@@ -1,28 +1,24 @@
 import type { SearchKeys, WebSearchHit } from "@/lib/search";
 import { searchWeb } from "@/lib/search";
-import { extractEmailsFromContent } from "@/lib/email-extract";
+import { extractEmailsFromContent, isSocialPlatformEmail } from "@/lib/email-extract";
+import {
+  extractNameFromUrl,
+  isJunkLead,
+  isJunkName,
+  type RawLead,
+} from "@/lib/lead-validation";
 import type {
   CampaignType,
-  EmailConfidence,
-  EmailSource,
   ExtractedPersona,
   WebsiteAnalysis,
 } from "@/types";
 import { isWebsiteAnalysis, inferB2bFromAnalysis } from "@/lib/website-analysis-bridge";
 
-export interface RawLead {
-  name: string;
-  title: string;
-  company: string;
-  url: string;
-  bio: string;
-  platform: string;
-  email?: string;
-  email_confidence?: EmailConfidence | null;
-  email_source?: EmailSource | null;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
+export type { RawLead };
+
+export interface SearchChannelResult {
+  leads: RawLead[];
+  discardedCount: number;
 }
 
 export function buildIntentQueries(
@@ -85,10 +81,10 @@ export function buildIntentQueries(
               .join(" OR ")})`
           : "site:reddit.com";
       return [
+        `site:reddit.com/u/ ${topTitles[0] || ""} ${industryStr}`,
         `${subStr} (${intentPairs[0] || `"${topSignals[0] || "looking for help"}"`})`,
         `${subStr} (${intentPairs[1] || intentPairs[0] || `"${topSignals[1] || topSignals[0]}"`}) ${industryStr}`,
-        `site:reddit.com ${titleStr} ${industryStr}`,
-        `site:reddit.com "recommend" OR "suggestions" (${topTitles.map((t) => `"${t}"`).join(" OR ")}) ${industryStr}`,
+        `site:reddit.com/r/ ${titleStr} ${industryStr} author`,
       ].filter(Boolean);
     }
 
@@ -126,9 +122,10 @@ export function buildIntentQueries(
 
     case "youtube":
       return [
-        `${titleStr} ${industryStr} youtube channel${loc ? ` ${loc}` : ""}`,
-        `"${topSignals[0] || ""}" youtube ${industryStr}`,
-        `${industryStr} ${icp.company_stage[0] || ""} youtube channel`,
+        `site:youtube.com/c OR site:youtube.com/@ ${titleStr} ${industryStr}`,
+        `youtube channel ${titleStr} ${industryStr}${loc ? ` ${loc}` : ""}`,
+        `"${topTitles[0] || ""}" youtube channel ${industryStr}`,
+        `${industryStr} youtube channel ${icp.company_stage?.[0] || ""}`,
       ].filter(Boolean);
 
     case "web":
@@ -168,10 +165,10 @@ function buildB2cIntentQueries(channel: string, p: QueryParts): string[] {
   switch (channel) {
     case "reddit":
       return [
+        `site:reddit.com/u/ ${topTitles[0] || ""} ${industryStr}`,
         `${subStr} (${intentPairs[0] || `"${topSignals[0] || "recommend"}"`}) ${industryStr}`,
-        `site:reddit.com "recommend" OR "suggestions" (${topTitles.map((t) => `"${t}"`).join(" OR ")})`,
         `${subStr} "looking for" ${industryStr}`,
-        `site:reddit.com ${titleStr} ${industryStr} help OR advice`,
+        `site:reddit.com/r/ ${titleStr} ${industryStr} author`,
       ].filter(Boolean);
 
     case "instagram":
@@ -190,9 +187,9 @@ function buildB2cIntentQueries(channel: string, p: QueryParts): string[] {
 
     case "youtube":
       return [
-        `youtube ${industryStr} ${titleStr} review OR recommend`,
-        `"${topSignals[0] || ""}" youtube ${industryStr} channel`,
-        `site:youtube.com ${industryStr} creator OR vlog`,
+        `site:youtube.com/c OR site:youtube.com/@ ${industryStr} ${titleStr}`,
+        `"${topSignals[0] || ""}" youtube channel ${industryStr}`,
+        `youtube channel ${industryStr} creator OR vlog`,
       ].filter(Boolean);
 
     case "twitter":
@@ -214,6 +211,25 @@ function buildB2cIntentQueries(channel: string, p: QueryParts): string[] {
   }
 }
 
+function tryAddLead(
+  parsed: RawLead,
+  results: RawLead[],
+  seenUrls: Set<string>,
+  discardedCount: { value: number },
+): boolean {
+  if (isJunkLead(parsed)) {
+    discardedCount.value++;
+    console.log(
+      `[lead-validation] Discarded junk lead: name="${parsed.name}" url="${parsed.url}" platform="${parsed.platform}"`,
+    );
+    return false;
+  }
+  if (seenUrls.has(parsed.url)) return false;
+  seenUrls.add(parsed.url);
+  results.push(parsed);
+  return true;
+}
+
 export async function searchChannel(
   channel: string,
   analysis: WebsiteAnalysis | ExtractedPersona,
@@ -221,7 +237,7 @@ export async function searchChannel(
   keys: SearchKeys,
   signal?: AbortSignal,
   campaignType?: CampaignType,
-): Promise<RawLead[]> {
+): Promise<SearchChannelResult> {
   const websiteAnalysis: WebsiteAnalysis = isWebsiteAnalysis(analysis)
     ? analysis
     : personaToMinimalAnalysis(analysis);
@@ -229,6 +245,7 @@ export async function searchChannel(
   const queries = buildIntentQueries(channel, websiteAnalysis, campaignType);
   const results: RawLead[] = [];
   const seenUrls = new Set<string>();
+  const discardedCount = { value: 0 };
 
   for (const query of queries) {
     if (results.length >= limit) break;
@@ -237,10 +254,7 @@ export async function searchChannel(
       const raw = await searchWeb(query, Math.min(10, limit - results.length), keys, signal);
       for (const hit of raw) {
         const parsed = parseResult(hit, channel);
-        if (!seenUrls.has(parsed.url) && (parsed.name || parsed.url)) {
-          seenUrls.add(parsed.url);
-          results.push(parsed);
-        }
+        tryAddLead(parsed, results, seenUrls, discardedCount);
         if (results.length >= limit) break;
       }
     } catch (err) {
@@ -248,7 +262,26 @@ export async function searchChannel(
     }
   }
 
-  return results.slice(0, limit);
+  if (results.length === 0) {
+    const redditSuffix = channel === "reddit" ? "site:reddit.com/u/" : "";
+    const fallback = `${websiteAnalysis.icp.titles[0] || ""} ${websiteAnalysis.icp.industries[0] || ""} ${redditSuffix}`.trim();
+    if (fallback.length > 5) {
+      try {
+        const raw = await searchWeb(fallback, 10, keys, signal);
+        for (const hit of raw) {
+          const parsed = parseResult(hit, channel);
+          tryAddLead(parsed, results, seenUrls, discardedCount);
+        }
+      } catch {
+        /* best effort */
+      }
+    }
+  }
+
+  return {
+    leads: results.slice(0, limit),
+    discardedCount: discardedCount.value,
+  };
 }
 
 function personaToMinimalAnalysis(persona: ExtractedPersona): WebsiteAnalysis {
@@ -297,7 +330,7 @@ function parseResult(result: WebSearchHit, channel: string): RawLead {
     name = m ? m[1].replace(/\s+at\s+.*/i, "").trim() : "";
   } else if (channel === "reddit") {
     const m = url.match(/reddit\.com\/u(?:ser)?\/([^/?\s]+)/);
-    name = m ? m[1] : "";
+    name = m ? `u/${m[1]}` : "";
   } else if (channel === "twitter") {
     const m = url.match(/twitter\.com\/([^/?\s]+)|x\.com\/([^/?\s]+)/);
     name = m ? m[1] || m[2] : "";
@@ -307,8 +340,16 @@ function parseResult(result: WebSearchHit, channel: string): RawLead {
   } else if (channel === "tiktok") {
     const m = url.match(/tiktok\.com\/@([^/?\s]+)/);
     name = m ? m[1] : "";
+  } else if (channel === "youtube") {
+    const m = url.match(/youtube\.com\/(?:c\/|@|user\/)([^/?\s]+)/);
+    name = m ? m[1] : "";
   } else {
     name = title.split(/[|–\-·]/)[0].trim();
+  }
+
+  if (!name || isJunkName(name)) {
+    const urlName = extractNameFromUrl(url, channel);
+    if (urlName) name = urlName;
   }
 
   const titlePattern =
@@ -321,8 +362,11 @@ function parseResult(result: WebSearchHit, channel: string): RawLead {
   if (atMatch) company = atMatch[1].trim();
 
   const emailCandidates = extractEmailsFromContent(fullContent);
-  const bestEmail =
+  let bestEmail =
     emailCandidates.find((e) => e.confidence === "high")?.email || emailCandidates[0]?.email || "";
+  if (bestEmail && isSocialPlatformEmail(bestEmail)) {
+    bestEmail = "";
+  }
 
   const linkedin = channel === "linkedin" ? url : "";
   const twitter =
@@ -336,9 +380,9 @@ function parseResult(result: WebSearchHit, channel: string): RawLead {
     url,
     bio: snippet.slice(0, 500),
     platform: channel,
-    email: bestEmail,
-    email_confidence: emailCandidates[0]?.confidence ?? null,
-    email_source: emailCandidates[0]?.source ?? null,
+    email: bestEmail || undefined,
+    email_confidence: bestEmail ? (emailCandidates[0]?.confidence ?? null) : null,
+    email_source: bestEmail ? (emailCandidates[0]?.source ?? null) : null,
     linkedin,
     twitter,
     instagram,

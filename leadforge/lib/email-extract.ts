@@ -20,6 +20,43 @@ const JUNK_DOMAINS = new Set([
   "squarespace.com",
 ]);
 
+/** Platforms that never issue user @platform.com mailboxes — reject generated/extracted emails. */
+export const SOCIAL_PLATFORM_DOMAINS = new Set([
+  "tiktok.com",
+  "instagram.com",
+  "twitter.com",
+  "x.com",
+  "youtube.com",
+  "reddit.com",
+  "facebook.com",
+  "linkedin.com",
+  "pinterest.com",
+  "snapchat.com",
+  "discord.com",
+  "discord.gg",
+  "twitch.tv",
+  "github.com",
+  "gitlab.com",
+]);
+
+const HOSTING_JUNK_DOMAINS = new Set([
+  "trycloudflare.com",
+  "ngrok.io",
+  "ngrok.app",
+  "vercel.app",
+  "netlify.app",
+  "pages.dev",
+  "web.app",
+  "firebaseapp.com",
+  "herokuapp.com",
+  "railway.app",
+  "render.com",
+  "fly.dev",
+  "replit.dev",
+  "glitch.me",
+  "onrender.com",
+]);
+
 const PERSONAL_DOMAINS = new Set([
   "gmail.com",
   "icloud.com",
@@ -37,10 +74,25 @@ export interface ExtractedEmail {
   source: EmailSource;
 }
 
+function isBlockedEmailDomain(domain: string): boolean {
+  const domainLower = domain.toLowerCase();
+  if (JUNK_DOMAINS.has(domainLower)) return true;
+  if (SOCIAL_PLATFORM_DOMAINS.has(domainLower)) return true;
+  if (HOSTING_JUNK_DOMAINS.has(domainLower)) return true;
+  if (
+    domainLower.includes("cloudflare") ||
+    domainLower.includes("ngrok") ||
+    domainLower.includes("tunnel")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function isJunk(email: string): boolean {
   const domain = email.split("@")[1];
   if (!domain) return true;
-  if (JUNK_DOMAINS.has(domain)) return true;
+  if (isBlockedEmailDomain(domain)) return true;
   if (email.includes("noreply") || email.includes("no-reply") || email.includes("donotreply")) {
     return true;
   }
@@ -89,23 +141,24 @@ export function generateEmailCandidates(
 ): ExtractedEmail[] {
   if (!firstName || !domain) return [];
 
+  const domainLower = domain.toLowerCase();
+  if (isBlockedEmailDomain(domainLower)) return [];
+
   const f = firstName.toLowerCase().replace(/[^a-z]/g, "");
-  const l = lastName?.toLowerCase().replace(/[^a-z]/g, "") || "";
-  if (!f) return [];
+  const l = (lastName || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (f.length < 2) return [];
 
   const candidates = [
+    l ? `${f}.${l}@${domain}` : null,
     `${f}@${domain}`,
-    l ? `${f}.${l}@${domain}` : "",
-    l ? `${f[0]}${l}@${domain}` : "",
-    l ? `${f}${l}@${domain}` : "",
+    l ? `${f[0]}${l}@${domain}` : null,
     `hello@${domain}`,
     `contact@${domain}`,
-    `hi@${domain}`,
-  ].filter((e, i, arr) => e.length > 5 && arr.indexOf(e) === i);
+  ].filter((e): e is string => Boolean(e && e.length > 5));
 
   return candidates.map((email, i) => ({
     email,
-    confidence: i === 0 ? "medium" : "low",
+    confidence: i < 2 ? "low" : "low",
     source: "generated" as const,
   }));
 }
@@ -134,6 +187,11 @@ export async function extractEmailFromContactPage(baseUrl: string): Promise<Extr
   }
 
   return [];
+}
+
+export function isSocialPlatformEmail(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase() || "";
+  return SOCIAL_PLATFORM_DOMAINS.has(domain);
 }
 
 export function isKnownSocialUrl(url: string): boolean {
@@ -180,7 +238,7 @@ export function resolveLeadEmail(
 ): ResolvedEmail {
   const company_domain = enriched.company_domain?.trim() || domainFromUrl(raw.url ?? "") || null;
 
-  if (raw.email?.trim()) {
+  if (raw.email?.trim() && !isSocialPlatformEmail(raw.email.trim())) {
     return {
       email: raw.email.trim(),
       email_confidence: raw.email_confidence ?? "medium",

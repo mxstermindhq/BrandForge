@@ -14,6 +14,7 @@ import {
 import {
   extractEmailFromContactPage,
   isKnownSocialUrl,
+  isSocialPlatformEmail,
 } from "@/lib/email-extract";
 import { enrichLeadWithPersona, scoreToFitLabel, textToAnalysis } from "@/lib/gemini";
 import { applyClarifyingAnswers } from "@/lib/search-intent";
@@ -31,7 +32,7 @@ import type {
   SiteBusinessProfile,
   WebsiteAnalysis,
 } from "@/types";
-import type { RawLead } from "@/lib/channel-search";
+import type { RawLead } from "@/lib/lead-validation";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -125,6 +126,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       const leadsPerChannel = Math.ceil(quantity / selectedChannels.length);
       const seen = new Set<string>();
       let campaignId = "";
+      let discardedCount = 0;
 
       try {
         if (!websiteAnalysis && persona_text) {
@@ -206,7 +208,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
         const scrapeResults = await Promise.allSettled(
           selectedChannels.map(async (channel) => {
-            const rawLeads = await searchChannel(
+            const { leads: rawLeads, discardedCount: channelDiscarded } = await searchChannel(
               channel,
               websiteAnalysis as WebsiteAnalysis,
               leadsPerChannel,
@@ -214,7 +216,7 @@ export async function POST(req: NextRequest): Promise<Response> {
               undefined,
               campaignType,
             );
-            return { channel, rawLeads };
+            return { channel, rawLeads, channelDiscarded };
           }),
         );
 
@@ -229,7 +231,8 @@ export async function POST(req: NextRequest): Promise<Response> {
             });
             continue;
           }
-          const { channel, rawLeads } = result.value;
+          const { channel, rawLeads, channelDiscarded } = result.value;
+          discardedCount += channelDiscarded;
           let channelFound = 0;
           for (const raw of rawLeads) {
             const dedupeKey = raw.url || raw.name.toLowerCase();
@@ -254,6 +257,15 @@ export async function POST(req: NextRequest): Promise<Response> {
             progress: { current: i + 1, total: toProcess.length },
           });
 
+          if (raw.email && isSocialPlatformEmail(raw.email)) {
+            raw = {
+              ...raw,
+              email: undefined,
+              email_confidence: null,
+              email_source: null,
+            };
+          }
+
           if (!raw.email && raw.url && !isKnownSocialUrl(raw.url)) {
             try {
               const contacted = await extractEmailFromContactPage(raw.url);
@@ -270,13 +282,23 @@ export async function POST(req: NextRequest): Promise<Response> {
             }
           }
 
-          const enriched = await enrichLeadWithPersona(
+          let enriched = await enrichLeadWithPersona(
             raw,
             websiteAnalysis,
             env.GEMINI_API_KEY,
             env.GEMINI_MODEL,
             campaignType,
           );
+
+          enriched = applyIdentityScoreAdjustments(enriched, raw);
+
+          if (shouldSkipEnrichedLead(enriched, raw)) {
+            discardedCount++;
+            console.log(
+              `[stream] Dropping zero-score unidentified lead, platform=${raw.platform}`,
+            );
+            continue;
+          }
 
           const leadInput = rawToLeadInput(raw, enriched, campaign.id, userId, raw.channel);
           const saved = await createLead(env.DB, leadInput);
@@ -299,6 +321,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         send("done", {
           campaign_id: campaignId,
           total: totalFound,
+          discarded: discardedCount,
           credits_used: totalFound > 0 ? actualCost : 0,
         });
         appendAdminLog({
@@ -339,6 +362,51 @@ export async function POST(req: NextRequest): Promise<Response> {
       "X-Accel-Buffering": "no",
     },
   });
+}
+
+function hasVerifiedIdentity(raw: RawLead, enriched: PersonaEnrichmentOutput): {
+  hasRealName: boolean;
+  hasRealCompany: boolean;
+} {
+  const contactName = (enriched.contact_name || raw.name || "").trim();
+  const companyName = (enriched.company_name || raw.company || "").trim();
+  const hasRealName =
+    Boolean(contactName) &&
+    contactName.toLowerCase() !== "unknown" &&
+    contactName.split(/\s+/).filter(Boolean).length <= 6;
+  const hasRealCompany =
+    Boolean(companyName) && companyName.toLowerCase() !== "unknown";
+  return { hasRealName, hasRealCompany };
+}
+
+function applyIdentityScoreAdjustments(
+  enriched: PersonaEnrichmentOutput,
+  raw: RawLead,
+): PersonaEnrichmentOutput {
+  const { hasRealName, hasRealCompany } = hasVerifiedIdentity(raw, enriched);
+  const hasEmail = Boolean(enriched.email_guess || raw.email);
+
+  let score = enriched.score ?? 50;
+  let scoreReason = enriched.score_reason || "";
+
+  if (!hasRealName && !hasRealCompany) {
+    score = Math.min(score, 20);
+    scoreReason = `Low confidence: identity could not be verified. ${scoreReason}`;
+  }
+
+  if (hasEmail && enriched.email_confidence === "high") {
+    score = Math.min(100, score + 15);
+  }
+
+  return { ...enriched, score, score_reason: scoreReason.trim() };
+}
+
+function shouldSkipEnrichedLead(
+  enriched: PersonaEnrichmentOutput,
+  raw: RawLead,
+): boolean {
+  const { hasRealName, hasRealCompany } = hasVerifiedIdentity(raw, enriched);
+  return (enriched.score ?? 0) < 5 && !hasRealName && !hasRealCompany;
 }
 
 function rawToLeadInput(
