@@ -3,6 +3,9 @@
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+# Optional: apply schema via `SUPABASE_ACCESS_TOKEN=... node scripts/apply-supabase-schema.mjs`
+# (personal token from https://supabase.com/dashboard/account/tokens)
+
 # Google OAuth: enable in Supabase Dashboard → Auth → Providers → Google.
 # Add redirect URLs in Supabase → Auth → URL Configuration:
 #   http://localhost:3003/auth/callback
