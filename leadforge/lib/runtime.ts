@@ -30,6 +30,8 @@ function buildSupabaseEnv(): CloudflareEnv {
     CACHE: createSupabaseCampaignCache(db),
     GEMINI_API_KEY: readEnvString("GEMINI_API_KEY"),
     GEMINI_MODEL: readEnvString("GEMINI_MODEL") || undefined,
+    GROQ_API_KEY: readEnvString("GROQ_API_KEY") || undefined,
+    GROQ_MODEL: readEnvString("GROQ_MODEL") || undefined,
     STRIPE_SECRET_KEY: readEnvString("STRIPE_SECRET_KEY"),
     STRIPE_WEBHOOK_SECRET: readEnvString("STRIPE_WEBHOOK_SECRET"),
     RESEND_API_KEY: readEnvString("RESEND_API_KEY"),

@@ -194,31 +194,12 @@ export async function POST(req: NextRequest): Promise<Response> {
             progress: { current: i + 1, total: toProcess.length },
           });
 
-          let enriched;
-          try {
-            enriched = await enrichLeadWithPersona(
-              raw,
-              persona,
-              env.GEMINI_API_KEY,
-              env.GEMINI_MODEL,
-            );
-          } catch (err) {
-            const reason = err instanceof Error ? err.message : "Unknown error";
-            console.warn(`[search] enrich failed for ${raw.name}:`, reason);
-            enriched = {
-              score: 30,
-              score_reason: `Enrichment failed: ${reason}`,
-              fit_tags: [] as string[],
-              pitch_angle: "",
-              likely_pain: "",
-              best_contact_channel: "email",
-              estimated_company_size: "unknown",
-              location_guess: "",
-              email_guess: raw.email ?? "",
-              contact_name: raw.name,
-              company_name: raw.company || "Unknown",
-            };
-          }
+          const enriched = await enrichLeadWithPersona(
+            raw,
+            persona,
+            env.GEMINI_API_KEY,
+            env.GEMINI_MODEL,
+          );
 
           const leadInput = rawToLeadInput(raw, enriched, campaign.id, userId, raw.channel);
           const saved = await createLead(env.DB, leadInput);

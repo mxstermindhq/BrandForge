@@ -13,6 +13,10 @@ import type {
   ScraperBlueprint,
 } from "@/types";
 import { DEFAULT_GEMINI_MODEL, GEMINI_DELAY_MS, GEMINI_TIMEOUT_MS } from "@/lib/constants";
+import {
+  enrichCandidateDataFallback,
+  enrichLeadWithPersonaFallback,
+} from "@/lib/enrich-fallback";
 
 function geminiUrl(model: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -341,14 +345,15 @@ export async function enrichLeadWithPersona(
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<PersonaEnrichmentOutput> {
-  const personaBlock = persona
-    ? `- Looking for: ${persona.titles.join(", ")}
+  try {
+    const personaBlock = persona
+      ? `- Looking for: ${persona.titles.join(", ")}
 - Industries: ${persona.industries.join(", ")}
 - Pain points: ${persona.pain_points.join(", ")}
 - Product context: ${persona.product_context}`
-    : "Not specified";
+      : "Not specified";
 
-  const prompt = `Enrich this lead for a sales team.
+    const prompt = `Enrich this lead for a sales team.
 
 Lead data:
 - Name: ${lead.name || "Unknown"}
@@ -376,23 +381,30 @@ Return JSON:
   "company_name": "string"
 }`;
 
-  const raw = await callGeminiEnrich(prompt, PERSONA_ENRICH_SYSTEM, apiKey, model);
-  const parsed = safeParse<Partial<PersonaEnrichmentOutput>>(raw);
-  if (!parsed) throw new Error("Failed to parse persona enrichment JSON");
+    const raw = await callGeminiEnrich(prompt, PERSONA_ENRICH_SYSTEM, apiKey, model);
+    const parsed = safeParse<Partial<PersonaEnrichmentOutput>>(raw);
+    if (!parsed) throw new Error("Failed to parse persona enrichment JSON");
 
-  return {
-    score: clampScore(parsed.score),
-    score_reason: String(parsed.score_reason ?? ""),
-    fit_tags: Array.isArray(parsed.fit_tags) ? parsed.fit_tags.slice(0, 4).map(String) : [],
-    pitch_angle: String(parsed.pitch_angle ?? ""),
-    likely_pain: String(parsed.likely_pain ?? ""),
-    best_contact_channel: String(parsed.best_contact_channel ?? "email"),
-    estimated_company_size: String(parsed.estimated_company_size ?? "unknown"),
-    location_guess: String(parsed.location_guess ?? ""),
-    email_guess: String(parsed.email_guess ?? lead.email ?? ""),
-    contact_name: String(parsed.contact_name ?? lead.name ?? "Unknown"),
-    company_name: String(parsed.company_name ?? lead.company ?? "Unknown"),
-  };
+    return {
+      score: clampScore(parsed.score),
+      score_reason: String(parsed.score_reason ?? ""),
+      fit_tags: Array.isArray(parsed.fit_tags) ? parsed.fit_tags.slice(0, 4).map(String) : [],
+      pitch_angle: String(parsed.pitch_angle ?? ""),
+      likely_pain: String(parsed.likely_pain ?? ""),
+      best_contact_channel: String(parsed.best_contact_channel ?? "email"),
+      estimated_company_size: String(parsed.estimated_company_size ?? "unknown"),
+      location_guess: String(parsed.location_guess ?? ""),
+      email_guess: String(parsed.email_guess ?? lead.email ?? ""),
+      contact_name: String(parsed.contact_name ?? lead.name ?? "Unknown"),
+      company_name: String(parsed.company_name ?? lead.company ?? "Unknown"),
+    };
+  } catch (err) {
+    console.warn(
+      "[enrich] Gemini persona enrich failed, using fallback:",
+      err instanceof Error ? err.message : err,
+    );
+    return enrichLeadWithPersonaFallback(lead, persona, err);
+  }
 }
 
 function scoreToFitLabel(score: number): FitLabel {
@@ -468,33 +480,41 @@ export async function enrichCandidateData(
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<EnrichedLeadAIOutput> {
-  const prompt = JSON.stringify({
-    target_persona: targetPersona,
-    candidate: {
-      name: candidate.name,
-      title: candidate.title,
-      company: candidate.company,
-      email: candidate.email,
-      platform: candidate.platform,
-      social_links: candidate.social_links,
-      raw_bio_text: candidate.raw_bio_text,
-    },
-  });
+  try {
+    const prompt = JSON.stringify({
+      target_persona: targetPersona,
+      candidate: {
+        name: candidate.name,
+        title: candidate.title,
+        company: candidate.company,
+        email: candidate.email,
+        platform: candidate.platform,
+        social_links: candidate.social_links,
+        raw_bio_text: candidate.raw_bio_text,
+      },
+    });
 
-  const raw = await callGeminiEnrich(prompt, CANDIDATE_ENRICH_SYSTEM, apiKey, model);
-  const parsed = safeParse<Partial<EnrichedLeadAIOutput>>(raw);
-  if (!parsed) {
-    throw new Error("Failed to parse Gemini candidate enrichment JSON");
+    const raw = await callGeminiEnrich(prompt, CANDIDATE_ENRICH_SYSTEM, apiKey, model);
+    const parsed = safeParse<Partial<EnrichedLeadAIOutput>>(raw);
+    if (!parsed) {
+      throw new Error("Failed to parse Gemini candidate enrichment JSON");
+    }
+
+    return {
+      clean_company_name:
+        String(parsed.clean_company_name ?? candidate.company ?? "Unknown").trim() || "Unknown",
+      suitability_score: clampScore(parsed.suitability_score),
+      fit_reasoning: String(parsed.fit_reasoning ?? "").trim(),
+      pain_point: String(parsed.pain_point ?? "").trim(),
+      pitch_angle: String(parsed.pitch_angle ?? "").trim(),
+    };
+  } catch (err) {
+    console.warn(
+      "[enrich] Gemini candidate enrich failed, using fallback:",
+      err instanceof Error ? err.message : err,
+    );
+    return enrichCandidateDataFallback(candidate, targetPersona, err);
   }
-
-  return {
-    clean_company_name:
-      String(parsed.clean_company_name ?? candidate.company ?? "Unknown").trim() || "Unknown",
-    suitability_score: clampScore(parsed.suitability_score),
-    fit_reasoning: String(parsed.fit_reasoning ?? "").trim(),
-    pain_point: String(parsed.pain_point ?? "").trim(),
-    pitch_angle: String(parsed.pitch_angle ?? "").trim(),
-  };
 }
 
 const COLD_EMAIL_SYSTEM = `You write concise, personalized B2B/B2C cold outreach emails.

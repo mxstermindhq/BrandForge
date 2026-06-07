@@ -193,22 +193,13 @@ export async function processCampaignPipeline(
 
     for (const candidate of capped) {
       if (campaign.enrich !== 0) {
-        try {
-          const enriched = await enrichCandidateData(
-            candidate,
-            personaText,
-            env.GEMINI_API_KEY,
-            env.GEMINI_MODEL,
-          );
-          leadInputs.push(rawToLeadInput(campaign, candidate, enriched));
-        } catch (err) {
-          const reason = err instanceof Error ? err.message : "Unknown error";
-          console.warn(`[pipeline] enrich failed for ${candidate.name}:`, reason);
-          leadInputs.push({
-            ...rawToLeadInput(campaign, candidate),
-            score_reason: `Enrichment failed: ${reason}`,
-          });
-        }
+        const enriched = await enrichCandidateData(
+          candidate,
+          personaText,
+          env.GEMINI_API_KEY,
+          env.GEMINI_MODEL,
+        );
+        leadInputs.push(rawToLeadInput(campaign, candidate, enriched));
       } else {
         leadInputs.push(rawToLeadInput(campaign, candidate));
       }

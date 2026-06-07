@@ -19,6 +19,9 @@ ADMIN_EMAIL=
 # AI + search
 GEMINI_API_KEY=
 GEMINI_MODEL=
+# Free enrichment fallback when Gemini hits 429 quota (https://console.groq.com)
+GROQ_API_KEY=
+GROQ_MODEL=llama-3.1-8b-instant
 SEARCH_PROVIDER=serper
 SERPER_API_KEY=
 GOOGLE_CSE_KEY=

@@ -18,6 +18,8 @@ interface CloudflareEnv {
   CAMPAIGN_QUEUE: Queue<import("@/types").CampaignQueueMessage>;
   GEMINI_API_KEY: string;
   GEMINI_MODEL?: string;
+  GROQ_API_KEY?: string;
+  GROQ_MODEL?: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
