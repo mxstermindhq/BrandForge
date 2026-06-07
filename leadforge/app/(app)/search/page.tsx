@@ -3,21 +3,26 @@
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { ChannelBar } from "@/components/search/ChannelBar";
+import { IntentReview } from "@/components/search/IntentReview";
 import { PersonaChips } from "@/components/search/PersonaChips";
 import { SearchInput } from "@/components/search/SearchInput";
 import { StreamLeadCard } from "@/components/search/StreamLeadCard";
 import { CHANNEL_META } from "@/lib/constants";
-import type { ExtractedPersona, StreamLead } from "@/types";
+import type { ExtractedPersona, SearchIntentAnalysis, StreamLead } from "@/types";
 
 const ALL_CHANNELS = Object.keys(CHANNEL_META);
 const DEFAULT_CHANNELS = ["google", "linkedin", "reddit", "web"];
+
+type Phase = "input" | "analyzing" | "confirm" | "searching" | "done";
 
 export default function SearchPage(): React.JSX.Element {
   const [personaText, setPersonaText] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>(DEFAULT_CHANNELS);
   const [quantity, setQuantity] = useState(25);
 
-  const [isSearching, setIsSearching] = useState(false);
+  const [phase, setPhase] = useState<Phase>("input");
+  const [analysis, setAnalysis] = useState<SearchIntentAnalysis | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [persona, setPersona] = useState<ExtractedPersona | null>(null);
   const [leads, setLeads] = useState<StreamLead[]>([]);
   const [channelStatus, setChannelStatus] = useState<
@@ -25,143 +30,251 @@ export default function SearchPage(): React.JSX.Element {
   >({});
   const [channelCounts, setChannelCounts] = useState<Record<string, number>>({});
   const [statusMessage, setStatusMessage] = useState("");
+  const [enrichProgress, setEnrichProgress] = useState<{ current: number; total: number } | null>(
+    null,
+  );
   const [campaignId, setCampaignId] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [isRefining, setIsRefining] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
 
-  const handleSearch = useCallback(async () => {
-    if (!personaText.trim() || isSearching) return;
-
+  const resetSearchState = useCallback(() => {
     setLeads([]);
     setPersona(null);
     setChannelStatus({});
     setChannelCounts({});
-    setDone(false);
-    setError("");
     setCampaignId(null);
-    setIsSearching(true);
+    setEnrichProgress(null);
+    setError("");
+    setStatusMessage("");
+  }, []);
 
+  const runStream = useCallback(
+    async (intent: SearchIntentAnalysis, clarifyingAnswers: Record<string, string>) => {
+      abortRef.current = new AbortController();
+      setPhase("searching");
+      setPersona(intent.persona);
+
+      try {
+        const res = await fetch("/api/search/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            persona_text: personaText,
+            channels: selectedChannels,
+            quantity,
+            extracted_persona: intent.persona,
+            intent_summary: intent.intent_summary,
+            clarifying_answers: clarifyingAnswers,
+          }),
+          signal: abortRef.current.signal,
+        });
+
+        if (!res.ok) {
+          const err = (await res.json().catch(() => ({}))) as { error?: string };
+          setError(err.error || "Search failed");
+          setPhase("confirm");
+          return;
+        }
+
+        const reader = res.body?.getReader();
+        if (!reader) {
+          setError("Search failed");
+          setPhase("confirm");
+          return;
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done: streamDone, value } = await reader.read();
+          if (streamDone) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const chunks = buffer.split("\n\n");
+          buffer = chunks.pop() || "";
+
+          for (const chunk of chunks) {
+            if (chunk.startsWith(":")) continue;
+            const eventLine = chunk.split("\n");
+            const eventType = eventLine.find((l) => l.startsWith("event:"))?.replace("event: ", "");
+            const dataLine = eventLine.find((l) => l.startsWith("data:"))?.replace("data: ", "");
+            if (!eventType || !dataLine) continue;
+
+            try {
+              const data = JSON.parse(dataLine) as Record<string, unknown>;
+              switch (eventType) {
+                case "status":
+                  setStatusMessage(String(data.message ?? ""));
+                  if (data.progress && typeof data.progress === "object") {
+                    const p = data.progress as { current?: number; total?: number };
+                    if (p.current && p.total) {
+                      setEnrichProgress({ current: p.current, total: p.total });
+                    }
+                  }
+                  break;
+                case "persona":
+                  setPersona(data as unknown as ExtractedPersona);
+                  break;
+                case "campaign":
+                  setCampaignId(String(data.id ?? ""));
+                  break;
+                case "channel_start":
+                  setChannelStatus((prev) => ({
+                    ...prev,
+                    [String(data.channel)]: "searching",
+                  }));
+                  break;
+                case "lead": {
+                  const lead = data as unknown as StreamLead;
+                  setLeads((prev) =>
+                    [...prev, lead].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
+                  );
+                  setChannelCounts((prev) => ({
+                    ...prev,
+                    [lead.platform]: (prev[lead.platform] || 0) + 1,
+                  }));
+                  break;
+                }
+                case "channel_done":
+                  setChannelStatus((prev) => ({
+                    ...prev,
+                    [String(data.channel)]: "done",
+                  }));
+                  break;
+                case "channel_error":
+                  setChannelStatus((prev) => ({
+                    ...prev,
+                    [String(data.channel)]: "error",
+                  }));
+                  break;
+                case "done":
+                  setPhase("done");
+                  setEnrichProgress(null);
+                  break;
+                case "error":
+                  setError(String(data.message ?? "Search failed"));
+                  setPhase("confirm");
+                  break;
+                case "heartbeat":
+                  break;
+              }
+            } catch {
+              /* skip malformed event */
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setError("Connection lost. Please try again.");
+          setPhase("confirm");
+        }
+      }
+    },
+    [personaText, selectedChannels, quantity],
+  );
+
+  const handleAnalyze = useCallback(async () => {
+    if (!personaText.trim() || phase === "analyzing" || phase === "searching") return;
+
+    resetSearchState();
+    setPhase("analyzing");
+    setStatusMessage("Understanding your buyer description...");
+    setAnswers({});
+    setIsRefining(false);
+
+    abortRef.current?.abort();
     abortRef.current = new AbortController();
 
     try {
-      const res = await fetch("/api/search/stream", {
+      // Instant heuristic preview (<100ms) while AI refines in parallel.
+      const instantRes = await fetch(
+        `/api/search/analyze?q=${encodeURIComponent(personaText)}&channels=${selectedChannels.join(",")}`,
+        { signal: abortRef.current.signal },
+      );
+      if (instantRes.ok) {
+        const instantJson = (await instantRes.json()) as { data?: SearchIntentAnalysis };
+        if (instantJson.data) {
+          setAnalysis(instantJson.data);
+          setPersona(instantJson.data.persona);
+          setPhase("confirm");
+          setStatusMessage("");
+        }
+      }
+
+      setIsRefining(true);
+
+      const res = await fetch("/api/search/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           persona_text: personaText,
           channels: selectedChannels,
-          quantity,
         }),
         signal: abortRef.current.signal,
       });
 
       if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(err.error || "Search failed");
-        setIsSearching(false);
-        return;
-      }
-
-      const reader = res.body?.getReader();
-      if (!reader) {
-        setError("Search failed");
-        setIsSearching(false);
-        return;
-      }
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done: streamDone, value } = await reader.read();
-        if (streamDone) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const chunks = buffer.split("\n\n");
-        buffer = chunks.pop() || "";
-
-        for (const chunk of chunks) {
-          const eventLine = chunk.split("\n");
-          const eventType = eventLine.find((l) => l.startsWith("event:"))?.replace("event: ", "");
-          const dataLine = eventLine.find((l) => l.startsWith("data:"))?.replace("data: ", "");
-          if (!eventType || !dataLine) continue;
-
-          try {
-            const data = JSON.parse(dataLine) as Record<string, unknown>;
-            switch (eventType) {
-              case "status":
-                setStatusMessage(String(data.message ?? ""));
-                break;
-              case "persona":
-                setPersona(data as unknown as ExtractedPersona);
-                break;
-              case "campaign":
-                setCampaignId(String(data.id ?? ""));
-                break;
-              case "channel_start":
-                setChannelStatus((prev) => ({
-                  ...prev,
-                  [String(data.channel)]: "searching",
-                }));
-                break;
-              case "lead": {
-                const lead = data as unknown as StreamLead;
-                setLeads((prev) =>
-                  [...prev, lead].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
-                );
-                setChannelCounts((prev) => ({
-                  ...prev,
-                  [lead.platform]: (prev[lead.platform] || 0) + 1,
-                }));
-                break;
-              }
-              case "channel_done":
-                setChannelStatus((prev) => ({
-                  ...prev,
-                  [String(data.channel)]: "done",
-                }));
-                break;
-              case "channel_error":
-                setChannelStatus((prev) => ({
-                  ...prev,
-                  [String(data.channel)]: "error",
-                }));
-                break;
-              case "done":
-                setDone(true);
-                setIsSearching(false);
-                break;
-              case "error":
-                setError(String(data.message ?? "Search failed"));
-                setIsSearching(false);
-                break;
-            }
-          } catch {
-            /* skip malformed event */
-          }
+        if (!instantRes.ok) {
+          const err = (await res.json().catch(() => ({}))) as { error?: string };
+          setError(err.error || "Analysis failed");
+          setPhase("input");
         }
+        return;
       }
+
+      const json = (await res.json()) as { data?: SearchIntentAnalysis };
+      if (json.data) {
+        setAnalysis(json.data);
+        setPersona(json.data.persona);
+        setPhase("confirm");
+        setStatusMessage("");
+      }
+      setIsRefining(false);
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        setError("Connection lost. Please try again.");
+        if (!analysis) {
+          setError("Could not analyze your description. Please try again.");
+          setPhase("input");
+        }
       }
-    } finally {
-      setIsSearching(false);
+      setIsRefining(false);
     }
-  }, [personaText, selectedChannels, quantity, isSearching]);
+  }, [personaText, selectedChannels, phase, resetSearchState, analysis]);
+
+  const handleConfirmSearch = useCallback(async () => {
+    if (!analysis) return;
+    resetSearchState();
+    await runStream(analysis, answers);
+  }, [analysis, answers, resetSearchState, runStream]);
 
   function handleStop(): void {
     abortRef.current?.abort();
-    setIsSearching(false);
+    setPhase(analysis ? "confirm" : "input");
+    setEnrichProgress(null);
+  }
+
+  function handleBackToInput(): void {
+    abortRef.current?.abort();
+    setPhase("input");
+    setAnalysis(null);
+    resetSearchState();
   }
 
   function toggleChannel(ch: string): void {
+    if (phase === "searching" || phase === "analyzing") return;
     setSelectedChannels((prev) =>
       prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch],
     );
   }
+
+  function handleAnswer(id: string, value: string): void {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
+  }
+
+  const isBusy = phase === "analyzing" || phase === "searching";
 
   return (
     <div className="relative -mx-6 -my-8 min-h-[calc(100vh-4rem)] bg-[#080808] px-6 py-10 text-white">
@@ -169,17 +282,20 @@ export default function SearchPage(): React.JSX.Element {
         <div className="mb-10">
           <p className="text-xs uppercase tracking-widest text-zinc-600">Search / New</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Find Your Buyers</h1>
-          <p className="mt-1 text-sm text-zinc-500">Describe who you&apos;re looking for. We&apos;ll find them.</p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Describe who you&apos;re looking for — we&apos;ll confirm we understand before searching.
+          </p>
         </div>
 
         <SearchInput
           value={personaText}
           onChange={setPersonaText}
-          onSubmit={() => void handleSearch()}
+          onSubmit={() => void handleAnalyze()}
           onStop={handleStop}
-          isSearching={isSearching}
+          isSearching={isBusy}
           quantity={quantity}
           onQuantityChange={setQuantity}
+          submitLabel={phase === "confirm" ? "Re-analyze" : "Analyze & Continue"}
         />
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -191,7 +307,7 @@ export default function SearchPage(): React.JSX.Element {
                 key={ch}
                 type="button"
                 onClick={() => toggleChannel(ch)}
-                disabled={isSearching}
+                disabled={isBusy}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-150 ${
                   active
                     ? "border-white/20 bg-white/10 text-white"
@@ -204,9 +320,31 @@ export default function SearchPage(): React.JSX.Element {
           })}
         </div>
 
-        {persona && <PersonaChips persona={persona} className="mt-6" />}
+        {phase === "analyzing" && (
+          <div className="mt-6 flex items-center gap-3 text-sm text-zinc-500">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+            {statusMessage || "Analyzing your buyer description..."}
+          </div>
+        )}
 
-        {(isSearching || done) && (
+        {phase === "confirm" && analysis && (
+          <IntentReview
+            analysis={analysis}
+            answers={answers}
+            onAnswer={handleAnswer}
+            onConfirm={() => void handleConfirmSearch()}
+            onBack={handleBackToInput}
+            isLoading={false}
+            isRefining={isRefining}
+            quantity={quantity}
+          />
+        )}
+
+        {persona && phase !== "confirm" && phase !== "input" && (
+          <PersonaChips persona={persona} className="mt-6" />
+        )}
+
+        {(phase === "searching" || phase === "done") && (
           <ChannelBar
             channels={selectedChannels}
             status={channelStatus}
@@ -215,8 +353,20 @@ export default function SearchPage(): React.JSX.Element {
           />
         )}
 
-        {isSearching && !leads.length && statusMessage && (
-          <p className="mt-6 animate-pulse text-sm text-zinc-500">{statusMessage}</p>
+        {phase === "searching" && statusMessage && (
+          <div className="mt-6">
+            <p className="text-sm text-zinc-500">{statusMessage}</p>
+            {enrichProgress && (
+              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/5">
+                <div
+                  className="h-full bg-white/30 transition-all duration-300"
+                  style={{
+                    width: `${Math.round((enrichProgress.current / enrichProgress.total) * 100)}%`,
+                  }}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {error && (
@@ -230,7 +380,9 @@ export default function SearchPage(): React.JSX.Element {
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm text-zinc-400">
                 {leads.length} lead{leads.length !== 1 ? "s" : ""} found
-                {isSearching && <span className="ml-2 text-zinc-600">· searching...</span>}
+                {phase === "searching" && (
+                  <span className="ml-2 text-zinc-600">· enriching...</span>
+                )}
               </span>
               {campaignId && (
                 <Link
@@ -248,7 +400,7 @@ export default function SearchPage(): React.JSX.Element {
               ))}
             </div>
 
-            {done && (
+            {phase === "done" && (
               <div className="mt-6 rounded-lg border border-white/5 bg-white/[0.03] p-4 text-center">
                 <p className="text-sm text-zinc-400">
                   Search complete · {leads.length} leads found

@@ -10,6 +10,7 @@ interface Props {
   isSearching: boolean;
   quantity: number;
   onQuantityChange: (n: number) => void;
+  submitLabel?: string;
 }
 
 const PLACEHOLDERS = [
@@ -28,6 +29,7 @@ export function SearchInput({
   isSearching,
   quantity,
   onQuantityChange,
+  submitLabel = "Search",
 }: Props): React.JSX.Element {
   const ref = useRef<HTMLTextAreaElement>(null);
   const placeholder = PLACEHOLDERS[Math.floor(Date.now() / 10000) % PLACEHOLDERS.length];
@@ -93,7 +95,7 @@ export function SearchInput({
               disabled={!value.trim()}
               className="rounded-lg bg-white px-4 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-30"
             >
-              Search
+              {submitLabel}
             </button>
           )}
         </div>

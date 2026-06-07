@@ -107,6 +107,24 @@ export interface ExtractedPersona {
   product_context: string;
 }
 
+export interface ClarifyingQuestion {
+  id: string;
+  question: string;
+  field: "titles" | "industries" | "locations" | "pain_points" | "product_context" | "company_sizes";
+  options?: string[];
+  placeholder?: string;
+}
+
+export interface SearchIntentAnalysis {
+  persona: ExtractedPersona;
+  confidence: number;
+  intent_summary: string;
+  clarifying_questions: ClarifyingQuestion[];
+  ready_to_search: boolean;
+  /** Primary query preview per channel (for UI transparency). */
+  search_preview: Record<string, string>;
+}
+
 export type StreamEventType =
   | "persona"
   | "channel_start"
@@ -116,7 +134,9 @@ export type StreamEventType =
   | "error"
   | "status"
   | "campaign"
-  | "channel_error";
+  | "channel_error"
+  | "heartbeat"
+  | "intent";
 
 export interface StreamEvent {
   type: StreamEventType;

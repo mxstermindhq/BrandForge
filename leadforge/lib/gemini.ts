@@ -25,86 +25,125 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Serializes Gemini calls so parallel scrapers don't blow the free-tier RPM cap. */
-let geminiChain: Promise<void> = Promise.resolve();
-let lastGeminiCallAt = 0;
+type GeminiLane = { chain: Promise<void>; lastAt: number };
 
-function scheduleGemini<T>(fn: () => Promise<T>): Promise<T> {
-  const task = geminiChain.then(async () => {
-    const elapsed = Date.now() - lastGeminiCallAt;
-    const wait = GEMINI_DELAY_MS - elapsed;
+const planningLane: GeminiLane = { chain: Promise.resolve(), lastAt: 0 };
+const enrichLane: GeminiLane = { chain: Promise.resolve(), lastAt: 0 };
+
+/** Planning lane — persona/intent (light spacing, no 4s block). */
+const GEMINI_PLANNING_GAP_MS = 400;
+
+function scheduleLane<T>(lane: GeminiLane, gapMs: number, fn: () => Promise<T>): Promise<T> {
+  const task = lane.chain.then(async () => {
+    const elapsed = Date.now() - lane.lastAt;
+    const wait = gapMs - elapsed;
     if (wait > 0) await delay(wait);
-    lastGeminiCallAt = Date.now();
+    lane.lastAt = Date.now();
     return fn();
   });
-  geminiChain = task.then(
+  lane.chain = task.then(
     () => undefined,
     () => undefined,
   );
   return task;
 }
 
-/**
- * Calls Gemini via fetch only (no SDK).
- * - Global queue + GEMINI_DELAY_MS spacing (~14 RPM)
- * - 15s AbortController timeout
- * - 429 → exponential backoff, up to 3 retries
- */
-export async function callGemini(
+async function geminiFetch(
+  prompt: string,
+  systemInstruction: string,
+  apiKey: string,
+  model: string,
+  attempt = 0,
+): Promise<string> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
+
+  try {
+    const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey.trim()}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.35,
+          maxOutputTokens: 1024,
+        },
+      }),
+    });
+
+    if (res.status === 429 && attempt < 3) {
+      await delay(4000 * (attempt + 1));
+      return geminiFetch(prompt, systemInstruction, apiKey, model, attempt + 1);
+    }
+    if (res.status === 503 && attempt < 2) {
+      await delay(2000 * (attempt + 1));
+      return geminiFetch(prompt, systemInstruction, apiKey, model, attempt + 1);
+    }
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      throw new Error(`Gemini error ${res.status}${errBody ? `: ${errBody.slice(0, 120)}` : ""}`);
+    }
+
+    const json = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("Gemini returned empty response");
+    return text;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function invokeGemini(
+  lane: GeminiLane,
+  gapMs: number,
   prompt: string,
   systemInstruction: string,
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
-  attempt = 0,
 ): Promise<string> {
   if (!apiKey?.trim()) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
+  const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
+  return scheduleLane(lane, gapMs, () =>
+    geminiFetch(prompt, systemInstruction, apiKey.trim(), resolvedModel),
+  );
+}
 
-  return scheduleGemini(async () => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-    const resolvedModel = model && model.trim() ? model.trim() : DEFAULT_GEMINI_MODEL;
+/** Fast lane for persona, intent, and blueprint extraction. */
+export function callGeminiPriority(
+  prompt: string,
+  systemInstruction: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<string> {
+  return invokeGemini(planningLane, GEMINI_PLANNING_GAP_MS, prompt, systemInstruction, apiKey, model);
+}
 
-    try {
-      const res = await fetch(`${geminiUrl(resolvedModel)}?key=${apiKey.trim()}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: 0.4,
-            maxOutputTokens: 1024,
-          },
-        }),
-      });
+/** Rate-limited lane for per-lead enrichment. */
+export function callGeminiEnrich(
+  prompt: string,
+  systemInstruction: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<string> {
+  return invokeGemini(enrichLane, GEMINI_DELAY_MS, prompt, systemInstruction, apiKey, model);
+}
 
-      if (res.status === 429 && attempt < 3) {
-        await delay(4000 * (attempt + 1));
-        return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
-      }
-      if (res.status === 503 && attempt < 2) {
-        await delay(2000 * (attempt + 1));
-        return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
-      }
-      if (!res.ok) {
-        const errBody = await res.text().catch(() => "");
-        throw new Error(`Gemini error ${res.status}${errBody ? `: ${errBody.slice(0, 120)}` : ""}`);
-      }
-
-      const json = (await res.json()) as {
-        candidates?: { content?: { parts?: { text?: string }[] } }[];
-      };
-      const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) throw new Error("Gemini returned empty response");
-      return text;
-    } finally {
-      clearTimeout(timeout);
-    }
-  });
+/** @deprecated Prefer callGeminiPriority or callGeminiEnrich. */
+export function callGemini(
+  prompt: string,
+  systemInstruction: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<string> {
+  return callGeminiPriority(prompt, systemInstruction, apiKey, model);
 }
 
 function safeParse<T>(raw: string): T | null {
@@ -178,7 +217,7 @@ export async function enrichLead(
     },
   });
 
-  const raw = await callGemini(prompt, ENRICH_SYSTEM, apiKey, model);
+  const raw = await callGeminiEnrich(prompt, ENRICH_SYSTEM, apiKey, model);
   const parsed = safeParse<Partial<GeminiEnrichmentOutput>>(raw);
   if (!parsed) throw new Error("Failed to parse Gemini enrichment JSON");
 
@@ -337,7 +376,7 @@ Return JSON:
   "company_name": "string"
 }`;
 
-  const raw = await callGemini(prompt, PERSONA_ENRICH_SYSTEM, apiKey, model);
+  const raw = await callGeminiEnrich(prompt, PERSONA_ENRICH_SYSTEM, apiKey, model);
   const parsed = safeParse<Partial<PersonaEnrichmentOutput>>(raw);
   if (!parsed) throw new Error("Failed to parse persona enrichment JSON");
 
@@ -442,7 +481,7 @@ export async function enrichCandidateData(
     },
   });
 
-  const raw = await callGemini(prompt, CANDIDATE_ENRICH_SYSTEM, apiKey, model);
+  const raw = await callGeminiEnrich(prompt, CANDIDATE_ENRICH_SYSTEM, apiKey, model);
   const parsed = safeParse<Partial<EnrichedLeadAIOutput>>(raw);
   if (!parsed) {
     throw new Error("Failed to parse Gemini candidate enrichment JSON");

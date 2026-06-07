@@ -10,14 +10,16 @@ import {
   getCreditBalance,
   updateCampaignStatus,
 } from "@/lib/db";
-import { extractPersona, enrichLeadWithPersona, scoreToFitLabel } from "@/lib/gemini";
+import { enrichLeadWithPersona, scoreToFitLabel } from "@/lib/gemini";
+import { applyClarifyingAnswers } from "@/lib/search-intent";
 import { leadToStreamLead } from "@/lib/stream-lead";
-import type { LeadCreateInput } from "@/types";
+import type { ExtractedPersona, LeadCreateInput } from "@/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const VALID_CHANNELS = VALID_SEARCH_CHANNELS as readonly string[];
+const HEARTBEAT_MS = 3000;
 
 export async function POST(req: NextRequest): Promise<Response> {
   const env = getEnv();
@@ -33,6 +35,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     channels?: string[];
     quantity?: number;
     product?: string;
+    extracted_persona?: ExtractedPersona;
+    intent_summary?: string;
+    clarifying_answers?: Record<string, string>;
   } | null;
 
   const persona_text = body?.persona_text?.trim() ?? "";
@@ -43,9 +48,24 @@ export async function POST(req: NextRequest): Promise<Response> {
     return Response.json({ success: false, error: "persona_text is required" }, { status: 400 });
   }
 
+  if (!body?.extracted_persona) {
+    return Response.json(
+      {
+        success: false,
+        error: "Run intent analysis first (/api/search/analyze) before streaming.",
+      },
+      { status: 400 },
+    );
+  }
+
   const selectedChannels = (body?.channels ?? []).filter((c) => VALID_CHANNELS.includes(c));
   if (selectedChannels.length === 0) {
     return Response.json({ success: false, error: "Select at least one channel" }, { status: 400 });
+  }
+
+  let persona = body.extracted_persona;
+  if (body.clarifying_answers && Object.keys(body.clarifying_answers).length > 0) {
+    persona = applyClarifyingAnswers(persona, body.clarifying_answers);
   }
 
   const estimatedCost = calculateCampaignCost(quantity, selectedChannels, true);
@@ -82,18 +102,21 @@ export async function POST(req: NextRequest): Promise<Response> {
         }
       };
 
+      const heartbeat = setInterval(() => {
+        send("heartbeat", { ts: Date.now() });
+      }, HEARTBEAT_MS);
+
       const leadsPerChannel = Math.ceil(quantity / selectedChannels.length);
       const seen = new Set<string>();
-      const progress = { totalFound: 0 };
       let campaignId = "";
 
       try {
-        send("status", { message: "Analyzing your buyer description..." });
-        const persona = await extractPersona(persona_text, env.GEMINI_API_KEY, env.GEMINI_MODEL);
+        send("status", { message: "Starting search with your confirmed buyer profile..." });
         send("persona", persona);
-
-        const activeChannels =
-          selectedChannels.length > 0 ? selectedChannels : persona.suggested_channels.slice(0, 4);
+        send("intent", {
+          summary: body?.intent_summary ?? "",
+          channels: selectedChannels,
+        });
 
         const campaign = await createCampaign(env.DB, {
           user_id: userId,
@@ -105,7 +128,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           price_point: persona.budget_signal || "Unknown",
           location: persona.locations.join(", ") || null,
           quantity_requested: quantity,
-          platforms: activeChannels,
+          platforms: selectedChannels,
           enrich: true,
           credits_used: 0,
           status: "running",
@@ -115,85 +138,110 @@ export async function POST(req: NextRequest): Promise<Response> {
         campaignId = campaign.id;
         send("campaign", { id: campaign.id });
 
-        const channelPromises = activeChannels.map(async (channel: string) => {
-          send("channel_start", { channel, query: buildChannelQuery(persona, channel) });
-          let channelFound = 0;
+        send("status", {
+          message: `Searching ${selectedChannels.length} channel${selectedChannels.length > 1 ? "s" : ""} in parallel...`,
+        });
 
-          try {
+        for (const channel of selectedChannels) {
+          send("channel_start", { channel, query: buildChannelQuery(persona, channel) });
+        }
+
+        const scrapeResults = await Promise.allSettled(
+          selectedChannels.map(async (channel) => {
             const rawLeads = await searchChannel(
               channel,
               persona,
               leadsPerChannel,
               searchKeys,
             );
+            return { channel, rawLeads };
+          }),
+        );
 
-            for (const raw of rawLeads) {
-              if (progress.totalFound >= quantity) break;
+        type RawItem = Awaited<ReturnType<typeof searchChannel>>[number] & { channel: string };
+        const queue: RawItem[] = [];
 
-              const dedupeKey = raw.url || raw.name.toLowerCase();
-              if (seen.has(dedupeKey)) continue;
-              seen.add(dedupeKey);
-
-              let enriched;
-              try {
-                enriched = await enrichLeadWithPersona(
-                  raw,
-                  persona,
-                  env.GEMINI_API_KEY,
-                  env.GEMINI_MODEL,
-                );
-              } catch (err) {
-                const reason = err instanceof Error ? err.message : "Unknown error";
-                console.warn(`[search] enrich failed for ${raw.name}:`, reason);
-                enriched = {
-                  score: 30,
-                  score_reason: `Enrichment failed: ${reason}`,
-                  fit_tags: [] as string[],
-                  pitch_angle: "",
-                  likely_pain: "",
-                  best_contact_channel: "email",
-                  estimated_company_size: "unknown",
-                  location_guess: "",
-                  email_guess: raw.email ?? "",
-                  contact_name: raw.name,
-                  company_name: raw.company || "Unknown",
-                };
-              }
-
-              const leadInput = rawToLeadInput(raw, enriched, campaign.id, userId, channel);
-              const saved = await createLead(env.DB, leadInput);
-              progress.totalFound++;
-              channelFound++;
-              send("lead", leadToStreamLead(saved));
-            }
-
-            send("channel_done", { channel, found: channelFound });
-          } catch (err) {
+        for (const result of scrapeResults) {
+          if (result.status !== "fulfilled") {
             send("channel_error", {
-              channel,
-              error: err instanceof Error ? err.message : "Channel search failed",
+              channel: "unknown",
+              error: result.reason instanceof Error ? result.reason.message : "Scrape failed",
             });
+            continue;
           }
+          const { channel, rawLeads } = result.value;
+          let channelFound = 0;
+          for (const raw of rawLeads) {
+            const dedupeKey = raw.url || raw.name.toLowerCase();
+            if (seen.has(dedupeKey)) continue;
+            seen.add(dedupeKey);
+            queue.push({ ...raw, channel });
+            channelFound++;
+          }
+          send("channel_done", { channel, found: channelFound });
+        }
+
+        const toProcess = queue.slice(0, quantity);
+        send("status", {
+          message: `Found ${toProcess.length} candidates — enriching with AI (${toProcess.length} calls queued)...`,
         });
 
-        await Promise.allSettled(channelPromises);
+        let totalFound = 0;
+        for (let i = 0; i < toProcess.length; i++) {
+          const raw = toProcess[i];
+          send("status", {
+            message: `Enriching lead ${i + 1} of ${toProcess.length}...`,
+            progress: { current: i + 1, total: toProcess.length },
+          });
 
-        const actualCost = Math.max(1, progress.totalFound);
-        if (progress.totalFound > 0) {
+          let enriched;
+          try {
+            enriched = await enrichLeadWithPersona(
+              raw,
+              persona,
+              env.GEMINI_API_KEY,
+              env.GEMINI_MODEL,
+            );
+          } catch (err) {
+            const reason = err instanceof Error ? err.message : "Unknown error";
+            console.warn(`[search] enrich failed for ${raw.name}:`, reason);
+            enriched = {
+              score: 30,
+              score_reason: `Enrichment failed: ${reason}`,
+              fit_tags: [] as string[],
+              pitch_angle: "",
+              likely_pain: "",
+              best_contact_channel: "email",
+              estimated_company_size: "unknown",
+              location_guess: "",
+              email_guess: raw.email ?? "",
+              contact_name: raw.name,
+              company_name: raw.company || "Unknown",
+            };
+          }
+
+          const leadInput = rawToLeadInput(raw, enriched, campaign.id, userId, raw.channel);
+          const saved = await createLead(env.DB, leadInput);
+          totalFound++;
+          send("lead", leadToStreamLead(saved));
+        }
+
+        const actualCost = Math.max(1, totalFound);
+        if (totalFound > 0) {
           await deductCredits(env.DB, userId, actualCost);
         }
         await updateCampaignStatus(env.DB, campaignId, {
-          status: progress.totalFound > 0 ? "complete" : "failed",
-          quantity_delivered: progress.totalFound,
-          credits_used: progress.totalFound > 0 ? actualCost : 0,
+          status: totalFound > 0 ? "complete" : "failed",
+          quantity_delivered: totalFound,
+          credits_used: totalFound > 0 ? actualCost : 0,
           completed_at: new Date().toISOString(),
-          error_message: progress.totalFound === 0 ? "No leads found" : null,
+          error_message: totalFound === 0 ? "No leads found" : null,
         });
 
         send("done", {
           campaign_id: campaignId,
-          total: progress.totalFound,
-          credits_used: progress.totalFound > 0 ? actualCost : 0,
+          total: totalFound,
+          credits_used: totalFound > 0 ? actualCost : 0,
         });
       } catch (err) {
         if (campaignId) {
@@ -204,6 +252,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         }
         send("error", { message: err instanceof Error ? err.message : "Search failed" });
       } finally {
+        clearInterval(heartbeat);
         controller.close();
       }
     },
