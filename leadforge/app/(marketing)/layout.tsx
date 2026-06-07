@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ContactBar } from "@/components/marketing/ContactBar";
+import { SITE } from "@/lib/site";
 
 export default function MarketingLayout({
   children,
@@ -12,10 +14,26 @@ export default function MarketingLayout({
           <Link href="/" className="font-display text-xl text-gold">
             ⬡ LeadForge
           </Link>
-          <div className="flex items-center gap-6 text-sm text-tx-muted">
+          <div className="flex items-center gap-4 text-sm text-tx-muted sm:gap-6">
             <Link href="/pricing" className="hover:text-tx">
               Pricing
             </Link>
+            <a
+              href={SITE.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden hover:text-tx sm:inline"
+            >
+              Discord
+            </a>
+            <a
+              href={SITE.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden hover:text-tx sm:inline"
+            >
+              Telegram
+            </a>
             <Link href="/auth/login" className="hover:text-tx">
               Sign In
             </Link>
@@ -28,9 +46,51 @@ export default function MarketingLayout({
           </div>
         </nav>
       </header>
+      <ContactBar />
       <main className="mx-auto max-w-6xl px-6">{children}</main>
-      <footer className="mt-24 border-t border-border py-10 text-center text-xs text-tx-muted">
-        LeadForge · a BrandForge tool
+      <footer className="mt-24 border-t border-border py-12">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 sm:flex-row">
+          <div className="text-center sm:text-left">
+            <p className="font-display text-lg text-gold">⬡ LeadForge</p>
+            <p className="mt-1 text-xs text-tx-muted">
+              AI buyer intelligence · multi-platform lead scraping
+            </p>
+            <p className="mt-2 text-xs text-tx-muted">
+              A{" "}
+              <a href={SITE.brandforge} className="text-gold hover:underline" target="_blank" rel="noopener noreferrer">
+                BrandForge
+              </a>{" "}
+              tool
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            <a
+              href={SITE.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded bg-[#5865F2] px-4 py-2 font-mono text-[10px] font-bold text-white hover:bg-[#4752c4]"
+            >
+              Discord
+            </a>
+            <a
+              href={SITE.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded border border-border px-4 py-2 font-mono text-[10px] text-tx-muted hover:text-tx"
+            >
+              Telegram
+            </a>
+            <Link
+              href="/pricing"
+              className="rounded border border-border px-4 py-2 font-mono text-[10px] text-tx-muted hover:text-tx"
+            >
+              Pricing
+            </Link>
+          </div>
+        </div>
+        <p className="mt-8 text-center text-[10px] text-tx-subtle">
+          © {new Date().getFullYear()} LeadForge · Fixed quotes & support on Discord / Telegram
+        </p>
       </footer>
     </>
   );

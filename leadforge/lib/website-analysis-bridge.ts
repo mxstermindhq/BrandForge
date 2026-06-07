@@ -129,7 +129,6 @@ export function heuristicWebsiteAnalysis(
   companyName: string,
   options?: { fallbackReason?: string; corpusChars?: number },
 ): WebsiteAnalysis {
-  const corpusLower = corpus.toLowerCase();
   const isAgency = /\b(agency|design|development|dev shop|studio)\b/i.test(corpus);
   const isSaas = /\b(saas|software|platform|subscription)\b/i.test(corpus);
   const isEcom = /\b(e-?commerce|shopify|store|dtc)\b/i.test(corpus);
