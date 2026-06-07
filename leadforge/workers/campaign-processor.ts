@@ -21,8 +21,9 @@ import {
   buildQuery,
   deduplicateLeads,
   extractFromURL,
-  scrapeGoogle,
+  searchSerp,
 } from "@/lib/scraper";
+import type { SearchKeys } from "@/lib/search";
 import { sendLeadsReady } from "@/lib/resend";
 
 function delay(ms: number): Promise<void> {
@@ -80,6 +81,13 @@ async function buildCandidates(
     Math.min(3, Math.ceil(campaign.quantity_requested / 10 / platforms.length)),
   );
 
+  const searchKeys: SearchKeys = {
+    provider: env.SEARCH_PROVIDER,
+    serperApiKey: env.SERPER_API_KEY,
+    googleCseKey: env.GOOGLE_CSE_KEY,
+    googleCseCx: env.GOOGLE_CSE_CX,
+  };
+
   const rawResults: { url: string; platform: string }[] = [];
   for (const platform of platforms) {
     const queries = buildQuery({
@@ -91,8 +99,10 @@ async function buildCandidates(
       targetDescription: campaign.target_description,
     });
     for (const query of queries) {
-      const found = await scrapeGoogle(query, pagesPerQuery, platform);
+      const found = await searchSerp(query, pagesPerQuery, platform, searchKeys);
       for (const r of found) rawResults.push({ url: r.url, platform });
+      // Pace queries to stay polite with free/keyless providers.
+      await delay(800);
     }
   }
 
@@ -208,7 +218,7 @@ export async function processCampaignChunk(
   for (const data of slice) {
     if (campaign.enrich === 1) {
       try {
-        const enrichment = await enrichLead(data, ctx, env.GEMINI_API_KEY);
+        const enrichment = await enrichLead(data, ctx, env.GEMINI_API_KEY, env.GEMINI_MODEL);
         leadInputs.push(toLeadInput(campaign, data, enrichment));
       } catch {
         // Gemini failed after retries — save the lead unenriched (graceful).

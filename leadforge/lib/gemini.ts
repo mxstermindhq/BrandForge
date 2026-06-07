@@ -7,10 +7,11 @@ import type {
   Lead,
   ProductContext,
 } from "@/types";
-import { GEMINI_TIMEOUT_MS } from "@/lib/constants";
+import { DEFAULT_GEMINI_MODEL, GEMINI_TIMEOUT_MS } from "@/lib/constants";
 
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+function geminiUrl(model: string): string {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
 
 const VALID_SIZES: EstimatedSize[] = ["solo", "small", "medium", "enterprise"];
 const VALID_FITS: FitLabel[] = ["Hot", "Warm", "Cold"];
@@ -29,13 +30,14 @@ export async function callGemini(
   prompt: string,
   systemInstruction: string,
   apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
   attempt = 0,
 ): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    const res = await fetch(`${geminiUrl(model)}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
@@ -52,11 +54,11 @@ export async function callGemini(
 
     if (res.status === 429 && attempt === 0) {
       await delay(4000);
-      return callGemini(prompt, systemInstruction, apiKey, attempt + 1);
+      return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
     }
     if (res.status === 503 && attempt === 0) {
       await delay(2000);
-      return callGemini(prompt, systemInstruction, apiKey, attempt + 1);
+      return callGemini(prompt, systemInstruction, apiKey, model, attempt + 1);
     }
     if (!res.ok) {
       throw new Error(`Gemini error ${res.status}`);
@@ -115,6 +117,7 @@ export async function enrichLead(
   rawData: ExtractedLeadData,
   productContext: ProductContext,
   apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<GeminiEnrichmentOutput> {
   const prompt = JSON.stringify({
     product: {
@@ -143,7 +146,7 @@ export async function enrichLead(
     },
   });
 
-  const raw = await callGemini(prompt, ENRICH_SYSTEM, apiKey);
+  const raw = await callGemini(prompt, ENRICH_SYSTEM, apiKey, model);
   const parsed = safeParse<Partial<GeminiEnrichmentOutput>>(raw);
   if (!parsed) throw new Error("Failed to parse Gemini enrichment JSON");
 
@@ -181,6 +184,7 @@ export async function generateColdEmail(
   lead: Lead,
   product: ProductContext,
   apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<ColdEmailOutput> {
   const likelyNeeds = lead.likely_needs
     ? (safeParse<string[]>(lead.likely_needs) ?? [])
@@ -201,7 +205,7 @@ export async function generateColdEmail(
     },
   });
 
-  const raw = await callGemini(prompt, COLD_EMAIL_SYSTEM, apiKey);
+  const raw = await callGemini(prompt, COLD_EMAIL_SYSTEM, apiKey, model);
   const parsed = safeParse<Partial<ColdEmailOutput>>(raw);
   return {
     subject: parsed?.subject ?? `Quick idea for ${lead.company_name ?? "you"}`,

@@ -11,6 +11,7 @@ import {
   SCRAPE_DOMAIN_BLOCKLIST,
   SCRAPE_TIMEOUT_MS,
 } from "@/lib/constants";
+import { webSearch, type SearchKeys } from "@/lib/search";
 
 const SKIP_EXTENSIONS = [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".gif", ".zip", ".svg", ".webp"];
 
@@ -192,44 +193,29 @@ function emptyExtract(url: string, platform: string): ExtractedLeadData {
   };
 }
 
-function decodeGoogleHref(raw: string): string | null {
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw || null;
-  }
-}
-
-/** Parse Google SERP HTML for organic result URLs. */
-export async function scrapeGoogle(
+/**
+ * Resolve result URLs for a query via the pluggable search layer (free
+ * DuckDuckGo by default; Serper/Google CSE when keys are present). Applies the
+ * domain blocklist and file-extension skip, and dedupes within the call.
+ */
+export async function searchSerp(
   query: string,
   pages: number,
   platform: string,
+  keys: SearchKeys = {},
   signal?: AbortSignal,
 ): Promise<RawScrapedResult[]> {
   const results: RawScrapedResult[] = [];
   const seen = new Set<string>();
 
   for (let page = 0; page < pages; page++) {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&start=${page * 10}&hl=en`;
-    let html = "";
-    try {
-      let res = await fetchWithTimeout(url, signal);
-      if (res.status === 429) {
-        await delay(3000);
-        res = await fetchWithTimeout(url, signal);
-        if (res.status === 429) continue; // skip page, do not throw
-      }
-      if (!res.ok) continue;
-      html = await res.text();
-    } catch {
-      continue; // network/timeout — skip page
+    const hits = await webSearch(query, page, keys, signal);
+    if (hits.length === 0) {
+      if (page === 0) continue; // first page empty → try nothing further is pointless
+      break; // no more results
     }
-
-    const hrefRe = /\/url\?q=([^"&]+)/g;
-    let m: RegExpExecArray | null;
-    while ((m = hrefRe.exec(html)) !== null) {
-      const decoded = decodeGoogleHref(m[1]);
+    for (const hit of hits) {
+      const decoded = hit.url;
       if (!decoded || !decoded.startsWith("http")) continue;
       if (isBlocked(decoded) || shouldSkipExtension(decoded)) continue;
       const key = decoded.split("#")[0];
@@ -237,15 +223,20 @@ export async function scrapeGoogle(
       seen.add(key);
       results.push({
         url: decoded,
-        title: hostOf(decoded) ?? decoded,
+        title: hit.title || hostOf(decoded) || decoded,
         snippet: "",
         emailsInSnippet: [],
         platform,
       });
     }
+    // Gentle pacing between pages to stay polite with the free provider.
+    if (page < pages - 1) await delay(600);
   }
   return results;
 }
+
+/** @deprecated kept for compatibility — use searchSerp. */
+export const scrapeGoogle = searchSerp;
 
 /** Fetch a URL and extract lead data. Never throws — returns partial on error. */
 export async function extractFromURL(

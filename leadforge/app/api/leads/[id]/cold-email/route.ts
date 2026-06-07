@@ -26,7 +26,7 @@ export async function POST(request: NextRequest, { params }: Params): Promise<Re
       price_point: campaign.price_point,
     };
 
-    const email = await generateColdEmail(lead, product, env.GEMINI_API_KEY);
+    const email = await generateColdEmail(lead, product, env.GEMINI_API_KEY, env.GEMINI_MODEL);
     return ok(email);
   } catch (err) {
     return handleError(err);

@@ -1,7 +1,14 @@
 # Copy to .dev.vars (gitignored) for local development with `wrangler dev`.
 GEMINI_API_KEY=
+GEMINI_MODEL=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 RESEND_API_KEY=
 JWT_SECRET=
 ADMIN_EMAIL=
+
+# Search provider (optional). Blank = free DuckDuckGo. Provide one to upgrade.
+SEARCH_PROVIDER=
+SERPER_API_KEY=
+GOOGLE_CSE_KEY=
+GOOGLE_CSE_CX=

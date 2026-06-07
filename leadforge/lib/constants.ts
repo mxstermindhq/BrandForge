@@ -143,6 +143,10 @@ export const PREFERRED_EMAIL_PREFIXES: readonly string[] = [
 export const PROCESSING_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+// Default Gemini model. Overridable via env GEMINI_MODEL. (gemini-1.5-* is
+// retired; 2.5-flash-lite is fast, cheap, and free-tier friendly.)
+export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
+
 // Rate-limit / runtime tuning (see Phase 0 reasoning).
 export const GEMINI_DELAY_MS = 4200; // ~14 RPM, safely under the 15 RPM cap
 export const GEMINI_TIMEOUT_MS = 15_000;
