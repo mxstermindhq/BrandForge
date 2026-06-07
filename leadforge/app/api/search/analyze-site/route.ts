@@ -39,6 +39,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       channels,
       env.GEMINI_API_KEY,
       env.GEMINI_MODEL,
+      env.GROQ_API_KEY,
+      env.GROQ_MODEL,
     );
 
     return ok(analysis);

@@ -145,6 +145,8 @@ export interface SiteAnalysisResult extends SearchIntentAnalysis {
   persona_text: string;
   /** Structured buyer intelligence from website analysis. */
   website_analysis: WebsiteAnalysis;
+  /** Which engine produced the analysis. */
+  analysis_source: "gemini" | "groq" | "heuristic";
 }
 
 export type MarketPosition = "budget" | "mid-market" | "premium" | "enterprise";

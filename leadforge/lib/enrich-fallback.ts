@@ -9,7 +9,13 @@ import type {
   ExtractedPersona,
   PersonaEnrichmentOutput,
   RawScrapedLead,
+  WebsiteAnalysis,
 } from "@/types";
+import {
+  buildWebsiteAnalysisPrompt,
+  parseWebsiteAnalysisResponse,
+  WEBSITE_ANALYSIS_SYSTEM,
+} from "@/lib/website-analysis-coerce";
 
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant";
@@ -68,7 +74,7 @@ async function callGroqJson(
         ],
         response_format: { type: "json_object" },
         temperature: 0.35,
-        max_tokens: 1024,
+        max_tokens: 2048,
       }),
     });
 
@@ -290,6 +296,25 @@ Return JSON:
     fit_reasoning: String(parsed.fit_reasoning ?? "Groq enrichment"),
     pain_point: String(parsed.pain_point ?? ""),
     pitch_angle: String(parsed.pitch_angle ?? ""),
+  };
+}
+
+/** Groq fallback for website ICP analysis when Gemini fails or is unavailable. */
+export async function groqWebsiteAnalysis(
+  content: string,
+  url: string,
+  apiKey: string,
+  model: string = DEFAULT_GROQ_MODEL,
+): Promise<WebsiteAnalysis> {
+  const prompt = buildWebsiteAnalysisPrompt(content, url);
+  const raw = await callGroqJson(prompt, WEBSITE_ANALYSIS_SYSTEM, apiKey, model);
+  const result = parseWebsiteAnalysisResponse(raw, url);
+  if (!result) {
+    throw new Error("Groq website analysis returned invalid ICP JSON");
+  }
+  return {
+    ...result,
+    confidence_reason: `[Groq fallback] ${result.confidence_reason}`,
   };
 }
 

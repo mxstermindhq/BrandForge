@@ -26,7 +26,7 @@ export function IntentReview({
   isLoading,
   quantity,
 }: Props): React.JSX.Element {
-  const { website_analysis, clarifying_questions } = analysis;
+  const { website_analysis, clarifying_questions, analysis_source } = analysis;
   const wa = website_analysis;
 
   return (
@@ -104,6 +104,16 @@ export function IntentReview({
             })}
           </div>
         </details>
+
+        {analysis_source !== "gemini" && (
+          <div className="mt-3 rounded-lg border border-amber-500/10 bg-amber-500/5 p-2.5">
+            <p className="text-[10px] text-amber-600">
+              {analysis_source === "groq"
+                ? "Analysis ran via Groq fallback (Gemini unavailable)."
+                : "Rule-based analysis — add GEMINI_API_KEY on Vercel for full AI profiling."}
+            </p>
+          </div>
+        )}
 
         {wa.data_quality_issues.length > 0 && (
           <div className="mt-3 rounded-lg border border-amber-500/10 bg-amber-500/5 p-2.5">

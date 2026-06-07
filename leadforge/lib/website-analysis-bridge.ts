@@ -127,8 +127,9 @@ export function heuristicWebsiteAnalysis(
   corpus: string,
   url: string,
   companyName: string,
+  options?: { fallbackReason?: string; corpusChars?: number },
 ): WebsiteAnalysis {
-  const lower = corpus.toLowerCase();
+  const corpusLower = corpus.toLowerCase();
   const isAgency = /\b(agency|design|development|dev shop|studio)\b/i.test(corpus);
   const isSaas = /\b(saas|software|platform|subscription)\b/i.test(corpus);
   const isEcom = /\b(e-?commerce|shopify|store|dtc)\b/i.test(corpus);
@@ -147,6 +148,17 @@ export function heuristicWebsiteAnalysis(
       "building my MVP",
       "need web development",
       "freelancer vs agency",
+    ];
+  } else if (/\b(digital founder|web3 operator|saas team)\b/i.test(corpus)) {
+    titles = ["Digital Founder", "SaaS Founder", "Web3 Operator"];
+    industries = ["SaaS", "Web3", "Startups"];
+    intent_signals = [
+      "looking for a design agency",
+      "need MVP development",
+      "fixed price web development",
+      "recommend a dev shop",
+      "building my startup website",
+      "need brand and web design",
     ];
   } else if (isSaas) {
     titles = ["Head of Growth", "SaaS Founder", "Product Manager"];
@@ -171,13 +183,28 @@ export function heuristicWebsiteAnalysis(
     /\$\d[\d,]*(?:\s*\/\s*(?:mo|month|yr|year))?|\b(?:from|starting at)\s+\$\d[\d,]*/i,
   );
 
+  const corpusChars = options?.corpusChars ?? corpus.length;
+  const fallbackReason = options?.fallbackReason?.trim() ?? "";
+
+  let confidence_reason = fallbackReason;
+  if (!confidence_reason) {
+    confidence_reason =
+      corpusChars < 400
+        ? "Rule-based analysis — limited website text was available."
+        : "Rule-based analysis — AI was unavailable.";
+  }
+
+  const one_liner = isAgency
+    ? "My ideal buyer is a bootstrapped SaaS founder or indie hacker who needs design, development, and growth in one fixed-price engagement."
+    : `My ideal buyer is a ${titles[0]} in ${industries[0]} who is actively searching for a solution like this.`;
+
   return {
     company_name: companyName,
     product_summary: corpus.slice(0, 160).trim() || "Product or service offering",
     price_signal: priceMatch?.[0] ?? "unknown",
     market_position: priceMatch ? "mid-market" : "mid-market",
     icp: {
-      one_liner: `My ideal buyer is a ${titles[0]} in ${industries[0]} who is actively looking for a solution like this.`,
+      one_liner,
       titles,
       seniority: ["founder", "manager"],
       company_stage: ["pre-seed", "seed", "bootstrapped"],
@@ -203,9 +230,13 @@ export function heuristicWebsiteAnalysis(
       likely_domains: ["gmail.com"],
       format: "firstname@company.com",
     },
-    confidence: lower.length > 800 ? 45 : 35,
-    confidence_reason: "Heuristic analysis — site content was limited or AI was unavailable.",
+    confidence: corpusChars > 800 ? 48 : corpusChars > 400 ? 42 : 35,
+    confidence_reason,
     data_quality_issues:
-      lower.length < 400 ? ["Limited website content available for analysis"] : [],
+      corpusChars < 400
+        ? ["Limited website content available for analysis"]
+        : fallbackReason
+          ? ["AI analysis failed — using rule-based buyer profile"]
+          : [],
   };
 }

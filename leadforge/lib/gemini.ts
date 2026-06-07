@@ -335,74 +335,12 @@ Rules:
   }
 }
 
-const WEBSITE_ANALYSIS_SYSTEM = `You are a senior B2B sales strategist with 15 years of experience profiling ideal customers.
-A company has provided their website content. Your job is NOT to describe what they sell.
-Your job is to deeply profile WHO buys it — the specific human being who is the ideal customer.
-Think like this: "Who wakes up in the morning and THIS product solves their exact problem?"
-Return ONLY valid JSON. No markdown. No preamble. No explanation. Just the JSON object.`;
-
-function normalizeMarketPosition(value: unknown): WebsiteAnalysis["market_position"] {
-  const v = String(value ?? "mid-market").toLowerCase();
-  if (v === "budget" || v === "premium" || v === "enterprise") return v;
-  return "mid-market";
-}
-
-function normalizeWebsiteAnalysis(parsed: Partial<WebsiteAnalysis>): WebsiteAnalysis {
-  const icp = (parsed.icp ?? {}) as Partial<WebsiteAnalysis["icp"]>;
-  return {
-    company_name: String(parsed.company_name ?? "Unknown"),
-    product_summary: String(parsed.product_summary ?? ""),
-    price_signal: String(parsed.price_signal ?? "unknown"),
-    market_position: normalizeMarketPosition(parsed.market_position),
-    icp: {
-      one_liner: String(icp.one_liner ?? ""),
-      titles: Array.isArray(icp.titles) ? icp.titles.map(String).slice(0, 5) : [],
-      seniority: Array.isArray(icp.seniority) ? icp.seniority.map(String) : [],
-      company_stage: Array.isArray(icp.company_stage) ? icp.company_stage.map(String) : [],
-      company_size: Array.isArray(icp.company_size) ? icp.company_size.map(String) : [],
-      industries: Array.isArray(icp.industries) ? icp.industries.map(String).slice(0, 4) : [],
-      locations: Array.isArray(icp.locations) ? icp.locations.map(String) : [],
-      technical_level: String(icp.technical_level ?? "unknown"),
-      psychographics: Array.isArray(icp.psychographics) ? icp.psychographics.map(String) : [],
-      budget_range: String(icp.budget_range ?? "unknown"),
-    },
-    pain_points: Array.isArray(parsed.pain_points) ? parsed.pain_points.map(String).slice(0, 5) : [],
-    buying_triggers: Array.isArray(parsed.buying_triggers)
-      ? parsed.buying_triggers.map(String)
-      : [],
-    intent_signals: Array.isArray(parsed.intent_signals)
-      ? parsed.intent_signals.map(String).slice(0, 10)
-      : [],
-    where_buyers_congregate: {
-      subreddits: Array.isArray(parsed.where_buyers_congregate?.subreddits)
-        ? parsed.where_buyers_congregate.subreddits.map(String)
-        : [],
-      twitter_communities: Array.isArray(parsed.where_buyers_congregate?.twitter_communities)
-        ? parsed.where_buyers_congregate.twitter_communities.map(String)
-        : [],
-      linkedin_signals: Array.isArray(parsed.where_buyers_congregate?.linkedin_signals)
-        ? parsed.where_buyers_congregate.linkedin_signals.map(String)
-        : [],
-      other: Array.isArray(parsed.where_buyers_congregate?.other)
-        ? parsed.where_buyers_congregate.other.map(String)
-        : [],
-    },
-    email_patterns: {
-      likely_domains: Array.isArray(parsed.email_patterns?.likely_domains)
-        ? parsed.email_patterns.likely_domains.map(String)
-        : [],
-      format: String(parsed.email_patterns?.format ?? "unknown"),
-    },
-    confidence:
-      typeof parsed.confidence === "number"
-        ? Math.min(100, Math.max(0, Math.round(parsed.confidence)))
-        : 50,
-    confidence_reason: String(parsed.confidence_reason ?? ""),
-    data_quality_issues: Array.isArray(parsed.data_quality_issues)
-      ? parsed.data_quality_issues.map(String)
-      : [],
-  };
-}
+import {
+  buildWebsiteAnalysisPrompt,
+  normalizeWebsiteAnalysis,
+  parseWebsiteAnalysisResponse,
+  WEBSITE_ANALYSIS_SYSTEM,
+} from "@/lib/website-analysis-coerce";
 
 export async function analyzeWebsite(
   content: string,
@@ -410,64 +348,16 @@ export async function analyzeWebsite(
   apiKey: string,
   model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<WebsiteAnalysis> {
-  const prompt = `Website URL: ${url}
-
-Website content:
----
-${content.slice(0, 6000)}
----
-
-Return ONLY valid JSON with this exact shape:
-{
-  "company_name": "string",
-  "product_summary": "string",
-  "price_signal": "string",
-  "market_position": "budget" | "mid-market" | "premium" | "enterprise",
-  "icp": {
-    "one_liner": "string",
-    "titles": ["string"],
-    "seniority": ["string"],
-    "company_stage": ["string"],
-    "company_size": ["string"],
-    "industries": ["string"],
-    "locations": ["string"],
-    "technical_level": "string",
-    "psychographics": ["string"],
-    "budget_range": "string"
-  },
-  "pain_points": ["string"],
-  "buying_triggers": ["string"],
-  "intent_signals": ["string"],
-  "where_buyers_congregate": {
-    "subreddits": ["string"],
-    "twitter_communities": ["string"],
-    "linkedin_signals": ["string"],
-    "other": ["string"]
-  },
-  "email_patterns": {
-    "likely_domains": ["string"],
-    "format": "string"
-  },
-  "confidence": number,
-  "confidence_reason": "string",
-  "data_quality_issues": ["string"]
-}
-
-Critical rules:
-- icp.one_liner must describe the BUYER, not the product. Complete: "My ideal buyer is a [specific person] who [specific situation] and needs [specific outcome]"
-- intent_signals must be literal search phrases a real human would type (6-10 items), not marketing language
-- titles must be specific role names — never use "sales" unless the product is literally a sales tool
-- Never hallucinate industries that aren't supported by the website content
-- If the website is vague, lower confidence and list ambiguity in data_quality_issues`;
+  const prompt = buildWebsiteAnalysisPrompt(content, url);
 
   const raw = await callGeminiPriority(prompt, WEBSITE_ANALYSIS_SYSTEM, apiKey, model);
-  const parsed = safeParse<Partial<WebsiteAnalysis>>(raw);
-  if (!parsed?.icp?.one_liner || !parsed.intent_signals?.length) {
+  const result = parseWebsiteAnalysisResponse(raw, url);
+  if (!result) {
     throw new Error(
       `Website analysis failed to produce valid ICP. Raw: ${raw.slice(0, 200)}`,
     );
   }
-  return normalizeWebsiteAnalysis(parsed);
+  return result;
 }
 
 const TEXT_TO_ANALYSIS_SYSTEM = `You convert free-text buyer descriptions into structured ICP profiles for lead generation.

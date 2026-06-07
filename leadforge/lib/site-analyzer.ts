@@ -3,6 +3,7 @@
  */
 
 import { analyzeWebsite } from "@/lib/gemini";
+import { groqWebsiteAnalysis } from "@/lib/enrich-fallback";
 import { PROCESSING_USER_AGENT, SCRAPE_TIMEOUT_MS } from "@/lib/constants";
 import {
   buildSearchPreviewFromAnalysis,
@@ -27,10 +28,35 @@ export interface SitePageSnapshot {
 }
 
 function stripHtml(html: string): string {
-  return html
+  let out = html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
+
+  const nextData = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
+  if (nextData?.[1]) {
+    try {
+      const data = JSON.parse(nextData[1]) as {
+        props?: { pageProps?: Record<string, unknown> };
+      };
+      const pageProps = data.props?.pageProps;
+      if (pageProps) {
+        out += " " + JSON.stringify(pageProps).slice(0, 4000);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const jsonLdBlocks = html.match(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi);
+  if (jsonLdBlocks) {
+    for (const block of jsonLdBlocks.slice(0, 3)) {
+      const inner = block.replace(/<\/?script[^>]*>/gi, "").trim();
+      out += " " + inner.slice(0, 1500);
+    }
+  }
+
+  return out
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -149,12 +175,59 @@ function buildCorpus(snapshots: SitePageSnapshot[]): string {
     .slice(0, MAX_COMBINED_TEXT);
 }
 
+async function runWebsiteAnalysis(
+  corpus: string,
+  baseUrl: string,
+  companyName: string,
+  geminiKey: string,
+  geminiModel: string | undefined,
+  groqKey: string,
+  groqModel: string | undefined,
+): Promise<{ analysis: WebsiteAnalysis; source: SiteAnalysisResult["analysis_source"] }> {
+  let lastError = "";
+
+  if (geminiKey.trim()) {
+    try {
+      const analysis = await analyzeWebsite(corpus, baseUrl, geminiKey, geminiModel);
+      return { analysis, source: "gemini" };
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : "Gemini failed";
+      console.warn("[site-analyzer] Gemini failed:", lastError);
+    }
+  } else {
+    lastError = "GEMINI_API_KEY not configured";
+  }
+
+  if (groqKey.trim()) {
+    try {
+      const analysis = await groqWebsiteAnalysis(corpus, baseUrl, groqKey, groqModel);
+      return { analysis, source: "groq" };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Groq failed";
+      console.warn("[site-analyzer] Groq failed:", msg);
+      lastError = lastError ? `${lastError}; ${msg}` : msg;
+    }
+  }
+
+  return {
+    analysis: heuristicWebsiteAnalysis(corpus, baseUrl, companyName, {
+      fallbackReason: lastError
+        ? `Rule-based analysis — ${lastError.slice(0, 120)}`
+        : undefined,
+      corpusChars: corpus.length,
+    }),
+    source: "heuristic",
+  };
+}
+
 /** Full pipeline: crawl site → AI buyer ICP → search intent package. */
 export async function analyzeWebsiteForBuyers(
   siteUrlInput: string,
   channels: string[],
   apiKey: string,
   model?: string,
+  groqKey?: string,
+  groqModel?: string,
 ): Promise<SiteAnalysisResult> {
   const baseUrl = normalizeSiteUrl(siteUrlInput);
   const snapshots = await crawlSite(baseUrl);
@@ -162,18 +235,15 @@ export async function analyzeWebsiteForBuyers(
   const home = snapshots[0];
   const companyName = home.title.split(/[|\-–—·]/)[0].trim() || hostName(baseUrl);
 
-  let website_analysis: WebsiteAnalysis;
-
-  if (apiKey?.trim()) {
-    try {
-      website_analysis = await analyzeWebsite(corpus, baseUrl, apiKey, model);
-    } catch (err) {
-      console.warn("[site-analyzer] AI analysis failed:", err instanceof Error ? err.message : err);
-      website_analysis = heuristicWebsiteAnalysis(corpus, baseUrl, companyName);
-    }
-  } else {
-    website_analysis = heuristicWebsiteAnalysis(corpus, baseUrl, companyName);
-  }
+  const { analysis: website_analysis, source: analysis_source } = await runWebsiteAnalysis(
+    corpus,
+    baseUrl,
+    companyName,
+    apiKey,
+    model,
+    groqKey ?? "",
+    groqModel,
+  );
 
   const persona = websiteAnalysisToPersona(website_analysis);
   const suggested = suggestedChannelsFromAnalysis(website_analysis);
@@ -195,5 +265,6 @@ export async function analyzeWebsiteForBuyers(
     site,
     persona_text,
     website_analysis,
+    analysis_source,
   };
 }
