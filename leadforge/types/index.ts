@@ -125,6 +125,26 @@ export interface SearchIntentAnalysis {
   search_preview: Record<string, string>;
 }
 
+/** Business profile extracted from the user's own website. */
+export interface SiteBusinessProfile {
+  url: string;
+  company_name: string;
+  tagline: string;
+  offer_type: "product" | "service" | "saas" | "agency" | "ecommerce" | "mixed";
+  what_they_sell: string;
+  value_proposition: string;
+  price_signal: string;
+  /** Who the site copy says they serve (before AI buyer inference). */
+  stated_audience: string;
+}
+
+export interface SiteAnalysisResult extends SearchIntentAnalysis {
+  source_url: string;
+  site: SiteBusinessProfile;
+  /** Human-readable summary for campaign storage / enrichment context. */
+  persona_text: string;
+}
+
 export type StreamEventType =
   | "persona"
   | "channel_start"

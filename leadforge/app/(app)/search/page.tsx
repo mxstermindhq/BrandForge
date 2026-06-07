@@ -5,23 +5,23 @@ import Link from "next/link";
 import { ChannelBar } from "@/components/search/ChannelBar";
 import { IntentReview } from "@/components/search/IntentReview";
 import { PersonaChips } from "@/components/search/PersonaChips";
-import { SearchInput } from "@/components/search/SearchInput";
+import { SiteUrlInput } from "@/components/search/SiteUrlInput";
 import { StreamLeadCard } from "@/components/search/StreamLeadCard";
 import { CHANNEL_META } from "@/lib/constants";
-import type { ExtractedPersona, SearchIntentAnalysis, StreamLead } from "@/types";
+import type { ExtractedPersona, SiteAnalysisResult, StreamLead } from "@/types";
 
 const ALL_CHANNELS = Object.keys(CHANNEL_META);
-const DEFAULT_CHANNELS = ["google", "linkedin", "reddit", "web"];
+const DEFAULT_CHANNELS = ["google", "linkedin", "web"];
 
 type Phase = "input" | "analyzing" | "confirm" | "searching" | "done";
 
 export default function SearchPage(): React.JSX.Element {
-  const [personaText, setPersonaText] = useState("");
+  const [siteUrl, setSiteUrl] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>(DEFAULT_CHANNELS);
   const [quantity, setQuantity] = useState(25);
 
   const [phase, setPhase] = useState<Phase>("input");
-  const [analysis, setAnalysis] = useState<SearchIntentAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<SiteAnalysisResult | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [persona, setPersona] = useState<ExtractedPersona | null>(null);
   const [leads, setLeads] = useState<StreamLead[]>([]);
@@ -35,7 +35,6 @@ export default function SearchPage(): React.JSX.Element {
   );
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [isRefining, setIsRefining] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -51,7 +50,7 @@ export default function SearchPage(): React.JSX.Element {
   }, []);
 
   const runStream = useCallback(
-    async (intent: SearchIntentAnalysis, clarifyingAnswers: Record<string, string>) => {
+    async (intent: SiteAnalysisResult, clarifyingAnswers: Record<string, string>) => {
       abortRef.current = new AbortController();
       setPhase("searching");
       setPersona(intent.persona);
@@ -61,7 +60,9 @@ export default function SearchPage(): React.JSX.Element {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            persona_text: personaText,
+            site_url: intent.source_url,
+            site: intent.site,
+            persona_text: intent.persona_text,
             channels: selectedChannels,
             quantity,
             extracted_persona: intent.persona,
@@ -173,76 +174,64 @@ export default function SearchPage(): React.JSX.Element {
         }
       }
     },
-    [personaText, selectedChannels, quantity],
+    [selectedChannels, quantity],
   );
 
-  const handleAnalyze = useCallback(async () => {
-    if (!personaText.trim() || phase === "analyzing" || phase === "searching") return;
+  const handleAnalyzeSite = useCallback(async () => {
+    if (!siteUrl.trim() || phase === "analyzing" || phase === "searching") return;
 
     resetSearchState();
     setPhase("analyzing");
-    setStatusMessage("Understanding your buyer description...");
+    setStatusMessage("Reading your website...");
     setAnswers({});
-    setIsRefining(false);
 
     abortRef.current?.abort();
     abortRef.current = new AbortController();
 
     try {
-      // Instant heuristic preview (<100ms) while AI refines in parallel.
-      const instantRes = await fetch(
-        `/api/search/analyze?q=${encodeURIComponent(personaText)}&channels=${selectedChannels.join(",")}`,
-        { signal: abortRef.current.signal },
-      );
-      if (instantRes.ok) {
-        const instantJson = (await instantRes.json()) as { data?: SearchIntentAnalysis };
-        if (instantJson.data) {
-          setAnalysis(instantJson.data);
-          setPersona(instantJson.data.persona);
-          setPhase("confirm");
-          setStatusMessage("");
-        }
-      }
-
-      setIsRefining(true);
-
-      const res = await fetch("/api/search/analyze", {
+      const res = await fetch("/api/search/analyze-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          persona_text: personaText,
+          site_url: siteUrl,
           channels: selectedChannels,
         }),
         signal: abortRef.current.signal,
       });
 
       if (!res.ok) {
-        if (!instantRes.ok) {
-          const err = (await res.json().catch(() => ({}))) as { error?: string };
-          setError(err.error || "Analysis failed");
-          setPhase("input");
-        }
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        setError(err.error || "Could not analyze this website");
+        setPhase("input");
         return;
       }
 
-      const json = (await res.json()) as { data?: SearchIntentAnalysis };
-      if (json.data) {
-        setAnalysis(json.data);
-        setPersona(json.data.persona);
-        setPhase("confirm");
-        setStatusMessage("");
+      const json = (await res.json()) as { data?: SiteAnalysisResult };
+      if (!json.data) {
+        setError("Analysis failed");
+        setPhase("input");
+        return;
       }
-      setIsRefining(false);
+
+      setAnalysis(json.data);
+      setPersona(json.data.persona);
+
+      const suggested = json.data.persona.suggested_channels.filter((c) =>
+        ALL_CHANNELS.includes(c),
+      );
+      if (suggested.length > 0) {
+        setSelectedChannels(suggested);
+      }
+
+      setPhase("confirm");
+      setStatusMessage("");
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        if (!analysis) {
-          setError("Could not analyze your description. Please try again.");
-          setPhase("input");
-        }
+        setError("Could not analyze this website. Check the URL and try again.");
+        setPhase("input");
       }
-      setIsRefining(false);
     }
-  }, [personaText, selectedChannels, phase, resetSearchState, analysis]);
+  }, [siteUrl, selectedChannels, phase, resetSearchState]);
 
   const handleConfirmSearch = useCallback(async () => {
     if (!analysis) return;
@@ -281,21 +270,23 @@ export default function SearchPage(): React.JSX.Element {
       <div className="mx-auto max-w-5xl">
         <div className="mb-10">
           <p className="text-xs uppercase tracking-widest text-zinc-600">Search / New</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Find Your Buyers</h1>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+            Find Your Ideal Buyers
+          </h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Describe who you&apos;re looking for — we&apos;ll confirm we understand before searching.
+            Paste your website — we analyze what you sell and scrape matching leads.
           </p>
         </div>
 
-        <SearchInput
-          value={personaText}
-          onChange={setPersonaText}
-          onSubmit={() => void handleAnalyze()}
+        <SiteUrlInput
+          value={siteUrl}
+          onChange={setSiteUrl}
+          onSubmit={() => void handleAnalyzeSite()}
           onStop={handleStop}
-          isSearching={isBusy}
+          isBusy={isBusy}
           quantity={quantity}
           onQuantityChange={setQuantity}
-          submitLabel={phase === "confirm" ? "Re-analyze" : "Analyze & Continue"}
+          submitLabel={phase === "confirm" ? "Re-analyze site" : "Analyze website"}
         />
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -323,7 +314,7 @@ export default function SearchPage(): React.JSX.Element {
         {phase === "analyzing" && (
           <div className="mt-6 flex items-center gap-3 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
-            {statusMessage || "Analyzing your buyer description..."}
+            {statusMessage || "Analyzing your website..."}
           </div>
         )}
 
@@ -335,7 +326,6 @@ export default function SearchPage(): React.JSX.Element {
             onConfirm={() => void handleConfirmSearch()}
             onBack={handleBackToInput}
             isLoading={false}
-            isRefining={isRefining}
             quantity={quantity}
           />
         )}

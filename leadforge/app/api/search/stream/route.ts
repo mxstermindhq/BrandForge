@@ -13,7 +13,7 @@ import {
 import { enrichLeadWithPersona, scoreToFitLabel } from "@/lib/gemini";
 import { applyClarifyingAnswers } from "@/lib/search-intent";
 import { leadToStreamLead } from "@/lib/stream-lead";
-import type { ExtractedPersona, LeadCreateInput } from "@/types";
+import type { ExtractedPersona, LeadCreateInput, SiteBusinessProfile } from "@/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -31,10 +31,11 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 
   const body = (await req.json().catch(() => null)) as {
+    site_url?: string;
+    site?: SiteBusinessProfile;
     persona_text?: string;
     channels?: string[];
     quantity?: number;
-    product?: string;
     extracted_persona?: ExtractedPersona;
     intent_summary?: string;
     clarifying_answers?: Record<string, string>;
@@ -42,17 +43,18 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   const persona_text = body?.persona_text?.trim() ?? "";
   const quantity = Math.min(5000, Math.max(1, Number(body?.quantity) || 25));
-  const product = body?.product?.trim() ?? "";
+  const site = body?.site;
+  const site_url = body?.site_url?.trim() ?? site?.url ?? "";
 
   if (!persona_text) {
-    return Response.json({ success: false, error: "persona_text is required" }, { status: 400 });
+    return Response.json({ success: false, error: "Run site analysis first" }, { status: 400 });
   }
 
   if (!body?.extracted_persona) {
     return Response.json(
       {
         success: false,
-        error: "Run intent analysis first (/api/search/analyze) before streaming.",
+        error: "Run site analysis first (/api/search/analyze-site) before streaming.",
       },
       { status: 400 },
     );
@@ -111,21 +113,23 @@ export async function POST(req: NextRequest): Promise<Response> {
       let campaignId = "";
 
       try {
-        send("status", { message: "Starting search with your confirmed buyer profile..." });
+        send("status", { message: "Scraping leads that match your ideal buyer profile..." });
         send("persona", persona);
         send("intent", {
           summary: body?.intent_summary ?? "",
           channels: selectedChannels,
+          site_url,
+          company: site?.company_name ?? "",
         });
 
         const campaign = await createCampaign(env.DB, {
           user_id: userId,
-          name: `Search: ${persona.keywords[0] ?? persona_text.slice(0, 40)}`,
+          name: `Site: ${site?.company_name ?? persona.keywords[0] ?? "Lead search"}`,
           type: persona.b2b ? "b2b" : "b2c",
-          product_name: product || persona.product_context || "Unknown",
-          product_description: persona_text,
-          target_description: persona.titles.join(", ") || persona_text.slice(0, 100),
-          price_point: persona.budget_signal || "Unknown",
+          product_name: site?.company_name ?? persona.product_context ?? "Unknown",
+          product_description: site?.what_they_sell ?? persona_text,
+          target_description: persona.titles.join(", ") || body?.intent_summary?.slice(0, 100) || persona_text.slice(0, 100),
+          price_point: site?.price_signal || persona.budget_signal || "Unknown",
           location: persona.locations.join(", ") || null,
           quantity_requested: quantity,
           platforms: selectedChannels,

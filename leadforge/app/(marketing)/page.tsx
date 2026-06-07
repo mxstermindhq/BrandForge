@@ -2,9 +2,9 @@ import Link from "next/link";
 import { PACKS, PLATFORMS, WELCOME_CREDITS } from "@/lib/constants";
 
 const STEPS = [
-  { n: "01", title: "Describe", body: "Your ideal buyer in plain English — one sentence is enough." },
-  { n: "02", title: "Extract", body: "AI pulls titles, industries, locations, and pain points." },
-  { n: "03", title: "Search live", body: "We query 8 platforms in parallel and stream results back." },
+  { n: "01", title: "Paste your site", body: "Drop the URL where you sell your product or service." },
+  { n: "02", title: "We analyze", body: "AI reads your site and identifies your ideal buyer profile." },
+  { n: "03", title: "Search live", body: "We query 8 platforms in parallel and stream matching leads back." },
   { n: "04", title: "Contact", body: "Scored leads with fit reasons, emails, and pitch angles." },
 ] as const;
 
@@ -16,11 +16,11 @@ export default function LandingPage(): React.JSX.Element {
           B2B + B2C lead generation
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl font-display text-6xl font-light leading-tight md:text-7xl">
-          Describe your buyer. <span className="text-gold">Get them instantly.</span>
+          Paste your site. <span className="text-gold">Find your buyers.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-tx-muted">
-          Type one sentence about who you want to reach. AI extracts the persona, searches every
-          channel in parallel, and streams scored leads back in real time.
+          We analyze what you sell, infer who buys it, then scrape and score matching leads across
+          every channel — streamed back in real time.
         </p>
         <div className="mt-10 flex justify-center gap-4">
           <Link

@@ -1,18 +1,26 @@
 "use client";
 
 import { CHANNEL_META } from "@/lib/constants";
-import type { ClarifyingQuestion, SearchIntentAnalysis } from "@/types";
+import type { ClarifyingQuestion, SiteAnalysisResult, SiteBusinessProfile } from "@/types";
 
 interface Props {
-  analysis: SearchIntentAnalysis;
+  analysis: SiteAnalysisResult;
   answers: Record<string, string>;
   onAnswer: (id: string, value: string) => void;
   onConfirm: () => void;
   onBack: () => void;
   isLoading: boolean;
-  isRefining?: boolean;
   quantity: number;
 }
+
+const OFFER_LABELS: Record<SiteBusinessProfile["offer_type"], string> = {
+  product: "Product",
+  service: "Service",
+  saas: "SaaS",
+  agency: "Agency",
+  ecommerce: "E-commerce",
+  mixed: "Mixed offer",
+};
 
 export function IntentReview({
   analysis,
@@ -21,67 +29,108 @@ export function IntentReview({
   onConfirm,
   onBack,
   isLoading,
-  isRefining = false,
   quantity,
 }: Props): React.JSX.Element {
-  const { persona, confidence, intent_summary, clarifying_questions, search_preview } = analysis;
+  const { site, persona, confidence, intent_summary, clarifying_questions, search_preview } =
+    analysis;
 
   return (
-    <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-zinc-600">We understood</p>
-          <p className="mt-1 text-sm leading-relaxed text-zinc-200">{intent_summary}</p>
+    <div className="mt-6 space-y-4">
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+        <p className="text-[10px] uppercase tracking-widest text-zinc-600">We analyzed</p>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-white">{site.company_name}</h2>
+            <a
+              href={site.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-zinc-500 hover:text-zinc-300"
+            >
+              {site.url}
+            </a>
+            {site.tagline && (
+              <p className="mt-2 text-sm text-zinc-400">{site.tagline}</p>
+            )}
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-400">
+            {OFFER_LABELS[site.offer_type]}
+          </span>
         </div>
-        <div className="shrink-0 text-right">
-          {isRefining && (
-            <p className="mb-1 text-[10px] text-zinc-500 animate-pulse">Refining with AI...</p>
+        <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
+          <div>
+            <dt className="text-zinc-600">What you sell</dt>
+            <dd className="text-zinc-300">{site.what_they_sell}</dd>
+          </div>
+          {site.price_signal && (
+            <div>
+              <dt className="text-zinc-600">Pricing signal</dt>
+              <dd className="text-zinc-300">{site.price_signal}</dd>
+            </div>
           )}
-          <p className="text-[10px] uppercase tracking-widest text-zinc-600">Confidence</p>
-          <p
-            className={`mt-1 text-lg font-semibold tabular-nums ${
-              confidence >= 70 ? "text-emerald-400" : confidence >= 50 ? "text-amber-400" : "text-zinc-400"
-            }`}
-          >
-            {confidence}%
-          </p>
-        </div>
+        </dl>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {persona.titles.slice(0, 3).map((t) => (
-          <span key={t} className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs text-blue-400">
-            {t}
-          </span>
-        ))}
-        {persona.industries.slice(0, 2).map((i) => (
-          <span key={i} className="rounded-full bg-violet-500/10 px-2.5 py-1 text-xs text-violet-400">
-            {i}
-          </span>
-        ))}
-        {persona.locations.slice(0, 2).map((l) => (
-          <span key={l} className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
-            {l}
-          </span>
-        ))}
+      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-emerald-600/80">
+              Ideal buyer profile
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-200">{intent_summary}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-600">Confidence</p>
+            <p
+              className={`mt-1 text-lg font-semibold tabular-nums ${
+                confidence >= 70 ? "text-emerald-400" : confidence >= 50 ? "text-amber-400" : "text-zinc-400"
+              }`}
+            >
+              {confidence}%
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {persona.titles.slice(0, 3).map((t) => (
+            <span key={t} className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs text-blue-400">
+              {t}
+            </span>
+          ))}
+          {persona.industries.slice(0, 2).map((i) => (
+            <span key={i} className="rounded-full bg-violet-500/10 px-2.5 py-1 text-xs text-violet-400">
+              {i}
+            </span>
+          ))}
+          {persona.pain_points.slice(0, 2).map((p) => (
+            <span key={p} className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-400">
+              {p}
+            </span>
+          ))}
+        </div>
+
+        {persona.suggested_channels.length > 0 && (
+          <p className="mt-3 text-xs text-zinc-500">
+            Recommended channels:{" "}
+            {persona.suggested_channels.map((c) => CHANNEL_META[c]?.label ?? c).join(", ")}
+          </p>
+        )}
       </div>
 
       {clarifying_questions.length > 0 && (
-        <div className="mt-6 space-y-4">
-          <p className="text-xs text-zinc-500">
-            A few quick questions to sharpen your results:
-          </p>
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 space-y-4">
+          <p className="text-xs text-zinc-500">Optional refinements:</p>
           {clarifying_questions.map((q) => (
             <QuestionField key={q.id} question={q} value={answers[q.id] ?? ""} onChange={onAnswer} />
           ))}
         </div>
       )}
 
-      <details className="mt-5 group">
+      <details className="group rounded-xl border border-white/5 bg-black/20 px-4 py-3">
         <summary className="cursor-pointer text-xs text-zinc-600 transition-colors hover:text-zinc-400">
           Preview search queries per channel
         </summary>
-        <div className="mt-2 space-y-1.5">
+        <div className="mt-2 space-y-1.5 pb-1">
           {Object.entries(search_preview).map(([ch, query]) => (
             <div key={ch} className="rounded-lg bg-black/30 px-3 py-2 text-xs">
               <span className="font-medium text-zinc-500">{CHANNEL_META[ch]?.label ?? ch}: </span>
@@ -91,14 +140,14 @@ export function IntentReview({
         </div>
       </details>
 
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 pt-2">
         <button
           type="button"
           onClick={onBack}
           disabled={isLoading}
           className="text-xs text-zinc-600 transition-colors hover:text-zinc-400 disabled:opacity-50"
         >
-          ← Edit description
+          ← Change website
         </button>
         <button
           type="button"
@@ -106,7 +155,7 @@ export function IntentReview({
           disabled={isLoading}
           className="rounded-lg bg-white px-5 py-2 text-xs font-semibold text-black transition-colors hover:bg-zinc-200 disabled:opacity-50"
         >
-          {isLoading ? "Starting..." : `Find ${quantity} leads →`}
+          {isLoading ? "Starting..." : `Find ${quantity} buyers →`}
         </button>
       </div>
     </div>
@@ -141,15 +190,6 @@ function QuestionField({
               {opt}
             </button>
           ))}
-          {question.placeholder && (
-            <input
-              type="text"
-              value={question.options.includes(value) ? "" : value}
-              onChange={(e) => onChange(question.id, e.target.value)}
-              placeholder={question.placeholder}
-              className="min-w-[180px] flex-1 rounded-lg border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white outline-none placeholder:text-zinc-700"
-            />
-          )}
         </div>
       ) : (
         <input
