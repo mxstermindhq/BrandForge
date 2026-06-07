@@ -47,6 +47,7 @@ function mapUser(row: Record<string, unknown>): User {
 
 function mapCampaign(row: Record<string, unknown>): Campaign {
   const platforms = row.platforms;
+  const persona = row.extracted_persona;
   return {
     id: String(row.id),
     user_id: String(row.user_id),
@@ -65,6 +66,11 @@ function mapCampaign(row: Record<string, unknown>): Campaign {
     credits_used: Number(row.credits_used ?? 0),
     cursor: Number(row.cursor ?? 0),
     error_message: (row.error_message as string | null) ?? null,
+    persona_text: (row.persona_text as string | null) ?? null,
+    extracted_persona:
+      persona && typeof persona === "object"
+        ? JSON.stringify(persona)
+        : (persona as string | null) ?? null,
     created_at: String(row.created_at),
     completed_at: (row.completed_at as string | null) ?? null,
     updated_at: String(row.updated_at),
@@ -72,7 +78,11 @@ function mapCampaign(row: Record<string, unknown>): Campaign {
 }
 
 function mapLead(row: Record<string, unknown>): Lead {
-  return row as unknown as Lead;
+  const fitTags = row.fit_tags;
+  return {
+    ...(row as unknown as Lead),
+    fit_tags: Array.isArray(fitTags) ? JSON.stringify(fitTags) : (fitTags as string | null) ?? null,
+  };
 }
 
 // ── Users / profiles ─────────────────────────────────────────────────────────
@@ -181,9 +191,11 @@ export async function createCampaign(db: Db, input: CampaignCreateInput): Promis
       quantity_requested: input.quantity_requested,
       platforms: input.platforms,
       enrich: input.enrich,
-      status: "queued",
+      status: input.status ?? "queued",
       credits_used: input.credits_used,
       cursor: 0,
+      persona_text: input.persona_text ?? null,
+      extracted_persona: input.extracted_persona ?? {},
     })
     .select("*")
     .single();
@@ -284,9 +296,20 @@ function leadRow(lead: LeadCreateInput): Record<string, unknown> {
     estimated_size: lead.estimated_size ?? null,
     likely_needs: lead.likely_needs ? JSON.stringify(lead.likely_needs) : null,
     pitch_angle: lead.pitch_angle ?? null,
+    score_reason: lead.score_reason ?? null,
+    fit_tags: lead.fit_tags ? JSON.stringify(lead.fit_tags) : null,
+    likely_pain: lead.likely_pain ?? null,
+    best_contact_channel: lead.best_contact_channel ?? null,
+    location_guess: lead.location_guess ?? null,
     red_flags: lead.red_flags ? JSON.stringify(lead.red_flags) : null,
     raw_data: lead.raw_data ?? null,
   };
+}
+
+export async function createLead(db: Db, lead: LeadCreateInput): Promise<Lead> {
+  const { data, error } = await db.from("leads").insert(leadRow(lead)).select("*").single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create lead");
+  return mapLead(data);
 }
 
 export async function createLeadsBatch(db: Db, leads: LeadCreateInput[]): Promise<number> {

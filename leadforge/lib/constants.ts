@@ -94,6 +94,28 @@ export const PLATFORMS: readonly Platform[] = [
   },
 ];
 
+export const CHANNEL_META: Record<string, { label: string; color: string; icon: string }> = {
+  google: { label: "Google", color: "#4285F4", icon: "G" },
+  reddit: { label: "Reddit", color: "#FF4500", icon: "R" },
+  youtube: { label: "YouTube", color: "#FF0000", icon: "YT" },
+  instagram: { label: "Instagram", color: "#E1306C", icon: "IG" },
+  tiktok: { label: "TikTok", color: "#69C9D0", icon: "TT" },
+  twitter: { label: "X / Twitter", color: "#1DA1F2", icon: "X" },
+  linkedin: { label: "LinkedIn", color: "#0A66C2", icon: "LI" },
+  web: { label: "Open Web", color: "#6B7280", icon: "W" },
+};
+
+export const VALID_SEARCH_CHANNELS = [
+  "google",
+  "reddit",
+  "youtube",
+  "instagram",
+  "tiktok",
+  "twitter",
+  "linkedin",
+  "web",
+] as const;
+
 export const PACKS: readonly PricePack[] = [
   { id: "starter", name: "Starter", credits: 300, priceUsd: 19, stripePriceId: "" },
   { id: "growth", name: "Growth", credits: 1000, priceUsd: 49, stripePriceId: "" },

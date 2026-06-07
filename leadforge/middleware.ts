@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/server";
 
-const PROTECTED_PAGES = ["/dashboard", "/campaigns", "/leads", "/billing", "/admin"];
+const PROTECTED_PAGES = ["/dashboard", "/search", "/campaigns", "/leads", "/billing", "/admin"];
 const PROTECTED_API = [
   "/api/campaigns",
   "/api/leads",
+  "/api/search",
   "/api/billing/balance",
   "/api/billing/checkout",
   "/api/admin",
@@ -57,12 +58,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/search/:path*",
     "/campaigns/:path*",
     "/leads/:path*",
     "/billing/:path*",
     "/admin/:path*",
     "/api/campaigns/:path*",
     "/api/leads/:path*",
+    "/api/search/:path*",
     "/api/billing/:path*",
     "/api/admin/:path*",
   ],

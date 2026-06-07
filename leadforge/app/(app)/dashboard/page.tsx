@@ -37,6 +37,17 @@ export default function DashboardPage(): React.JSX.Element {
         </div>
       </div>
 
+      <Link
+        href="/search"
+        className="mt-8 block rounded-xl border border-gold/30 bg-gold-bg p-6 transition hover:border-gold"
+      >
+        <p className="text-xs uppercase tracking-widest text-gold">Start here</p>
+        <h2 className="mt-2 font-display text-2xl font-light">Start a new search</h2>
+        <p className="mt-1 text-sm text-tx-muted">
+          Describe your ideal buyer in plain English — leads stream in live.
+        </p>
+      </Link>
+
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Credits" value={me.credits.balance.toLocaleString()} accent />
         <StatCard label="Total leads" value={stats ? stats.total.toLocaleString() : "—"} />
@@ -70,8 +81,8 @@ export default function DashboardPage(): React.JSX.Element {
             title="No campaigns yet"
             body="Launch your first campaign to start collecting enriched leads."
             action={
-              <Link href="/campaigns/new">
-                <Button>Create a campaign</Button>
+              <Link href="/search">
+                <Button>Start a search</Button>
               </Link>
             }
           />

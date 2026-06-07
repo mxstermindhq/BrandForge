@@ -26,9 +26,10 @@ export function useMe(): MeContextValue {
 }
 
 const NAV = [
+  { href: "/search", label: "Search", icon: "⌕" },
   { href: "/dashboard", label: "Dashboard", icon: "◇" },
-  { href: "/campaigns", label: "Campaigns", icon: "◈" },
   { href: "/leads", label: "Leads", icon: "☷" },
+  { href: "/campaigns", label: "Campaigns", icon: "◈" },
   { href: "/billing", label: "Billing", icon: "◎" },
 ] as const;
 
@@ -137,10 +138,10 @@ export function AppShell({ children }: { children: React.ReactNode }): React.JSX
                 <span className="text-tx-muted">credits</span>
               </Link>
               <Link
-                href="/campaigns/new"
+                href="/search"
                 className="rounded bg-gold px-4 py-1.5 text-sm font-medium text-bg hover:bg-gold-light"
               >
-                New campaign
+                New search
               </Link>
             </div>
           </header>

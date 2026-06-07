@@ -94,6 +94,45 @@ export type CampaignStatus =
   | "paused"
   | "cancelled";
 
+export interface ExtractedPersona {
+  titles: string[];
+  industries: string[];
+  locations: string[];
+  company_sizes: string[];
+  pain_points: string[];
+  keywords: string[];
+  budget_signal: string;
+  b2b: boolean;
+  suggested_channels: string[];
+  product_context: string;
+}
+
+export type StreamEventType =
+  | "persona"
+  | "channel_start"
+  | "lead"
+  | "channel_done"
+  | "done"
+  | "error"
+  | "status"
+  | "campaign"
+  | "channel_error";
+
+export interface StreamEvent {
+  type: StreamEventType;
+  data: unknown;
+}
+
+export interface ChannelStartEvent {
+  channel: string;
+  query: string;
+}
+
+export interface ChannelDoneEvent {
+  channel: string;
+  found: number;
+}
+
 export interface Campaign {
   id: string;
   user_id: string;
@@ -113,6 +152,9 @@ export interface Campaign {
   credits_used: number;
   cursor: number;
   error_message: string | null;
+  persona_text: string | null;
+  /** JSON object in the DB. */
+  extracted_persona: string | null;
   created_at: string;
   completed_at: string | null;
   updated_at: string;
@@ -137,6 +179,9 @@ export interface CampaignCreateInput {
   platforms: string[];
   enrich: boolean;
   credits_used: number;
+  status?: CampaignStatus;
+  persona_text?: string | null;
+  extracted_persona?: ExtractedPersona | null;
 }
 
 /** Fields the queue consumer may patch on a campaign. */
@@ -202,6 +247,12 @@ export interface Lead {
   /** JSON-encoded string[] in the DB. */
   likely_needs: string | null;
   pitch_angle: string | null;
+  score_reason: string | null;
+  /** JSON-encoded string[] in the DB. */
+  fit_tags: string | null;
+  likely_pain: string | null;
+  best_contact_channel: string | null;
+  location_guess: string | null;
   /** JSON-encoded string[] in the DB. */
   red_flags: string | null;
   /** JSON-encoded RawScrapedResult/ExtractedLeadData in the DB. */
@@ -209,6 +260,16 @@ export interface Lead {
   notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** Lead shape streamed to the search UI (parsed tags + aliases). */
+export interface StreamLead extends Omit<Lead, "fit_tags"> {
+  platform: string;
+  name: string;
+  title: string;
+  company: string;
+  url: string;
+  fit_tags: string[];
 }
 
 export interface LeadCreateInput {
@@ -233,6 +294,11 @@ export interface LeadCreateInput {
   estimated_size?: string | null;
   likely_needs?: string[] | null;
   pitch_angle?: string | null;
+  score_reason?: string | null;
+  fit_tags?: string[] | null;
+  likely_pain?: string | null;
+  best_contact_channel?: string | null;
+  location_guess?: string | null;
   red_flags?: string[] | null;
   raw_data?: string | null;
 }
@@ -311,6 +377,20 @@ export interface GeminiEnrichmentOutput {
   likely_needs: string[]; // max 3
   pitch_angle: string;
   red_flags: string[]; // empty if none
+}
+
+export interface PersonaEnrichmentOutput {
+  score: number;
+  score_reason: string;
+  fit_tags: string[];
+  pitch_angle: string;
+  likely_pain: string;
+  best_contact_channel: string;
+  estimated_company_size: string;
+  location_guess: string;
+  email_guess: string;
+  contact_name: string;
+  company_name: string;
 }
 
 export interface ProductContext {

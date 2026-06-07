@@ -2,7 +2,16 @@
 // throw — email is best-effort and must not break the request/queue flow.
 
 const RESEND_URL = "https://api.resend.com/emails";
-const FROM = "LeadForge <onboarding@resend.dev>";
+
+function resendFrom(): string {
+  if (process.env.RESEND_FROM?.trim()) return process.env.RESEND_FROM.trim();
+  try {
+    const host = new URL(process.env.APP_URL || "http://localhost:3003").hostname;
+    return `LeadForge <noreply@${host}>`;
+  } catch {
+    return "LeadForge <onboarding@resend.dev>";
+  }
+}
 
 async function send(
   apiKey: string,
@@ -18,7 +27,7 @@ async function send(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: FROM, to, subject, html }),
+      body: JSON.stringify({ from: resendFrom(), to, subject, html }),
     });
     if (!res.ok) {
       console.warn(`Resend send failed: ${res.status}`);

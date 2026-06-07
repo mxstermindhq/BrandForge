@@ -2,10 +2,10 @@ import Link from "next/link";
 import { PACKS, PLATFORMS, WELCOME_CREDITS } from "@/lib/constants";
 
 const STEPS = [
-  { n: "01", title: "Describe", body: "Your product and ideal customer in plain language." },
-  { n: "02", title: "Select sources", body: "Toggle Reddit, Google, LinkedIn, Instagram, and more." },
-  { n: "03", title: "Launch", body: "Spend credits and start the run — we scrape and enrich." },
-  { n: "04", title: "Export", body: "AI-scored leads with emails, fit, and a pitch angle each." },
+  { n: "01", title: "Describe", body: "Your ideal buyer in plain English — one sentence is enough." },
+  { n: "02", title: "Extract", body: "AI pulls titles, industries, locations, and pain points." },
+  { n: "03", title: "Search live", body: "We query 8 platforms in parallel and stream results back." },
+  { n: "04", title: "Contact", body: "Scored leads with fit reasons, emails, and pitch angles." },
 ] as const;
 
 export default function LandingPage(): React.JSX.Element {
@@ -16,11 +16,11 @@ export default function LandingPage(): React.JSX.Element {
           B2B + B2C lead generation
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl font-display text-6xl font-light leading-tight md:text-7xl">
-          Describe your buyer. <span className="text-gold">Get enriched leads.</span>
+          Describe your buyer. <span className="text-gold">Get them instantly.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-tx-muted">
-          Describe your customer, choose your platforms, and receive enriched
-          leads with emails, fit scores, and a written pitch angle each.
+          Type one sentence about who you want to reach. AI extracts the persona, searches every
+          channel in parallel, and streams scored leads back in real time.
         </p>
         <div className="mt-10 flex justify-center gap-4">
           <Link

@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   EmptyState,
-  FitBadge,
   Input,
   Select,
   Spinner,
@@ -201,10 +200,7 @@ export function LeadsView({ campaignId }: { campaignId?: string }): React.JSX.El
                     </td>
                     <td className="px-4 py-3 capitalize text-tx-muted">{lead.platform_source}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-tx">{lead.score}</span>
-                        <FitBadge label={lead.fit_label} />
-                      </div>
+                      <LeadScoreCell score={lead.score} reason={lead.score_reason} />
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <Select
@@ -257,6 +253,29 @@ export function LeadsView({ campaignId }: { campaignId?: string }): React.JSX.El
           onNotesSaved={patchLeadLocal}
         />
       )}
+    </div>
+  );
+}
+
+function LeadScoreCell({
+  score,
+  reason,
+}: {
+  score: number;
+  reason: string | null;
+}): React.JSX.Element {
+  const color = score >= 70 ? "#52c07a" : score >= 40 ? "#e0a052" : "#666";
+  return (
+    <div className="flex items-center gap-2" title={reason ?? undefined}>
+      <div className="h-1 w-12 overflow-hidden rounded-full bg-border">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${score}%`, backgroundColor: color }}
+        />
+      </div>
+      <span className="font-mono text-sm" style={{ color }}>
+        {score}
+      </span>
     </div>
   );
 }

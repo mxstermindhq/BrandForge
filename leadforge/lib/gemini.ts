@@ -2,9 +2,11 @@ import type {
   ColdEmailOutput,
   EstimatedSize,
   ExtractedLeadData,
+  ExtractedPersona,
   FitLabel,
   GeminiEnrichmentOutput,
   Lead,
+  PersonaEnrichmentOutput,
   ProductContext,
 } from "@/types";
 import { DEFAULT_GEMINI_MODEL, GEMINI_TIMEOUT_MS } from "@/lib/constants";
@@ -177,6 +179,163 @@ export async function enrichLead(
       : [],
   };
 }
+
+const PERSONA_SYSTEM = `You are a lead generation strategist. Extract structured buyer persona data from user descriptions.
+Return ONLY valid JSON matching the requested schema. No markdown, no explanation.`;
+
+export async function extractPersona(
+  rawText: string,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<ExtractedPersona> {
+  const prompt = `Extract structured buyer persona data from this description.
+
+Input: "${rawText.replace(/"/g, '\\"')}"
+
+Return JSON with this exact shape:
+{
+  "titles": ["string"],
+  "industries": ["string"],
+  "locations": ["string"],
+  "company_sizes": ["string"],
+  "pain_points": ["string"],
+  "keywords": ["string"],
+  "budget_signal": "string",
+  "b2b": boolean,
+  "suggested_channels": ["string"],
+  "product_context": "string"
+}
+
+Rules:
+- suggested_channels must only contain: google, reddit, youtube, instagram, tiktok, twitter, linkedin, web
+- Suggest 3-5 channels that fit this persona
+- B2B: prioritize linkedin, google, web
+- Consumer/creator: prioritize instagram, tiktok, youtube, reddit
+- titles should be singular role names (Founder not Founders)
+- keywords should be search-query-ready phrases`;
+
+  try {
+    const raw = await callGemini(prompt, PERSONA_SYSTEM, apiKey, model);
+    const parsed = safeParse<ExtractedPersona>(raw);
+    if (!parsed) throw new Error("parse failed");
+    const allowed = new Set([
+      "google",
+      "reddit",
+      "youtube",
+      "instagram",
+      "tiktok",
+      "twitter",
+      "linkedin",
+      "web",
+    ]);
+    return {
+      titles: Array.isArray(parsed.titles) ? parsed.titles.map(String) : [],
+      industries: Array.isArray(parsed.industries) ? parsed.industries.map(String) : [],
+      locations: Array.isArray(parsed.locations) ? parsed.locations.map(String) : [],
+      company_sizes: Array.isArray(parsed.company_sizes) ? parsed.company_sizes.map(String) : [],
+      pain_points: Array.isArray(parsed.pain_points) ? parsed.pain_points.map(String) : [],
+      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.map(String) : [],
+      budget_signal: String(parsed.budget_signal ?? ""),
+      b2b: Boolean(parsed.b2b),
+      suggested_channels: (Array.isArray(parsed.suggested_channels) ? parsed.suggested_channels : [])
+        .map(String)
+        .filter((c) => allowed.has(c)),
+      product_context: String(parsed.product_context ?? ""),
+    };
+  } catch {
+    return {
+      titles: [],
+      industries: [],
+      locations: [],
+      company_sizes: [],
+      pain_points: [],
+      keywords: rawText.split(/\s+/).slice(0, 5),
+      budget_signal: "",
+      b2b: true,
+      suggested_channels: ["google", "linkedin", "web"],
+      product_context: "",
+    };
+  }
+}
+
+const PERSONA_ENRICH_SYSTEM = `You are a senior sales intelligence analyst. Enrich leads for a sales team.
+Return ONLY valid JSON. No markdown, no preamble.`;
+
+export async function enrichLeadWithPersona(
+  lead: {
+    name: string;
+    title: string;
+    company: string;
+    url: string;
+    platform: string;
+    bio: string;
+    email?: string;
+  },
+  persona: ExtractedPersona | null,
+  apiKey: string,
+  model: string = DEFAULT_GEMINI_MODEL,
+): Promise<PersonaEnrichmentOutput> {
+  const personaBlock = persona
+    ? `- Looking for: ${persona.titles.join(", ")}
+- Industries: ${persona.industries.join(", ")}
+- Pain points: ${persona.pain_points.join(", ")}
+- Product context: ${persona.product_context}`
+    : "Not specified";
+
+  const prompt = `Enrich this lead for a sales team.
+
+Lead data:
+- Name: ${lead.name || "Unknown"}
+- Title: ${lead.title || "Unknown"}
+- Company: ${lead.company || "Unknown"}
+- URL: ${lead.url || ""}
+- Platform: ${lead.platform}
+- Bio/Description: ${lead.bio || ""}
+
+Ideal buyer profile:
+${personaBlock}
+
+Return JSON:
+{
+  "score": number,
+  "score_reason": "string",
+  "fit_tags": ["string"],
+  "pitch_angle": "string",
+  "likely_pain": "string",
+  "best_contact_channel": "string",
+  "estimated_company_size": "string",
+  "location_guess": "string",
+  "email_guess": "string",
+  "contact_name": "string",
+  "company_name": "string"
+}`;
+
+  const raw = await callGemini(prompt, PERSONA_ENRICH_SYSTEM, apiKey, model);
+  const parsed = safeParse<Partial<PersonaEnrichmentOutput>>(raw);
+  if (!parsed) throw new Error("Failed to parse persona enrichment JSON");
+
+  return {
+    score: clampScore(parsed.score),
+    score_reason: String(parsed.score_reason ?? ""),
+    fit_tags: Array.isArray(parsed.fit_tags) ? parsed.fit_tags.slice(0, 4).map(String) : [],
+    pitch_angle: String(parsed.pitch_angle ?? ""),
+    likely_pain: String(parsed.likely_pain ?? ""),
+    best_contact_channel: String(parsed.best_contact_channel ?? "email"),
+    estimated_company_size: String(parsed.estimated_company_size ?? "unknown"),
+    location_guess: String(parsed.location_guess ?? ""),
+    email_guess: String(parsed.email_guess ?? lead.email ?? ""),
+    contact_name: String(parsed.contact_name ?? lead.name ?? "Unknown"),
+    company_name: String(parsed.company_name ?? lead.company ?? "Unknown"),
+  };
+}
+
+function scoreToFitLabel(score: number): FitLabel {
+  if (score >= 70) return "Hot";
+  if (score >= 40) return "Warm";
+  return "Cold";
+}
+
+export { scoreToFitLabel };
 
 const COLD_EMAIL_SYSTEM = `You write concise, personalized B2B/B2C cold outreach emails.
 Use the lead's pitch angle and likely needs. Be specific, warm, non-spammy, and

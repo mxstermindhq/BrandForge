@@ -22,6 +22,7 @@ export interface SearchKeys {
 export interface WebSearchHit {
   url: string;
   title: string;
+  snippet?: string;
 }
 
 export type SearchProvider = "serper" | "google_cse" | "duckduckgo";
@@ -169,8 +170,8 @@ async function searchSerper(
       organic?: { link?: string; title?: string }[];
     };
     return (json.organic ?? [])
-      .filter((o): o is { link: string; title?: string } => typeof o.link === "string")
-      .map((o) => ({ url: o.link, title: o.title ?? o.link }));
+      .filter((o): o is { link: string; title?: string; snippet?: string } => typeof o.link === "string")
+      .map((o) => ({ url: o.link, title: o.title ?? o.link, snippet: o.snippet ?? "" }));
   } catch {
     return [];
   }
@@ -190,8 +191,8 @@ async function searchGoogleCse(
   if (!res.ok) return [];
   const json = (await res.json()) as { items?: { link?: string; title?: string }[] };
   return (json.items ?? [])
-    .filter((i): i is { link: string; title?: string } => typeof i.link === "string")
-    .map((i) => ({ url: i.link, title: i.title ?? i.link }));
+    .filter((i): i is { link: string; title?: string; snippet?: string } => typeof i.link === "string")
+    .map((i) => ({ url: i.link, title: i.title ?? i.link, snippet: i.snippet ?? "" }));
 }
 
 /** Provider-agnostic search. Returns result URLs for a query + page (0-indexed). */
@@ -209,8 +210,21 @@ export async function webSearch(
     if (provider === "google_cse" && keys.googleCseKey && keys.googleCseCx) {
       return await searchGoogleCse(query, page, keys.googleCseKey, keys.googleCseCx, signal);
     }
-    return await searchDuckDuckGo(query, page, signal);
+    console.warn("[search] Using DuckDuckGo fallback — results may be lower quality");
+    const hits = await searchDuckDuckGo(query, page, signal);
+    return hits.slice(0, 5);
   } catch {
     return [];
   }
+}
+
+/** Convenience wrapper: first page, capped result count. */
+export async function searchWeb(
+  query: string,
+  limit: number,
+  keys: SearchKeys,
+  signal?: AbortSignal,
+): Promise<WebSearchHit[]> {
+  const hits = await webSearch(query, 0, keys, signal);
+  return hits.slice(0, limit);
 }

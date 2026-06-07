@@ -15,6 +15,10 @@ function parseList(raw: string | null): string[] {
   }
 }
 
+function parseFitTags(raw: string | null): string[] {
+  return parseList(raw);
+}
+
 const SOCIALS: { key: keyof Lead; label: string }[] = [
   { key: "website", label: "Website" },
   { key: "linkedin_url", label: "LinkedIn" },
@@ -44,6 +48,7 @@ export function LeadDrawer({
 
   const needs = parseList(lead.likely_needs);
   const flags = parseList(lead.red_flags);
+  const fitTags = parseFitTags(lead.fit_tags);
 
   async function saveNotes(): Promise<void> {
     setSavingNotes(true);
@@ -91,8 +96,8 @@ export function LeadDrawer({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="font-display text-2xl font-light">{lead.company_name ?? "Lead"}</h2>
-            <div className="mt-2 flex items-center gap-2">
-              <span className="font-mono text-lg text-gold">{lead.score}</span>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <LeadDrawerScore score={lead.score} reason={lead.score_reason} />
               <FitBadge label={lead.fit_label} />
               <StatusBadge status={lead.status} />
             </div>
@@ -134,6 +139,42 @@ export function LeadDrawer({
           <div className="mt-6 rounded border border-gold-muted/40 bg-gold-bg p-4">
             <p className="text-xs uppercase tracking-wide text-gold">Pitch angle</p>
             <p className="mt-1.5 text-sm text-tx">{lead.pitch_angle}</p>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(lead.pitch_angle ?? "")}
+              className="mt-2 text-xs text-gold hover:underline"
+            >
+              Copy pitch
+            </button>
+          </div>
+        )}
+
+        {lead.likely_pain && (
+          <div className="mt-4">
+            <p className="text-xs uppercase tracking-wide text-tx-muted">Likely pain</p>
+            <p className="mt-1 text-sm text-tx">{lead.likely_pain}</p>
+          </div>
+        )}
+
+        {lead.score_reason && (
+          <p className="mt-3 text-sm italic text-tx-muted">{lead.score_reason}</p>
+        )}
+
+        {fitTags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {fitTags.map((tag) => (
+              <span key={tag} className="rounded-full bg-bg-raised px-2.5 py-1 text-xs text-tx">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {lead.best_contact_channel && (
+          <div className="mt-4">
+            <span className="rounded-full border border-border px-2.5 py-1 text-xs capitalize text-tx-muted">
+              Best via {lead.best_contact_channel}
+            </span>
           </div>
         )}
 
@@ -237,5 +278,20 @@ function Row({
         {value ?? "—"}
       </dd>
     </div>
+  );
+}
+
+function LeadDrawerScore({
+  score,
+  reason,
+}: {
+  score: number;
+  reason: string | null;
+}): React.JSX.Element {
+  const color = score >= 70 ? "#c9a84c" : score >= 40 ? "#e0a052" : "#666";
+  return (
+    <span className="font-mono text-lg" style={{ color }} title={reason ?? undefined}>
+      {score}
+    </span>
   );
 }
