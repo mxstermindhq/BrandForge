@@ -1,27 +1,34 @@
 // Runtime binding contract for LeadForge.
-// Cloudflare: D1 + KV + Queues via opennext.
-// Vercel: Turso (libSQL) + Upstash Redis via lib/runtime.ts.
+// Supabase (Vercel): Postgres via service-role client + Supabase Auth cookies.
+// Cloudflare (local): D1 + KV via opennext.
+interface CampaignCache {
+  put(
+    campaignId: string,
+    candidates: import("@/types").ExtractedLeadData[],
+  ): Promise<void>;
+  get(campaignId: string): Promise<import("@/types").ExtractedLeadData[] | null>;
+  delete(campaignId: string): Promise<void>;
+}
+
 interface CloudflareEnv {
-  DB: D1Database;
-  SESSIONS: KVNamespace;
+  DB: import("@supabase/supabase-js").SupabaseClient;
+  CACHE: CampaignCache;
+  /** @deprecated Cloudflare KV — use CACHE. Kept for wrangler local dev compat. */
+  SESSIONS?: KVNamespace;
   CAMPAIGN_QUEUE: Queue<import("@/types").CampaignQueueMessage>;
   GEMINI_API_KEY: string;
   GEMINI_MODEL?: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
-  JWT_SECRET: string;
   ADMIN_EMAIL: string;
   APP_URL: string;
   APP_ENV: string;
-  // Optional search providers. Free DuckDuckGo is used when none are set;
-  // providing a key auto-upgrades to that provider (priority: Serper > Google CSE).
   SEARCH_PROVIDER?: string;
   SERPER_API_KEY?: string;
   GOOGLE_CSE_KEY?: string;
   GOOGLE_CSE_CX?: string;
 }
 
-// Vercel-only (set in Vercel project env):
-// TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
-// UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
+// Supabase (set in Vercel / .env.local):
+// NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY

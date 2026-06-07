@@ -24,6 +24,11 @@ import {
   searchSerp,
 } from "@/lib/scraper";
 import type { SearchKeys } from "@/lib/search";
+import {
+  deleteCandidates,
+  loadCandidates as loadCachedCandidates,
+  saveCandidates,
+} from "@/lib/campaign-cache";
 import { sendLeadsReady } from "@/lib/resend";
 
 function delay(ms: number): Promise<void> {
@@ -117,14 +122,6 @@ async function buildCandidates(
   return deduped.slice(0, campaign.quantity_requested);
 }
 
-async function loadCandidates(
-  env: CloudflareEnv,
-  campaignId: string,
-): Promise<ExtractedLeadData[] | null> {
-  const raw = await env.SESSIONS.get(candidatesKey(campaignId));
-  return raw ? (JSON.parse(raw) as ExtractedLeadData[]) : null;
-}
-
 function toLeadInput(
   campaign: Campaign,
   data: ExtractedLeadData,
@@ -180,7 +177,7 @@ export async function processCampaignChunk(
   const cursor = msg.cursor ?? campaign.cursor ?? 0;
 
   // First invocation: gather + persist candidates.
-  let candidates = await loadCandidates(env, msg.campaignId);
+  let candidates = await loadCachedCandidates(env.CACHE, msg.campaignId);
   if (cursor === 0 || candidates === null) {
     await updateCampaignStatus(env.DB, campaign.id, { status: "running" });
     try {
@@ -192,11 +189,7 @@ export async function processCampaignChunk(
       });
       return { done: true, nextCursor: 0, delivered: 0 };
     }
-    await env.SESSIONS.put(
-      candidatesKey(campaign.id),
-      JSON.stringify(candidates),
-      { expirationTtl: 60 * 60 * 6 },
-    );
+    await saveCandidates(env.CACHE, campaign.id, candidates);
   }
 
   const total = candidates.length;
@@ -207,7 +200,7 @@ export async function processCampaignChunk(
       completed_at: nowIso(),
       cursor: 0,
     });
-    await env.SESSIONS.delete(candidatesKey(campaign.id));
+    await deleteCandidates(env.CACHE, campaign.id);
     return { done: true, nextCursor: 0, delivered: 0 };
   }
 
@@ -249,7 +242,7 @@ export async function processCampaignChunk(
   });
 
   if (done) {
-    await env.SESSIONS.delete(candidatesKey(campaign.id));
+    await deleteCandidates(env.CACHE, campaign.id);
     const user = await getUserById(env.DB, campaign.user_id);
     if (user) {
       const dashboardUrl = `${env.APP_URL}/campaigns/${campaign.id}`;

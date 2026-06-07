@@ -1,35 +1,27 @@
 import type { NextRequest } from "next/server";
-import { getEnv } from "@/lib/cloudflare";
-import { createSession, sessionCookieHeader, verifyPassword } from "@/lib/auth";
 import { getUserByEmail } from "@/lib/db";
-import { fail, handleError, jsonResponse } from "@/lib/http";
+import { fail, handleError, ok } from "@/lib/http";
 import { userToPublic } from "@/lib/route-helpers";
 import { ValidationError, validateLogin } from "@/lib/validation";
+import { createSupabaseRouteClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
-    const env = getEnv();
     const body = await request.json().catch(() => null);
     const input = validateLogin(body);
 
-    const user = await getUserByEmail(env.DB, input.email);
-    if (!user) return fail(401, "Invalid email or password");
-
-    const valid = await verifyPassword(input.password, user.password_hash);
-    if (!valid) return fail(401, "Invalid email or password");
-
-    const isAdmin = user.is_admin === 1;
-    const token = await createSession(env.SESSIONS, env.JWT_SECRET, {
-      userId: user.id,
-      email: user.email,
-      isAdmin,
+    const supabase = await createSupabaseRouteClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: input.email.trim().toLowerCase(),
+      password: input.password,
     });
+    if (error) return fail(401, "Invalid email or password");
 
-    return jsonResponse(
-      { success: true, data: userToPublic(user) },
-      200,
-      { "Set-Cookie": sessionCookieHeader(token) },
-    );
+    const { getEnv } = await import("@/lib/cloudflare");
+    const profile = await getUserByEmail(getEnv().DB, input.email);
+    if (!profile) return fail(401, "Invalid email or password");
+
+    return ok(userToPublic(profile));
   } catch (err) {
     if (err instanceof ValidationError) return fail(err.status, err.message);
     return handleError(err);

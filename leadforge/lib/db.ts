@@ -1,4 +1,7 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  AdminStats,
+  AdminUserRow,
   Campaign,
   CampaignCreateInput,
   CampaignLeadBreakdown,
@@ -13,15 +16,10 @@ import type {
   Transaction,
   TransactionCreateInput,
   User,
-  UserCreateInput,
 } from "@/types";
 import { D1_BATCH_SIZE } from "@/lib/constants";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// All queries use prepared statements with bound parameters. User-supplied data
-// is NEVER interpolated into SQL strings. Column names used in ORDER BY are
-// whitelisted, never taken raw from the request.
-// ─────────────────────────────────────────────────────────────────────────────
+export type Db = SupabaseClient;
 
 function nowIso(): string {
   return new Date().toISOString().replace("T", " ").slice(0, 19);
@@ -36,169 +34,170 @@ function clampLimit(limit: number, max = 100): number {
   return Math.min(Math.floor(limit), max);
 }
 
-// ── Users ──────────────────────────────────────────────────────────────────
-export async function getUserById(
-  db: D1Database,
-  id: string,
-): Promise<User | null> {
-  return db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<User>();
+function mapUser(row: Record<string, unknown>): User {
+  return {
+    id: String(row.id),
+    email: String(row.email),
+    name: String(row.name),
+    is_admin: Boolean(row.is_admin),
+    created_at: String(row.created_at),
+    updated_at: String(row.updated_at),
+  };
 }
 
-export async function getUserByEmail(
-  db: D1Database,
-  email: string,
-): Promise<User | null> {
-  return db
-    .prepare("SELECT * FROM users WHERE email = ?")
-    .bind(email.trim().toLowerCase())
-    .first<User>();
+function mapCampaign(row: Record<string, unknown>): Campaign {
+  const platforms = row.platforms;
+  return {
+    id: String(row.id),
+    user_id: String(row.user_id),
+    name: String(row.name),
+    type: row.type as Campaign["type"],
+    product_name: String(row.product_name),
+    product_description: (row.product_description as string | null) ?? null,
+    target_description: String(row.target_description),
+    price_point: String(row.price_point),
+    location: (row.location as string | null) ?? null,
+    quantity_requested: Number(row.quantity_requested),
+    quantity_delivered: Number(row.quantity_delivered ?? 0),
+    platforms: Array.isArray(platforms) ? JSON.stringify(platforms) : String(platforms ?? "[]"),
+    enrich: row.enrich ? 1 : 0,
+    status: row.status as Campaign["status"],
+    credits_used: Number(row.credits_used ?? 0),
+    cursor: Number(row.cursor ?? 0),
+    error_message: (row.error_message as string | null) ?? null,
+    created_at: String(row.created_at),
+    completed_at: (row.completed_at as string | null) ?? null,
+    updated_at: String(row.updated_at),
+  };
 }
 
-export async function createUser(
-  db: D1Database,
-  input: UserCreateInput & { password_hash: string; is_admin?: boolean },
+function mapLead(row: Record<string, unknown>): Lead {
+  return row as unknown as Lead;
+}
+
+// ── Users / profiles ─────────────────────────────────────────────────────────
+export async function getUserById(db: Db, id: string): Promise<User | null> {
+  const { data } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
+  return data ? mapUser(data) : null;
+}
+
+export async function getUserByEmail(db: Db, email: string): Promise<User | null> {
+  const { data } = await db
+    .from("profiles")
+    .select("*")
+    .eq("email", email.trim().toLowerCase())
+    .maybeSingle();
+  return data ? mapUser(data) : null;
+}
+
+export async function createProfile(
+  db: Db,
+  input: { id: string; email: string; name: string; is_admin?: boolean },
 ): Promise<User> {
-  const id = crypto.randomUUID();
   const email = input.email.trim().toLowerCase();
-  const isAdmin = input.is_admin ? 1 : 0;
-  await db
-    .prepare(
-      "INSERT INTO users (id, email, name, password_hash, is_admin) VALUES (?, ?, ?, ?, ?)",
-    )
-    .bind(id, email, input.name.trim(), input.password_hash, isAdmin)
-    .run();
-
-  // Credits row with welcome bonus is created by the caller (register route) so
-  // the balance value stays in one place; here we just create the user.
-  const user = await getUserById(db, id);
-  if (!user) throw new Error("Failed to create user");
-  return user;
+  const { data, error } = await db
+    .from("profiles")
+    .insert({
+      id: input.id,
+      email,
+      name: input.name.trim(),
+      is_admin: Boolean(input.is_admin),
+    })
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create profile");
+  return mapUser(data);
 }
+
+/** @deprecated use createProfile — kept for call-site compatibility during migration. */
+export const createUser = createProfile;
 
 // ── Credits ──────────────────────────────────────────────────────────────────
 export async function ensureCreditRow(
-  db: D1Database,
+  db: Db,
   userId: string,
   initialBalance = 0,
 ): Promise<void> {
-  const existing = await db
-    .prepare("SELECT id FROM credits WHERE user_id = ?")
-    .bind(userId)
-    .first<{ id: string }>();
-  if (existing) return;
-  await db
-    .prepare(
-      "INSERT INTO credits (id, user_id, balance, lifetime_purchased) VALUES (?, ?, ?, 0)",
-    )
-    .bind(crypto.randomUUID(), userId, initialBalance)
-    .run();
+  const { data } = await db.from("credits").select("id").eq("user_id", userId).maybeSingle();
+  if (data) return;
+  const { error } = await db.from("credits").insert({
+    user_id: userId,
+    balance: initialBalance,
+    lifetime_purchased: 0,
+  });
+  if (error) throw new Error(error.message);
 }
 
-export async function getCreditBalance(
-  db: D1Database,
-  userId: string,
-): Promise<CreditBalance> {
-  const row = await db
-    .prepare("SELECT * FROM credits WHERE user_id = ?")
-    .bind(userId)
-    .first<CreditBalance>();
-  if (row) return row;
+export async function getCreditBalance(db: Db, userId: string): Promise<CreditBalance> {
+  const { data } = await db.from("credits").select("*").eq("user_id", userId).maybeSingle();
+  if (data) return data as CreditBalance;
   await ensureCreditRow(db, userId, 0);
-  const created = await db
-    .prepare("SELECT * FROM credits WHERE user_id = ?")
-    .bind(userId)
-    .first<CreditBalance>();
+  const { data: created } = await db.from("credits").select("*").eq("user_id", userId).single();
   if (!created) throw new Error("Failed to read credit balance");
-  return created;
+  return created as CreditBalance;
 }
 
-/** Atomic conditional deduction. Returns false if balance is insufficient. */
-export async function deductCredits(
-  db: D1Database,
-  userId: string,
-  amount: number,
-): Promise<boolean> {
-  if (amount <= 0) return true;
-  const res = await db
-    .prepare(
-      "UPDATE credits SET balance = balance - ?, updated_at = ? WHERE user_id = ? AND balance >= ?",
-    )
-    .bind(amount, nowIso(), userId, amount)
-    .run();
-  return (res.meta.changes ?? 0) > 0;
+export async function deductCredits(db: Db, userId: string, amount: number): Promise<boolean> {
+  const { data, error } = await db.rpc("deduct_credits", {
+    p_user_id: userId,
+    p_amount: amount,
+  });
+  if (error) throw new Error(error.message);
+  return Boolean(data);
 }
 
 export async function addCredits(
-  db: D1Database,
+  db: Db,
   userId: string,
   amount: number,
   countAsPurchased = false,
 ): Promise<void> {
   await ensureCreditRow(db, userId, 0);
+  const balance = await getCreditBalance(db, userId);
+  const patch: Record<string, unknown> = {
+    balance: balance.balance + amount,
+    updated_at: new Date().toISOString(),
+  };
   if (countAsPurchased) {
-    await db
-      .prepare(
-        "UPDATE credits SET balance = balance + ?, lifetime_purchased = lifetime_purchased + ?, updated_at = ? WHERE user_id = ?",
-      )
-      .bind(amount, amount, nowIso(), userId)
-      .run();
-  } else {
-    await db
-      .prepare(
-        "UPDATE credits SET balance = balance + ?, updated_at = ? WHERE user_id = ?",
-      )
-      .bind(amount, nowIso(), userId)
-      .run();
+    patch.lifetime_purchased = balance.lifetime_purchased + amount;
   }
+  const { error } = await db.from("credits").update(patch).eq("user_id", userId);
+  if (error) throw new Error(error.message);
 }
 
-// ── Campaigns ──────────────────────────────────────────────────────────────────
-export async function createCampaign(
-  db: D1Database,
-  input: CampaignCreateInput,
-): Promise<Campaign> {
-  const id = crypto.randomUUID();
-  await db
-    .prepare(
-      `INSERT INTO campaigns
-        (id, user_id, name, type, product_name, product_description,
-         target_description, price_point, location, quantity_requested,
-         platforms, enrich, status, credits_used, cursor)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, 0)`,
-    )
-    .bind(
-      id,
-      input.user_id,
-      input.name,
-      input.type,
-      input.product_name,
-      input.product_description ?? null,
-      input.target_description,
-      input.price_point,
-      input.location ?? null,
-      input.quantity_requested,
-      JSON.stringify(input.platforms),
-      input.enrich ? 1 : 0,
-      input.credits_used,
-    )
-    .run();
-  const campaign = await getCampaignById(db, id);
-  if (!campaign) throw new Error("Failed to create campaign");
-  return campaign;
+// ── Campaigns ────────────────────────────────────────────────────────────────
+export async function createCampaign(db: Db, input: CampaignCreateInput): Promise<Campaign> {
+  const { data, error } = await db
+    .from("campaigns")
+    .insert({
+      user_id: input.user_id,
+      name: input.name,
+      type: input.type,
+      product_name: input.product_name,
+      product_description: input.product_description ?? null,
+      target_description: input.target_description,
+      price_point: input.price_point,
+      location: input.location ?? null,
+      quantity_requested: input.quantity_requested,
+      platforms: input.platforms,
+      enrich: input.enrich,
+      status: "queued",
+      credits_used: input.credits_used,
+      cursor: 0,
+    })
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create campaign");
+  return mapCampaign(data);
 }
 
-export async function getCampaignById(
-  db: D1Database,
-  id: string,
-): Promise<Campaign | null> {
-  return db
-    .prepare("SELECT * FROM campaigns WHERE id = ?")
-    .bind(id)
-    .first<Campaign>();
+export async function getCampaignById(db: Db, id: string): Promise<Campaign | null> {
+  const { data } = await db.from("campaigns").select("*").eq("id", id).maybeSingle();
+  return data ? mapCampaign(data) : null;
 }
 
 export async function getCampaignsByUser(
-  db: D1Database,
+  db: Db,
   userId: string,
   page: number,
   limit: number,
@@ -206,28 +205,21 @@ export async function getCampaignsByUser(
 ): Promise<PaginatedResponse<Campaign>> {
   const p = clampPage(page);
   const l = clampLimit(limit);
-  const offset = (p - 1) * l;
+  const from = (p - 1) * l;
+  const to = from + l - 1;
 
-  const where = status
-    ? "WHERE user_id = ? AND status = ?"
-    : "WHERE user_id = ?";
-  const whereBinds = status ? [userId, status] : [userId];
+  let query = db
+    .from("campaigns")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (status) query = query.eq("status", status);
 
-  const countRow = await db
-    .prepare(`SELECT COUNT(*) AS c FROM campaigns ${where}`)
-    .bind(...whereBinds)
-    .first<{ c: number }>();
-  const total = countRow?.c ?? 0;
-
-  const { results } = await db
-    .prepare(
-      `SELECT * FROM campaigns ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-    )
-    .bind(...whereBinds, l, offset)
-    .all<Campaign>();
-
+  const { data, count, error } = await query.range(from, to);
+  if (error) throw new Error(error.message);
+  const total = count ?? 0;
   return {
-    items: results ?? [],
+    items: (data ?? []).map(mapCampaign),
     total,
     page: p,
     totalPages: Math.max(1, Math.ceil(total / l)),
@@ -236,185 +228,81 @@ export async function getCampaignsByUser(
 }
 
 export async function updateCampaignStatus(
-  db: D1Database,
+  db: Db,
   id: string,
   update: CampaignUpdate,
 ): Promise<void> {
-  const sets: string[] = [];
-  const binds: unknown[] = [];
-  if (update.status !== undefined) {
-    sets.push("status = ?");
-    binds.push(update.status);
-  }
-  if (update.quantity_delivered !== undefined) {
-    sets.push("quantity_delivered = ?");
-    binds.push(update.quantity_delivered);
-  }
-  if (update.credits_used !== undefined) {
-    sets.push("credits_used = ?");
-    binds.push(update.credits_used);
-  }
-  if (update.cursor !== undefined) {
-    sets.push("cursor = ?");
-    binds.push(update.cursor);
-  }
-  if (update.error_message !== undefined) {
-    sets.push("error_message = ?");
-    binds.push(update.error_message);
-  }
-  if (update.completed_at !== undefined) {
-    sets.push("completed_at = ?");
-    binds.push(update.completed_at);
-  }
-  sets.push("updated_at = ?");
-  binds.push(nowIso());
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (update.status !== undefined) patch.status = update.status;
+  if (update.quantity_delivered !== undefined) patch.quantity_delivered = update.quantity_delivered;
+  if (update.credits_used !== undefined) patch.credits_used = update.credits_used;
+  if (update.cursor !== undefined) patch.cursor = update.cursor;
+  if (update.error_message !== undefined) patch.error_message = update.error_message;
+  if (update.completed_at !== undefined) patch.completed_at = update.completed_at;
 
-  if (sets.length === 1) return; // only updated_at — nothing meaningful
-  binds.push(id);
-  await db
-    .prepare(`UPDATE campaigns SET ${sets.join(", ")} WHERE id = ?`)
-    .bind(...binds)
-    .run();
+  const { error } = await db.from("campaigns").update(patch).eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function getCampaignLeadBreakdown(
-  db: D1Database,
+  db: Db,
   campaignId: string,
 ): Promise<CampaignLeadBreakdown> {
-  const row = await db
-    .prepare(
-      `SELECT
-         COUNT(*) AS total,
-         SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) AS new_c,
-         SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) AS contacted_c,
-         SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) AS qualified_c,
-         SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected_c
-       FROM leads WHERE campaign_id = ?`,
-    )
-    .bind(campaignId)
-    .first<{
-      total: number;
-      new_c: number;
-      contacted_c: number;
-      qualified_c: number;
-      rejected_c: number;
-    }>();
+  const { data, error } = await db.from("leads").select("status").eq("campaign_id", campaignId);
+  if (error) throw new Error(error.message);
+  const rows = data ?? [];
   return {
-    total: row?.total ?? 0,
-    new: row?.new_c ?? 0,
-    contacted: row?.contacted_c ?? 0,
-    qualified: row?.qualified_c ?? 0,
-    rejected: row?.rejected_c ?? 0,
+    total: rows.length,
+    new: rows.filter((r) => r.status === "new").length,
+    contacted: rows.filter((r) => r.status === "contacted").length,
+    qualified: rows.filter((r) => r.status === "qualified").length,
+    rejected: rows.filter((r) => r.status === "rejected").length,
   };
 }
 
-// ── Leads ──────────────────────────────────────────────────────────────────
-function leadInsertStatement(
-  db: D1Database,
-  lead: LeadCreateInput,
-): D1PreparedStatement {
-  return db
-    .prepare(
-      `INSERT INTO leads
-        (id, campaign_id, user_id, platform_source, company_name, contact_name,
-         email, phone, website, linkedin_url, instagram_url, reddit_username,
-         tiktok_handle, twitter_handle, youtube_channel, location, niche,
-         score, fit_label, estimated_size, likely_needs, pitch_angle,
-         red_flags, raw_data)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-    .bind(
-      crypto.randomUUID(),
-      lead.campaign_id,
-      lead.user_id,
-      lead.platform_source,
-      lead.company_name ?? null,
-      lead.contact_name ?? null,
-      lead.email ?? null,
-      lead.phone ?? null,
-      lead.website ?? null,
-      lead.linkedin_url ?? null,
-      lead.instagram_url ?? null,
-      lead.reddit_username ?? null,
-      lead.tiktok_handle ?? null,
-      lead.twitter_handle ?? null,
-      lead.youtube_channel ?? null,
-      lead.location ?? null,
-      lead.niche ?? null,
-      lead.score ?? 0,
-      lead.fit_label ?? null,
-      lead.estimated_size ?? null,
-      lead.likely_needs ? JSON.stringify(lead.likely_needs) : null,
-      lead.pitch_angle ?? null,
-      lead.red_flags ? JSON.stringify(lead.red_flags) : null,
-      lead.raw_data ?? null,
-    );
+// ── Leads ────────────────────────────────────────────────────────────────────
+function leadRow(lead: LeadCreateInput): Record<string, unknown> {
+  return {
+    campaign_id: lead.campaign_id,
+    user_id: lead.user_id,
+    platform_source: lead.platform_source,
+    company_name: lead.company_name ?? null,
+    contact_name: lead.contact_name ?? null,
+    email: lead.email ?? null,
+    phone: lead.phone ?? null,
+    website: lead.website ?? null,
+    linkedin_url: lead.linkedin_url ?? null,
+    instagram_url: lead.instagram_url ?? null,
+    reddit_username: lead.reddit_username ?? null,
+    tiktok_handle: lead.tiktok_handle ?? null,
+    twitter_handle: lead.twitter_handle ?? null,
+    youtube_channel: lead.youtube_channel ?? null,
+    location: lead.location ?? null,
+    niche: lead.niche ?? null,
+    score: lead.score ?? 0,
+    fit_label: lead.fit_label ?? null,
+    estimated_size: lead.estimated_size ?? null,
+    likely_needs: lead.likely_needs ? JSON.stringify(lead.likely_needs) : null,
+    pitch_angle: lead.pitch_angle ?? null,
+    red_flags: lead.red_flags ? JSON.stringify(lead.red_flags) : null,
+    raw_data: lead.raw_data ?? null,
+  };
 }
 
-/** Batch insert in chunks of D1_BATCH_SIZE. Returns count inserted. */
-export async function createLeadsBatch(
-  db: D1Database,
-  leads: LeadCreateInput[],
-): Promise<number> {
+export async function createLeadsBatch(db: Db, leads: LeadCreateInput[]): Promise<number> {
   if (leads.length === 0) return 0;
   let inserted = 0;
   for (let i = 0; i < leads.length; i += D1_BATCH_SIZE) {
-    const chunk = leads.slice(i, i + D1_BATCH_SIZE);
-    const statements = chunk.map((lead) => leadInsertStatement(db, lead));
-    await db.batch(statements);
+    const chunk = leads.slice(i, i + D1_BATCH_SIZE).map(leadRow);
+    const { error } = await db.from("leads").insert(chunk);
+    if (error) throw new Error(error.message);
     inserted += chunk.length;
   }
   return inserted;
 }
 
-const LEAD_SORT_COLUMNS: Record<string, string> = {
-  score: "leads.score",
-  created_at: "leads.created_at",
-  company_name: "leads.company_name",
-};
-
-function buildLeadQuery(
-  scope: { userId: string; campaignId?: string },
-  filters: LeadFilters,
-): { where: string; binds: unknown[]; needsJoin: boolean } {
-  const clauses: string[] = ["leads.user_id = ?"];
-  const binds: unknown[] = [scope.userId];
-  let needsJoin = false;
-
-  const campaignId = scope.campaignId ?? filters.campaignId;
-  if (campaignId) {
-    clauses.push("leads.campaign_id = ?");
-    binds.push(campaignId);
-  }
-  if (filters.status) {
-    clauses.push("leads.status = ?");
-    binds.push(filters.status);
-  }
-  if (filters.platform) {
-    clauses.push("leads.platform_source = ?");
-    binds.push(filters.platform);
-  }
-  if (typeof filters.minScore === "number") {
-    clauses.push("leads.score >= ?");
-    binds.push(filters.minScore);
-  }
-  if (filters.type) {
-    needsJoin = true;
-    clauses.push("campaigns.type = ?");
-    binds.push(filters.type);
-  }
-  if (filters.q) {
-    const like = `%${filters.q.trim()}%`;
-    clauses.push(
-      "(leads.company_name LIKE ? OR leads.email LIKE ? OR leads.niche LIKE ? OR leads.pitch_angle LIKE ?)",
-    );
-    binds.push(like, like, like, like);
-  }
-  return { where: clauses.join(" AND "), binds, needsJoin };
-}
-
 async function queryLeads(
-  db: D1Database,
+  db: Db,
   scope: { userId: string; campaignId?: string },
   filters: LeadFilters,
   page: number,
@@ -422,31 +310,48 @@ async function queryLeads(
 ): Promise<PaginatedResponse<Lead>> {
   const p = clampPage(page);
   const l = clampLimit(limit);
-  const offset = (p - 1) * l;
+  const from = (p - 1) * l;
+  const to = from + l - 1;
 
-  const { where, binds, needsJoin } = buildLeadQuery(scope, filters);
-  const join = needsJoin
-    ? "JOIN campaigns ON campaigns.id = leads.campaign_id"
-    : "";
+  const sortCol =
+    filters.sortBy === "score" || filters.sortBy === "company_name"
+      ? filters.sortBy
+      : "created_at";
+  const ascending = filters.sortDir === "asc";
 
-  const sortCol = LEAD_SORT_COLUMNS[filters.sortBy ?? "created_at"] ?? "leads.created_at";
-  const sortDir = filters.sortDir === "asc" ? "ASC" : "DESC";
+  let query = db.from("leads").select("*", { count: "exact" }).eq("user_id", scope.userId);
 
-  const countRow = await db
-    .prepare(`SELECT COUNT(*) AS c FROM leads ${join} WHERE ${where}`)
-    .bind(...binds)
-    .first<{ c: number }>();
-  const total = countRow?.c ?? 0;
+  const campaignId = scope.campaignId ?? filters.campaignId;
+  if (campaignId) query = query.eq("campaign_id", campaignId);
+  if (filters.status) query = query.eq("status", filters.status);
+  if (filters.platform) query = query.eq("platform_source", filters.platform);
+  if (typeof filters.minScore === "number") query = query.gte("score", filters.minScore);
+  if (filters.q?.trim()) {
+    const q = filters.q.trim();
+    query = query.or(
+      `company_name.ilike.%${q}%,email.ilike.%${q}%,niche.ilike.%${q}%,pitch_angle.ilike.%${q}%`,
+    );
+  }
 
-  const { results } = await db
-    .prepare(
-      `SELECT leads.* FROM leads ${join} WHERE ${where} ORDER BY ${sortCol} ${sortDir} LIMIT ? OFFSET ?`,
-    )
-    .bind(...binds, l, offset)
-    .all<Lead>();
+  const { data: rawData, count, error } = await query
+    .order(sortCol, { ascending })
+    .range(from, to);
+  if (error) throw new Error(error.message);
 
+  let rows = (rawData ?? []) as Record<string, unknown>[];
+  if (filters.type) {
+    const { data: campaigns } = await db
+      .from("campaigns")
+      .select("id, type")
+      .eq("user_id", scope.userId)
+      .eq("type", filters.type);
+    const allowed = new Set((campaigns ?? []).map((c) => c.id as string));
+    rows = rows.filter((r) => allowed.has(String(r.campaign_id)));
+  }
+
+  const total = filters.type ? rows.length : (count ?? 0);
   return {
-    items: results ?? [],
+    items: rows.map(mapLead),
     total,
     page: p,
     totalPages: Math.max(1, Math.ceil(total / l)),
@@ -455,7 +360,7 @@ async function queryLeads(
 }
 
 export async function getLeadsByCampaign(
-  db: D1Database,
+  db: Db,
   campaignId: string,
   userId: string,
   filters: LeadFilters,
@@ -466,7 +371,7 @@ export async function getLeadsByCampaign(
 }
 
 export async function getLeadsByUser(
-  db: D1Database,
+  db: Db,
   userId: string,
   filters: LeadFilters,
   page: number,
@@ -475,162 +380,217 @@ export async function getLeadsByUser(
   return queryLeads(db, { userId }, filters, page, limit);
 }
 
-export async function getLeadById(
-  db: D1Database,
-  id: string,
-): Promise<Lead | null> {
-  return db.prepare("SELECT * FROM leads WHERE id = ?").bind(id).first<Lead>();
+export async function getLeadById(db: Db, id: string): Promise<Lead | null> {
+  const { data } = await db.from("leads").select("*").eq("id", id).maybeSingle();
+  return data ? mapLead(data) : null;
 }
 
 export async function updateLead(
-  db: D1Database,
+  db: Db,
   id: string,
   userId: string,
   patch: LeadPatch,
 ): Promise<Lead | null> {
-  const sets: string[] = [];
-  const binds: unknown[] = [];
-  if (patch.status !== undefined) {
-    sets.push("status = ?");
-    binds.push(patch.status);
-  }
-  if (patch.notes !== undefined) {
-    sets.push("notes = ?");
-    binds.push(patch.notes);
-  }
-  if (sets.length === 0) return getLeadById(db, id);
-  sets.push("updated_at = ?");
-  binds.push(nowIso());
-  binds.push(id, userId);
-  await db
-    .prepare(`UPDATE leads SET ${sets.join(", ")} WHERE id = ? AND user_id = ?`)
-    .bind(...binds)
-    .run();
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.status !== undefined) update.status = patch.status;
+  if (patch.notes !== undefined) update.notes = patch.notes;
+  if (Object.keys(update).length === 1) return getLeadById(db, id);
+
+  const { error } = await db.from("leads").update(update).eq("id", id).eq("user_id", userId);
+  if (error) throw new Error(error.message);
   return getLeadById(db, id);
 }
 
-export async function getLeadStats(
-  db: D1Database,
-  userId: string,
-): Promise<LeadStats> {
-  const row = await db
-    .prepare(
-      `SELECT
-         COUNT(*) AS total,
-         SUM(CASE WHEN campaigns.type = 'b2b' THEN 1 ELSE 0 END) AS b2b,
-         SUM(CASE WHEN campaigns.type = 'b2c' THEN 1 ELSE 0 END) AS b2c,
-         SUM(CASE WHEN leads.status = 'new' THEN 1 ELSE 0 END) AS new_c,
-         SUM(CASE WHEN leads.status = 'contacted' THEN 1 ELSE 0 END) AS contacted_c,
-         SUM(CASE WHEN leads.status = 'qualified' THEN 1 ELSE 0 END) AS qualified_c,
-         SUM(CASE WHEN leads.status = 'rejected' THEN 1 ELSE 0 END) AS rejected_c,
-         SUM(CASE WHEN leads.score >= 70 THEN 1 ELSE 0 END) AS hot,
-         SUM(CASE WHEN leads.email IS NOT NULL AND leads.email <> '' THEN 1 ELSE 0 END) AS with_email,
-         AVG(leads.score) AS avg_score
-       FROM leads
-       JOIN campaigns ON campaigns.id = leads.campaign_id
-       WHERE leads.user_id = ?`,
-    )
-    .bind(userId)
-    .first<{
-      total: number;
-      b2b: number;
-      b2c: number;
-      new_c: number;
-      contacted_c: number;
-      qualified_c: number;
-      rejected_c: number;
-      hot: number;
-      with_email: number;
-      avg_score: number | null;
-    }>();
+export async function getLeadStats(db: Db, userId: string): Promise<LeadStats> {
+  const { data, error } = await db
+    .from("leads")
+    .select("status, score, email, campaigns(type)")
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  const rows = data ?? [];
+  const scores = rows.map((r) => Number(r.score ?? 0));
+  const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
   return {
-    total: row?.total ?? 0,
-    b2b: row?.b2b ?? 0,
-    b2c: row?.b2c ?? 0,
-    new: row?.new_c ?? 0,
-    contacted: row?.contacted_c ?? 0,
-    qualified: row?.qualified_c ?? 0,
-    rejected: row?.rejected_c ?? 0,
-    hot: row?.hot ?? 0,
-    withEmail: row?.with_email ?? 0,
-    avgScore: Math.round(row?.avg_score ?? 0),
+    total: rows.length,
+    b2b: rows.filter((r) => (r.campaigns as { type?: string } | null)?.type === "b2b").length,
+    b2c: rows.filter((r) => (r.campaigns as { type?: string } | null)?.type === "b2c").length,
+    new: rows.filter((r) => r.status === "new").length,
+    contacted: rows.filter((r) => r.status === "contacted").length,
+    qualified: rows.filter((r) => r.status === "qualified").length,
+    rejected: rows.filter((r) => r.status === "rejected").length,
+    hot: rows.filter((r) => Number(r.score) >= 70).length,
+    withEmail: rows.filter((r) => r.email).length,
+    avgScore: Math.round(avg),
   };
 }
 
-// ── Transactions ────────────────────────────────────────────────────────────
+// ── Transactions ─────────────────────────────────────────────────────────────
 export async function createTransaction(
-  db: D1Database,
+  db: Db,
   input: TransactionCreateInput,
 ): Promise<Transaction> {
-  const id = crypto.randomUUID();
-  await db
-    .prepare(
-      `INSERT INTO transactions
-        (id, user_id, amount_cents, credits_purchased, stripe_session_id,
-         stripe_payment_intent, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    )
-    .bind(
-      id,
-      input.user_id,
-      input.amount_cents,
-      input.credits_purchased,
-      input.stripe_session_id ?? null,
-      input.stripe_payment_intent ?? null,
-      input.status ?? "pending",
-    )
-    .run();
-  const tx = await db
-    .prepare("SELECT * FROM transactions WHERE id = ?")
-    .bind(id)
-    .first<Transaction>();
-  if (!tx) throw new Error("Failed to create transaction");
-  return tx;
+  const { data, error } = await db
+    .from("transactions")
+    .insert({
+      user_id: input.user_id,
+      amount_cents: input.amount_cents,
+      credits_purchased: input.credits_purchased,
+      stripe_session_id: input.stripe_session_id ?? null,
+      stripe_payment_intent: input.stripe_payment_intent ?? null,
+      status: input.status ?? "pending",
+    })
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create transaction");
+  return data as Transaction;
 }
 
 export async function getTransactionByStripeSession(
-  db: D1Database,
+  db: Db,
   sessionId: string,
 ): Promise<Transaction | null> {
-  return db
-    .prepare("SELECT * FROM transactions WHERE stripe_session_id = ?")
-    .bind(sessionId)
-    .first<Transaction>();
+  const { data } = await db
+    .from("transactions")
+    .select("*")
+    .eq("stripe_session_id", sessionId)
+    .maybeSingle();
+  return data ? (data as Transaction) : null;
 }
 
 export async function updateTransaction(
-  db: D1Database,
+  db: Db,
   id: string,
   patch: { status?: string; stripe_payment_intent?: string | null },
 ): Promise<void> {
-  const sets: string[] = [];
-  const binds: unknown[] = [];
-  if (patch.status !== undefined) {
-    sets.push("status = ?");
-    binds.push(patch.status);
-  }
+  const update: Record<string, unknown> = {};
+  if (patch.status !== undefined) update.status = patch.status;
   if (patch.stripe_payment_intent !== undefined) {
-    sets.push("stripe_payment_intent = ?");
-    binds.push(patch.stripe_payment_intent);
+    update.stripe_payment_intent = patch.stripe_payment_intent;
   }
-  if (sets.length === 0) return;
-  binds.push(id);
-  await db
-    .prepare(`UPDATE transactions SET ${sets.join(", ")} WHERE id = ?`)
-    .bind(...binds)
-    .run();
+  if (Object.keys(update).length === 0) return;
+  const { error } = await db.from("transactions").update(update).eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function getRecentTransactions(
-  db: D1Database,
+  db: Db,
   userId: string,
   limit = 10,
 ): Promise<Transaction[]> {
-  const { results } = await db
-    .prepare(
-      "SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
-    )
-    .bind(userId, clampLimit(limit, 50))
-    .all<Transaction>();
-  return results ?? [];
+  const { data, error } = await db
+    .from("transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(clampLimit(limit, 50));
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Transaction[];
+}
+
+// ── Admin helpers ────────────────────────────────────────────────────────────
+export async function getAdminStats(db: Db): Promise<AdminStats> {
+  const [users, campaigns, leads, transactions, campaignRows, todayLeads] = await Promise.all([
+    db.from("profiles").select("*", { count: "exact", head: true }),
+    db.from("campaigns").select("*", { count: "exact", head: true }),
+    db.from("leads").select("*", { count: "exact", head: true }),
+    db.from("transactions").select("amount_cents").eq("status", "complete"),
+    db.from("campaigns").select("quantity_requested, quantity_delivered, status"),
+    db
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", new Date().toISOString().slice(0, 10)),
+  ]);
+
+  const revenue =
+    (transactions.data ?? []).reduce((sum, t) => sum + Number(t.amount_cents ?? 0), 0) ?? 0;
+  const completionRows = (campaignRows.data ?? []).filter((c) =>
+    ["complete", "running", "failed"].includes(String(c.status)),
+  );
+  const avgCompletion =
+    completionRows.length === 0
+      ? 0
+      : completionRows.reduce((sum, c) => {
+          const req = Number(c.quantity_requested);
+          const del = Number(c.quantity_delivered);
+          return sum + (req > 0 ? del / req : 0);
+        }, 0) / completionRows.length;
+
+  return {
+    totalUsers: users.count ?? 0,
+    totalCampaigns: campaigns.count ?? 0,
+    totalLeads: leads.count ?? 0,
+    totalRevenueCents: revenue,
+    avgCompletionRate: Math.min(1, Math.max(0, avgCompletion)),
+    leadsDeliveredToday: todayLeads.count ?? 0,
+  };
+}
+
+export async function getAdminUsers(
+  db: Db,
+  page: number,
+  limit: number,
+): Promise<PaginatedResponse<AdminUserRow>> {
+  const p = clampPage(page);
+  const l = clampLimit(limit);
+  const from = (p - 1) * l;
+  const to = from + l - 1;
+
+  const { data: profiles, count, error } = await db
+    .from("profiles")
+    .select("id, email, name, is_admin, created_at, credits(balance, lifetime_purchased)", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+  if (error) throw new Error(error.message);
+
+  const items: AdminUserRow[] = [];
+  for (const row of profiles ?? []) {
+    const credits = Array.isArray(row.credits) ? row.credits[0] : row.credits;
+    const { count: campaignCount } = await db
+      .from("campaigns")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", row.id);
+    items.push({
+      id: row.id,
+      email: row.email,
+      name: row.name,
+      is_admin: Boolean(row.is_admin),
+      balance: credits?.balance ?? 0,
+      lifetime_purchased: credits?.lifetime_purchased ?? 0,
+      campaign_count: campaignCount ?? 0,
+      created_at: row.created_at,
+    });
+  }
+
+  const total = count ?? 0;
+  return { items, total, page: p, totalPages: Math.max(1, Math.ceil(total / l)), limit: l };
+}
+
+export async function getAdminCampaigns(
+  db: Db,
+  page: number,
+  limit: number,
+  status?: string | null,
+): Promise<PaginatedResponse<Campaign>> {
+  const p = clampPage(page);
+  const l = clampLimit(limit);
+  const from = (p - 1) * l;
+  const to = from + l - 1;
+
+  let query = db.from("campaigns").select("*", { count: "exact" }).order("created_at", {
+    ascending: false,
+  });
+  if (status) query = query.eq("status", status);
+
+  const { data, count, error } = await query.range(from, to);
+  if (error) throw new Error(error.message);
+  const total = count ?? 0;
+  return {
+    items: (data ?? []).map(mapCampaign),
+    total,
+    page: p,
+    totalPages: Math.max(1, Math.ceil(total / l)),
+    limit: l,
+  };
 }

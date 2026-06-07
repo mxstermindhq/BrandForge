@@ -25,8 +25,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  password_hash: string;
-  is_admin: number; // 0 | 1 (D1 stores booleans as integers)
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 }

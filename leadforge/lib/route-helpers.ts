@@ -1,21 +1,21 @@
 import type { Campaign, CampaignView, User, UserPublic, UserSession } from "@/types";
-import { getEnv } from "@/lib/cloudflare";
 import { requireAdmin, requireAuth } from "@/lib/auth";
+import { getEnv } from "@/lib/cloudflare";
 
 export interface AuthedContext {
   env: CloudflareEnv;
   session: UserSession;
 }
 
-export async function authed(request: Request): Promise<AuthedContext> {
+export async function authed(_request: Request): Promise<AuthedContext> {
   const env = getEnv();
-  const session = await requireAuth(request, env.SESSIONS, env.JWT_SECRET);
+  const session = await requireAuth(env.DB);
   return { env, session };
 }
 
-export async function adminAuthed(request: Request): Promise<AuthedContext> {
+export async function adminAuthed(_request: Request): Promise<AuthedContext> {
   const env = getEnv();
-  const session = await requireAdmin(request, env.SESSIONS, env.JWT_SECRET);
+  const session = await requireAdmin(env.DB);
   return { env, session };
 }
 
@@ -24,7 +24,7 @@ export function userToPublic(user: User): UserPublic {
     id: user.id,
     email: user.email,
     name: user.name,
-    is_admin: user.is_admin === 1,
+    is_admin: user.is_admin,
   };
 }
 
