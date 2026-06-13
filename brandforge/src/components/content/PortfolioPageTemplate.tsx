@@ -272,6 +272,7 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
         subhead="Send references on Discord or Telegram — fixed quote in 24 hours."
         discordLabel="Get a quote on Discord"
         telegramLabel="Quote on Telegram"
+        campaign={`portfolio-${project.slug}-footer-cta`}
       />
     </>
   );

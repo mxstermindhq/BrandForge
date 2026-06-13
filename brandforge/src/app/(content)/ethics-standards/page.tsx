@@ -39,7 +39,7 @@ export default function EthicsPage(): React.JSX.Element {
         </div>
       </section>
       <EthicsSection sections={BF_ETHICS_SECTIONS} />
-      <FAQBlock items={BF_ETHICS_FAQ} />
+      <FAQBlock items={BF_ETHICS_FAQ} pageSlug="/ethics-standards/" />
       <CTASection
         title="Questions before you pay?"
         subhead="Ask in Discord or Telegram — no sales call required."

@@ -1,3 +1,4 @@
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 type InlineCTAProps = {
@@ -16,7 +17,7 @@ export function InlineCTA({
     <aside className="content-wrap my-12 rounded-md border border-accent/30 bg-gradient-to-br from-s1 to-bg p-8">
       <h3 className="text-lg font-bold text-text">{headline}</h3>
       <p className="mt-2 max-w-xl text-sm text-text-secondary">{subhead}</p>
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <a
           href={discordHref(campaign)}
           target="_blank"
@@ -35,6 +36,7 @@ export function InlineCTA({
         >
           Message on Telegram
         </a>
+        <CopyInviteButton campaign={`${campaign}-copy`} />
       </div>
     </aside>
   );

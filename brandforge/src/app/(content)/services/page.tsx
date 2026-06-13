@@ -64,7 +64,7 @@ export default function ServicesHubPage(): React.JSX.Element {
         </div>
       </section>
 
-      <FAQBlock items={SERVICES_HUB_FAQ} />
+      <FAQBlock items={SERVICES_HUB_FAQ} pageSlug="/services/" />
       <CTASection
         title="Tell us what you are building"
         subhead="Discord or Telegram — fixed quote in 24 hours. No forms, no calendar links."

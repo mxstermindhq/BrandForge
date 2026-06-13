@@ -137,10 +137,11 @@ export function ServicePageTemplate({ service }: ServicePageTemplateProps): Reac
         </section>
       ) : null}
 
-      <FAQBlock items={service.faqs} />
+      <FAQBlock items={service.faqs} pageSlug={`/services/${service.slug}/`} />
       <CTASection
         title="Get a fixed quote in 24 hours"
         subhead="Send scope on Discord or Telegram — BrandForge replies with USD pricing, not a ballpark."
+        campaign={`service-${service.slug}-cta`}
       />
     </>
   );

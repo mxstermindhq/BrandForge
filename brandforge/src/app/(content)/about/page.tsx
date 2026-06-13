@@ -92,7 +92,7 @@ export default function AboutPage(): React.JSX.Element {
         </div>
       </section>
 
-      <FAQBlock items={ABOUT_FAQ} />
+      <FAQBlock items={ABOUT_FAQ} pageSlug="/about/" />
       <CTASection
         title="Work with BrandForge"
         subhead="Open Discord or Telegram — we reply with a fixed quote within 24 hours."

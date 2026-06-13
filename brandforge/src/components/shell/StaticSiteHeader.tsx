@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 
 /** Server-rendered header — no Lenis, GSAP, or magnetic interactions. */
@@ -71,6 +72,7 @@ export function StaticSiteHeader(): React.JSX.Element {
           </Link>
         </nav>
         <div className="flex items-center gap-2.5">
+          <CopyInviteButton campaign="header-discord-copy" className="hidden sm:inline-flex" />
           <a
             href={discordHref("header-discord")}
             target="_blank"

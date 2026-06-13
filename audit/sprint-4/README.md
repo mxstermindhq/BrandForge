@@ -55,4 +55,15 @@ npm run deploy
 
 ## Lighthouse evidence
 
-Run after deploy and save to `audit/sprint-4/home-mobile.json`.
+Home mobile perf **71** — `audit/sprint-4/home-mobile.json`
+
+## Sprint 4 gap fixes (follow-up)
+
+- FAQ `pageSlug` on all major pages (contact, roadmap, services, blog, portfolio, for, about, ethics)
+- Contact FAQ expanded (response time, availability, process) + Copy invite on contact cards
+- Roadmap hub FAQ expanded (stage selection guidance)
+- `StartPackageButton` copies tier intake message before opening Discord
+- `CopyInviteButton` on header, InlineCTA, and contact page
+- Portfolio highlights on 4 more case studies (cascade, valaccs, forum-commerce, community-launch)
+- Vouch verified-project links for @Can and @vizzy
+- `src/content/launch/generate-copy.ts` — outreach template helper

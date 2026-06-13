@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { PACKAGES } from "@/config/site";
 import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -16,12 +17,27 @@ const CONTACT_FAQ = [
   {
     question: "How do I contact BrandForge?",
     answer:
-      "Open Discord at discord.gg/a8Nz2R6M55 or message Telegram @Notmxstermind. Those are the only official channels. We do not use contact forms or Calendly — scope discussion happens in chat.",
+      "Open Discord at discord.gg/a8Nz2R6M55 or message Telegram @Notmxstermind. For custom tier scope you can also book a free 15-min call on the packages page. We do not use contact forms.",
+  },
+  {
+    question: "How fast do you reply?",
+    answer:
+      "Within 24 hours on business days — often same day if you message before 6pm US Eastern. Rush scopes are quoted separately when you need overnight turnaround.",
+  },
+  {
+    question: "What are your availability and working hours?",
+    answer:
+      "Core delivery is Mon–Fri with US Eastern and European overlap. Discord and Telegram are async — send scope anytime; you do not need to catch us live.",
   },
   {
     question: "What should I include in my first message?",
     answer:
       "Send your goal, deadline, budget range, and 1–3 reference links. Mention if you need escrow. BrandForge replies within 24 hours with a fixed USD quote or clarifying questions.",
+  },
+  {
+    question: "What happens after I send scope?",
+    answer:
+      "We reply with fixed USD pricing or clarifying questions within 24 hours. Once approved, kickoff typically starts within five business days after payment or escrow confirmation.",
   },
   {
     question: "Does BrandForge offer phone or video calls?",
@@ -72,6 +88,9 @@ export default function ContactPage(): React.JSX.Element {
               ticket or DM with your scope.
             </p>
             <p className="mt-4 font-mono text-[11px] text-accent-bright">discord.gg/a8Nz2R6M55 →</p>
+            <div className="mt-4">
+              <CopyInviteButton campaign="contact-page-copy" />
+            </div>
           </a>
           <a
             href={telegramHref(PACKAGES.custom.telegramMsg, "contact-page-telegram")}
@@ -97,12 +116,13 @@ export default function ContactPage(): React.JSX.Element {
         </p>
       </section>
 
-      <FAQBlock items={CONTACT_FAQ} />
+      <FAQBlock items={CONTACT_FAQ} pageSlug="/contact/" title="Contact & response FAQ" />
       <CTASection
         title="Waiting costs less than a bad hire"
         subhead="Message now — fixed quote in 24 hours."
         discordLabel="Open Discord"
         telegramLabel="Open Telegram"
+        campaign="contact-footer-cta"
       />
     </PageShell>
   );

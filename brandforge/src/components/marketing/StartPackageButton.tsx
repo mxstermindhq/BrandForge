@@ -18,7 +18,7 @@ function tierIntakeMessage(key: PackageKey): string {
   return `Hi BrandForge, I'm interested in the ${cfg.label} package. My project: `;
 }
 
-/** Start tier — tracked Discord + copy fallback modal on mobile. */
+/** Start tier — copies intake message, opens Discord, modal fallback if copy fails. */
 export function StartPackageButton({
   packageKey,
   label,
@@ -26,14 +26,36 @@ export function StartPackageButton({
   variant = "primary",
 }: StartPackageButtonProps): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
+  const [toast, setToast] = useState(false);
   const cfg = PACKAGES[packageKey];
   const campaign = `package-tier-${packageKey}`;
   const message = tierIntakeMessage(packageKey);
   const buttonLabel = label ?? `Start ${cfg.label.replace(/^The\s+/, "")}`;
 
-  const onStart = useCallback((): void => {
-    trackEvent("click_package_tier", { tier: packageKey, label: cfg.label });
-  }, [packageKey, cfg.label]);
+  const copyMessage = useCallback(async (): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(message);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [message]);
+
+  const onPrimaryClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>): void => {
+      trackEvent("click_package_tier", { tier: packageKey, label: cfg.label });
+      void copyMessage().then((ok) => {
+        if (ok) {
+          setToast(true);
+          window.setTimeout(() => setToast(false), 2500);
+        } else {
+          e.preventDefault();
+          setModalOpen(true);
+        }
+      });
+    },
+    [packageKey, cfg.label, copyMessage],
+  );
 
   const primaryClasses =
     variant === "primary"
@@ -42,11 +64,12 @@ export function StartPackageButton({
 
   return (
     <>
-      <div className={`flex flex-col gap-2 sm:flex-row ${className}`}>
+      <div className={`relative flex flex-col gap-2 sm:flex-row ${className}`}>
         <a
           href={discordHref(campaign)}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={onPrimaryClick}
           className={`block w-full rounded border py-3 text-center text-sm font-bold transition-colors sm:flex-1 ${primaryClasses}`}
           {...ctaTrackAttrs("package", campaign)}
         >
@@ -55,13 +78,21 @@ export function StartPackageButton({
         <button
           type="button"
           onClick={() => {
-            onStart();
+            trackEvent("click_package_tier", { tier: packageKey, label: cfg.label });
             setModalOpen(true);
           }}
           className="w-full rounded border border-b2 py-2 font-mono text-[10px] text-muted hover:border-accent sm:hidden"
         >
           Copy intake message
         </button>
+        {toast ? (
+          <span
+            role="status"
+            className="pointer-events-none absolute -bottom-9 left-0 z-10 whitespace-nowrap rounded border border-b1 bg-bg px-2 py-1 font-mono text-[9px] text-green shadow-lg"
+          >
+            Message copied — paste in Discord
+          </span>
+        ) : null}
       </div>
 
       {modalOpen ? (

@@ -32,7 +32,7 @@ export function BlogArticle({ post }: BlogArticleProps): React.JSX.Element {
         </section>
       ))}
       <BlogPostFooter post={post} />
-      <FAQBlock items={post.faqs} />
+      <FAQBlock items={post.faqs} pageSlug={`/blog/${post.slug}/`} />
     </article>
   );
 }

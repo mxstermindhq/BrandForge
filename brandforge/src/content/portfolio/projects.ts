@@ -284,6 +284,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Next.js", "Tailwind", "Static export"],
     outcome: ["Production-ready landing delivered — client later discontinued product"],
     relatedServices: DEFAULT_SERVICES,
+    highlights: [
+      {
+        stat: "2–3 week ship",
+        context: "Web3 landing with performance-first static export before paid traffic",
+        serviceHref: "/services/web-design/",
+        serviceLabel: "Web design",
+      },
+    ],
   },
   {
     slug: "grindnode",
@@ -467,6 +475,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Svelte", "Billgang", "E-commerce"],
     outcome: ["Delivered storefront in approximately two weeks"],
     relatedServices: DEFAULT_SERVICES,
+    highlights: [
+      {
+        stat: "~2 week ship",
+        context: "Valorant account store with Billgang checkout and category filters",
+        serviceHref: "/services/web-design/",
+        serviceLabel: "Web design",
+      },
+    ],
   },
   {
     slug: "ai-voice-receptionist",
@@ -567,6 +583,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
       { label: "Web design", href: "/services/web-design/" },
       { label: "Brand identity", href: "/services/brand-identity/" },
     ],
+    highlights: [
+      {
+        stat: "Live store",
+        context: "Billgang checkout + trust copy for forum traffic — ~2 week delivery",
+        serviceHref: "/services/web-design/",
+        serviceLabel: "Web design",
+      },
+    ],
   },
   {
     slug: "ops-flow-dashboard",
@@ -631,6 +655,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Discord", "Figma", "Bot API"],
     outcome: ["Launch-ready server with branded onboarding flow"],
     relatedServices: [{ label: "Discord branding", href: "/services/discord-branding/" }],
+    highlights: [
+      {
+        stat: "10-day launch",
+        context: "Full Discord kit — roles, banners, welcome bot, announcement templates",
+        serviceHref: "/services/discord-branding/",
+        serviceLabel: "Discord branding",
+      },
+    ],
   },
   {
     slug: "geo-content-engine",

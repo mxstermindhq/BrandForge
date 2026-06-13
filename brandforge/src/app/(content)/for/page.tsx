@@ -68,7 +68,7 @@ export default function NicheHubPage(): React.JSX.Element {
           })}
         </div>
       </section>
-      <FAQBlock items={HUB_FAQ} />
+      <FAQBlock items={HUB_FAQ} pageSlug="/for/" />
       <CTASection title="Not sure which guide fits?" subhead="Message on Discord — fixed quote in 24 hours." />
     </PageShell>
   );

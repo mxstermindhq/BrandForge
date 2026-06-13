@@ -310,6 +310,8 @@ export const VOUCHES: readonly VouchItem[] = [
     text: "Very great team, got done multiple projects for me so far and im looking for more in the future, thanks for the latest one. Fast and reliable.",
     who: "@vizzy",
     amount: "$900 + $2,000+ verified projects",
+    role: "Forum operator",
+    portfolioSlug: "forum-commerce-hub",
   },
   {
     id: "day",
@@ -332,6 +334,8 @@ export const VOUCHES: readonly VouchItem[] = [
     stars: 5,
     text: "Designs are not from this world. Such a good guy with so much heart and passion. I just can recommend him.",
     who: "@Can",
+    role: "Store owner",
+    portfolioSlug: "drain-cx",
   },
   {
     id: "omballa",

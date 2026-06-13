@@ -101,10 +101,11 @@ export default async function NichePage({ params }: PageProps): Promise<React.JS
         </div>
       </section>
 
-      <FAQBlock items={page.faqs} />
+      <FAQBlock items={page.faqs} pageSlug={path} />
       <CTASection
         title="Quote for your niche"
         subhead="Name this page in Discord — fixed USD in 24 hours."
+        campaign={`for-${slug}-cta`}
       />
     </PageShell>
   );

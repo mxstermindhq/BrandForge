@@ -46,7 +46,7 @@ export default function BlogHubPage(): React.JSX.Element {
         subhead="Long-form notes for forum sellers, Web3 founders, and community operators."
       />
       <BlogFilterGrid posts={BLOG_INDEX} />
-      <FAQBlock items={faqs} />
+      <FAQBlock items={faqs} pageSlug="/blog/" />
       <CTASection title="Want this on your project?" subhead="Quote on Discord in 24 hours." />
     </PageShell>
   );

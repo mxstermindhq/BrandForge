@@ -68,10 +68,11 @@ export default function RoadmapHubPage(): React.JSX.Element {
         subhead="Tell us what you've shipped — we'll point you to the right roadmap stage and package on Discord or Telegram."
       />
 
-      <FAQBlock items={ROADMAP_HUB_FAQ} />
+      <FAQBlock items={ROADMAP_HUB_FAQ} pageSlug="/roadmap/" title="Roadmap FAQ" />
       <CTASection
         title="Not sure which stage?"
         subhead="Tell us what you shipped so far — we point you to the right page and package."
+        campaign="roadmap-footer-cta"
       />
     </PageShell>
   );

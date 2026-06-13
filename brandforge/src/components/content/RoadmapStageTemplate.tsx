@@ -100,10 +100,11 @@ export function RoadmapStageTemplate({ stage }: RoadmapStageTemplateProps): Reac
         </div>
       </section>
 
-      <FAQBlock items={stage.faqs} />
+      <FAQBlock items={stage.faqs} pageSlug={`/roadmap/${stage.slug}/`} title={`Stage ${stage.stage} FAQ`} />
       <CTASection
         title="Stuck on this stage?"
         subhead="Discord or Telegram — we map you to a package or quote in 24 hours."
+        campaign={`roadmap-${stage.slug}-cta`}
       />
     </>
   );

@@ -33,7 +33,7 @@ export default function PortfolioHubPage(): React.JSX.Element {
 
       <PortfolioFilterGrid />
 
-      <FAQBlock items={PORTFOLIO_HUB_FAQ} />
+      <FAQBlock items={PORTFOLIO_HUB_FAQ} pageSlug="/portfolio/" />
       <CTASection
         title="Want results like these?"
         subhead="Send your niche and references on Discord or Telegram."

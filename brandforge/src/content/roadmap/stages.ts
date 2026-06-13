@@ -366,4 +366,14 @@ export const ROADMAP_HUB_FAQ: readonly FaqItem[] = [
     answer:
       "mxstermind is bespoke for established businesses. BrandForge roadmap is operator-first with fixed pricing culture.",
   },
+  {
+    question: "Which roadmap stage should I start at?",
+    answer:
+      "Match the stage to what you've shipped: idea only → validate-your-idea; logo but no lander → build-your-brand; traffic but weak funnel → launch-strategy; growth plateau → grow-your-audience.",
+  },
+  {
+    question: "Can I skip straight to growth or scale?",
+    answer:
+      "Only if validation and brand foundations are done — otherwise you're optimising a broken funnel. Message us on Discord with what exists and we'll point you honestly.",
+  },
 ];
