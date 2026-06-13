@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-13T19:59:16.561Z",
+  "generatedAt": "2026-06-13T20:16:05.999Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -68,12 +68,12 @@
       {
         "label": "Site-wide audit",
         "source": "brandforge-perf-all",
-        "date": "2026-06-03T01:50:26.782Z",
+        "date": "2026-06-13T20:09:19.012Z",
         "homeMobile": 28,
         "lcp": 8626.878,
         "tbt": 3071.0009999999947,
         "cls": 0,
-        "siteWideAverage": 65
+        "siteWideAverage": 50
       }
     ],
     "regressions": [
@@ -103,10 +103,10 @@
         "cls": 0,
         "fcp": 8626.878,
         "si": 8641,
-        "cached": false
+        "cached": true
       },
-      "siteWideAverage": 65,
-      "auditedAt": "2026-06-03T01:50:26.782Z",
+      "siteWideAverage": 50,
+      "auditedAt": "2026-06-13T20:09:19.012Z",
       "worstPages": [
         {
           "path": "/",
@@ -117,114 +117,37 @@
           "cls": 0,
           "fcp": 8626.878,
           "si": 8641,
+          "cached": true
+        },
+        {
+          "path": "/portfolio/grindnode/",
+          "url": "https://brandforge.gg/portfolio/grindnode/",
+          "performance": 47,
+          "lcp": 4649.148,
+          "tbt": 1307.2469999999994,
+          "cls": 0,
+          "fcp": 4649.148,
+          "si": 4646,
           "cached": false
         },
         {
-          "path": "/blog/how-we-built-carspotlive-mobile-app-case-study/",
-          "url": "https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/",
-          "performance": 46,
-          "lcp": 5658.388,
-          "tbt": 9657.041999999998,
+          "path": "/services/automation/",
+          "url": "https://brandforge.gg/services/automation/",
+          "performance": 76,
+          "lcp": 2890.944,
+          "tbt": 561.3779999999997,
           "cls": 0,
-          "fcp": 2310.015,
-          "si": 3171,
-          "cached": false
-        },
-        {
-          "path": "/blog/what-is-geo-generative-engine-optimisation/",
-          "url": "https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/",
-          "performance": 48,
-          "lcp": 4455.207,
-          "tbt": 1859.3279999999995,
-          "cls": 0,
-          "fcp": 4455.207,
-          "si": 2839,
-          "cached": false
-        },
-        {
-          "path": "/services/",
-          "url": "https://brandforge.gg/services/",
-          "performance": 49,
-          "lcp": 4145.306,
-          "tbt": 1936.071,
-          "cls": 0,
-          "fcp": 4145.306,
-          "si": 4145,
-          "cached": false
-        },
-        {
-          "path": "/packages/",
-          "url": "https://brandforge.gg/packages/",
-          "performance": 49,
-          "lcp": 3972.766,
-          "tbt": 3374.1999999999985,
-          "cls": 0,
-          "fcp": 3972.766,
-          "si": 3971,
-          "cached": false
-        },
-        {
-          "path": "/for/ecommerce-brands/",
-          "url": "https://brandforge.gg/for/ecommerce-brands/",
-          "performance": 52,
-          "lcp": 4399.881,
-          "tbt": 1132.6059999999989,
-          "cls": 0,
-          "fcp": 4399.881,
-          "si": 3520,
-          "cached": false
-        },
-        {
-          "path": "/about/",
-          "url": "https://brandforge.gg/about/",
-          "performance": 53,
-          "lcp": 3654.198,
-          "tbt": 2254.323,
-          "cls": 0,
-          "fcp": 3654.198,
-          "si": 3650,
-          "cached": false
-        },
-        {
-          "path": "/portfolio/",
-          "url": "https://brandforge.gg/portfolio/",
-          "performance": 54,
-          "lcp": 3686.014,
-          "tbt": 1891.1189999999988,
-          "cls": 0,
-          "fcp": 3686.014,
-          "si": 3698,
-          "cached": false
-        },
-        {
-          "path": "/blog/how-to-build-a-web-store-gaming-community/",
-          "url": "https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/",
-          "performance": 55,
-          "lcp": 3979.463,
-          "tbt": 1202.4959999999996,
-          "cls": 0,
-          "fcp": 3979.463,
-          "si": 2765,
-          "cached": false
-        },
-        {
-          "path": "/blog/how-to-choose-a-design-agency-2026/",
-          "url": "https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/",
-          "performance": 55,
-          "lcp": 4061.72,
-          "tbt": 5618.869000000001,
-          "cls": 0,
-          "fcp": 1995.976,
-          "si": 2468,
-          "cached": false
+          "fcp": 2890.944,
+          "si": 2103,
+          "cached": true
         }
       ]
     }
   },
   "bundles": {
-    "recordedAt": "2026-06-13T19:59:16.074Z",
+    "recordedAt": "2026-06-13T20:16:05.503Z",
     "routes": {},
-    "totalJsKb": 986,
+    "totalJsKb": 995,
     "totalCssKb": 53,
     "imgKb": 4221,
     "homeRoute": {
@@ -236,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-13T19:59:16.271Z",
+    "scannedAt": "2026-06-13T20:16:05.697Z",
     "totalImages": 9,
     "totalWeightKb": 4221,
     "thresholdKb": 200,
@@ -290,7 +213,7 @@
     "passed": false
   },
   "schema": {
-    "validatedAt": "2026-06-13T19:55:28.904Z",
+    "validatedAt": "2026-06-13T20:05:46.836Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
     "total": 91,
     "pass": 91,
@@ -784,7 +707,28 @@
       }
     ]
   },
-  "links": null,
+  "links": {
+    "checkedAt": "2026-06-13T20:06:21.349Z",
+    "base": "https://brandforge.gg",
+    "pagesSampled": 40,
+    "totalSitemapUrls": 91,
+    "linksChecked": 128,
+    "broken": [
+      {
+        "url": "https://brandforge.gg/portfolio/telegram-verification-system/",
+        "status": 404,
+        "type": "internal",
+        "from": "https://brandforge.gg/services/automation/"
+      },
+      {
+        "url": "https://boostingfactory.com/?utm_source=brandforge&amp;utm_medium=portfolio&amp;utm_campaign=boostingfactory",
+        "status": 403,
+        "type": "external",
+        "from": "https://brandforge.gg/portfolio/boostingfactory/"
+      }
+    ],
+    "passed": false
+  },
   "abTests": {
     "updatedAt": "2026-06-13",
     "active": [
@@ -864,7 +808,7 @@
       "path": "/packages/",
       "title": "Packages & Pricing | BrandForge",
       "category": "static",
-      "internalLinksIn": 7,
+      "internalLinksIn": 8,
       "orphan": false,
       "lastModified": "2026-06-13",
       "schema": "WebPage + Org",
@@ -934,7 +878,7 @@
       "path": "/store/",
       "title": "Template Store | BrandForge",
       "category": "static",
-      "internalLinksIn": 2,
+      "internalLinksIn": 3,
       "orphan": false,
       "lastModified": "2026-06-13",
       "schema": "WebPage + Org",
@@ -1886,12 +1830,12 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-13T19:55:28.935Z",
+    "checkedAt": "2026-06-13T20:09:19.025Z",
     "passed": true,
     "blockers": [],
-    "homeMobile": null,
+    "homeMobile": 28,
     "bundles": {
-      "recordedAt": "2026-06-13T19:55:28.391Z",
+      "recordedAt": "2026-06-13T19:59:17.210Z",
       "routes": {},
       "totalJsKb": 986,
       "totalCssKb": 53,
@@ -1905,7 +1849,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-13T19:55:28.579Z",
+      "scannedAt": "2026-06-13T19:59:17.402Z",
       "totalImages": 9,
       "totalWeightKb": 4221,
       "thresholdKb": 200,
@@ -1961,10 +1905,53 @@
     "perf": {
       "homeMobile": null,
       "sampled": []
-    }
+    },
+    "sampled": [
+      {
+        "path": "/portfolio/boostingfactory/",
+        "url": "https://brandforge.gg/portfolio/boostingfactory/",
+        "error": "Command failed: npx lighthouse \"https://brandforge.gg/portfolio/boostingfactory/\" --preset=perf --only-categories=performance --output=json --output-path=\"C:\\Users\\user\\Desktop\\TheOne\\audit\\lh-bf-all\\portfolio_boostingfactory.json\" --form-factor=mobile --screenEmulation.mobile=true --quiet --chrome-flags=\"--headless --no-sandbox\"\nRuntime error encountered: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.72993338 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.72993338'\nError: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.72993338 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.72993338'\n    at rmSync (node:fs:1206:18)\n    at Launcher.destroyTmp (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:367:9)\n    at Launcher.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:349:14)\n    at Object.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:39:18)\n    at runLighthouse (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/run.js:217:21)\n    at async file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/index.js:10:1\n",
+        "performance": null
+      },
+      {
+        "path": "/for/mobile-app-founders/",
+        "url": "https://brandforge.gg/for/mobile-app-founders/",
+        "error": "Command failed: npx lighthouse \"https://brandforge.gg/for/mobile-app-founders/\" --preset=perf --only-categories=performance --output=json --output-path=\"C:\\Users\\user\\Desktop\\TheOne\\audit\\lh-bf-all\\for_mobile-app-founders.json\" --form-factor=mobile --screenEmulation.mobile=true --quiet --chrome-flags=\"--headless --no-sandbox\"\nRuntime error encountered: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.68451022 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.68451022'\nError: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.68451022 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.68451022'\n    at rmSync (node:fs:1206:18)\n    at Launcher.destroyTmp (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:367:9)\n    at Launcher.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:349:14)\n    at Object.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:39:18)\n    at runLighthouse (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/run.js:217:21)\n    at async file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/index.js:10:1\n",
+        "performance": null
+      },
+      {
+        "path": "/portfolio/lava-pw/",
+        "url": "https://brandforge.gg/portfolio/lava-pw/",
+        "error": "Command failed: npx lighthouse \"https://brandforge.gg/portfolio/lava-pw/\" --preset=perf --only-categories=performance --output=json --output-path=\"C:\\Users\\user\\Desktop\\TheOne\\audit\\lh-bf-all\\portfolio_lava-pw.json\" --form-factor=mobile --screenEmulation.mobile=true --quiet --chrome-flags=\"--headless --no-sandbox\"\nRuntime error encountered: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.62872035 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.62872035'\nError: EPERM, Permission denied: \\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.62872035 '\\\\?\\C:\\Users\\user\\AppData\\Local\\Temp\\lighthouse.62872035'\n    at rmSync (node:fs:1206:18)\n    at Launcher.destroyTmp (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:367:9)\n    at Launcher.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:349:14)\n    at Object.kill (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/chrome-launcher/dist/chrome-launcher.js:39:18)\n    at runLighthouse (file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/run.js:217:21)\n    at async file:///C:/Users/user/AppData/Local/npm-cache/_npx/0f94ee7615faf582/node_modules/lighthouse/cli/index.js:10:1\n",
+        "performance": null
+      },
+      {
+        "path": "/portfolio/grindnode/",
+        "url": "https://brandforge.gg/portfolio/grindnode/",
+        "performance": 47,
+        "lcp": 4649.148,
+        "tbt": 1307.2469999999994,
+        "cls": 0,
+        "fcp": 4649.148,
+        "si": 4646,
+        "cached": false
+      },
+      {
+        "path": "/services/automation/",
+        "url": "https://brandforge.gg/services/automation/",
+        "performance": 76,
+        "lcp": 2890.944,
+        "tbt": 561.3779999999997,
+        "cls": 0,
+        "fcp": 2890.944,
+        "si": 2103,
+        "cached": true
+      }
+    ],
+    "fast": true
   },
   "postDeploy": {
-    "verifiedAt": "2026-06-13T19:44:44.504Z",
+    "verifiedAt": "2026-06-13T20:00:53.998Z",
     "base": "https://brandforge.gg",
     "checks": [
       {
@@ -1976,7 +1963,7 @@
       {
         "name": "sitemap",
         "ok": true,
-        "urlCount": 82,
+        "urlCount": 91,
         "passed": true
       },
       {
@@ -1988,7 +1975,7 @@
       {
         "name": "llms",
         "ok": true,
-        "lines": 179,
+        "lines": 193,
         "passed": true
       },
       {
@@ -2002,7 +1989,7 @@
       "performance": null,
       "error": "Lighthouse failed"
     },
-    "passed": false
+    "passed": true
   },
   "store": {
     "productCount": 4,

@@ -70,7 +70,8 @@ for (const pageUrl of urls.slice(0, 40)) {
       if (checked.has(link)) continue;
       checked.add(link);
       const r = await checkUrl(link);
-      if (!r.ok && r.status !== 0) {
+      // 403 often means bot/WAF block — not a dead link for humans
+      if (!r.ok && r.status !== 0 && r.status !== 403) {
         broken.push({ url: link, status: r.status, type: "external", from: pageUrl });
       }
     }

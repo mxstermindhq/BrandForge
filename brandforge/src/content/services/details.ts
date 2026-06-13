@@ -387,9 +387,9 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
         blurb: "$4,660 scoped automation product with dashboards.",
       },
       {
-        label: "Telegram verification system",
-        href: "/portfolio/telegram-verification-system/",
-        blurb: "Bot-driven verification for operator communities.",
+        label: "Ops Flow Dashboard",
+        href: "/portfolio/ops-flow-dashboard/",
+        blurb: "n8n workflows with CRM sync and Slack alerts for SaaS ops teams.",
       },
     ],
     blogLinks: [

@@ -65,6 +65,7 @@ function FAQItemRow({
       const value = vote === "up" ? 1 : -1;
       appendFeedback({ page: pageSlug, question_slug: slug, value, ts: Date.now() });
       trackEvent("faq_helpful", { page: pageSlug, question_slug: slug, value });
+      trackEvent("faq_feedback", { page: pageSlug, question_slug: slug, value, vote });
       if (vote === "up") {
         setShowCheck(true);
         window.setTimeout(() => setShowCheck(false), 1200);

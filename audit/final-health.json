@@ -1,0 +1,62 @@
+{
+  "audit_date": "2026-06-13T20:15:00.000Z",
+  "report": "audit/final-sprint-7-report.md",
+  "executive_summary": "audit/final/executive-summary.md",
+  "overall_grade": "B-",
+  "sprints_completed": 7,
+  "production_url": "https://brandforge.gg",
+  "deploy_version": "7fc1a5fe",
+  "performance": {
+    "home_mobile": 83,
+    "home_desktop": 99,
+    "site_avg_mobile": 63,
+    "targets_met": {
+      "home_mobile_85": false,
+      "home_desktop_95": true,
+      "site_avg_80": false,
+      "zero_pages_under_50": false,
+      "zero_tbt_over_1s": false
+    }
+  },
+  "seo": {
+    "sitemap_urls": 91,
+    "robots_conflict": true,
+    "llms_txt_lines": 193,
+    "schema_pass_rate": "91/91"
+  },
+  "content": {
+    "lint_pass": true,
+    "portfolio": 25,
+    "blog": 20,
+    "niches": 8,
+    "store": 4,
+    "partners": 6
+  },
+  "conversion": {
+    "ga_events_coded": true,
+    "ga_live_verified": false,
+    "store_sales": 0,
+    "stripe_configured": false
+  },
+  "accessibility": {
+    "home_score": 96
+  },
+  "ops": {
+    "broken_links": 2,
+    "uptime_monitor": false
+  },
+  "ecosystem": {
+    "mxstermind": true,
+    "store": true,
+    "partners": true,
+    "membership": true
+  },
+  "artifacts": {
+    "lighthouse": "audit/final/lighthouse/",
+    "perf_summary": "audit/final/perf-summary.json",
+    "seo_report": "audit/final/seo-report.md",
+    "schema_check": "audit/final/schema-check.json",
+    "content_inventory": "audit/final/content-inventory.json",
+    "health_score": "audit/final/health-score.json"
+  }
+}

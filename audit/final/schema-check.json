@@ -1,0 +1,24 @@
+{
+  "audit_date": "2026-06-13T20:05:46.836Z",
+  "source": "scripts/validate-schema.mjs on brandforge/out",
+  "total_pages": 91,
+  "pass": 91,
+  "fail": 0,
+  "warn": 3,
+  "schema_coverage_percent": 96.7,
+  "warnings": [
+    { "page": "/404/", "message": "No JSON-LD found" },
+    { "page": "/privacy/", "message": "No JSON-LD found" },
+    { "page": "/terms/", "message": "No JSON-LD found" }
+  ],
+  "coverage_by_type": {
+    "Organization_WebSite_SearchAction": "home",
+    "Service": "all /services/* pages",
+    "Product": "/packages/, /store/*",
+    "Article_CreativeWork": "blog + portfolio",
+    "FAQPage": "hubs, services, niches, blog with FAQ",
+    "BreadcrumbList": "content pages via @graph",
+    "Review": "vouches where implemented"
+  },
+  "pass_audit_targets": true
+}

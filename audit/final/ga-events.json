@@ -1,0 +1,32 @@
+{
+  "audit_date": "2026-06-13T20:15:00.000Z",
+  "ga4_property": "G-G3L5EBB195",
+  "ga_load_strategy": "Deferred after window load via requestIdleCallback (GoogleAnalytics.tsx)",
+  "events_implemented_in_code": {
+    "click_discord": true,
+    "click_telegram": true,
+    "click_package_tier": true,
+    "click_calendly": true,
+    "click_copy_discord": true,
+    "page_conversion": true,
+    "cross_platform_nav": true,
+    "purchase_initiated": true,
+    "partner_referral": true,
+    "ab_test_impression": true,
+    "ab_test_conversion": true
+  },
+  "events_not_verified_live": [
+    "purchase_completed",
+    "faq_feedback"
+  ],
+  "utm_tracking": {
+    "discord": "buildTrackedUrl via lib/tracking.ts — utm_source=brandforge",
+    "telegram": "telegramHref with UTM params",
+    "store": "StoreBuyButton fires purchase_initiated",
+    "mxstermind_cross_nav": "CrossPlatformLink + cross_platform_nav event",
+    "partner_ref": "?ref= query param + partner_referral event"
+  },
+  "live_ga4_realtime_test": "NOT RUN — requires manual browser session with GA4 Real-Time open",
+  "pass": false,
+  "notes": "Event wiring present in codebase; live GA4 Real-Time verification not performed in this audit."
+}

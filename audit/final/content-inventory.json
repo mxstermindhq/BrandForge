@@ -1,0 +1,53 @@
+{
+  "audit_date": "2026-06-13T20:15:00.000Z",
+  "source": "scripts/lint-content.mjs + buildManifest + production sitemap",
+  "indexable_pages": 87,
+  "sitemap_urls": 91,
+  "counts": {
+    "portfolio_projects": 25,
+    "blog_posts": 20,
+    "niche_pages": 8,
+    "service_pages": 9,
+    "roadmap_stages": 6,
+    "static_routes": 19,
+    "store_products": 4,
+    "partners_listed": 6
+  },
+  "sprint_7_pages": {
+    "mxstermind_bridge": true,
+    "membership": true,
+    "events": true,
+    "community": true,
+    "client_portal_scaffold": true,
+    "store_catalog": true,
+    "partners_v2": true
+  },
+  "noindex_paths": ["/launch/", "/client/", "/admin/"],
+  "lint": {
+    "passed": true,
+    "errors": 0,
+    "command": "npm run lint:content",
+    "output": "87 pages (25 portfolio, 20 blog, 8 niches)"
+  },
+  "targets": {
+    "total_pages_min": 90,
+    "portfolio_min": 25,
+    "blog_min": 14,
+    "niche_min": 8,
+    "store_min": 3,
+    "partners_min": 5
+  },
+  "pass": {
+    "portfolio": true,
+    "blog": true,
+    "niche": true,
+    "store": true,
+    "partners": true,
+    "total_pages_90_plus": false,
+    "sitemap_90_plus": true
+  },
+  "gaps": [
+    "Indexable content manifest reports 87 pages; sitemap has 91 URLs (store + extras). Target 90+ met via sitemap, not manifest alone.",
+    "Broken internal link: /portfolio/telegram-verification-system/ referenced from /services/automation/ but page does not exist."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "audit_date": "2026-06-13T20:15:00.000Z",
+  "build_pipeline": {
+    "pre_deploy": {
+      "script": "scripts/pre-deploy.mjs",
+      "deploy_uses": "pre-deploy:quick (--skip-lighthouse)",
+      "full_gate_blocks_on": ["home mobile < 70", "any sampled page < 50", "lint errors", "build errors"],
+      "last_full_run": "not run in this audit"
+    },
+    "post_deploy": {
+      "script": "scripts/post-deploy.mjs",
+      "runs_on_deploy": true
+    },
+    "auto_sitemap": true,
+    "auto_llms_txt": true,
+    "auto_rss": true,
+    "auto_dashboard_data": true
+  },
+  "audit_scripts": {
+    "audit-perf-all.mjs": { "status": "partial", "note": "Windows EPERM on Lighthouse temp cleanup caused 3/6 failures in --fast run" },
+    "lint-content.mjs": { "status": "pass" },
+    "weekly-report.mjs": { "status": "present", "last_run": "not run in this audit" },
+    "track-bundles.mjs": { "status": "pass", "runs_at_build": true },
+    "audit-images.mjs": { "status": "pass", "runs_at_build": true },
+    "check-links.mjs": { "status": "fail", "broken": 2 },
+    "validate-schema.mjs": { "status": "pass", "91_pass_0_fail" }
+  },
+  "dashboard": {
+    "path": "/admin/",
+    "data_source": "public/admin/dashboard-data.json",
+    "auth": "NEXT_PUBLIC_BF_ADMIN_KEY or Cloudflare Access",
+    "metrics": ["content inventory", "lighthouse history", "bundle sizes", "A/B tests", "orphan pages"],
+    "ga4_live_data": false,
+    "store_revenue": false,
+    "screenshot": "not captured — audit/final/dashboard.png omitted"
+  },
+  "monitoring": {
+    "uptime_monitor_5min": false,
+    "discord_webhook_alerts": "script present (notify-discord.mjs), not configured",
+    "weekly_broken_link_report": "check-links.mjs available",
+    "schema_on_deploy": true
+  },
+  "pass": false,
+  "blockers": [
+    "Uptime monitoring not configured",
+    "2 broken links in link checker",
+    "Deploy bypasses full Lighthouse gate via pre-deploy:quick"
+  ]
+}

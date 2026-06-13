@@ -181,7 +181,7 @@ export const STATIC_CONTENT_ROUTES: readonly ContentEntry[] = [
   },
 ] as const;
 
-const NOINDEX_PATHS = new Set(["/launch/", "/client/", "/admin/"]);
+const NOINDEX_PATHS = new Set(["/launch/", "/client/", "/admin/", "/store/success/"]);
 
 function blogEntries(): ContentEntry[] {
   return BLOG_SLUGS.map((slug) => {

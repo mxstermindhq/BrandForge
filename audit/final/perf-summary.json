@@ -1,0 +1,80 @@
+{
+  "audit_date": "2026-06-13T20:15:00.000Z",
+  "domain": "brandforge.gg",
+  "home": {
+    "mobile": {
+      "source": "audit/final/lighthouse/home-mobile.json",
+      "fetchTime": "2026-06-13T20:05:26.563Z",
+      "performance": 83,
+      "accessibility": 96,
+      "best_practices": 81,
+      "seo": 100,
+      "lcp_ms": 2902,
+      "tbt_ms": 452,
+      "cls": 0,
+      "targets": {
+        "performance_min": 85,
+        "lcp_max_ms": 2500,
+        "tbt_max_ms": 200,
+        "cls_max": 0.1
+      },
+      "pass": {
+        "performance": false,
+        "lcp": false,
+        "tbt": false,
+        "cls": true,
+        "accessibility": true
+      }
+    },
+    "desktop": {
+      "source": "audit/final/lighthouse/home-desktop.json",
+      "fetchTime": "2026-06-13T20:05:54.412Z",
+      "performance": 99,
+      "accessibility": 96,
+      "best_practices": 77,
+      "seo": 100,
+      "lcp_ms": 752,
+      "tbt_ms": 5,
+      "cls": 0.05,
+      "targets": {
+        "performance_min": 95
+      },
+      "pass": {
+        "performance": true,
+        "accessibility": true
+      }
+    }
+  },
+  "site_wide_crawl": {
+    "source": "audit/lh-bf-all/*.json (55 pages, 2026-06-03 crawl)",
+    "note": "Full --fresh crawl blocked by Windows Lighthouse EPERM on temp cleanup; historical crawl used for site-wide baseline.",
+    "pages_audited": 55,
+    "avg_performance_mobile": 63,
+    "pages_under_50": 8,
+    "pages_tbt_over_1s": 32,
+    "targets": {
+      "avg_min": 80,
+      "zero_under_50": true,
+      "zero_tbt_over_1s": true
+    },
+    "pass": false
+  },
+  "fast_sample": {
+    "source": "audit/brandforge-perf-all.json",
+    "auditedAt": "2026-06-13T20:09:19.012Z",
+    "note": "Home score cached at 28 from June 3 run; superseded by fresh home-mobile.json score 83.",
+    "avg_performance": 50,
+    "succeeded": 3,
+    "failed": 3
+  },
+  "implementation_checks": {
+    "avif_serving": "Implemented via OptimizedPicture + optimize-site-images.mjs — verify MIME in DevTools manually",
+    "critical_css_inlined": true,
+    "font_subsetting": "Inter subset preloaded in layout — partial pass",
+    "motion_stack_excluded_from_home": true,
+    "ga_deferred_after_load": true,
+    "fetch_priority_high_above_fold": true,
+    "lazy_below_fold": true,
+    "cache_headers": "_headers: static 1y, HTML 1h — verified in public/_headers"
+  }
+}

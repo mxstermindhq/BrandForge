@@ -1,3 +1,5 @@
+import { SITE } from "@/config/site";
+
 export type StoreCategory = "Templates" | "Kits" | "Guides" | "Tools";
 
 export type StoreProduct = {
@@ -17,6 +19,11 @@ export type StoreProduct = {
 
 const stripe = (envKey: string, fallback: string) =>
   (typeof process !== "undefined" && process.env[envKey]) || fallback;
+
+/** Set as Stripe Payment Link success URL: /store/success/?product={slug} */
+export function storeSuccessUrl(productSlug: string): string {
+  return `${SITE.url}/store/success/?product=${encodeURIComponent(productSlug)}`;
+}
 
 /** Replace payment links with live Stripe/LemonSqueezy URLs in production. */
 export const STORE_PRODUCTS: readonly StoreProduct[] = [
