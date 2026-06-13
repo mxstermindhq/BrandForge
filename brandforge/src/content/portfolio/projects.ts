@@ -510,6 +510,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     description:
       "Digital goods storefront for a forum operator — Billgang checkout, tiered catalog, escrow-friendly copy, and dark UI tuned for repeat buyers.",
     tags: ["E-commerce", "Forum", "Billgang", "CRO"],
+    nicheTags: ["forum-sellers", "ecommerce-brands"],
     mockupType: "browser",
     brandGradient: ["#a855f7", "#581c87"],
     timeline: "~2 weeks",
@@ -539,6 +540,8 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     description:
       "n8n-backed operations dashboard — lead routing, Slack alerts, and CRM sync for a SaaS team replacing manual spreadsheet handoffs.",
     tags: ["n8n", "Automation", "CRM", "SaaS"],
+    nicheTags: ["automation-ops-teams", "saas-startups"],
+    featured: true,
     mockupType: "browser",
     brandGradient: ["#14b8a6", "#0f766e"],
     timeline: "3 weeks",
@@ -565,6 +568,8 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     description:
       "Full Discord launch kit — server structure, role hierarchy, branded banners, welcome bot flows, and announcement templates for a gaming community.",
     tags: ["Discord", "Branding", "Community", "Bots"],
+    nicheTags: ["gaming-server-owners", "content-creators"],
+    featured: true,
     mockupType: "browser",
     brandGradient: ["#5865f2", "#312e81"],
     timeline: "10 days",
@@ -591,6 +596,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     description:
       "Service-page GEO overhaul — FAQ schema, entity-clear copy, internal links, and llms.txt alignment for a B2B operator targeting AI citations.",
     tags: ["GEO", "SEO", "Schema", "Content"],
+    nicheTags: ["saas-startups", "forum-sellers"],
     mockupType: "browser",
     brandGradient: ["#f59e0b", "#b45309"],
     timeline: "2 weeks",

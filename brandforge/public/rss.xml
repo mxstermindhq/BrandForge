@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>BrandForge Blog</title>
+    <link>https://brandforge.gg/blog/</link>
+    <description>Operator guides on brand, GEO, Discord, forums, and growth.</description>
+    <language>en-us</language>
+    <atom:link href="https://brandforge.gg/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Building BrandForge in Public — Update 01</title>
+      <link>https://brandforge.gg/blog/building-brandforge-in-public-01/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/building-brandforge-in-public-01/</guid>
+      <pubDate>Sat, 13 Jun 2026 00:00:00 GMT</pubDate>
+      <description>First build-in-public update: portfolio expansion, visual overhaul, performance work, and what we are shipping next.</description>
+    </item>
+    <item>
+      <title>Web3 Branding &amp; Trust Guide | BrandForge</title>
+      <link>https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/</guid>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 GMT</pubDate>
+      <description>How crypto and Web3 operators build credible brands before chain jargon — landers, proof, and GEO for cold traffic.</description>
+    </item>
+    <item>
+      <title>Forum Seller Reputation Guide | BrandForge</title>
+      <link>https://brandforge.gg/blog/complete-guide-forum-seller-reputation/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/complete-guide-forum-seller-reputation/</guid>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 GMT</pubDate>
+      <description>How marketplace operators build vouches, trust UX, and brand consistency on HF, Voided, and niche forums — without looking like a reskin.</description>
+    </item>
+    <item>
+      <title>Price Digital Services 2026 | BrandForge</title>
+      <link>https://brandforge.gg/blog/how-to-price-digital-services-2026/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-to-price-digital-services-2026/</guid>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 GMT</pubDate>
+      <description>Fixed packages vs retainers, capacity limits, and escrow-friendly quotes — operator pricing guide.</description>
+    </item>
+    <item>
+      <title>Discord Server Branding for Growth | BrandForge</title>
+      <link>https://brandforge.gg/blog/discord-server-branding-for-growth/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/discord-server-branding-for-growth/</guid>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 GMT</pubDate>
+      <description>Growth-focused Discord branding — banners, onboarding, role art, and launch assets that convert lurkers into members and paying tiers.</description>
+    </item>
+    <item>
+      <title>Escrow-Friendly Agency Intake | BrandForge</title>
+      <link>https://brandforge.gg/blog/escrow-friendly-agency-intake/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/escrow-friendly-agency-intake/</guid>
+      <pubDate>Tue, 09 Jun 2026 00:00:00 GMT</pubDate>
+      <description>What forum and OTC buyers should include in the first Discord message — scope, escrow, refs, and fixed-quote checklist.</description>
+    </item>
+    <item>
+      <title>n8n vs Make Automation Guide | BrandForge</title>
+      <link>https://brandforge.gg/blog/n8n-vs-make-automation-guide/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/n8n-vs-make-automation-guide/</guid>
+      <pubDate>Mon, 08 Jun 2026 00:00:00 GMT</pubDate>
+      <description>Compare n8n and Make for CRM sync, lead routing, and forum ops — when to pick each.</description>
+    </item>
+    <item>
+      <title>Pick the Right BrandForge Tier | BrandForge</title>
+      <link>https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/</guid>
+      <pubDate>Mon, 08 Jun 2026 00:00:00 GMT</pubDate>
+      <description>Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to escalate to mxstermind.com.</description>
+    </item>
+    <item>
+      <title>Landing Page CRO Checklist 2026 | BrandForge</title>
+      <link>https://brandforge.gg/blog/landing-page-conversion-checklist-2026/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/landing-page-conversion-checklist-2026/</guid>
+      <pubDate>Fri, 05 Jun 2026 00:00:00 GMT</pubDate>
+      <description>Hero clarity, FAQ schema, speed, and Discord CTAs — 12-point checklist for operator landers.</description>
+    </item>
+    <item>
+      <title>Build a Brand From Scratch 2026 | BrandForge</title>
+      <link>https://brandforge.gg/blog/how-to-build-a-brand-from-scratch-2026/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-to-build-a-brand-from-scratch-2026/</guid>
+      <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
+      <description>Operator guide: positioning, identity, Discord, and lander — without agency fluff.</description>
+    </item>
+    <item>
+      <title>What Is GEO? Generative Engine Optimisation</title>
+      <link>https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/</guid>
+      <pubDate>Sat, 16 May 2026 00:00:00 GMT</pubDate>
+      <description>GEO earns AI citations with FAQs, schema, and entity-clear copy — BrandForge explains for operators.</description>
+    </item>
+    <item>
+      <title>Discord Server Branding Guide | BrandForge</title>
+      <link>https://brandforge.gg/blog/discord-server-branding-complete-guide/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/discord-server-branding-complete-guide/</guid>
+      <pubDate>Thu, 14 May 2026 00:00:00 GMT</pubDate>
+      <description>Roles, banners, onboarding, and GFX for gaming and trading servers.</description>
+    </item>
+    <item>
+      <title>Gaming Community Web Store Guide</title>
+      <link>https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/</guid>
+      <pubDate>Tue, 12 May 2026 00:00:00 GMT</pubDate>
+      <description>Trust, checkout, and catalog UX for community stores.</description>
+    </item>
+    <item>
+      <title>Forum Marketing 2026 | BrandForge</title>
+      <link>https://brandforge.gg/blog/forum-marketing-2026-what-still-works/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/forum-marketing-2026-what-still-works/</guid>
+      <pubDate>Sun, 10 May 2026 00:00:00 GMT</pubDate>
+      <description>Vouches, threads, and proof patterns that still convert.</description>
+    </item>
+    <item>
+      <title>CarSpotLive Case Study | BrandForge Blog</title>
+      <link>https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/</guid>
+      <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
+      <description>Mobile app delivery — maps, Firebase, App Store 2024.</description>
+    </item>
+    <item>
+      <title>Identity vs Design | BrandForge</title>
+      <link>https://brandforge.gg/blog/brand-identity-vs-brand-design-difference/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/brand-identity-vs-brand-design-difference/</guid>
+      <pubDate>Wed, 06 May 2026 00:00:00 GMT</pubDate>
+      <description>Systems vs one-off visuals — when to buy brand identity vs design-only work.</description>
+    </item>
+    <item>
+      <title>Conversion Rate Optimisation Guide</title>
+      <link>https://brandforge.gg/blog/what-is-cro-conversion-rate-optimisation/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/what-is-cro-conversion-rate-optimisation/</guid>
+      <pubDate>Mon, 04 May 2026 00:00:00 GMT</pubDate>
+      <description>CRO for operator landers and stores — measurable fixes.</description>
+    </item>
+    <item>
+      <title>Choose a Design Agency 2026</title>
+      <link>https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/</guid>
+      <pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate>
+      <description>Package vs bespoke, proof, escrow — operator checklist.</description>
+    </item>
+    <item>
+      <title>AI Tools for Operators | BrandForge</title>
+      <link>https://brandforge.gg/blog/ai-tools-every-operator-should-use/</link>
+      <guid isPermaLink="true">https://brandforge.gg/blog/ai-tools-every-operator-should-use/</guid>
+      <pubDate>Tue, 28 Apr 2026 00:00:00 GMT</pubDate>
+      <description>Assistants, automation, and doc-grounded bots — not hype.</description>
+    </item>
+  </channel>
+</rss>

@@ -5,9 +5,13 @@ import type { PortfolioProject } from "@/types/portfolio";
 
 type PortfolioProjectCardProps = {
   project: PortfolioProject;
+  featured?: boolean;
 };
 
-export function PortfolioProjectCard({ project }: PortfolioProjectCardProps): React.JSX.Element {
+export function PortfolioProjectCard({
+  project,
+  featured = false,
+}: PortfolioProjectCardProps): React.JSX.Element {
   const isArchived = project.status === "archived";
   const isUpcoming = project.status === "upcoming";
   const caseHref = `/portfolio/${project.slug}/`;
@@ -26,7 +30,12 @@ export function PortfolioProjectCard({ project }: PortfolioProjectCardProps): Re
         />
       ) : null}
       <div className="relative p-4 pb-0">
-        <div className="absolute right-4 top-4 z-[2]">
+        <div className="absolute right-4 top-4 z-[2] flex flex-col items-end gap-1">
+          {featured ? (
+            <span className="rounded bg-accent px-2 py-0.5 font-mono text-[8px] font-bold uppercase text-white">
+              Featured
+            </span>
+          ) : null}
           <ProjectStatusBadge status={project.status} />
         </div>
         <ProjectMockup

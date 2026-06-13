@@ -9,7 +9,7 @@ export function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   return (
     <article className="rounded-md border border-b1 bg-s1 p-6">
       <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted">
-        {post.date} · {post.readingTime}
+        {post.category ?? "Guides"} · {post.date} · {post.readingTime}
       </p>
       <h3 className="mt-3 text-lg font-bold">
         <Link href={post.href} className="hover:text-accent-bright" data-cursor="hover">

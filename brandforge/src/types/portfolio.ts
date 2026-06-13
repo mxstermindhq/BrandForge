@@ -26,6 +26,8 @@ export type PortfolioProject = {
   relatedServices: readonly { label: string; href: string }[];
   vouch?: { quote: string; who: string; from: string };
   confidentialNote?: string;
+  featured?: boolean;
+  nicheTags?: readonly string[];
 };
 
 export type PortfolioDetail = {

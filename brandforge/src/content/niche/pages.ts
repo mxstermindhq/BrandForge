@@ -252,6 +252,90 @@ export const NICHE_PAGES: Record<string, NichePage> = {
       },
     ],
   },
+
+  "mobile-app-founders": {
+    slug: "mobile-app-founders",
+    headline: "Mobile apps that ship to the store — not endless Figma loops",
+    meta: {
+      title: "For Mobile App Founders | BrandForge",
+      description:
+        "iOS and Android MVPs, UI/UX, Firebase backends, and App Store release — CarSpotLive proof.",
+    },
+    pain: [
+      "Agencies sell mockups while store review deadlines slip",
+      "Founders need maps, auth, and payments — not another landing page",
+      "Investors ask for TestFlight proof you do not have yet",
+    ],
+    proof: [
+      { name: "CarSpotLive", href: "/portfolio/carspotlive/" },
+      { name: "Mobile apps service", href: "/services/mobile-apps/" },
+    ],
+    pricingAnchor: "MVP Engine $5k/mo · Blueprint for pre-validation",
+    portfolioSlugs: ["carspotlive", "sui-blockchain-app", "ai-voice-receptionist"],
+    body: [
+      "BrandForge ships native and cross-platform apps with real backends — quote fixed USD on Discord within 24 hours.",
+    ],
+    faqs: [
+      {
+        question: "Do you build iOS and Android?",
+        answer: "Yes — React Native and native paths quoted per scope.",
+      },
+      {
+        question: "App Store submission included?",
+        answer: "Yes when scoped — see CarSpotLive case study.",
+      },
+      {
+        question: "How long for an MVP?",
+        answer: "Typically 8–12 weeks depending on features — sprint-based in MVP Engine.",
+      },
+      {
+        question: "Pre-store validation?",
+        answer: "Blueprint tier for brand + waitlist lander before full app build.",
+      },
+    ],
+  },
+
+  "automation-ops-teams": {
+    slug: "automation-ops-teams",
+    headline: "Ops teams drowning in spreadsheets — automate the handoffs",
+    meta: {
+      title: "For Automation & Ops Teams | BrandForge",
+      description:
+        "n8n and Make workflows, CRM sync, Slack alerts, and internal dashboards — The Automator retainer.",
+    },
+    pain: [
+      "Leads copied manually between five tools every morning",
+      "No visibility when a workflow breaks at 2am",
+      "Hourly consultants with no documentation handoff",
+    ],
+    proof: [
+      { name: "Ops Flow Dashboard", href: "/portfolio/ops-flow-dashboard/" },
+      { name: "Automation service", href: "/services/automation/" },
+    ],
+    pricingAnchor: "The Automator $1.5k–$3k/mo · 3 active workflows",
+    portfolioSlugs: ["ops-flow-dashboard", "linkedin-automation", "jarro-ai"],
+    body: [
+      "We map your data flow, build n8n or Make recipes, and ship dashboards ops can actually read — fixed monthly capacity, no silent scope creep.",
+    ],
+    faqs: [
+      {
+        question: "n8n or Make?",
+        answer: "Scope-dependent — see /blog/n8n-vs-make-automation-guide/.",
+      },
+      {
+        question: "Self-hosted n8n?",
+        answer: "Yes — quoted per retainer with hosting options.",
+      },
+      {
+        question: "First workflow to build?",
+        answer: "Lead capture → CRM → Slack alert — highest ROI for most teams.",
+      },
+      {
+        question: "How many workflows per month?",
+        answer: "Automator tier caps 3 active workflows — extras quoted upfront.",
+      },
+    ],
+  },
 };
 
 export const NICHE_SLUGS = Object.keys(NICHE_PAGES);

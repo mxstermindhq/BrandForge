@@ -6,34 +6,84 @@
 - Founders launching a brand, website, or product
 - Operators who need one team for design + dev + growth (not three vendors)
 - Buyers who prefer fixed USD packages, crypto payment, or escrow
-- Forum sellers, Discord server owners, gaming communities, Web3 founders
 
-## Key pages
-- Home: https://brandforge.gg/
-- Services: https://brandforge.gg/services/
-- Packages: https://brandforge.gg/packages/
-- Portfolio: https://brandforge.gg/portfolio/
-- About: https://brandforge.gg/about/
-- Contact: https://brandforge.gg/contact/
-- Blog: https://brandforge.gg/blog/
-- Roadmap: https://brandforge.gg/roadmap/
-- Brand guide (tokens & copy): https://brandforge.gg/brand-guide/
-- Ethics: https://brandforge.gg/ethics-standards/
+## Hubs
+- BrandForge — Design, Development & Growth: https://brandforge.gg/
+- Services Hub | BrandForge: https://brandforge.gg/services/
+- Packages & Pricing | BrandForge: https://brandforge.gg/packages/
+- Portfolio | BrandForge: https://brandforge.gg/portfolio/
+- Blog | BrandForge: https://brandforge.gg/blog/
+- Who We Serve | BrandForge: https://brandforge.gg/for/
+- About BrandForge: https://brandforge.gg/about/
+- Contact | BrandForge: https://brandforge.gg/contact/
+- Roadmap | BrandForge: https://brandforge.gg/roadmap/
+- Brand Guide | BrandForge: https://brandforge.gg/brand-guide/
+- Ethics & Standards | BrandForge: https://brandforge.gg/ethics-standards/
+- Privacy Policy | BrandForge: https://brandforge.gg/privacy/
+- Terms | BrandForge: https://brandforge.gg/terms/
 
 ## Niche guides
-- Gaming server owners: https://brandforge.gg/for/gaming-server-owners/
-- Web3 & crypto: https://brandforge.gg/for/web3-crypto-projects/
-- SaaS startups: https://brandforge.gg/for/saas-startups/
-- Forum sellers: https://brandforge.gg/for/forum-sellers/
-- E-commerce brands: https://brandforge.gg/for/ecommerce-brands/
-- Content creators: https://brandforge.gg/for/content-creators/
+- For Gaming Server Owners: https://brandforge.gg/for/gaming-server-owners/
+- For Web3 & Crypto Projects: https://brandforge.gg/for/web3-crypto-projects/
+- For SaaS Startups: https://brandforge.gg/for/saas-startups/
+- For E-commerce Brands: https://brandforge.gg/for/ecommerce-brands/
+- For Content Creators: https://brandforge.gg/for/content-creators/
+- For Forum Sellers: https://brandforge.gg/for/forum-sellers/
+- For Mobile App Founders: https://brandforge.gg/for/mobile-app-founders/
+- For Automation & Ops Teams: https://brandforge.gg/for/automation-ops-teams/
+
+## Services
+- Brand Identity Design — Logo & Systems: https://brandforge.gg/services/brand-identity/
+- Web Design & Development — Sites That Convert: https://brandforge.gg/services/web-design/
+- Mobile App Development — iOS & Android: https://brandforge.gg/services/mobile-apps/
+- Discord Server Branding & Setup: https://brandforge.gg/services/discord-branding/
+- Workflow Automation — n8n, Make, Zapier: https://brandforge.gg/services/automation/
+- Custom AI Tools & Knowledge Bases: https://brandforge.gg/services/ai-tools/
+- SEO & GEO Growth — Search + AI Visibility: https://brandforge.gg/services/seo-growth/
+- Paid Ads Management — Google, Meta, TikTok: https://brandforge.gg/services/paid-ads/
+- Social Media & Short-Form Systems: https://brandforge.gg/services/social-media/
+
+## Blog
+- Build a Brand From Scratch 2026: https://brandforge.gg/blog/how-to-build-a-brand-from-scratch-2026/
+- What Is GEO? Generative Engine Optimisation: https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/
+- Discord Server Branding Guide: https://brandforge.gg/blog/discord-server-branding-complete-guide/
+- Gaming Community Web Store Guide: https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/
+- Forum Marketing 2026: https://brandforge.gg/blog/forum-marketing-2026-what-still-works/
+- CarSpotLive Case Study Blog: https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/
+- Identity vs Design: https://brandforge.gg/blog/brand-identity-vs-brand-design-difference/
+- Conversion Rate Optimisation Guide: https://brandforge.gg/blog/what-is-cro-conversion-rate-optimisation/
+- Choose a Design Agency 2026: https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/
+- AI Tools for Operators: https://brandforge.gg/blog/ai-tools-every-operator-should-use/
+- Price Digital Services 2026: https://brandforge.gg/blog/how-to-price-digital-services-2026/
+- n8n vs Make Automation Guide: https://brandforge.gg/blog/n8n-vs-make-automation-guide/
+- Landing Page CRO Checklist 2026: https://brandforge.gg/blog/landing-page-conversion-checklist-2026/
+- Forum Seller Reputation Guide: https://brandforge.gg/blog/complete-guide-forum-seller-reputation/
+- Discord Server Branding for Growth: https://brandforge.gg/blog/discord-server-branding-for-growth/
+- Escrow-Friendly Agency Intake: https://brandforge.gg/blog/escrow-friendly-agency-intake/
+- Pick the Right BrandForge Tier: https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/
+- Web3 Branding & Trust Guide: https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/
+- Building BrandForge in Public — Update 01: https://brandforge.gg/blog/building-brandforge-in-public-01/
+
+## Portfolio highlights
+- Whiteskyhosting.com Case Study: https://brandforge.gg/portfolio/whiteskyhosting/
+- CarSpotLive Case Study: https://brandforge.gg/portfolio/carspotlive/
+- DirectFiber Case Study: https://brandforge.gg/portfolio/directfiber/
+- Drain.cx Case Study: https://brandforge.gg/portfolio/drain-cx/
+- Boostingfactory.com Case Study: https://brandforge.gg/portfolio/boostingfactory/
+- Fluorite.store Case Study: https://brandforge.gg/portfolio/fluorite-store/
+- Passle Case Study: https://brandforge.gg/portfolio/passle/
+- Dyo Travel Case Study: https://brandforge.gg/portfolio/dyotravel/
+- Repsheets Case Study: https://brandforge.gg/portfolio/repsheets/
+- Cascade Markets Case Study: https://brandforge.gg/portfolio/cascade-markets/
+- Grindnode Case Study: https://brandforge.gg/portfolio/grindnode/
+- Cloutscout.ai Case Study: https://brandforge.gg/portfolio/cloutscout/
 
 ## Packages (USD)
-- Tier 1 — The Blueprint: $300–$500 one-time — logo, lander, funnel structure (1–2 weeks)
-- Tier 2 — The Automator: $1,500–$3,000/mo — workflow & CRM automation retainer
-- Tier 3 — The MVP Engine: $5,000/mo — continuous MVP / web app feature shipping
-- Tier 4 — The AI & Community: $7,500/mo — AI assistants, Discord bots, video pipelines
-- Tier 5 — The Full-Stack Powerhouse: $10,000+/mo — dedicated design, dev, and growth streams
+- Tier 1 — The Blueprint: $300–$500 one-time
+- Tier 2 — The Automator: $1,500–$3,000/mo
+- Tier 3 — The MVP Engine: $5,000/mo
+- Tier 4 — The AI & Community: $7,500/mo
+- Tier 5 — The Full-Stack Powerhouse: $10,000+/mo
 
 ## How to buy
 Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Fixed quote within 24 hours. Escrow accepted.
@@ -42,11 +92,10 @@ Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/No
 - Terms: https://brandforge.gg/terms/
 - Privacy: https://brandforge.gg/privacy/
 
-## Portfolio
-cascade.markets, drain.cx, dyotravel.com, CarSpotLive (App Store), 50+ shipped projects.
-
 ## Premium tier
 Projects above package scope: https://mxstermind.com
 
 ## Note
-Internal ops pages (e.g. campaign calendars) are not indexed and are excluded from this file.
+Internal ops pages (/launch/) are noindex and excluded from this file.
+
+Generated 2026-06-13 · 80 indexable pages

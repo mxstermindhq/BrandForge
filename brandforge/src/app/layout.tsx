@@ -47,6 +47,11 @@ export const metadata: Metadata = {
     images: ["/img/og-image.png"],
   },
   robots: { index: true, follow: true },
+  alternates: {
+    types: {
+      "application/rss+xml": [{ url: "/rss.xml", title: "BrandForge Blog RSS" }],
+    },
+  },
 };
 
 export const viewport: Viewport = {

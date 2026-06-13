@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
+import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
+import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
 import {
   resolveProjectGallery,
   resolveProjectScreenshot,
 } from "@/lib/portfolio/screenshot-url";
+import { getRelatedProjects, nicheLinksForProject } from "@/lib/portfolio/related";
+import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -12,6 +16,11 @@ type PortfolioPageTemplateProps = {
 };
 
 export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): React.JSX.Element {
+  const sourceProject = PORTFOLIO_PROJECTS.find((p) => p.slug === project.slug);
+  const related = sourceProject ? getRelatedProjects(sourceProject, 3) : [];
+  const nicheLinks = sourceProject ? nicheLinksForProject(sourceProject) : [];
+  const intakeMsg = `Hi BrandForge — I want something like ${project.name}.\n\nNiche: \nReferences: \nDeadline: `;
+  const campaign = `portfolio-similar-${project.slug}`;
   const screenshotUrl = resolveProjectScreenshot({
     slug: project.slug,
     ogImageUrl: project.ogImageUrl,
@@ -192,6 +201,60 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
               </Link>
             ))}
           </div>
+          {nicheLinks.length > 0 ? (
+            <>
+              <h2 className="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+                Perfect for
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-4">
+                {nicheLinks.map((n) => (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    className="font-mono text-[11px] capitalize text-accent-bright hover:text-text"
+                  >
+                    {n.label} →
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : null}
+        </div>
+      </section>
+
+      {related.length > 0 ? (
+        <section className="border-t border-b1 bg-s1 py-12">
+          <div className="content-wrap">
+            <h2 className="text-lg font-bold">Related projects</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              {related.map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/portfolio/${p.slug}/`}
+                  className="rounded-md border border-b1 bg-bg p-5 hover:border-accent"
+                >
+                  <p className="font-mono text-[9px] uppercase text-muted">{p.category}</p>
+                  <p className="mt-2 font-bold">{p.name}</p>
+                  <p className="mt-2 text-xs text-text-secondary">{p.description.slice(0, 100)}…</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="border-t border-b1 py-10">
+        <div className="content-wrap flex flex-wrap items-center gap-4">
+          <a
+            href={discordHref(campaign)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded bg-discord px-6 py-3 font-mono text-[11px] font-bold text-white"
+            {...ctaTrackAttrs("discord", campaign)}
+          >
+            Start similar project on Discord
+          </a>
+          <CopyIntakeButton text={intakeMsg} label="Copy intake message" />
         </div>
       </section>
 

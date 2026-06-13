@@ -12,6 +12,7 @@ export function buildPageMetadata(meta: PageSeoMeta): Metadata {
   return {
     title,
     description,
+    keywords: meta.keywords ? [...meta.keywords] : undefined,
     alternates: { canonical },
     openGraph: {
       type: "website",
@@ -19,13 +20,19 @@ export function buildPageMetadata(meta: PageSeoMeta): Metadata {
       siteName: "BrandForge",
       title: meta.ogTitle ?? title,
       description: meta.ogDescription ?? description,
-      images: [{ url: "/img/og-image.png", width: 1200, height: 630 }],
+      images: [
+        {
+          url: meta.ogImage ?? "/img/og-image.png",
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: meta.ogTitle ?? title,
       description: meta.ogDescription ?? description,
-      images: ["/img/og-image.png"],
+      images: [meta.ogImage ?? "/img/og-image.png"],
     },
     robots: { index: true, follow: true },
   };

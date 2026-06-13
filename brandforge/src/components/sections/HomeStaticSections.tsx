@@ -9,6 +9,7 @@ import {
   PROCESS_STEPS,
   SUPPORT_CARDS,
 } from "@/content/home-sections";
+import { NICHE_PAGES, NICHE_SLUGS } from "@/content/niche/pages";
 import { SITE } from "@/config/site";
 
 function SectionEyebrow({ children }: { children: string }): React.JSX.Element {
@@ -86,6 +87,24 @@ export function IcpSection(): React.JSX.Element {
               <p className="mt-3 text-sm leading-relaxed text-text-secondary">{card.body}</p>
             </article>
           ))}
+        </div>
+        <div className="mt-10">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Niche guides</p>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {NICHE_SLUGS.map((slug) => (
+              <li key={slug}>
+                <Link
+                  href={`/for/${slug}/`}
+                  className="text-sm text-accent-bright hover:text-text"
+                >
+                  {NICHE_PAGES[slug]!.meta.title.replace(" | BrandForge", "")} →
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link href="/for/" className="mt-4 inline-block font-mono text-[10px] text-muted hover:text-text">
+            View all niches →
+          </Link>
         </div>
       </div>
     </section>

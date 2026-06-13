@@ -1,4 +1,5 @@
 import { FAQBlock, InlineCTA } from "@/components/content";
+import { BlogPostFooter } from "@/components/blog/BlogPostFooter";
 import type { BlogPost } from "@/content/blog/index";
 
 type BlogArticleProps = {
@@ -30,6 +31,7 @@ export function BlogArticle({ post }: BlogArticleProps): React.JSX.Element {
           ) : null}
         </section>
       ))}
+      <BlogPostFooter post={post} />
       <FAQBlock items={post.faqs} />
     </article>
   );

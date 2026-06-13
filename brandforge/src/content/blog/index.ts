@@ -1,19 +1,10 @@
-import type { FaqItem } from "@/types/content";
 import { BUILD_IN_PUBLIC_01 } from "./building-brandforge-in-public-01";
 import { BLOG_EXTRA_SECTIONS } from "./extra-sections";
 import { BLOG_EXTRA_SECTIONS_2 } from "./extra-sections-2";
+import { BLOG_POSTS_FROM_FILES } from "./posts";
+import type { BlogPost } from "./types";
 
-export type BlogPost = {
-  slug: string;
-  title: string;
-  metaTitle: string;
-  metaDescription: string;
-  datePublished: string;
-  readingTime: string;
-  series?: string;
-  sections: readonly { heading: string; paragraphs: readonly string[] }[];
-  faqs: readonly FaqItem[];
-};
+export type { BlogPost } from "./types";
 
 const p = (paragraphs: string[]) => ({ paragraphs });
 
@@ -555,6 +546,10 @@ for (const slug of Object.keys(BLOG_POSTS)) {
   }
 }
 
+for (const post of BLOG_POSTS_FROM_FILES) {
+  BLOG_POSTS[post.slug] = post;
+}
+
 export const BLOG_SLUGS = Object.keys(BLOG_POSTS);
 
 export const BLOG_INDEX = BLOG_SLUGS.map((slug) => {
@@ -566,5 +561,7 @@ export const BLOG_INDEX = BLOG_SLUGS.map((slug) => {
     date: post.datePublished,
     readingTime: post.readingTime,
     href: `/blog/${slug}/`,
+    category: post.category ?? "Guides",
+    tags: post.tags ?? [],
   };
 });

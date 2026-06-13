@@ -44,6 +44,8 @@ export type BlogCardData = {
   date: string;
   readingTime: string;
   href: string;
+  category?: string;
+  tags?: readonly string[];
 };
 
 export type RoadmapStepData = {
@@ -78,6 +80,8 @@ export type PageSeoMeta = {
   path: string;
   ogTitle?: string;
   ogDescription?: string;
+  ogImage?: string;
+  keywords?: readonly string[];
 };
 
 export type SchemaPageType =

@@ -1,83 +1,35 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/config/site";
-import { BLOG_SLUGS } from "@/content/blog/index";
-import { PORTFOLIO_SLUGS } from "@/content/hubs/portfolio-hub";
-import { SERVICE_SLUGS } from "@/content/hubs/services-hub";
-import { NICHE_SLUGS } from "@/content/niche/pages";
-import { ROADMAP_SLUGS } from "@/content/roadmap/stages";
+import { getAllContentEntries } from "@/content/index";
 
 export const dynamic = "force-static";
 
-const HUBS = [
-  "/",
-  "/services/",
-  "/packages/",
-  "/portfolio/",
-  "/about/",
-  "/contact/",
-  "/roadmap/",
-  "/blog/",
-  "/ethics-standards/",
-  "/brand-guide/",
-  "/privacy/",
-  "/terms/",
-] as const;
+const PRIORITY: Partial<Record<string, number>> = {
+  "/": 1,
+  "/services/": 0.9,
+  "/packages/": 0.9,
+  "/portfolio/": 0.85,
+  "/blog/": 0.8,
+  "/for/": 0.8,
+};
+
+function priorityFor(path: string, category: string): number {
+  if (PRIORITY[path] !== undefined) return PRIORITY[path]!;
+  if (category === "service") return 0.85;
+  if (category === "portfolio") return 0.8;
+  if (category === "niche") return 0.75;
+  if (category === "roadmap") return 0.75;
+  if (category === "blog") return 0.65;
+  return 0.7;
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
-  const url = (path: string) => (path === "/" ? SITE.url : `${SITE.url}${path}`);
+  const buildDate = new Date();
 
-  const entries: MetadataRoute.Sitemap = HUBS.map((path) => ({
-    url: url(path),
-    lastModified,
-    changeFrequency: path === "/" ? "weekly" : "monthly",
-    priority: path === "/" ? 1 : 0.85,
+  return getAllContentEntries().map((entry) => ({
+    url: entry.path === "/" ? SITE.url : `${SITE.url}${entry.path}`,
+    lastModified: entry.lastModified ? new Date(entry.lastModified) : buildDate,
+    changeFrequency: entry.path === "/" ? "weekly" : "monthly",
+    priority: priorityFor(entry.path, entry.category),
   }));
-
-  for (const slug of SERVICE_SLUGS) {
-    entries.push({
-      url: `${SITE.url}/services/${slug}/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.85,
-    });
-  }
-
-  for (const slug of PORTFOLIO_SLUGS) {
-    entries.push({
-      url: `${SITE.url}/portfolio/${slug}/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    });
-  }
-
-  for (const slug of ROADMAP_SLUGS) {
-    entries.push({
-      url: `${SITE.url}/roadmap/${slug}/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.75,
-    });
-  }
-
-  for (const slug of NICHE_SLUGS) {
-    entries.push({
-      url: `${SITE.url}/for/${slug}/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.75,
-    });
-  }
-
-  for (const slug of BLOG_SLUGS) {
-    entries.push({
-      url: `${SITE.url}/blog/${slug}/`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    });
-  }
-
-  return entries;
 }

@@ -1,68 +1,86 @@
 #!/usr/bin/env node
 /**
- * Validates content slugs, meta lengths, and required fields.
+ * Validates content slugs, meta, duplicates, and minimum counts.
  * Usage: node scripts/lint-content.mjs
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildManifest } from "./lib/parse-content.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const src = path.join(root, "src", "content");
-
 const errors = [];
+const manifest = buildManifest(root);
 
-function read(file) {
-  return fs.readFileSync(path.join(src, file), "utf8");
-}
-
-function extractSlugs(ts, pattern) {
-  return [...ts.matchAll(pattern)].map((m) => m[1]);
-}
-
-// Portfolio
-const portfolioTs = read("portfolio/projects.ts");
-const portfolioSlugs = extractSlugs(portfolioTs, /slug:\s*"([^"]+)"/g);
-const portfolioUnique = new Set(portfolioSlugs);
-if (portfolioUnique.size !== portfolioSlugs.length) {
-  errors.push("Duplicate portfolio slugs detected");
-}
-if (portfolioSlugs.length < 25) {
-  errors.push(`Expected ≥25 portfolio projects, found ${portfolioSlugs.length}`);
+function allSlugs() {
+  const slugs = [
+    ...manifest.blogPosts.map((p) => `blog:${p.slug}`),
+    ...manifest.portfolio.map((p) => `portfolio:${p.slug}`),
+    ...manifest.nichePages.map((p) => `niche:${p.slug}`),
+    ...manifest.servicePages.map((p) => `service:${p.slug}`),
+    ...manifest.roadmap.map((p) => `roadmap:${p.slug}`),
+  ];
+  return slugs;
 }
 
-// Blog — read index and count slug keys
-const blogTs = read("blog/index.ts");
-const blogSlugs = extractSlugs(blogTs, /^\s+slug: "([^"]+)"/gm);
-const blogUnique = new Set(blogSlugs);
-if (blogUnique.size !== blogSlugs.length) {
-  errors.push("Duplicate blog slugs detected");
-}
-if (blogSlugs.length + (blogTs.includes("BUILD_IN_PUBLIC_01") ? 1 : 0) < 14) {
-  errors.push(`Expected ≥14 blog posts, found ${blogSlugs.length + (blogTs.includes("BUILD_IN_PUBLIC_01") ? 1 : 0)}`);
-}
-
-// Meta description length (rough parse)
-for (const match of blogTs.matchAll(/metaDescription:\s*\n?\s*"([^"]+)"/g)) {
-  const len = match[1].length;
-  if (len < 50 || len > 165) {
-    errors.push(`Blog metaDescription length ${len} out of range (50–165): "${match[1].slice(0, 40)}…"`);
+const slugs = allSlugs();
+const bare = slugs.map((s) => s.split(":")[1]);
+for (const slug of bare) {
+  if (bare.filter((s) => s === slug).length > 1) {
+    errors.push(`Duplicate slug across categories: ${slug}`);
   }
 }
 
-// Package keys in home.ts
-const homeTs = read("home.ts");
-const packageKeys = extractSlugs(homeTs, /key:\s*"([^"]+)"/g);
-const requiredPackages = [
-  "blueprint",
-  "automator",
-  "mvp-engine",
-  "ai-community",
-  "full-stack-enterprise",
-];
-for (const key of requiredPackages) {
-  if (!packageKeys.includes(key)) {
-    errors.push(`Missing package key in home.ts: ${key}`);
+if (manifest.portfolio.length < 25) {
+  errors.push(`Expected ≥25 portfolio projects, found ${manifest.portfolio.length}`);
+}
+if (manifest.blogPosts.length < 14) {
+  errors.push(`Expected ≥14 blog posts, found ${manifest.blogPosts.length}`);
+}
+if (manifest.nichePages.length < 8) {
+  errors.push(`Expected ≥8 niche pages, found ${manifest.nichePages.length}`);
+}
+if (manifest.total < 80) {
+  errors.push(`Expected ≥80 indexable pages, found ${manifest.total}`);
+}
+
+for (const post of manifest.blogPosts) {
+  if (!post.title) errors.push(`Blog missing title: ${post.slug}`);
+  if (!post.description || post.description.length < 50 || post.description.length > 165) {
+    errors.push(`Blog metaDescription invalid (${post.description?.length ?? 0}): ${post.slug}`);
+  }
+}
+
+for (const page of manifest.nichePages) {
+  if (!page.title || !page.description) {
+    errors.push(`Niche missing meta: ${page.slug}`);
+  }
+}
+
+for (const page of manifest.servicePages) {
+  if (!page.title || !page.description) {
+    errors.push(`Service missing meta: ${page.slug}`);
+  }
+}
+
+// Optional image refs in blog posts
+const blogDir = path.join(root, "src", "content", "blog");
+function checkImagesInFile(text, context) {
+  for (const m of text.matchAll(/ogImage:\s*"([^"]+)"/g)) {
+    const img = m[1];
+    if (!img.startsWith("/")) continue;
+    const disk = path.join(root, "public", img.replace(/^\//, ""));
+    if (!fs.existsSync(disk) && !img.includes("og-image.png")) {
+      errors.push(`Missing image ${img} (${context})`);
+    }
+  }
+}
+
+checkImagesInFile(fs.readFileSync(path.join(blogDir, "index.ts"), "utf8"), "blog/index.ts");
+const postsDir = path.join(blogDir, "posts");
+if (fs.existsSync(postsDir)) {
+  for (const f of fs.readdirSync(postsDir).filter((x) => x.endsWith(".ts"))) {
+    checkImagesInFile(fs.readFileSync(path.join(postsDir, f), "utf8"), f);
   }
 }
 
@@ -73,5 +91,5 @@ if (errors.length) {
 }
 
 console.log(
-  `✓ content OK — ${portfolioSlugs.length} portfolio, ${blogSlugs.length} blog, ${packageKeys.length} packages`,
+  `✓ content OK — ${manifest.total} pages (${manifest.portfolio.length} portfolio, ${manifest.blogPosts.length} blog, ${manifest.nichePages.length} niches)`,
 );

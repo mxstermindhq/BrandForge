@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { BlogCard, CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
-import { BLOG_INDEX } from "@/content/blog/index";
+import { BlogFilterGrid } from "@/components/blog/BlogFilterGrid";
+import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const faqs = [
@@ -44,13 +44,7 @@ export default function BlogHubPage(): React.JSX.Element {
         title="Guides that ship — not filler"
         subhead="Long-form notes for forum sellers, Web3 founders, and community operators."
       />
-      <section className="py-16">
-        <div className="content-wrap grid gap-4 sm:grid-cols-2">
-          {BLOG_INDEX.map((post) => (
-            <BlogCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
+      <BlogFilterGrid />
       <FAQBlock items={faqs} />
       <CTASection title="Want this on your project?" subhead="Quote on Discord in 24 hours." />
     </PageShell>

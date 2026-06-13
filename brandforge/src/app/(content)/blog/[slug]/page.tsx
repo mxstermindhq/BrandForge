@@ -19,6 +19,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: post.metaTitle,
     description: post.metaDescription,
     path: `/blog/${slug}/`,
+    ogImage: post.ogImage,
+    keywords: post.tags,
   });
 }
 
