@@ -4,7 +4,8 @@ import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 import { PACKAGES_LIST } from "@/content/home";
 import type { PackageKey } from "@/config/site";
-import { SITE, telegramUrl, PACKAGES } from "@/config/site";
+import { telegramUrl, PACKAGES } from "@/config/site";
+import { discordHref } from "@/lib/tracking";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { EASE_KINETIC } from "@/lib/motion/easing";
@@ -211,7 +212,7 @@ function PackageDiscordCta({
     } catch {
       /* clipboard optional */
     }
-    window.open(SITE.discord, "_blank", "noopener,noreferrer");
+    window.open(discordHref(`package-stack-${packageKey}`), "_blank", "noopener,noreferrer");
   };
 
   return (

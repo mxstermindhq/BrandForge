@@ -23,6 +23,12 @@ export type PortfolioProject = {
   built: readonly string[];
   stack: readonly string[];
   outcome: readonly string[];
+  highlights?: readonly {
+    stat: string;
+    context: string;
+    serviceHref?: string;
+    serviceLabel?: string;
+  }[];
   relatedServices: readonly { label: string; href: string }[];
   vouch?: { quote: string; who: string; from: string };
   confidentialNote?: string;
@@ -50,6 +56,12 @@ export type PortfolioDetail = {
   budgetPublic?: string;
   outcomeMetric: string;
   outcome: readonly string[];
+  highlights?: readonly {
+    stat: string;
+    context: string;
+    serviceHref?: string;
+    serviceLabel?: string;
+  }[];
   visuals: readonly { label: string; caption: string; mockupType?: MockupType }[];
   vouch?: { quote: string; who: string; from: string };
   relatedServices: readonly { label: string; href: string }[];

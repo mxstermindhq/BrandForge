@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE } from "@/config/site";
+import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 type PageHeroProps = {
   eyebrow: string;
@@ -17,10 +17,11 @@ export function PageHero({
   primaryCta,
   secondaryCta,
 }: PageHeroProps): React.JSX.Element {
-  const primaryHref = primaryCta?.href ?? SITE.discord;
+  const primaryHref = primaryCta?.href ?? discordHref("page-hero");
   const primaryLabel = primaryCta?.label ?? "Open Discord";
   const primaryClassName =
     "rounded bg-accent px-6 py-3 text-sm font-bold text-white hover:bg-accent-bright";
+  const isExternalPrimary = primaryHref.startsWith("http");
 
   return (
     <header className="border-b border-b1 pb-14 pt-[120px]">
@@ -31,12 +32,13 @@ export function PageHero({
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary">{subhead}</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          {primaryHref.startsWith("http") ? (
+          {isExternalPrimary ? (
             <a
               href={primaryHref}
               target="_blank"
               rel="noopener noreferrer"
               className={primaryClassName}
+              {...(primaryCta ? {} : ctaTrackAttrs("discord", "page-hero"))}
             >
               {primaryLabel}
             </a>
@@ -46,10 +48,11 @@ export function PageHero({
             </Link>
           )}
           <a
-            href={secondaryCta?.href ?? SITE.telegram}
+            href={secondaryCta?.href ?? telegramHref("Hi BrandForge — I'd like a quote.", "page-hero")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded border border-b2 px-5 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
+            {...(secondaryCta ? {} : ctaTrackAttrs("telegram", "page-hero"))}
           >
             {secondaryCta?.label ?? "Message on Telegram"}
           </a>

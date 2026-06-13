@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
 import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { ResultStatBox } from "@/components/marketing/ResultStatBox";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
 import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
 import {
@@ -8,7 +9,7 @@ import {
   resolveProjectScreenshot,
 } from "@/lib/portfolio/screenshot-url";
 import { getRelatedProjects, nicheLinksForProject } from "@/lib/portfolio/related";
-import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
+import { ctaTrackAttrs, discordHref, portfolioExternalHref } from "@/lib/tracking";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -57,7 +58,7 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
             <h1 className="mt-3 text-[clamp(2rem,5vw,3rem)] font-bold">{project.name}</h1>
             {project.liveUrl ? (
               <a
-                href={project.liveUrl}
+                href={portfolioExternalHref(project.liveUrl, project.slug)}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
                 className="mt-4 inline-block font-mono text-[11px] text-accent-bright hover:text-text"
@@ -162,7 +163,14 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
       <section className="py-12">
         <div className="content-wrap">
           <h2 className="text-lg font-bold">Outcome</h2>
-          <div className="mt-4 space-y-3">
+          {project.highlights && project.highlights.length > 0 ? (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {project.highlights.map((h) => (
+                <ResultStatBox key={h.stat} {...h} />
+              ))}
+            </div>
+          ) : null}
+          <div className="mt-6 space-y-3">
             {project.outcome.map((p) => (
               <p key={p.slice(0, 40)} className="text-sm leading-relaxed text-text-secondary">
                 {p}
@@ -258,7 +266,7 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
         </div>
       </section>
 
-      <FAQBlock items={project.faqs} title="Questions about this type of project" />
+      <FAQBlock items={project.faqs} title="Questions about this type of project" pageSlug={`/portfolio/${project.slug}/`} />
       <CTASection
         title="Want similar work?"
         subhead="Send references on Discord or Telegram — fixed quote in 24 hours."

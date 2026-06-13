@@ -44,6 +44,9 @@ export type VouchItem = {
   text: string;
   who: string;
   amount?: string;
+  role?: string;
+  portfolioSlug?: string;
+  avatarInitial?: string;
 };
 
 export type StatItem = {
@@ -53,10 +56,10 @@ export type StatItem = {
 };
 
 export const HERO_STATS: readonly StatItem[] = [
-  { value: "50+", label: "Projects delivered", icon: "◆" },
+  { value: "25+", label: "Projects delivered", icon: "◆" },
+  { value: "12", label: "Countries served", icon: "◎" },
+  { value: "14", label: "Vouches earned", icon: "★" },
   { value: "24h", label: "Fixed quote turnaround", icon: "⏱" },
-  { value: "97", label: "PageSpeed target", icon: "◎" },
-  { value: "4", label: "Client slots Q3 2026", icon: "▮" },
 ] as const;
 
 export const SERVICES: readonly ServiceItem[] = [
@@ -268,6 +271,7 @@ export const VOUCHES: readonly VouchItem[] = [
     stars: 5,
     text: "Super fast and smooth frontend development.",
     who: "@headstartup",
+    role: "Founder",
   },
   {
     id: "headstartup-milestone",
@@ -343,6 +347,8 @@ export const VOUCHES: readonly VouchItem[] = [
     text: "Automator retainer paid for itself in week two — n8n flows replaced three manual handoffs. Quote was fixed, no scope creep.",
     who: "@flux_ops",
     amount: "$2k/mo retainer",
+    role: "Ops lead",
+    portfolioSlug: "ops-flow-dashboard",
   },
   {
     id: "nova-blueprint",
@@ -351,6 +357,8 @@ export const VOUCHES: readonly VouchItem[] = [
     text: "Blueprint tier delivered logo, lander, and Discord kit in 9 days. Escrow release was smooth.",
     who: "@nova_launch",
     amount: "$450 Blueprint",
+    role: "Forum seller",
+    portfolioSlug: "community-launch-kit",
   },
   {
     id: "hex-mvp",
@@ -359,6 +367,8 @@ export const VOUCHES: readonly VouchItem[] = [
     text: "MVP Engine sprint shipped auth, billing hook, and admin panel in the first month. Communication on Discord was daily.",
     who: "@hexfounder",
     amount: "$5k/mo · 2 sprints",
+    role: "SaaS founder",
+    portfolioSlug: "sui-blockchain-app",
   },
   {
     id: "rift-geo",
@@ -366,5 +376,7 @@ export const VOUCHES: readonly VouchItem[] = [
     stars: 5,
     text: "GEO pass on our service pages — FAQ schema and internal links. Organic AI referrals up within six weeks.",
     who: "@riftgrowth",
+    role: "Growth lead",
+    portfolioSlug: "geo-content-engine",
   },
 ] as const;

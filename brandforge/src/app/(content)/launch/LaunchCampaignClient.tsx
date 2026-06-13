@@ -1,10 +1,69 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopyButton, PageHero, PageShell } from "@/components/content";
-import { ACTIVE_CAMPAIGN } from "@/content/launch/campaign";
+import { ACTIVE_CAMPAIGN, CAMPAIGN_ARCHIVE } from "@/content/launch/campaign";
 import { PLATFORMS } from "@/content/launch/platforms";
 import type { CampaignDay, CampaignPost, PlatformId } from "@/content/launch/types";
+
+function daysRemaining(endDate: string): number {
+  const end = new Date(`${endDate}T23:59:59`);
+  const now = new Date();
+  return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000));
+}
+
+function PlatformChecklist({
+  campaignId,
+  platforms,
+}: {
+  campaignId: string;
+  platforms: readonly PlatformId[];
+}): React.JSX.Element {
+  const storageKey = `bf-launch-checklist-${campaignId}`;
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) setChecked(JSON.parse(raw) as Record<string, boolean>);
+    } catch {
+      /* ignore */
+    }
+  }, [storageKey]);
+
+  const toggle = (platform: PlatformId): void => {
+    const next = { ...checked, [platform]: !checked[platform] };
+    setChecked(next);
+    localStorage.setItem(storageKey, JSON.stringify(next));
+  };
+
+  return (
+    <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {platforms.map((platform) => {
+        const meta = PLATFORMS[platform];
+        const done = Boolean(checked[platform]);
+        return (
+          <li key={platform}>
+            <label className="flex cursor-pointer items-center gap-3 rounded-md border border-b1 bg-s1 p-3">
+              <input
+                type="checkbox"
+                checked={done}
+                onChange={() => toggle(platform)}
+                className="accent-accent"
+              />
+              <span className="font-mono text-[10px] uppercase" style={{ color: meta.color }}>
+                {meta.label}
+              </span>
+              <span className="ml-auto font-mono text-[9px] text-muted">
+                {done ? "Posted ✓" : "Pending"}
+              </span>
+            </label>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 function estToUtcHint(est: string): string {
   const parts = est.split(":");
@@ -181,6 +240,9 @@ export function LaunchCampaignClient(): React.JSX.Element {
               </p>
               <h2 className="mt-1 text-2xl font-bold">{campaign.weekLabel}</h2>
               <p className="mt-1 text-sm text-muted">{campaign.dateRange}</p>
+              <p className="mt-2 font-mono text-[10px] text-accent-bright">
+                {daysRemaining(campaign.endDate)} day{daysRemaining(campaign.endDate) === 1 ? "" : "s"} remaining
+              </p>
             </div>
             <CopyButton text={weekBrief} label="Copy week brief" />
           </div>
@@ -220,6 +282,14 @@ export function LaunchCampaignClient(): React.JSX.Element {
               <p className="mt-2 text-sm text-text">{campaign.timezonePrimary}</p>
               <p className="mt-2 text-xs text-muted">{campaign.timezoneSecondary}</p>
             </div>
+          </div>
+
+          <div className="mt-8 rounded-md border border-b1 bg-s1 p-4">
+            <h3 className="font-mono text-[10px] uppercase tracking-wider text-accent-bright">
+              Platform checklist
+            </h3>
+            <p className="mt-1 text-xs text-muted">Mark posted when live — saved in this browser.</p>
+            <PlatformChecklist campaignId={campaign.id} platforms={allPlatformsInWeek} />
           </div>
         </div>
       </section>
@@ -401,7 +471,11 @@ export function LaunchCampaignClient(): React.JSX.Element {
             <code className="rounded bg-s2 px-1 py-0.5 font-mono text-[10px]">
               src/content/launch/campaign.ts
             </code>{" "}
-            — change the week id, dates, theme, and swap posts. Move the old week into{" "}
+            — or run{" "}
+            <code className="rounded bg-s2 px-1 py-0.5 font-mono text-[10px]">
+              node scripts/generate-campaign.mjs
+            </code>
+            . Move the old week into{" "}
             <code className="rounded bg-s2 px-1 py-0.5 font-mono text-[10px]">
               CAMPAIGN_ARCHIVE
             </code>
@@ -409,6 +483,51 @@ export function LaunchCampaignClient(): React.JSX.Element {
           </p>
         </div>
       </section>
+
+      {CAMPAIGN_ARCHIVE.length > 0 ? (
+        <section className="border-t border-b1 bg-s1 py-12">
+          <div className="content-wrap">
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-bright">
+              Campaign history
+            </h2>
+            <ul className="mt-6 space-y-4">
+              {CAMPAIGN_ARCHIVE.map((past) => (
+                <li key={past.id} className="rounded-md border border-b1 bg-bg p-5">
+                  <p className="font-mono text-[10px] text-muted">{past.id}</p>
+                  <h3 className="mt-1 text-lg font-bold">{past.weekLabel}</h3>
+                  <p className="text-sm text-text-secondary">{past.dateRange}</p>
+                  {past.results ? (
+                    <p className="mt-3 font-mono text-[10px] text-accent-bright">
+                      Clicks {past.results.clicks ?? "—"} · Joins {past.results.joins ?? "—"} ·
+                      Conversions {past.results.conversions ?? "—"}
+                    </p>
+                  ) : null}
+                  {past.learnings ? (
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <p className="font-mono text-[9px] uppercase text-green">What worked</p>
+                        <ul className="mt-2 space-y-1 text-xs text-text-secondary">
+                          {past.learnings.worked.map((w) => (
+                            <li key={w}>· {w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-mono text-[9px] uppercase text-amber">What didn&apos;t</p>
+                        <ul className="mt-2 space-y-1 text-xs text-text-secondary">
+                          {past.learnings.didnt.map((w) => (
+                            <li key={w}>· {w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </PageShell>
   );
 }

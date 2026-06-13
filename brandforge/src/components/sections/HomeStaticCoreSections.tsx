@@ -1,11 +1,12 @@
-import Link from "next/link";
-import { VouchCard } from "@/components/content/VouchCard";
+import { VouchCarousel } from "@/components/content/VouchCard";
+import { AbHeroPrimaryCta } from "@/components/marketing/AbHeroPrimaryCta";
 import { AnimatedHeroStats } from "@/components/marketing/AnimatedHeroStats";
-import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
+import { StartPackageButton } from "@/components/marketing/StartPackageButton";
 import { HERO_STATS, PACKAGES_LIST, SERVICES, VOUCHES } from "@/content/home";
 import { PACKAGES } from "@/config/site";
 import type { PackageKey } from "@/config/site";
-import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
+import { ctaTrackAttrs, telegramHref } from "@/lib/tracking";
 
 function SectionEyebrow({ children }: { children: string }): React.JSX.Element {
   return (
@@ -77,23 +78,7 @@ export function HomeHeroStatic(): React.JSX.Element {
           <strong className="font-semibold text-text">One studio for brand, website, and growth</strong>
           {" — built for founders, SaaS teams, and Web3 operators who want fixed USD pricing, not three vendors. Packages from $300. Quote in 24 hours."}
         </p>
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link
-            href="#packages"
-            className="rounded bg-accent px-7 py-3.5 text-sm font-bold text-white hover:bg-accent-bright"
-          >
-            View packages ↓
-          </Link>
-          <a
-            href={discordHref("home-hero")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
-            {...ctaTrackAttrs("discord", "home-hero")}
-          >
-            Get a quote on Discord
-          </a>
-        </div>
+        <AbHeroPrimaryCta />
         <AnimatedHeroStats stats={HERO_STATS} />
       </div>
     </section>
@@ -153,7 +138,6 @@ function packageBadgeLabel(pkg: (typeof PACKAGES_LIST)[number]): string | null {
 
 function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
   const pkgConfig = PACKAGES[pkg.key as PackageKey];
-  const isRetainer = pkg.key !== "blueprint";
   const campaign = `package-${pkg.key}`;
   const badge = packageBadgeLabel(pkg);
 
@@ -201,20 +185,8 @@ function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
       </ul>
       <p className="mt-3 font-mono text-[9px] leading-snug text-muted">{pkg.handoff}</p>
       <div className="mt-6 flex flex-col gap-2">
-        <a
-          href={discordHref(campaign)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`block w-full rounded border py-3 text-center text-sm font-bold transition-colors ${
-            pkg.popular
-              ? "border-accent bg-accent text-white hover:bg-transparent hover:text-accent-bright"
-              : "border-accent text-accent-bright hover:bg-accent hover:text-white"
-          }`}
-          {...ctaTrackAttrs("discord", campaign)}
-        >
-          {isRetainer ? "Apply on Discord →" : "Order on Discord →"}
-        </a>
-        <CopyIntakeButton text={pkgConfig.discordMsg} className="w-full" />
+        <StartPackageButton packageKey={pkg.key as PackageKey} />
+        <CopyInviteButton campaign={`home-package-${pkg.key}-copy`} className="w-full justify-center" />
       </div>
       <a
         href={telegramHref(pkgConfig.telegramMsg, campaign)}
@@ -263,11 +235,7 @@ export function HomeVouchesSectionStatic(): React.JSX.Element {
         <p className="mt-4 mb-12 max-w-lg text-sm text-text-secondary">
           Unedited vouches from real clients on Discord.
         </p>
-        <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-          {VOUCHES.map((vouch) => (
-            <VouchCard key={vouch.id} vouch={vouch} />
-          ))}
-        </div>
+        <VouchCarousel vouches={VOUCHES} />
       </div>
     </section>
   );

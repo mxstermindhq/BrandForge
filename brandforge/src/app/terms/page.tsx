@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/shell/SiteFooter";
 import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { SITE } from "@/config/site";
+import { discordHref } from "@/lib/tracking";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -40,7 +41,7 @@ export default function TermsPage(): React.JSX.Element {
         </p>
         <p className="mt-8 text-sm text-text-secondary">
           Questions:{" "}
-          <a href={SITE.discord} className="text-accent-bright hover:underline" data-cursor="hover">
+          <a href={discordHref("terms")} className="text-accent-bright hover:underline" data-cursor="hover">
             Discord
           </a>{" "}
           or{" "}

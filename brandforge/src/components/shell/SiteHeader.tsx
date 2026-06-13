@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { SITE } from "@/config/site";
+import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 import { useLenis } from "@/components/providers/LenisProvider";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { useReducedMotion } from "@/lib/motion/prefers-reduced-motion";
@@ -84,11 +84,12 @@ export function SiteHeader(): React.JSX.Element {
         </nav>
         <div className="flex items-center gap-2.5">
           <MagneticButton
-            href={SITE.discord}
+            href={discordHref("header-discord")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded bg-discord px-4 py-2 font-mono text-[11px] font-bold text-white"
             data-cursor="hover"
+            {...ctaTrackAttrs("discord", "header-discord")}
           >
             Open Discord
           </MagneticButton>

@@ -8,6 +8,8 @@ export const ACTIVE_CAMPAIGN: LaunchCampaign = {
   id: "2026-w24",
   weekLabel: "Week 24 — Operator Stack",
   dateRange: "Fri 13 Jun – Thu 19 Jun 2026",
+  startDate: "2026-06-13",
+  endDate: "2026-06-19",
   campaignStart: {
     date: "13 Jun 2026",
     dayLabel: "Friday",
@@ -658,5 +660,32 @@ Questions → reply here.`,
   ],
 };
 
-/** Previous weeks archived here when rotating campaigns */
-export const CAMPAIGN_ARCHIVE: readonly LaunchCampaign[] = [];
+/** Previous weeks archived when rotating campaigns. */
+export const CAMPAIGN_ARCHIVE: readonly LaunchCampaign[] = [
+  {
+    id: "2026-w23",
+    weekLabel: "Week 23 — Blueprint Push",
+    dateRange: "Fri 6 Jun – Thu 12 Jun 2026",
+    startDate: "2026-06-06",
+    endDate: "2026-06-12",
+    campaignStart: {
+      date: "6 Jun 2026",
+      dayLabel: "Friday",
+      time: "19:00",
+      timezone: "US Eastern",
+    },
+    theme: "Blueprint tier — look funded before scale",
+    hook: "Fixed $300–$500 sprint for logo, lander, and Discord kit.",
+    keyMessages: ["Quote in 24h", "Escrow OK"],
+    avoid: ["No spam bumps"],
+    timezonePrimary: "US Eastern",
+    timezoneSecondary: "UTC",
+    postingGuide: [],
+    days: [],
+    results: { clicks: 842, joins: 18, conversions: 3 },
+    learnings: {
+      worked: ["CarSpotLive case study thread on X", "HF marketplace post with BBCode"],
+      didnt: ["Reddit title with direct link — removed by mods"],
+    },
+  },
+];

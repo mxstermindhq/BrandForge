@@ -6,9 +6,12 @@ import {
   PageHero,
   PageShell,
 } from "@/components/content";
-import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { CalendlyEmbed } from "@/components/marketing/CalendlyEmbed";
+import { ClientLogoBar } from "@/components/marketing/ClientLogoBar";
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { DeliveryTimeline } from "@/components/marketing/DeliveryTimeline";
 import { PackageComparisonTable } from "@/components/marketing/PackageComparisonTable";
+import { StartPackageButton } from "@/components/marketing/StartPackageButton";
 import { PACKAGES_LIST } from "@/content/home";
 import { PACKAGES, SITE } from "@/config/site";
 import type { PackageKey } from "@/config/site";
@@ -48,6 +51,16 @@ const PACKAGES_FAQ = [
     answer:
       "Each tier caps concurrent deliverables (e.g. 3 workflows, 3 feature deployments, 3 automated assets). Extra scope is quoted before work starts — no silent overruns.",
   },
+  {
+    question: "How many revision rounds are included?",
+    answer:
+      "Blueprint includes two structured revision rounds on brand and lander. Retainers include revision cycles within each sprint — scope changes are quoted before work starts.",
+  },
+  {
+    question: "Do you sign NDAs for confidential builds?",
+    answer:
+      "Yes. We ship confidential engagements regularly — portfolio entries can stay private while you still get vouch-backed credibility on intake.",
+  },
 ] as const;
 
 function tierBadge(pkg: (typeof PACKAGES_LIST)[number]): string | null {
@@ -57,8 +70,6 @@ function tierBadge(pkg: (typeof PACKAGES_LIST)[number]): string | null {
 }
 
 export default function PackagesPage(): React.JSX.Element {
-  const customConfig = PACKAGES.custom;
-
   return (
     <PageShell
       breadcrumbs={[
@@ -78,13 +89,13 @@ export default function PackagesPage(): React.JSX.Element {
         subhead="From one-time blueprint to enterprise retainer — fixed USD, capacity limits per tier, and a clear delivery matrix on the home page. Quote in 24 hours on Discord or Telegram."
       />
 
+      <ClientLogoBar />
       <DeliveryTimeline />
 
       <section className="py-16">
         <div className="content-wrap space-y-8">
           {PACKAGES_LIST.map((pkg) => {
             const config = PACKAGES[pkg.key as PackageKey];
-            const isRetainer = pkg.key !== "blueprint";
             const campaign = `packages-page-${pkg.key}`;
             const badge = tierBadge(pkg);
             return (
@@ -124,26 +135,20 @@ export default function PackagesPage(): React.JSX.Element {
                 </ul>
                 <p className="mt-4 text-xs text-muted">{pkg.handoff}</p>
                 <p className="mt-2 font-mono text-[10px] text-accent-bright">{pkg.avg}</p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <a
-                    href={discordHref(campaign)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded bg-discord px-5 py-2.5 font-mono text-[11px] font-bold text-white"
-                    {...ctaTrackAttrs("discord", campaign)}
-                  >
-                    {isRetainer ? "Apply on Discord" : "Order on Discord"}
-                  </a>
-                  <a
-                    href={telegramHref(config.telegramMsg, campaign)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded border border-b2 px-5 py-2.5 font-mono text-[11px] text-text-secondary hover:text-text"
-                    {...ctaTrackAttrs("telegram", campaign)}
-                  >
-                    {isRetainer ? "Apply on Telegram" : "Order on Telegram"}
-                  </a>
-                  <CopyIntakeButton text={config.discordMsg} />
+                <div className="mt-6 space-y-3">
+                  <StartPackageButton packageKey={pkg.key as PackageKey} variant="primary" />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a
+                      href={telegramHref(config.telegramMsg, campaign)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded border border-b2 px-5 py-2.5 font-mono text-[11px] text-text-secondary hover:text-text"
+                      {...ctaTrackAttrs("telegram", campaign)}
+                    >
+                      Or apply on Telegram
+                    </a>
+                    <CopyInviteButton campaign={`${campaign}-copy`} />
+                  </div>
                 </div>
               </article>
             );
@@ -174,8 +179,7 @@ export default function PackagesPage(): React.JSX.Element {
             Custom scope above Tier 5?
           </h2>
           <p className="mt-3 max-w-2xl text-sm text-text-secondary">
-            Message with your brief — we reply with a fixed quote in 24 hours. Copy the intake template,
-            then open Discord or Telegram.
+            Book a free 15-min scope call or message with your brief — fixed quote in 24 hours.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a
@@ -187,22 +191,15 @@ export default function PackagesPage(): React.JSX.Element {
             >
               Discuss custom scope on Discord
             </a>
-            <CopyIntakeButton text={customConfig.discordMsg} label="Copy custom intake message" />
+            <CopyInviteButton campaign="packages-custom-copy" />
           </div>
-          {SITE.calendlyUrl ? (
-            <div className="mt-10 overflow-hidden rounded-md border border-b1 bg-bg">
-              <iframe
-                title="Book a BrandForge scoping call"
-                src={`${SITE.calendlyUrl}?hide_gdpr_banner=1`}
-                className="h-[680px] w-full border-0"
-                loading="lazy"
-              />
-            </div>
-          ) : null}
+          <div className="mt-10">
+            <CalendlyEmbed campaign="packages-custom-calendly" />
+          </div>
         </div>
       </section>
 
-      <FAQBlock items={PACKAGES_FAQ} />
+      <FAQBlock items={PACKAGES_FAQ} pageSlug="/packages/" title="Pricing & process FAQ" />
       <CTASection
         title="Ready for a fixed quote?"
         subhead="Send scope on Discord or Telegram — reply within 24 hours."

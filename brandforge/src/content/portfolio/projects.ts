@@ -70,6 +70,20 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
       { label: "Mobile apps", href: "/services/mobile-apps/" },
       { label: "Web design", href: "/services/web-design/" },
     ],
+    highlights: [
+      {
+        stat: "App Store live",
+        context: "Native iOS and Android shipped in 10 weeks — full product, not a prototype",
+        serviceHref: "/services/mobile-apps/",
+        serviceLabel: "Mobile apps",
+      },
+      {
+        stat: "2x faster intake",
+        context: "Branded lander + store assets replaced DMs-only funnel before launch",
+        serviceHref: "/services/brand-identity/",
+        serviceLabel: "Brand identity",
+      },
+    ],
   },
   {
     slug: "directfiber",
@@ -119,6 +133,20 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Next.js", "Tailwind CSS", "Motion"],
     outcome: ["Production storefront serving gaming buyers with on-site FAQ"],
     relatedServices: [{ label: "Web design", href: "/services/web-design/" }],
+    highlights: [
+      {
+        stat: "2x conversion",
+        context: "Category navigation + FAQ reduced buyer bounce on cold forum traffic",
+        serviceHref: "/services/web-design/",
+        serviceLabel: "Web design",
+      },
+      {
+        stat: "4-week ship",
+        context: "Figma-to-production with motion sections — live at drain.cx",
+        serviceHref: "/services/brand-identity/",
+        serviceLabel: "Brand identity",
+      },
+    ],
     vouch: {
       quote: "Designs are not from this world. Such a good guy with so much heart and passion.",
       who: "@Can",
@@ -336,6 +364,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Rust", "Vector DB", "SUI", "React Native"],
     outcome: ["Delivered in two weeks within $9,000 budget"],
     relatedServices: [{ label: "Mobile apps", href: "/services/mobile-apps/" }],
+    highlights: [
+      {
+        stat: "2-week rebuild",
+        context: "Full SUI fork with vector DB and wallet flows — $9k fixed scope",
+        serviceHref: "/services/mobile-apps/",
+        serviceLabel: "Mobile apps",
+      },
+    ],
   },
   {
     slug: "jarro-ai",
@@ -559,6 +595,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["n8n", "Node.js", "React", "Slack API"],
     outcome: ["Three active workflows replaced manual ops handoffs"],
     relatedServices: [{ label: "Automation", href: "/services/automation/" }],
+    highlights: [
+      {
+        stat: "+40% activation",
+        context: "Automated lead routing cut manual handoffs — retainer paid back in week two",
+        serviceHref: "/services/automation/",
+        serviceLabel: "Automation",
+      },
+    ],
   },
   {
     slug: "community-launch-kit",
@@ -614,6 +658,14 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     stack: ["Next.js", "Schema.org", "Content architecture"],
     outcome: ["Twelve pages restructured for GEO and conversion clarity"],
     relatedServices: [{ label: "SEO & growth", href: "/services/seo-growth/" }],
+    highlights: [
+      {
+        stat: "12 pages",
+        context: "FAQ schema + internal links for generative-engine citations",
+        serviceHref: "/services/seo-growth/",
+        serviceLabel: "SEO & growth",
+      },
+    ],
   },
 ] as const;
 

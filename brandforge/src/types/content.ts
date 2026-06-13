@@ -35,6 +35,9 @@ export type VouchCardData = {
   text: string;
   who: string;
   amount?: string;
+  role?: string;
+  portfolioSlug?: string;
+  avatarInitial?: string;
 };
 
 export type BlogCardData = {

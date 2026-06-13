@@ -48,7 +48,7 @@ const StickyCta = dynamic(
   () => import("@/components/sections/StickyCta").then((mod) => ({ default: mod.StickyCta })),
   { ssr: false },
 );
-import { SITE } from "@/config/site";
+import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 import { gsap, registerGsapPlugins } from "@/lib/gsap/register-plugins";
 import { useSkipMotion } from "@/lib/motion/prefers-reduced-motion";
 
@@ -154,11 +154,12 @@ export function HomeHero(): React.JSX.Element {
             View packages ↓
           </MagneticButton>
           <MagneticButton
-            href={SITE.discord}
+            href={discordHref("home-hero-motion")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
             data-cursor="hover"
+            {...ctaTrackAttrs("discord", "home-hero-motion")}
           >
             Get a quote on Discord
           </MagneticButton>

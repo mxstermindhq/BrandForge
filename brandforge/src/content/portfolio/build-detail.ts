@@ -119,6 +119,7 @@ export function buildPortfolioDetail(project: PortfolioProject): PortfolioDetail
     budgetPublic: project.budgetPublic,
     outcomeMetric: project.outcomeMetric,
     outcome: project.outcome,
+    highlights: project.highlights,
     visuals: buildVisuals(project),
     vouch: project.vouch,
     relatedServices: project.relatedServices,

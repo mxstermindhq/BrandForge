@@ -27,10 +27,14 @@ export function GoogleAnalytics(): React.JSX.Element | null {
       if(!t||!t.closest)return;
       var el=t.closest("[data-bf-cta]");
       if(!el)return;
-      gtag("event","cta_click",{
-        platform:el.getAttribute("data-bf-cta")||"unknown",
-        campaign:el.getAttribute("data-bf-campaign")||"unknown"
-      });
+      var cta=el.getAttribute("data-bf-cta")||"unknown";
+      var campaign=el.getAttribute("data-bf-campaign")||"unknown";
+      if(cta==="discord")gtag("event","click_discord",{campaign:campaign});
+      else if(cta==="telegram")gtag("event","click_telegram",{campaign:campaign});
+      else if(cta==="package")gtag("event","click_package_tier",{campaign:campaign});
+      else if(cta==="calendly")gtag("event","click_calendly",{campaign:campaign});
+      else if(cta==="copy")gtag("event","click_copy_discord",{campaign:campaign});
+      else gtag("event","cta_click",{platform:cta,campaign:campaign});
     },true);
   }
   function scheduleAfterLoad(){

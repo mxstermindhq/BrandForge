@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/shell/SiteFooter";
 import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { CTASection, FAQBlock, SchemaInjector } from "@/components/content";
+import { ClientLogoBar } from "@/components/marketing/ClientLogoBar";
 import { HomePortfolioPreview } from "@/components/sections/HomePortfolioPreview";
 import {
   HomeBelowFoldSections,
@@ -36,12 +37,13 @@ export default function HomePage(): React.JSX.Element {
 
       <main id="main" className="pt-12">
         <HomeHeroStatic />
+        <ClientLogoBar />
         <LiveWorkMarquee />
         <IcpSection />
         <HomeCoreSections />
         <HomePortfolioPreview />
         <HomeBelowFoldSections />
-        <FAQBlock items={HOME_FAQ} id="faq" title="Straight answers" />
+        <FAQBlock items={HOME_FAQ} id="faq" title="Straight answers" pageSlug="/" />
         <MxstermindPromoSection />
         <CTASection
           title={
@@ -52,6 +54,8 @@ export default function HomePage(): React.JSX.Element {
           subhead="Pick a package or send your scope. Fixed quote in 24 hours — no sales call required."
           discordLabel="Get a quote on Discord"
           telegramLabel="Quote on Telegram"
+          campaign="home-footer-cta"
+          showCalendly
         />
       </main>
 

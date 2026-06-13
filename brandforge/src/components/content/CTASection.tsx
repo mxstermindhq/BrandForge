@@ -1,3 +1,5 @@
+import { CalendlyEmbed } from "@/components/marketing/CalendlyEmbed";
+import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 type CTASectionProps = {
@@ -6,6 +8,8 @@ type CTASectionProps = {
   discordLabel?: string;
   telegramLabel?: string;
   campaign?: string;
+  showCopyInvite?: boolean;
+  showCalendly?: boolean;
 };
 
 /** Closing CTA — Discord + Telegram only, no forms. */
@@ -15,6 +19,8 @@ export function CTASection({
   discordLabel = "Open Discord",
   telegramLabel = "Message on Telegram",
   campaign = "cta-section",
+  showCopyInvite = true,
+  showCalendly = false,
 }: CTASectionProps): React.JSX.Element {
   return (
     <section className="border-t border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="cta-title">
@@ -23,7 +29,7 @@ export function CTASection({
           {title}
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-text-secondary">{subhead}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
             href={discordHref(campaign)}
             target="_blank"
@@ -42,10 +48,16 @@ export function CTASection({
           >
             {telegramLabel}
           </a>
+          {showCopyInvite ? <CopyInviteButton campaign={`${campaign}-copy`} /> : null}
         </div>
         <p className="mt-6 font-mono text-[10px] text-muted">
           Fixed quote within 24 hours · Escrow and crypto accepted
         </p>
+        {showCalendly ? (
+          <div id="calendly-scope" className="mx-auto mt-10 max-w-3xl text-left">
+            <CalendlyEmbed campaign={`${campaign}-calendly`} />
+          </div>
+        ) : null}
       </div>
     </section>
   );

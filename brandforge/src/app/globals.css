@@ -94,6 +94,20 @@
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
+  @keyframes bf-trust-marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .bf-trust-marquee-track {
+    animation: bf-trust-marquee-scroll 36s linear infinite;
+    width: max-content;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .bf-marquee {
       animation: none;
@@ -105,6 +119,13 @@
 
     .bf-marquee-static {
       display: flex;
+    }
+
+    .bf-trust-marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
     }
 
     .bf-live-pulse {

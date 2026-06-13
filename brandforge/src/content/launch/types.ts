@@ -54,10 +54,32 @@ export type TimeSlotGuide = {
   why: string;
 };
 
+export type CampaignLearnings = {
+  worked: readonly string[];
+  didnt: readonly string[];
+};
+
+export type CampaignResults = {
+  clicks?: number;
+  joins?: number;
+  conversions?: number;
+};
+
+export type CampaignPlatformConfig = {
+  name: PlatformId;
+  url: string;
+  postTemplate: string;
+  ctaType: "discord" | "portfolio" | "packages";
+};
+
 export type LaunchCampaign = {
   id: string;
   weekLabel: string;
   dateRange: string;
+  /** ISO date YYYY-MM-DD */
+  startDate: string;
+  /** ISO date YYYY-MM-DD */
+  endDate: string;
   campaignStart: CampaignStart;
   theme: string;
   hook: string;
@@ -67,4 +89,7 @@ export type LaunchCampaign = {
   timezoneSecondary: string;
   postingGuide: readonly TimeSlotGuide[];
   days: readonly CampaignDay[];
+  platforms?: readonly CampaignPlatformConfig[];
+  results?: CampaignResults;
+  learnings?: CampaignLearnings;
 };
