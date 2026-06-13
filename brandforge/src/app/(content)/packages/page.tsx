@@ -70,6 +70,13 @@ function tierBadge(pkg: (typeof PACKAGES_LIST)[number]): string | null {
 }
 
 export default function PackagesPage(): React.JSX.Element {
+  const products = PACKAGES_LIST.map((pkg) => ({
+    name: pkg.name,
+    description: pkg.valueProposition,
+    price: pkg.price.replace(/[^\d]/g, "") || "300",
+    url: `https://brandforge.gg/packages/#${pkg.key}`,
+  }));
+
   return (
     <PageShell
       breadcrumbs={[
@@ -78,6 +85,7 @@ export default function PackagesPage(): React.JSX.Element {
       ]}
       path="/packages/"
       faqs={PACKAGES_FAQ}
+      products={products}
     >
       <PageHero
         eyebrow="Packages"

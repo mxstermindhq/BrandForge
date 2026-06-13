@@ -1,101 +1,178 @@
 # BrandForge
 
-> BrandForge.gg is a design, development, and growth studio for digital founders, SaaS teams, Web3 projects, and online communities.
+> BrandForge.gg is a design, development, and growth studio for Discord communities, gaming operators, Web3 founders, forum sellers, and SaaS teams. Fixed USD packages from $300. Quote in 24 hours. Discord primary intake, Telegram secondary — no email contact form.
 
-## Who we serve
-- Founders launching a brand, website, or product
-- Operators who need one team for design + dev + growth (not three vendors)
-- Buyers who prefer fixed USD packages, crypto payment, or escrow
+## Entity
+- BrandForge: digital branding agency — validate → design → deliver → support
+- mxstermind.com: sister platform for premium bespoke engagements above package tiers
+- Niches: gaming servers, Web3/crypto, forum sellers, SaaS startups, e-commerce, content creators
 
-## Hubs
+## Contact
+- Discord (primary): https://discord.gg/a8Nz2R6M55
+- Telegram (secondary): https://t.me/Notmxstermind
+- Custom tier scope call: book via /packages/ Calendly embed when configured
+
+## Pricing (USD)
+- Blueprint: $300–$500 one-time — logo, lander, Discord kit
+- Automator: $1,500–$3,000/mo — automation + CRO
+- MVP Engine: $5,000/mo — web app sprints
+- AI & Community: $7,500/mo — bots, AI, video
+- Full-Stack Powerhouse: $10,000+/mo — enterprise retainer
+- Custom / above tier 5: mxstermind.com
+
+## Brand guide
+- Voice: direct, operator-first, fixed pricing, no agency theatre
+- Full guide: https://brandforge.gg/brand-guide/
+
+## Hub pages
 - BrandForge — Design, Development & Growth: https://brandforge.gg/
+  Fixed USD packages for brand, web, and growth. Quote in 24 hours.
 - Services Hub | BrandForge: https://brandforge.gg/services/
+  Brand identity, web design, mobile apps, automation, SEO, and paid ads.
 - Packages & Pricing | BrandForge: https://brandforge.gg/packages/
+  Five fixed USD tiers from Blueprint to Full-Stack retainer.
 - Portfolio | BrandForge: https://brandforge.gg/portfolio/
+  Live, upcoming, and archived case studies with outcomes.
 - Blog | BrandForge: https://brandforge.gg/blog/
+  Operator guides on GEO, Discord, forums, CRO, and automation.
 - Who We Serve | BrandForge: https://brandforge.gg/for/
+  Niche guides for gaming, Web3, SaaS, forums, e-commerce, and creators.
 - About BrandForge: https://brandforge.gg/about/
+  Development-first studio for operators who want one squad.
 - Contact | BrandForge: https://brandforge.gg/contact/
+  Discord or Telegram — fixed quote in 24 hours.
+- Partners & Tools | BrandForge: https://brandforge.gg/partners/
+  Recommended tools and partnership opportunities.
+- Template Store | BrandForge: https://brandforge.gg/store/
+  Premium templates and assets — coming soon.
 - Roadmap | BrandForge: https://brandforge.gg/roadmap/
+  Validate, brand, launch, grow, scale — operator playbook.
 - Brand Guide | BrandForge: https://brandforge.gg/brand-guide/
+  Design tokens, voice, and copy patterns.
 - Ethics & Standards | BrandForge: https://brandforge.gg/ethics-standards/
+  How BrandForge works with clients and communities.
 - Privacy Policy | BrandForge: https://brandforge.gg/privacy/
+  BrandForge privacy policy.
 - Terms | BrandForge: https://brandforge.gg/terms/
+  BrandForge terms of service.
 
-## Niche guides
+## Niche guides (/for/)
 - For Gaming Server Owners: https://brandforge.gg/for/gaming-server-owners/
+  Discord branding, GFX, landers, and growth for gaming communities. Fixed quotes in 24h.
 - For Web3 & Crypto Projects: https://brandforge.gg/for/web3-crypto-projects/
+  Landing pages, brand, and GEO for crypto operators. Cascade Markets proof.
 - For SaaS Startups: https://brandforge.gg/for/saas-startups/
+  Landers, brand, and automation for early SaaS. LinkedIn automation case study.
 - For E-commerce Brands: https://brandforge.gg/for/ecommerce-brands/
+  Storefronts and conversion UX — ValAccs and travel references.
 - For Content Creators: https://brandforge.gg/for/content-creators/
+  Short-form systems, brand kits, and landers for creators and educators.
 - For Forum Sellers: https://brandforge.gg/for/forum-sellers/
+  Identity, stores, and trust UX for marketplace operators.
 - For Mobile App Founders: https://brandforge.gg/for/mobile-app-founders/
+  iOS and Android MVPs, UI/UX, Firebase backends, and App Store release — CarSpotLive proof.
 - For Automation & Ops Teams: https://brandforge.gg/for/automation-ops-teams/
+  n8n and Make workflows, CRM sync, Slack alerts, and internal dashboards — The Automator retainer.
 
 ## Services
 - Brand Identity Design — Logo & Systems: https://brandforge.gg/services/brand-identity/
+  Logo, colour systems, typography, and brand guidelines for operators who need to look funded fast. From $500. Quote in 24 hours.
 - Web Design & Development — Sites That Convert: https://brandforge.gg/services/web-design/
+  Custom landing pages and marketing sites — Next.js, performance-first, mobile-ready. From $2,500. Fixed quote in 24 hours.
 - Mobile App Development — iOS & Android: https://brandforge.gg/services/mobile-apps/
+  iOS and Android apps from design to App Store release. CarSpotLive reference build. Fixed USD quote in 24 hours.
 - Discord Server Branding & Setup: https://brandforge.gg/services/discord-branding/
+  Discord branding, roles, channels, banners, and onboarding for gaming and trading communities. Fixed quote in 24h.
 - Workflow Automation — n8n, Make, Zapier: https://brandforge.gg/services/automation/
+  CRM sync, intake routing, alerts, and ops automation with n8n, Make, or Zapier. Fixed USD quote from BrandForge in 24 hours.
 - Custom AI Tools & Knowledge Bases: https://brandforge.gg/services/ai-tools/
+  Custom AI assistants and internal copilots trained on your docs — not generic ChatGPT wrappers. BrandForge fixed quote in 24h.
 - SEO & GEO Growth — Search + AI Visibility: https://brandforge.gg/services/seo-growth/
+  Traditional SEO plus Generative Engine Optimisation so Google and AI assistants cite BrandForge clients. Monthly and project quotes.
 - Paid Ads Management — Google, Meta, TikTok: https://brandforge.gg/services/paid-ads/
+  Paid ads with creative systems and ROAS tracking for operators. Google, Meta, TikTok. BrandForge — quote in 24 hours.
 - Social Media & Short-Form Systems: https://brandforge.gg/services/social-media/
+  Content calendars, short-form templates, and posting systems for operators. BrandForge — fixed quote in 24 hours.
 
 ## Blog
 - Build a Brand From Scratch 2026: https://brandforge.gg/blog/how-to-build-a-brand-from-scratch-2026/
+  Operator guide: positioning, identity, Discord, and lander — without agency fluff.
 - What Is GEO? Generative Engine Optimisation: https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/
+  GEO earns AI citations with FAQs, schema, and entity-clear copy — BrandForge explains for operators.
 - Discord Server Branding Guide: https://brandforge.gg/blog/discord-server-branding-complete-guide/
+  Roles, banners, onboarding, and GFX for gaming and trading servers.
 - Gaming Community Web Store Guide: https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/
+  Trust, checkout, and catalog UX for community stores.
 - Forum Marketing 2026: https://brandforge.gg/blog/forum-marketing-2026-what-still-works/
+  Vouches, threads, and proof patterns that still convert.
 - CarSpotLive Case Study Blog: https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/
+  Mobile app delivery — maps, Firebase, App Store 2024.
 - Identity vs Design: https://brandforge.gg/blog/brand-identity-vs-brand-design-difference/
+  Systems vs one-off visuals — when to buy brand identity vs design-only work.
 - Conversion Rate Optimisation Guide: https://brandforge.gg/blog/what-is-cro-conversion-rate-optimisation/
+  CRO for operator landers and stores — measurable fixes.
 - Choose a Design Agency 2026: https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/
+  Package vs bespoke, proof, escrow — operator checklist.
 - AI Tools for Operators: https://brandforge.gg/blog/ai-tools-every-operator-should-use/
+  Assistants, automation, and doc-grounded bots — not hype.
 - Price Digital Services 2026: https://brandforge.gg/blog/how-to-price-digital-services-2026/
+  Fixed packages vs retainers, capacity limits, and escrow-friendly quotes — operator pricing guide.
 - n8n vs Make Automation Guide: https://brandforge.gg/blog/n8n-vs-make-automation-guide/
+  Compare n8n and Make for CRM sync, lead routing, and forum ops — when to pick each.
 - Landing Page CRO Checklist 2026: https://brandforge.gg/blog/landing-page-conversion-checklist-2026/
+  Hero clarity, FAQ schema, speed, and Discord CTAs — 12-point checklist for operator landers.
 - Forum Seller Reputation Guide: https://brandforge.gg/blog/complete-guide-forum-seller-reputation/
+  How marketplace operators build vouches, trust UX, and brand consistency on HF, Voided, and niche forums — without looking like a reskin.
 - Discord Server Branding for Growth: https://brandforge.gg/blog/discord-server-branding-for-growth/
+  Growth-focused Discord branding — banners, onboarding, role art, and launch assets that convert lurkers into members and paying tiers.
 - Escrow-Friendly Agency Intake: https://brandforge.gg/blog/escrow-friendly-agency-intake/
+  What forum and OTC buyers should include in the first Discord message — scope, escrow, refs, and fixed-quote checklist.
 - Pick the Right BrandForge Tier: https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/
+  Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to escalate to mxstermind.com.
 - Web3 Branding & Trust Guide: https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/
+  How crypto and Web3 operators build credible brands before chain jargon — landers, proof, and GEO for cold traffic.
 - Building BrandForge in Public — Update 01: https://brandforge.gg/blog/building-brandforge-in-public-01/
+  First build-in-public update: portfolio expansion, visual overhaul, performance work, and what we are shipping next.
 
-## Portfolio highlights
+## Portfolio (sample)
 - Whiteskyhosting.com Case Study: https://brandforge.gg/portfolio/whiteskyhosting/
+  Hosting and VPS company — full design and development from scratch with conversion-focused pricing and plan comparison tables.
 - CarSpotLive Case Study: https://brandforge.gg/portfolio/carspotlive/
+  Full car-spotting mobile app — UI/UX, native iOS and Android, real-time mapping, Firebase backend, App Store December 2024.
 - DirectFiber Case Study: https://brandforge.gg/portfolio/directfiber/
+  Enterprise ISP portal with custom billing — customer portal, plan management, usage dashboards, and billing engine.
 - Drain.cx Case Study: https://brandforge.gg/portfolio/drain-cx/
+  Scripts and competitive tools for Rust, Rainbow Six Siege, and Apex Legends — full e-commerce storefront and delivery.
 - Boostingfactory.com Case Study: https://brandforge.gg/portfolio/boostingfactory/
+  Boosting service for HotS, LoL, MW, Apex, and Overwatch — order system, service catalog, and trust signals from scratch.
 - Fluorite.store Case Study: https://brandforge.gg/portfolio/fluorite-store/
+  Competitive edge tools for MLBB, Free Fire, and COD Mobile — full design and development from scratch.
 - Passle Case Study: https://brandforge.gg/portfolio/passle/
+  Creator monetization — subscriptions, PPV, tipping, Keys wallet. 95% revenue split. Crypto, Apple Pay, cards.
 - Dyo Travel Case Study: https://brandforge.gg/portfolio/dyotravel/
+  Hotel booking with API-driven dynamic pricing, room listings, cancellation policies, deployment and live support.
 - Repsheets Case Study: https://brandforge.gg/portfolio/repsheets/
+  Web3 crypto prediction market landing — performance-first structure. Client discontinued post-delivery.
 - Cascade Markets Case Study: https://brandforge.gg/portfolio/cascade-markets/
+  Web3 crypto prediction market landing — performance-first structure. Client discontinued post-delivery.
 - Grindnode Case Study: https://brandforge.gg/portfolio/grindnode/
+  Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.
 - Cloutscout.ai Case Study: https://brandforge.gg/portfolio/cloutscout/
+  Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.
+- Lava.pw Case Study: https://brandforge.gg/portfolio/lava-pw/
+  Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.
+- SUI Blockchain App Fork Case Study: https://brandforge.gg/portfolio/sui-blockchain-app/
+  Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.
+- Jarro AI Case Study: https://brandforge.gg/portfolio/jarro-ai/
+  Visual AI for trading chart analysis — candlesticks, S/R, risk flags. Drag-drop PNG/JPG, sub-2.5s analysis. 5 weeks.
 
-## Packages (USD)
-- Tier 1 — The Blueprint: $300–$500 one-time
-- Tier 2 — The Automator: $1,500–$3,000/mo
-- Tier 3 — The MVP Engine: $5,000/mo
-- Tier 4 — The AI & Community: $7,500/mo
-- Tier 5 — The Full-Stack Powerhouse: $10,000+/mo
-
-## How to buy
-Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Fixed quote within 24 hours. Escrow accepted.
+## Partners & resources
+- Partners & tools: https://brandforge.gg/partners/
+- Template store (coming soon): https://brandforge.gg/store/
 
 ## Policies
 - Terms: https://brandforge.gg/terms/
 - Privacy: https://brandforge.gg/privacy/
+- Ethics: https://brandforge.gg/ethics-standards/
 
-## Premium tier
-Projects above package scope: https://mxstermind.com
-
-## Note
-Internal ops pages (/launch/) are noindex and excluded from this file.
-
-Generated 2026-06-13 · 80 indexable pages
+Generated 2026-06-13 · 82 indexable pages · 167 lines

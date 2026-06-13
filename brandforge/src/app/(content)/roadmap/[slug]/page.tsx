@@ -39,6 +39,11 @@ export default async function RoadmapStagePage({ params }: PageProps): Promise<R
       path={path}
       schemaType="roadmap"
       faqs={stage.faqs}
+      howTo={{
+        name: stage.title,
+        description: stage.overview,
+        steps: stage.checklist,
+      }}
     >
       <RoadmapStageTemplate stage={stage} />
     </PageShell>

@@ -67,6 +67,24 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
           "SEO fights for blue links. GEO fights for paragraph citations when buyers ask ChatGPT, Perplexity, or Google AI which agency to hire.",
           "BrandForge structures every service page with FAQs and JSON-LD. That is not decoration — it is how generative engines extract trustworthy answers.",
         ]),
+        codeSnippets: [
+          {
+            language: "json",
+            code: `{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "What does BrandForge do?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Digital branding for Discord, gaming, Web3, and SaaS — fixed USD quotes on Discord."
+    }
+  }]
+}`,
+            showLineNumbers: true,
+          },
+        ],
       },
     ],
     faqs: [

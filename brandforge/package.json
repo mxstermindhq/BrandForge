@@ -7,13 +7,14 @@
   },
   "scripts": {
     "dev": "next dev -p 3002",
-    "build": "node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs",
+    "build": "node scripts/optimize-site-images.mjs && node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs",
+    "optimize:site": "node scripts/optimize-site-images.mjs",
     "start": "next start -p 3002",
     "lint": "eslint .",
     "lint:content": "node scripts/lint-content.mjs",
     "optimize:portfolio": "node scripts/optimize-portfolio-images.mjs",
     "predeploy": "node scripts/pre-deploy-check.mjs",
-    "deploy": "npm run build && npx wrangler deploy --config wrangler.jsonc"
+    "deploy": "npm run build && node scripts/purge-cache.mjs && npx wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

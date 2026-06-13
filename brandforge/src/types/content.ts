@@ -115,4 +115,16 @@ export type SchemaInjectorProps = {
     datePublished: string;
     url: string;
   };
+  reviews?: readonly { author: string; text: string; rating: number }[];
+  products?: readonly {
+    name: string;
+    description: string;
+    price: string;
+    url: string;
+  }[];
+  howTo?: {
+    name: string;
+    description: string;
+    steps: readonly string[];
+  };
 };

@@ -84,6 +84,11 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Brand identity",
       },
     ],
+    beforeAfter: {
+      before: "Generic branding, DMs-only funnel, no store-ready assets",
+      after: "Full mobile product — App Store live with maps, sharing, and brand kit",
+    },
+    showcaseVideo: "",
   },
   {
     slug: "directfiber",
@@ -147,6 +152,11 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Brand identity",
       },
     ],
+    beforeAfter: {
+      before: "Template store, buried pricing, no category navigation",
+      after: "Custom storefront with game categories, FAQ, and motion — live at drain.cx",
+    },
+    showcaseVideo: "",
     vouch: {
       quote: "Designs are not from this world. Such a good guy with so much heart and passion.",
       who: "@Can",
@@ -292,6 +302,10 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Web design",
       },
     ],
+    beforeAfter: {
+      before: "Generic Web3 template, unclear CTA hierarchy, slow first paint",
+      after: "Performance-first landing with credible Web3 visual language before paid traffic",
+    },
   },
   {
     slug: "grindnode",
@@ -591,6 +605,11 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Web design",
       },
     ],
+    beforeAfter: {
+      before: "Template store, buried pricing, no category navigation",
+      after: "Billgang checkout, tiered catalog, and trust copy tuned for forum buyers",
+    },
+    showcaseVideo: "",
   },
   {
     slug: "ops-flow-dashboard",
@@ -627,6 +646,11 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Automation",
       },
     ],
+    beforeAfter: {
+      before: "Manual spreadsheet handoffs between Slack, CRM, and intake forms",
+      after: "n8n workflows with dashboard visibility and automated lead routing",
+    },
+    showcaseVideo: "",
   },
   {
     slug: "community-launch-kit",
@@ -663,6 +687,10 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
         serviceLabel: "Discord branding",
       },
     ],
+    beforeAfter: {
+      before: "Default Discord template, no role hierarchy, inconsistent channel art",
+      after: "Branded server kit — roles, banners, welcome bot, and launch templates",
+    },
   },
   {
     slug: "geo-content-engine",

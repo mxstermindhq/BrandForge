@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CTASection, FAQBlock, InlineCTA, PageHero, PageShell, RoadmapStep } from "@/components/content";
+import { RoadmapProcessDiagram } from "@/components/marketing/RoadmapProcessDiagram";
 import { ROADMAP_HUB_FAQ, ROADMAP_STAGES, ROADMAP_SLUGS } from "@/content/roadmap/stages";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -46,6 +48,10 @@ export default function RoadmapHubPage(): React.JSX.Element {
         }
         subhead="Where you are in the journey — validation, brand, launch, growth, automation, stack. Open your stage for the full checklist."
       />
+
+      <Suspense fallback={<div className="py-12" aria-hidden />}>
+        <RoadmapProcessDiagram />
+      </Suspense>
 
       <section className="py-16">
         <div className="content-wrap space-y-6">

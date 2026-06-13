@@ -11,7 +11,11 @@ export type BlogPost = {
   category?: string;
   tags?: readonly string[];
   ogImage?: string;
-  sections: readonly { heading: string; paragraphs: readonly string[] }[];
+  sections: readonly {
+    heading: string;
+    paragraphs: readonly string[];
+    codeSnippets?: readonly { language: string; code: string; showLineNumbers?: boolean }[];
+  }[];
   faqs: readonly FaqItem[];
   relatedServices?: readonly { label: string; href: string }[];
   relatedPortfolio?: readonly string[];

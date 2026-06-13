@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 /**
- * Converts public/portfolio/* assets to WebP in public/img/portfolio/[slug]/.
- * Usage: node scripts/optimize-portfolio-images.mjs
- * Requires: npm install sharp (devDependency)
+ * AVIF + WebP from public/portfolio sources and existing WebP outputs.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -12,17 +10,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const srcDir = path.join(root, "public", "portfolio");
 const outRoot = path.join(root, "public", "img", "portfolio");
 
-/** slug → primary source filename in public/portfolio/ */
-const SLUG_SOURCES = {
-  carspotlive: "carspotlive.webp.jpg",
-  whiteskyhosting: "whiteskyhosting.png",
-  "drain-cx": "drain-cx.png",
-  directfiber: "DirectFiber.png",
-  boostingfactory: "boostingfactory.png",
-  "fluorite-store": "flueritestore.png",
-};
-
-/** slug → gallery filenames (order preserved) */
 const SLUG_GALLERIES = {
   carspotlive: [
     "carspotlive.webp.jpg",
@@ -49,32 +36,37 @@ const SLUG_GALLERIES = {
   "fluorite-store": ["flueritestore.png", "fluorite1.png", "fluorite2.png"],
 };
 
+const MAX_WIDTH = 1200;
+const WEBP_TARGET_KB = 150;
+const AVIF_TARGET_KB = 120;
+
 let sharp;
 try {
   sharp = (await import("sharp")).default;
 } catch {
-  console.error("✗ sharp not installed — run: npm install --save-dev sharp");
+  console.error("✗ sharp not installed");
   process.exit(1);
 }
 
-const MAX_WIDTH = 1200;
-const TARGET_KB = 200;
-
-async function toWebp(inputPath, outputPath) {
-  let quality = 82;
-  let buffer = await sharp(inputPath)
-    .rotate()
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-    .webp({ quality })
-    .toBuffer();
-
-  while (buffer.length > TARGET_KB * 1024 && quality > 40) {
-    quality -= 8;
-    buffer = await sharp(inputPath)
+async function encode(inputPath, outputPath, format) {
+  const targetKb = format === "avif" ? AVIF_TARGET_KB : WEBP_TARGET_KB;
+  let quality = format === "avif" ? 50 : 82;
+  const pipeline = () =>
+    sharp(inputPath)
       .rotate()
-      .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-      .webp({ quality })
-      .toBuffer();
+      .resize({ width: MAX_WIDTH, withoutEnlargement: true });
+
+  let buffer =
+    format === "avif"
+      ? await pipeline().avif({ quality, effort: 4 }).toBuffer()
+      : await pipeline().webp({ quality }).toBuffer();
+
+  while (buffer.length > targetKb * 1024 && quality > 30) {
+    quality -= format === "avif" ? 6 : 8;
+    buffer =
+      format === "avif"
+        ? await pipeline().avif({ quality, effort: 4 }).toBuffer()
+        : await pipeline().webp({ quality }).toBuffer();
   }
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
@@ -90,17 +82,20 @@ for (const [slug, files] of Object.entries(SLUG_GALLERIES)) {
   const names = [];
 
   for (let i = 0; i < files.length; i++) {
-    const srcName = files[i];
-    const srcPath = path.join(srcDir, srcName);
+    const srcPath = path.join(srcDir, files[i]);
     if (!fs.existsSync(srcPath)) {
-      console.warn(`  skip missing ${srcName}`);
+      console.warn(`  skip missing ${files[i]}`);
       continue;
     }
-    const outName = i === 0 ? "hero.webp" : `${i}.webp`;
-    const outPath = path.join(outDir, outName);
-    const { bytes, quality } = await toWebp(srcPath, outPath);
-    names.push(`${slug}/${outName}`);
-    console.log(`  ✓ ${slug}/${outName} — ${Math.round(bytes / 1024)}KB q${quality}`);
+    const base = i === 0 ? "hero" : String(i);
+    const webpPath = path.join(outDir, `${base}.webp`);
+    const avifPath = path.join(outDir, `${base}.avif`);
+    const w = await encode(srcPath, webpPath, "webp");
+    const a = await encode(srcPath, avifPath, "avif");
+    names.push(`${slug}/${base}.webp`);
+    console.log(
+      `  ✓ ${slug}/${base} — webp ${Math.round(w.bytes / 1024)}KB · avif ${Math.round(a.bytes / 1024)}KB`,
+    );
   }
 
   if (names.length) {
@@ -109,7 +104,20 @@ for (const [slug, files] of Object.entries(SLUG_GALLERIES)) {
   }
 }
 
+// AVIF pass on existing webp-only outputs
+for (const dir of fs.readdirSync(outRoot, { withFileTypes: true }).filter((d) => d.isDirectory())) {
+  const slugDir = path.join(outRoot, dir.name);
+  for (const file of fs.readdirSync(slugDir).filter((f) => f.endsWith(".webp"))) {
+    const avifName = file.replace(/\.webp$/, ".avif");
+    if (fs.existsSync(path.join(slugDir, avifName))) continue;
+    await encode(path.join(slugDir, file), path.join(slugDir, avifName), "avif");
+    console.log(`  ✓ ${dir.name}/${avifName} (from existing webp)`);
+  }
+}
+
 const manifestPath = path.join(root, "src", "content", "portfolio", "optimized-manifest.json");
-fs.writeFileSync(manifestPath, JSON.stringify({ primary: manifestPrimary, gallery: manifestGallery }, null, 2));
-console.log(`\n✓ Wrote ${Object.keys(manifestPrimary).length} slug folders → public/img/portfolio/`);
-console.log(`✓ Manifest: src/content/portfolio/optimized-manifest.json`);
+fs.writeFileSync(
+  manifestPath,
+  JSON.stringify({ primary: manifestPrimary, gallery: manifestGallery }, null, 2),
+);
+console.log(`\n✓ ${Object.keys(manifestPrimary).length} slugs · AVIF + WebP`);

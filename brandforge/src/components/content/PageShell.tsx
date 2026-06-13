@@ -15,6 +15,9 @@ type PageShellProps = {
   serviceDescription?: string;
   creativeWork?: SchemaInjectorProps["creativeWork"];
   article?: SchemaInjectorProps["article"];
+  reviews?: SchemaInjectorProps["reviews"];
+  products?: SchemaInjectorProps["products"];
+  howTo?: SchemaInjectorProps["howTo"];
   showBreadcrumbs?: boolean;
 };
 
@@ -29,6 +32,9 @@ export function PageShell({
   serviceDescription,
   creativeWork,
   article,
+  reviews,
+  products,
+  howTo,
   showBreadcrumbs = true,
 }: PageShellProps): React.JSX.Element {
   return (
@@ -42,6 +48,9 @@ export function PageShell({
         serviceDescription={serviceDescription}
         creativeWork={creativeWork}
         article={article}
+        reviews={reviews}
+        products={products}
+        howTo={howTo}
       />
       <StaticSiteHeader />
       <ContactActionBar />

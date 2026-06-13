@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
+import dynamic from "next/dynamic";
 import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
+
+const CopyInviteButton = dynamic(
+  () => import("@/components/marketing/CopyInviteButton").then((m) => ({ default: m.CopyInviteButton })),
+);
 
 /** Server-rendered header — no Lenis, GSAP, or magnetic interactions. */
 export function StaticSiteHeader(): React.JSX.Element {
@@ -12,14 +16,19 @@ export function StaticSiteHeader(): React.JSX.Element {
     >
       <div className="content-wrap flex min-h-14 items-center justify-between gap-4 py-3.5">
         <Link href="/" className="inline-flex items-center" aria-label="BrandForge home">
-          <Image
-            src="/img/logo-header.png"
-            alt="BrandForge.gg"
-            width={233}
-            height={36}
-            priority
-            className="h-7 w-auto max-w-[200px]"
-          />
+          <picture>
+            <source srcSet="/img/logo-header.avif" type="image/avif" />
+            <source srcSet="/img/logo-header.webp" type="image/webp" />
+            <Image
+              src="/img/logo-header.png"
+              alt="BrandForge.gg"
+              width={233}
+              height={36}
+              priority
+              fetchPriority="high"
+              className="h-7 w-auto max-w-[200px]"
+            />
+          </picture>
         </Link>
         <nav className="hidden items-center gap-4 lg:flex" aria-label="Primary">
           <Link

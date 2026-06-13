@@ -120,6 +120,8 @@ export function buildPortfolioDetail(project: PortfolioProject): PortfolioDetail
     outcomeMetric: project.outcomeMetric,
     outcome: project.outcome,
     highlights: project.highlights,
+    beforeAfter: project.beforeAfter,
+    showcaseVideo: project.showcaseVideo,
     visuals: buildVisuals(project),
     vouch: project.vouch,
     relatedServices: project.relatedServices,

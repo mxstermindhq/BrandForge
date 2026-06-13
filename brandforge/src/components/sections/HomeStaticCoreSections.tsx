@@ -1,9 +1,8 @@
 import { VouchCarousel } from "@/components/content/VouchCard";
-import { AbHeroPrimaryCta } from "@/components/marketing/AbHeroPrimaryCta";
-import { AnimatedHeroStats } from "@/components/marketing/AnimatedHeroStats";
 import { CopyInviteButton } from "@/components/marketing/CopyInviteButton";
 import { StartPackageButton } from "@/components/marketing/StartPackageButton";
-import { HERO_STATS, PACKAGES_LIST, SERVICES, VOUCHES } from "@/content/home";
+import { HomeHeroInteractive } from "@/components/sections/HomeHeroInteractive";
+import { PACKAGES_LIST, SERVICES, VOUCHES } from "@/content/home";
 import { PACKAGES } from "@/config/site";
 import type { PackageKey } from "@/config/site";
 import { ctaTrackAttrs, telegramHref } from "@/lib/tracking";
@@ -78,8 +77,7 @@ export function HomeHeroStatic(): React.JSX.Element {
           <strong className="font-semibold text-text">One studio for brand, website, and growth</strong>
           {" — built for founders, SaaS teams, and Web3 operators who want fixed USD pricing, not three vendors. Packages from $300. Quote in 24 hours."}
         </p>
-        <AbHeroPrimaryCta />
-        <AnimatedHeroStats stats={HERO_STATS} />
+        <HomeHeroInteractive />
       </div>
     </section>
   );

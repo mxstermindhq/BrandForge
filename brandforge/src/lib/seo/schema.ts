@@ -124,6 +124,53 @@ export function buildPageSchema(props: SchemaInjectorProps): Record<string, unkn
     });
   }
 
+  if (props.reviews?.length) {
+    for (const review of props.reviews) {
+      graph.push({
+        "@type": "Review",
+        reviewBody: review.text,
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: review.rating,
+          bestRating: 5,
+        },
+        author: { "@type": "Person", name: review.author },
+        itemReviewed: { "@id": ORG_ID },
+      });
+    }
+  }
+
+  if (props.products?.length) {
+    for (const product of props.products) {
+      graph.push({
+        "@type": "Product",
+        name: product.name,
+        description: product.description,
+        brand: { "@id": ORG_ID },
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "USD",
+          price: product.price.replace(/[^\d.]/g, "") || "300",
+          url: product.url,
+          availability: "https://schema.org/InStock",
+        },
+      });
+    }
+  }
+
+  if (props.howTo) {
+    graph.push({
+      "@type": "HowTo",
+      name: props.howTo.name,
+      description: props.howTo.description,
+      step: props.howTo.steps.map((text, index) => ({
+        "@type": "HowToStep",
+        position: index + 1,
+        text,
+      })),
+    });
+  }
+
   return {
     "@context": "https://schema.org",
     "@graph": graph,

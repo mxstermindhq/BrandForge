@@ -1,0 +1,26 @@
+{
+  "auditedAt": "2026-06-13T19:26:06.480Z",
+  "base": "https://brandforge.gg",
+  "deployVersion": "6faee9ea-3e75-47b0-a40d-f386912eb0f1",
+  "homeMobile": {
+    "performance": 53,
+    "lcp": 3553.1,
+    "tbt": 3004.6340000000037,
+    "cls": 0.026351669572689192,
+    "fcp": 3553.1
+  },
+  "siteWideAverage": null,
+  "note": "Full site-wide audit pending — run node brandforge/scripts/lighthouse-sprint5.mjs --fresh",
+  "targets": {
+    "homeMobilePerf": 85,
+    "siteWideAverage": 85,
+    "homeLcpMs": 2500,
+    "homeTbtMs": 200
+  },
+  "acceptance": {
+    "homeMobilePerf": false,
+    "siteWideAverage": false,
+    "homeLcp": false,
+    "homeTbt": false
+  }
+}

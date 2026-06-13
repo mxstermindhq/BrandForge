@@ -29,6 +29,8 @@ export type PortfolioProject = {
     serviceHref?: string;
     serviceLabel?: string;
   }[];
+  beforeAfter?: { before: string; after: string };
+  showcaseVideo?: string;
   relatedServices: readonly { label: string; href: string }[];
   vouch?: { quote: string; who: string; from: string };
   confidentialNote?: string;
@@ -62,6 +64,8 @@ export type PortfolioDetail = {
     serviceHref?: string;
     serviceLabel?: string;
   }[];
+  beforeAfter?: { before: string; after: string };
+  showcaseVideo?: string;
   visuals: readonly { label: string; caption: string; mockupType?: MockupType }[];
   vouch?: { quote: string; who: string; from: string };
   relatedServices: readonly { label: string; href: string }[];

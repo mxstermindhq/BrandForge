@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
 import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { BeforeAfterSlider } from "@/components/marketing/BeforeAfterSlider";
+import { VideoThumbnail } from "@/components/marketing/VideoThumbnail";
 import { ResultStatBox } from "@/components/marketing/ResultStatBox";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
 import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
@@ -154,6 +156,35 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
           </div>
         </div>
       </section>
+
+      {project.beforeAfter ? (
+        <section className="border-y border-b1 bg-s1 py-12">
+          <div className="content-wrap">
+            <h2 className="text-lg font-bold">Before &amp; after</h2>
+            <p className="mt-2 text-sm text-text-secondary">
+              Drag the handle to compare the starting point vs BrandForge delivery.
+            </p>
+            <BeforeAfterSlider
+              beforeCaption={project.beforeAfter.before}
+              afterCaption={project.beforeAfter.after}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {project.showcaseVideo !== undefined ? (
+        <section className="py-12">
+          <div className="content-wrap">
+            <h2 className="text-lg font-bold">Project showcase</h2>
+            <VideoThumbnail
+              title={`${project.name} — motion walkthrough`}
+              thumbnailSrc={screenshotUrl}
+              videoUrl={project.showcaseVideo || undefined}
+              campaign={`portfolio-video-${project.slug}`}
+            />
+          </div>
+        </section>
+      ) : null}
 
       <InlineCTA
         headline="Want results like this?"

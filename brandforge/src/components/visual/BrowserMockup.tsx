@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { OptimizedPicture } from "@/components/visual/OptimizedPicture";
+import { toPictureSources } from "@/lib/portfolio/picture-sources";
 
 type BrowserMockupProps = {
   projectName: string;
@@ -19,6 +21,9 @@ export function BrowserMockup({
   imageLoading = "lazy",
   imagePriority = false,
 }: BrowserMockupProps): React.JSX.Element {
+  const picture = toPictureSources(screenshotUrl);
+  const useNativePicture = picture?.avif && picture.webp;
+
   return (
     <div
       className={`overflow-hidden rounded-md border border-b1 bg-s2 shadow-lg ${className}`}
@@ -31,7 +36,18 @@ export function BrowserMockup({
         <span className="ml-2 flex-1 truncate font-mono text-[8px] text-muted">{projectName}</span>
       </div>
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-bg">
-        {screenshotUrl ? (
+        {useNativePicture && picture ? (
+          <OptimizedPicture
+            avifSrc={picture.avif}
+            webpSrc={picture.webp}
+            fallbackSrc={picture.fallback}
+            alt={`${projectName} screenshot`}
+            className="absolute inset-0 h-full w-full object-cover object-top"
+            loading={imageLoading}
+            fetchPriority={imagePriority ? "high" : "auto"}
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        ) : screenshotUrl ? (
           <Image
             src={screenshotUrl}
             alt={`${projectName} screenshot`}

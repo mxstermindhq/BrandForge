@@ -91,6 +91,22 @@ export const STATIC_CONTENT_ROUTES: readonly ContentEntry[] = [
     lastModified: "2026-06-01",
   },
   {
+    slug: "partners",
+    path: "/partners/",
+    title: "Partners & Tools | BrandForge",
+    description: "Recommended tools and partnership opportunities.",
+    category: "static",
+    lastModified: "2026-06-13",
+  },
+  {
+    slug: "store",
+    path: "/store/",
+    title: "Template Store | BrandForge",
+    description: "Premium templates and assets — coming soon.",
+    category: "static",
+    lastModified: "2026-06-13",
+  },
+  {
     slug: "roadmap",
     path: "/roadmap/",
     title: "Roadmap | BrandForge",

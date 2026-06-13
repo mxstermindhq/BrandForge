@@ -1,4 +1,5 @@
 import { FAQBlock, InlineCTA } from "@/components/content";
+import { CodeBlock } from "@/components/blog/CodeBlock";
 import { BlogPostFooter } from "@/components/blog/BlogPostFooter";
 import type { BlogPost } from "@/content/blog/index";
 
@@ -21,6 +22,14 @@ export function BlogArticle({ post }: BlogArticleProps): React.JSX.Element {
               <p key={p.slice(0, 48)} className="text-sm leading-relaxed text-text-secondary">
                 {p}
               </p>
+            ))}
+            {section.codeSnippets?.map((snippet) => (
+              <CodeBlock
+                key={snippet.code.slice(0, 32)}
+                code={snippet.code}
+                language={snippet.language}
+                showLineNumbers={snippet.showLineNumbers}
+              />
             ))}
           </div>
           {index === 2 ? (
