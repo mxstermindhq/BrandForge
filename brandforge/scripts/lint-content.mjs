@@ -49,6 +49,19 @@ for (const post of manifest.blogPosts) {
   if (!post.description || post.description.length < 50 || post.description.length > 165) {
     errors.push(`Blog metaDescription invalid (${post.description?.length ?? 0}): ${post.slug}`);
   }
+  if (post.title.length > 65) {
+    errors.push(`Blog metaTitle too long (${post.title.length}): ${post.slug}`);
+  }
+}
+
+// FAQ count on posts/*.ts (expect ≥4)
+const postsDir = path.join(root, "src", "content", "blog", "posts");
+if (fs.existsSync(postsDir)) {
+  for (const f of fs.readdirSync(postsDir).filter((x) => x.endsWith(".ts") && x !== "index.ts")) {
+    const text = fs.readFileSync(path.join(postsDir, f), "utf8");
+    const faqCount = (text.match(/question:/g) ?? []).length;
+    if (faqCount < 4) errors.push(`Blog post ${f} has ${faqCount} FAQs (need ≥4)`);
+  }
 }
 
 for (const page of manifest.nichePages) {
@@ -77,9 +90,8 @@ function checkImagesInFile(text, context) {
 }
 
 checkImagesInFile(fs.readFileSync(path.join(blogDir, "index.ts"), "utf8"), "blog/index.ts");
-const postsDir = path.join(blogDir, "posts");
 if (fs.existsSync(postsDir)) {
-  for (const f of fs.readdirSync(postsDir).filter((x) => x.endsWith(".ts"))) {
+  for (const f of fs.readdirSync(postsDir).filter((x) => x.endsWith(".ts") && x !== "index.ts")) {
     checkImagesInFile(fs.readFileSync(path.join(postsDir, f), "utf8"), f);
   }
 }

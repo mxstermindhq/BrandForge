@@ -1,0 +1,49 @@
+{
+  "primary": {
+    "carspotlive": "carspotlive/hero.webp",
+    "whiteskyhosting": "whiteskyhosting/hero.webp",
+    "drain-cx": "drain-cx/hero.webp",
+    "directfiber": "directfiber/hero.webp",
+    "boostingfactory": "boostingfactory/hero.webp",
+    "fluorite-store": "fluorite-store/hero.webp"
+  },
+  "gallery": {
+    "carspotlive": [
+      "carspotlive/hero.webp",
+      "carspotlive/1.webp",
+      "carspotlive/2.webp",
+      "carspotlive/3.webp",
+      "carspotlive/4.webp",
+      "carspotlive/5.webp"
+    ],
+    "whiteskyhosting": [
+      "whiteskyhosting/hero.webp",
+      "whiteskyhosting/1.webp",
+      "whiteskyhosting/2.webp",
+      "whiteskyhosting/3.webp"
+    ],
+    "drain-cx": [
+      "drain-cx/hero.webp",
+      "drain-cx/1.webp",
+      "drain-cx/2.webp",
+      "drain-cx/3.webp"
+    ],
+    "directfiber": [
+      "directfiber/hero.webp",
+      "directfiber/1.webp",
+      "directfiber/2.webp",
+      "directfiber/3.webp"
+    ],
+    "boostingfactory": [
+      "boostingfactory/hero.webp",
+      "boostingfactory/1.webp",
+      "boostingfactory/2.webp",
+      "boostingfactory/3.webp"
+    ],
+    "fluorite-store": [
+      "fluorite-store/hero.webp",
+      "fluorite-store/1.webp",
+      "fluorite-store/2.webp"
+    ]
+  }
+}

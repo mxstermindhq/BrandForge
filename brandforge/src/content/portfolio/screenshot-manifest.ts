@@ -1,15 +1,10 @@
 /**
- * Portfolio screenshots in public/portfolio/
- *
- * HOW TO ADD YOUR IMAGES:
- * 1. Compress to WebP (or JPG), max ~1280px wide, under 200KB
- * 2. Drop file in brandforge/public/portfolio/
- * 3. Add primary: slug: "filename"
- * 4. Optional gallery: slug: ["file1", "file2", ...] for case study grid
- *
- * See public/portfolio/README.md for full guide.
+ * Portfolio screenshots — optimized WebP in public/img/portfolio/[slug]/
+ * Run `npm run optimize:portfolio` after adding source PNGs to public/portfolio/
  */
-export const SCREENSHOT_FILES: Partial<Record<string, string>> = {
+import optimized from "./optimized-manifest.json";
+
+const LEGACY_FILES: Partial<Record<string, string>> = {
   carspotlive: "carspotlive.webp.jpg",
   whiteskyhosting: "whiteskyhosting.png",
   "drain-cx": "drain-cx.png",
@@ -18,8 +13,7 @@ export const SCREENSHOT_FILES: Partial<Record<string, string>> = {
   "fluorite-store": "flueritestore.png",
 };
 
-/** Extra shots for case study “Screenshots & product surfaces” (primary may repeat as hero). */
-export const SCREENSHOT_GALLERY: Partial<Record<string, readonly string[]>> = {
+const LEGACY_GALLERY: Partial<Record<string, readonly string[]>> = {
   carspotlive: [
     "carspotlive.webp.jpg",
     "carspotlive-1.webp.png",
@@ -48,4 +42,22 @@ export const SCREENSHOT_GALLERY: Partial<Record<string, readonly string[]>> = {
     "boostingfactory3.png",
   ],
   "fluorite-store": ["flueritestore.png", "fluorite1.png", "fluorite2.png"],
+};
+
+type OptimizedManifest = {
+  primary: Record<string, string>;
+  gallery: Record<string, string[]>;
+};
+
+const opt = optimized as OptimizedManifest;
+
+/** Paths relative to /img/portfolio/ — e.g. carspotlive/hero.webp */
+export const SCREENSHOT_FILES: Partial<Record<string, string>> = {
+  ...LEGACY_FILES,
+  ...opt.primary,
+};
+
+export const SCREENSHOT_GALLERY: Partial<Record<string, readonly string[]>> = {
+  ...LEGACY_GALLERY,
+  ...opt.gallery,
 };

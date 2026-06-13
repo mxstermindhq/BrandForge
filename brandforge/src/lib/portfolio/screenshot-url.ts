@@ -1,39 +1,41 @@
-import {
-  SCREENSHOT_FILES,
-  SCREENSHOT_GALLERY,
-} from "@/content/portfolio/screenshot-manifest";
+import { SCREENSHOT_FILES, SCREENSHOT_GALLERY } from "@/content/portfolio/screenshot-manifest";
 
 type ScreenshotSource = {
   slug: string;
   ogImageUrl?: string;
 };
 
-function portfolioAssetPath(filename: string): string {
-  return `/portfolio/${filename}`;
+const IMG_ROOT = "/img/portfolio";
+const LEGACY_ROOT = "/portfolio";
+
+function resolveFilePath(slug: string, file: string): string {
+  if (file.startsWith(`${slug}/`)) {
+    return `${IMG_ROOT}/${file}`;
+  }
+  return legacyPath(file);
 }
 
-/** Local manifest first, then remote OG — gradients used when both missing. */
+function legacyPath(filename: string): string {
+  return `${LEGACY_ROOT}/${filename}`;
+}
+
+/** Prefer /img/portfolio/[slug]/ WebP, then legacy /portfolio/, then remote OG. */
 export function resolveProjectScreenshot(project: ScreenshotSource): string | undefined {
   const file = SCREENSHOT_FILES[project.slug];
-  if (file) {
-    return portfolioAssetPath(file);
-  }
+  if (file) return resolveFilePath(project.slug, file);
+
   const gallery = SCREENSHOT_GALLERY[project.slug];
-  if (gallery?.[0]) {
-    return portfolioAssetPath(gallery[0]);
-  }
+  if (gallery?.[0]) return resolveFilePath(project.slug, gallery[0]);
+
   return project.ogImageUrl;
 }
 
-/** All local shots for a slug (case study grid). Empty when none registered. */
 export function resolveProjectGallery(slug: string): readonly string[] {
   const gallery = SCREENSHOT_GALLERY[slug];
   if (gallery?.length) {
-    return gallery.map(portfolioAssetPath);
+    return gallery.map((file) => resolveFilePath(slug, file));
   }
   const primary = SCREENSHOT_FILES[slug];
-  if (primary) {
-    return [portfolioAssetPath(primary)];
-  }
+  if (primary) return [resolveFilePath(slug, primary)];
   return [];
 }

@@ -2,31 +2,38 @@
 
 import { useMemo, useState } from "react";
 import { BlogCard } from "@/components/content/BlogCard";
-import { BLOG_INDEX } from "@/content/blog/index";
+import type { BlogCardData } from "@/types/content";
 
 const CATEGORIES = ["All", "Discord", "Web3", "Forums", "Guides", "SEO", "Automation"] as const;
 
-export function BlogFilterGrid(): React.JSX.Element {
+type BlogFilterGridProps = {
+  posts: readonly BlogCardData[];
+};
+
+/** Client filter/search — receives slim card data from server page (no full post bodies). */
+export function BlogFilterGrid({ posts }: BlogFilterGridProps): React.JSX.Element {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("All");
 
   const latest = useMemo(
-    () => [...BLOG_INDEX].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4),
-    [],
+    () => [...posts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4),
+    [posts],
   );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return BLOG_INDEX.filter((post) => {
-      const catOk = category === "All" || post.category === category;
-      const qOk =
-        !q ||
-        post.title.toLowerCase().includes(q) ||
-        post.excerpt.toLowerCase().includes(q) ||
-        post.tags?.some((t) => t.toLowerCase().includes(q));
-      return catOk && qOk;
-    }).sort((a, b) => b.date.localeCompare(a.date));
-  }, [query, category]);
+    return posts
+      .filter((post) => {
+        const catOk = category === "All" || post.category === category;
+        const qOk =
+          !q ||
+          post.title.toLowerCase().includes(q) ||
+          post.excerpt.toLowerCase().includes(q) ||
+          post.tags?.some((t) => t.toLowerCase().includes(q));
+        return catOk && qOk;
+      })
+      .sort((a, b) => b.date.localeCompare(a.date));
+  }, [posts, query, category]);
 
   return (
     <div>

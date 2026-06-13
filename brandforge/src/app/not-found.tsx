@@ -1,13 +1,32 @@
 import Link from "next/link";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
-import { BLOG_INDEX } from "@/content/blog/index";
-import { NICHE_SLUGS } from "@/content/niche/pages";
-import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
+
+const POPULAR_POSTS = [
+  { title: "How to build a brand from scratch in 2026", href: "/blog/how-to-build-a-brand-from-scratch-2026/" },
+  { title: "What is GEO?", href: "/blog/what-is-geo-generative-engine-optimisation/" },
+  { title: "Forum seller reputation guide", href: "/blog/complete-guide-forum-seller-reputation/" },
+  { title: "Discord branding for growth", href: "/blog/discord-server-branding-for-growth/" },
+] as const;
+
+const POPULAR_PROJECTS = [
+  { name: "CarSpotLive", href: "/portfolio/carspotlive/" },
+  { name: "Drain.cx", href: "/portfolio/drain-cx/" },
+  { name: "Cascade Markets", href: "/portfolio/cascade-markets/" },
+  { name: "Whiteskyhosting", href: "/portfolio/whiteskyhosting/" },
+  { name: "Ops Flow Dashboard", href: "/portfolio/ops-flow-dashboard/" },
+  { name: "Community Launch Kit", href: "/portfolio/community-launch-kit/" },
+] as const;
+
+const NICHE_LINKS = [
+  { label: "Gaming server owners", href: "/for/gaming-server-owners/" },
+  { label: "Web3 projects", href: "/for/web3-crypto-projects/" },
+  { label: "SaaS startups", href: "/for/saas-startups/" },
+  { label: "Forum sellers", href: "/for/forum-sellers/" },
+  { label: "Mobile app founders", href: "/for/mobile-app-founders/" },
+  { label: "Automation ops", href: "/for/automation-ops-teams/" },
+] as const;
 
 export default function NotFound(): React.JSX.Element {
-  const popularPosts = [...BLOG_INDEX].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
-  const popularProjects = PORTFOLIO_PROJECTS.filter((p) => p.status === "live").slice(0, 6);
-
   return (
     <>
       <StaticSiteHeader />
@@ -60,10 +79,10 @@ export default function NotFound(): React.JSX.Element {
           <div>
             <h2 className="text-sm font-bold">Niche guides</h2>
             <ul className="mt-4 space-y-2 text-sm">
-              {NICHE_SLUGS.slice(0, 6).map((slug) => (
-                <li key={slug}>
-                  <Link href={`/for/${slug}/`} className="text-accent-bright hover:text-text">
-                    {slug.replace(/-/g, " ")}
+              {NICHE_LINKS.map((n) => (
+                <li key={n.href}>
+                  <Link href={n.href} className="text-accent-bright hover:text-text">
+                    {n.label}
                   </Link>
                 </li>
               ))}
@@ -74,8 +93,8 @@ export default function NotFound(): React.JSX.Element {
         <div className="mt-12">
           <h2 className="text-sm font-bold">Recent blog posts</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {popularPosts.map((p) => (
-              <li key={p.slug}>
+            {POPULAR_POSTS.map((p) => (
+              <li key={p.href}>
                 <Link href={p.href} className="text-accent-bright hover:text-text">
                   {p.title}
                 </Link>
@@ -87,9 +106,9 @@ export default function NotFound(): React.JSX.Element {
         <div className="mt-12">
           <h2 className="text-sm font-bold">Live portfolio</h2>
           <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-            {popularProjects.map((p) => (
-              <li key={p.slug}>
-                <Link href={`/portfolio/${p.slug}/`} className="text-accent-bright hover:text-text">
+            {POPULAR_PROJECTS.map((p) => (
+              <li key={p.href}>
+                <Link href={p.href} className="text-accent-bright hover:text-text">
                   {p.name}
                 </Link>
               </li>

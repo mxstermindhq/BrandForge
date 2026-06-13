@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BlogFilterGrid } from "@/components/blog/BlogFilterGrid";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
+import { BLOG_INDEX } from "@/content/blog/index";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const faqs = [
@@ -44,7 +45,7 @@ export default function BlogHubPage(): React.JSX.Element {
         title="Guides that ship — not filler"
         subhead="Long-form notes for forum sellers, Web3 founders, and community operators."
       />
-      <BlogFilterGrid />
+      <BlogFilterGrid posts={BLOG_INDEX} />
       <FAQBlock items={faqs} />
       <CTASection title="Want this on your project?" subhead="Quote on Discord in 24 hours." />
     </PageShell>
