@@ -1,6 +1,12 @@
 import type { PlatformId, PlatformMeta } from "@/content/launch/types";
 
 export const PLATFORMS: Record<PlatformId, PlatformMeta> = {
+  discord: {
+    id: "discord",
+    label: "Discord",
+    url: "https://discord.gg/a8Nz2R6M55",
+    color: "#5865f2",
+  },
   hackforums: {
     id: "hackforums",
     label: "HackForums",

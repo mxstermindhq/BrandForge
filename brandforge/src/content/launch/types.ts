@@ -1,4 +1,5 @@
 export type PlatformId =
+  | "discord"
   | "hackforums"
   | "voided"
   | "patched"
@@ -27,15 +28,23 @@ export type CampaignPost = {
   body: string;
   /** Internal notes — tone, where to post, engagement tips */
   notes?: string;
-  /** reply | new-thread | bump | story | comment */
-  kind?: "new-thread" | "bump" | "story" | "comment" | "reply";
+  kind?: "kickoff" | "new-thread" | "bump" | "story" | "comment" | "reply";
 };
 
 export type CampaignDay = {
   key: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
   label: string;
   date: string;
+  /** 1-based day index within the campaign week */
+  dayNumber?: number;
   posts: CampaignPost[];
+};
+
+export type CampaignStart = {
+  date: string;
+  dayLabel: string;
+  time: string;
+  timezone: string;
 };
 
 export type TimeSlotGuide = {
@@ -49,6 +58,7 @@ export type LaunchCampaign = {
   id: string;
   weekLabel: string;
   dateRange: string;
+  campaignStart: CampaignStart;
   theme: string;
   hook: string;
   keyMessages: readonly string[];

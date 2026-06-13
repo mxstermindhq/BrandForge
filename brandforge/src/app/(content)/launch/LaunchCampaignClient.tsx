@@ -43,19 +43,35 @@ function PlatformBadge({ platform }: { platform: PlatformId }): React.JSX.Elemen
   );
 }
 
-function PostCard({ post }: { post: CampaignPost }): React.JSX.Element {
+function PostCard({
+  post,
+  campaignStart,
+}: {
+  post: CampaignPost;
+  campaignStart: { time: string; timezone: string };
+}): React.JSX.Element {
   const copyText = postCopyText(post);
   const meta = PLATFORMS[post.platform];
+  const isKickoff = post.kind === "kickoff";
+  const timeLabel = isKickoff
+    ? `${campaignStart.time} · ${campaignStart.timezone}`
+    : `${post.timeEst} EST · ${estToUtcHint(post.timeEst)} EDT`;
 
   return (
-    <article className="rounded-md border border-b1 bg-s1 p-5">
+    <article
+      className={`rounded-md border bg-s1 p-5 ${
+        isKickoff ? "border-accent shadow-[0_0_0_1px_var(--a-mid)]" : "border-b1"
+      }`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <PlatformBadge platform={post.platform} />
-          <span className="font-mono text-[10px] text-muted">
-            {post.timeEst} EST · {estToUtcHint(post.timeEst)} EDT
-          </span>
-          {post.kind ? (
+          <span className="font-mono text-[10px] text-muted">{timeLabel}</span>
+          {isKickoff ? (
+            <span className="rounded bg-accent/20 px-1.5 py-0.5 font-mono text-[9px] uppercase text-accent-bright">
+              Start here
+            </span>
+          ) : post.kind ? (
             <span className="rounded bg-s2 px-1.5 py-0.5 font-mono text-[9px] uppercase text-text-secondary">
               {post.kind}
             </span>
@@ -109,6 +125,7 @@ export function LaunchCampaignClient(): React.JSX.Element {
       [
         `# ${campaign.weekLabel}`,
         campaign.dateRange,
+        `Starts: ${campaign.campaignStart.dayLabel} ${campaign.campaignStart.date} at ${campaign.campaignStart.time} (${campaign.campaignStart.timezone})`,
         "",
         `Theme: ${campaign.theme}`,
         "",
@@ -152,7 +169,7 @@ export function LaunchCampaignClient(): React.JSX.Element {
             Weekly outreach <em className="text-accent-bright not-italic">command centre</em>
           </>
         }
-        subhead="Copy-paste posts for forums, Reddit, X, Threads, and LinkedIn. One file swap each Monday for a fresh campaign."
+        subhead="Copy-paste posts for Discord, forums, Reddit, X, Threads, and LinkedIn. Campaign starts today — one file swap each week for fresh content."
       />
 
       <section className="border-b border-b1 py-10">
@@ -166,6 +183,26 @@ export function LaunchCampaignClient(): React.JSX.Element {
               <p className="mt-1 text-sm text-muted">{campaign.dateRange}</p>
             </div>
             <CopyButton text={weekBrief} label="Copy week brief" />
+          </div>
+
+          <div className="mt-6 rounded-md border border-accent bg-accent/10 p-4">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-accent-bright">
+              Campaign starts
+            </p>
+            <p className="mt-2 text-lg font-bold text-text">
+              {campaign.campaignStart.dayLabel} {campaign.campaignStart.date} at{" "}
+              {campaign.campaignStart.time}
+            </p>
+            <p className="mt-1 text-sm text-text-secondary">
+              {campaign.campaignStart.timezone} — first post is Discord kickoff in{" "}
+              <button
+                type="button"
+                onClick={() => setActiveDay("fri")}
+                className="text-accent-bright underline-offset-2 hover:underline"
+              >
+                Day 1 (today)
+              </button>
+            </p>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -282,6 +319,7 @@ export function LaunchCampaignClient(): React.JSX.Element {
                 >
                   <span className="block font-mono text-[10px] uppercase">{day.label}</span>
                   <span className="block text-xs text-muted">
+                    {day.dayNumber ? `Day ${day.dayNumber} · ` : ""}
                     {day.date} · {count} post{count === 1 ? "" : "s"}
                   </span>
                 </button>
@@ -327,7 +365,13 @@ export function LaunchCampaignClient(): React.JSX.Element {
             {filteredPosts.length === 0 ? (
               <p className="text-sm text-muted">No posts for this filter on {currentDay.label}.</p>
             ) : (
-              filteredPosts.map((post) => <PostCard key={post.id} post={post} />)
+              filteredPosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  campaignStart={campaign.campaignStart}
+                />
+              ))
             )}
           </div>
         </div>
