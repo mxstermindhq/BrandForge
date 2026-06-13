@@ -29,59 +29,22 @@ const HUBS = [
   "/terms/",
 ];
 
-const SERVICE_SLUGS = [
-  "brand-identity",
-  "web-design",
-  "mobile-apps",
-  "discord-branding",
-  "automation",
-  "ai-tools",
-  "seo-growth",
-  "paid-ads",
-  "social-media",
-];
+/** Extract quoted slugs from TS content modules — stays in sync with sitemap. */
+function slugsFromFile(relativePath, pattern = /slug:\s*"([^"]+)"/g) {
+  const text = readFileSync(join(ROOT, relativePath), "utf8");
+  return [...text.matchAll(pattern)].map((m) => m[1]);
+}
 
-const PORTFOLIO_SLUGS = [
-  "cascade-markets",
-  "drain-cx",
-  "carspotlive",
-  "dyotravel",
-  "sui-blockchain-app",
-  "valaccs",
-  "whiteskyhosting",
-  "linkedin-automation",
-];
+function blogSlugsFromFile() {
+  const text = readFileSync(join(ROOT, "src/content/blog/index.ts"), "utf8");
+  return [...text.matchAll(/^\s+"([^"]+)":\s*\{/gm)].map((m) => m[1]);
+}
 
-const ROADMAP_SLUGS = [
-  "validate-your-idea",
-  "build-your-brand",
-  "launch-strategy",
-  "grow-your-audience",
-  "scale-operations",
-  "tools-resources",
-];
-
-const NICHE_SLUGS = [
-  "gaming-server-owners",
-  "web3-crypto-projects",
-  "saas-startups",
-  "forum-sellers",
-  "ecommerce-brands",
-  "content-creators",
-];
-
-const BLOG_SLUGS = [
-  "how-to-build-a-brand-from-scratch-2026",
-  "what-is-geo-generative-engine-optimisation",
-  "discord-server-branding-complete-guide",
-  "how-to-build-a-web-store-gaming-community",
-  "forum-marketing-2026-what-still-works",
-  "how-we-built-carspotlive-mobile-app-case-study",
-  "brand-identity-vs-brand-design-difference",
-  "what-is-cro-conversion-rate-optimisation",
-  "how-to-choose-a-design-agency-2026",
-  "ai-tools-every-operator-should-use",
-];
+const SERVICE_SLUGS = slugsFromFile("src/content/hubs/services-hub.ts");
+const PORTFOLIO_SLUGS = slugsFromFile("src/content/portfolio/projects.ts");
+const ROADMAP_SLUGS = slugsFromFile("src/content/roadmap/stages.ts");
+const NICHE_SLUGS = slugsFromFile("src/content/niche/pages.ts");
+const BLOG_SLUGS = blogSlugsFromFile();
 
 function allPaths() {
   const paths = [...HUBS];
@@ -120,6 +83,10 @@ if (fresh && existsSync(OUT_DIR)) {
 }
 
 const paths = allPaths();
+console.log(
+  `Auditing ${paths.length} URLs (${PORTFOLIO_SLUGS.length} portfolio, ${BLOG_SLUGS.length} blog)…\n`,
+);
+
 const results = [];
 let i = 0;
 
@@ -131,7 +98,7 @@ for (const path of paths) {
 
   process.stdout.write(`[${i}/${paths.length}] ${path} ... `);
 
-  if (existsSync(outFile)) {
+  if (existsSync(outFile) && !fresh) {
     try {
       const cached = JSON.parse(readFileSync(outFile, "utf8"));
       const m = extractMetrics(cached);
@@ -171,6 +138,11 @@ const summary = {
     results.filter((r) => r.performance !== null).reduce((s, r) => s + r.performance, 0) /
       results.filter((r) => r.performance !== null).length,
   ),
+  slugCounts: {
+    portfolio: PORTFOLIO_SLUGS.length,
+    blog: BLOG_SLUGS.length,
+    services: SERVICE_SLUGS.length,
+  },
   pages: results,
 };
 

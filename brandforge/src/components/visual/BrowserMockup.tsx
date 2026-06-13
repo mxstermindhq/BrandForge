@@ -6,6 +6,8 @@ type BrowserMockupProps = {
   gradientFrom: string;
   gradientTo: string;
   className?: string;
+  imageLoading?: "lazy" | "eager";
+  imagePriority?: boolean;
 };
 
 export function BrowserMockup({
@@ -14,6 +16,8 @@ export function BrowserMockup({
   gradientFrom,
   gradientTo,
   className = "",
+  imageLoading = "lazy",
+  imagePriority = false,
 }: BrowserMockupProps): React.JSX.Element {
   return (
     <div
@@ -34,7 +38,9 @@ export function BrowserMockup({
             fill
             className="object-cover object-top"
             sizes="(max-width: 768px) 100vw, 400px"
-            loading="lazy"
+            loading={imageLoading}
+            priority={imagePriority}
+            decoding="async"
           />
         ) : (
           <div

@@ -6,6 +6,8 @@ type PhoneMockupProps = {
   gradientFrom: string;
   gradientTo: string;
   className?: string;
+  imageLoading?: "lazy" | "eager";
+  imagePriority?: boolean;
 };
 
 export function PhoneMockup({
@@ -14,6 +16,8 @@ export function PhoneMockup({
   gradientFrom,
   gradientTo,
   className = "",
+  imageLoading = "lazy",
+  imagePriority = false,
 }: PhoneMockupProps): React.JSX.Element {
   return (
     <div
@@ -31,7 +35,9 @@ export function PhoneMockup({
             fill
             className="object-cover object-top"
             sizes="220px"
-            loading="lazy"
+            loading={imageLoading}
+            priority={imagePriority}
+            decoding="async"
           />
         ) : (
           <div

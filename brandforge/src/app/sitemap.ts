@@ -24,7 +24,7 @@ const HUBS = [
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-06-03");
+  const lastModified = new Date();
   const url = (path: string) => (path === "/" ? SITE.url : `${SITE.url}${path}`);
 
   const entries: MetadataRoute.Sitemap = HUBS.map((path) => ({

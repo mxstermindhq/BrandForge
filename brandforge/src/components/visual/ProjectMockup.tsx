@@ -11,6 +11,8 @@ type ProjectMockupProps = {
   gradientTo: string;
   className?: string;
   overlay?: React.ReactNode;
+  imageLoading?: "lazy" | "eager";
+  imagePriority?: boolean;
 };
 
 export function ProjectMockup({
@@ -21,7 +23,10 @@ export function ProjectMockup({
   gradientTo,
   className = "",
   overlay,
+  imageLoading = "lazy",
+  imagePriority = false,
 }: ProjectMockupProps): React.JSX.Element {
+  const imageProps = { imageLoading, imagePriority };
   const mockup =
     type === "phone" ? (
       <PhoneMockup
@@ -29,6 +34,7 @@ export function ProjectMockup({
         screenshotUrl={screenshotUrl}
         gradientFrom={gradientFrom}
         gradientTo={gradientTo}
+        {...imageProps}
       />
     ) : type === "tablet" ? (
       <TabletMockup
@@ -36,6 +42,7 @@ export function ProjectMockup({
         screenshotUrl={screenshotUrl}
         gradientFrom={gradientFrom}
         gradientTo={gradientTo}
+        {...imageProps}
       />
     ) : (
       <BrowserMockup
@@ -43,6 +50,7 @@ export function ProjectMockup({
         screenshotUrl={screenshotUrl}
         gradientFrom={gradientFrom}
         gradientTo={gradientTo}
+        {...imageProps}
       />
     );
 

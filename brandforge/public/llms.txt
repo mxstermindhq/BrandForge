@@ -6,6 +6,7 @@
 - Founders launching a brand, website, or product
 - Operators who need one team for design + dev + growth (not three vendors)
 - Buyers who prefer fixed USD packages, crypto payment, or escrow
+- Forum sellers, Discord server owners, gaming communities, Web3 founders
 
 ## Key pages
 - Home: https://brandforge.gg/
@@ -16,7 +17,16 @@
 - Contact: https://brandforge.gg/contact/
 - Blog: https://brandforge.gg/blog/
 - Roadmap: https://brandforge.gg/roadmap/
+- Brand guide (tokens & copy): https://brandforge.gg/brand-guide/
 - Ethics: https://brandforge.gg/ethics-standards/
+
+## Niche guides
+- Gaming server owners: https://brandforge.gg/for/gaming-server-owners/
+- Web3 & crypto: https://brandforge.gg/for/web3-crypto-projects/
+- SaaS startups: https://brandforge.gg/for/saas-startups/
+- Forum sellers: https://brandforge.gg/for/forum-sellers/
+- E-commerce brands: https://brandforge.gg/for/ecommerce-brands/
+- Content creators: https://brandforge.gg/for/content-creators/
 
 ## Packages (USD)
 - Tier 1 — The Blueprint: $300–$500 one-time — logo, lander, funnel structure (1–2 weeks)
@@ -33,7 +43,10 @@ Contact via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/No
 - Privacy: https://brandforge.gg/privacy/
 
 ## Portfolio
-cascade.markets, drain.cx, dyotravel.com, CarSpot Live (App Store), 50+ shipped projects.
+cascade.markets, drain.cx, dyotravel.com, CarSpotLive (App Store), 50+ shipped projects.
 
 ## Premium tier
 Projects above package scope: https://mxstermind.com
+
+## Note
+Internal ops pages (e.g. campaign calendars) are not indexed and are excluded from this file.

@@ -9,6 +9,7 @@ const grotesk = Space_Grotesk({
   weight: ["300", "400", "600", "700"],
   variable: "--font-grotesk",
   display: "optional",
+  preload: true,
   adjustFontFallback: true,
 });
 
@@ -17,6 +18,7 @@ const mono = Space_Mono({
   weight: ["400", "700"],
   variable: "--font-mono-face",
   display: "optional",
+  preload: true,
   adjustFontFallback: true,
 });
 
@@ -60,8 +62,8 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
   return (
     <html lang="en" className={`${grotesk.variable} ${mono.variable}`}>
       <body className="bg-bg text-text antialiased">
-        <GoogleAnalytics />
         {children}
+        <GoogleAnalytics />
       </body>
     </html>
   );

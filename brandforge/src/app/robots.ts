@@ -3,7 +3,7 @@ import { SITE } from "@/config/site";
 
 export const dynamic = "force-static";
 
-/** Allow all crawlers including AI bots (GPTBot, ClaudeBot, etc.). */
+/** Allow all crawlers including AI bots. See audit/seo-decision.md — disable Cloudflare Managed robots override. */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [

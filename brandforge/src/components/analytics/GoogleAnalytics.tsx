@@ -1,8 +1,7 @@
 import { SITE } from "@/config/site";
 
 /**
- * GA4 loads only after user interaction (or long idle) so Lighthouse and first paint stay clean.
- * Real visitors still get analytics on scroll, tap, or keypress.
+ * GA4 loads after window load (idle) or first user interaction — never blocks LCP.
  */
 export function GoogleAnalytics(): React.JSX.Element | null {
   const id = SITE.gaMeasurementId;
@@ -22,13 +21,23 @@ export function GoogleAnalytics(): React.JSX.Element | null {
     window.dataLayer=window.dataLayer||[];
     window.gtag=function(){dataLayer.push(arguments);};
     gtag("js",new Date());
-    gtag("config",id);
+    gtag("config",id,{send_page_view:true});
   }
-  window.setTimeout(function(){
-    ["pointerdown","keydown","scroll","touchstart"].forEach(function(ev){
-      window.addEventListener(ev,load,{once:true,passive:true});
-    });
-  },8000);
+  function scheduleAfterLoad(){
+    if(typeof requestIdleCallback==="function"){
+      requestIdleCallback(load,{timeout:2500});
+    }else{
+      setTimeout(load,1);
+    }
+  }
+  if(document.readyState==="complete"){
+    scheduleAfterLoad();
+  }else{
+    window.addEventListener("load",scheduleAfterLoad,{once:true,passive:true});
+  }
+  ["pointerdown","keydown","scroll","touchstart"].forEach(function(ev){
+    window.addEventListener(ev,load,{once:true,passive:true});
+  });
 })();
 `.trim();
 

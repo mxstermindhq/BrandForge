@@ -6,6 +6,8 @@ type TabletMockupProps = {
   gradientFrom: string;
   gradientTo: string;
   className?: string;
+  imageLoading?: "lazy" | "eager";
+  imagePriority?: boolean;
 };
 
 export function TabletMockup({
@@ -14,6 +16,8 @@ export function TabletMockup({
   gradientFrom,
   gradientTo,
   className = "",
+  imageLoading = "lazy",
+  imagePriority = false,
 }: TabletMockupProps): React.JSX.Element {
   return (
     <div
@@ -28,7 +32,9 @@ export function TabletMockup({
             fill
             className="object-cover object-top"
             sizes="(max-width: 768px) 100vw, 384px"
-            loading="lazy"
+            loading={imageLoading}
+            priority={imagePriority}
+            decoding="async"
           />
         ) : (
           <div

@@ -86,6 +86,32 @@
     animation: bf-marquee-scroll 40s linear infinite;
   }
 
+  .bf-marquee-static {
+    display: none;
+  }
+
+  .bf-live-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bf-marquee {
+      animation: none;
+    }
+
+    .bf-marquee-track {
+      display: none;
+    }
+
+    .bf-marquee-static {
+      display: flex;
+    }
+
+    .bf-live-pulse {
+      animation: none;
+    }
+  }
+
   /* Kinetic type — GPU layer hints (transform/opacity only in GSAP) */
   .bf-char,
   .bf-word-inner,
