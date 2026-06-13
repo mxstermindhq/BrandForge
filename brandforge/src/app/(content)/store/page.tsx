@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import { CTASection, PageHero, PageShell } from "@/components/content";
-import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
+import { StoreProductCard } from "@/components/marketing/StoreProductCard";
+import { STORE_PRODUCTS } from "@/config/store";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Template Store — Coming Soon | BrandForge",
-  description: "Premium templates and assets from BrandForge — notify list opening soon.",
+  title: "Template Store — Premium Kits & Templates | BrandForge",
+  description:
+    "Discord launch kits, forum store UI, Web3 lander blocks, and brand guides — $19–$49. Instant digital delivery.",
   path: "/store/",
 });
 
+const CATEGORIES = ["Templates", "Kits", "Guides", "Tools"] as const;
+
 export default function StorePage(): React.JSX.Element {
+  const products = [...STORE_PRODUCTS];
+
   return (
     <PageShell
       breadcrumbs={[
@@ -17,39 +23,50 @@ export default function StorePage(): React.JSX.Element {
         { label: "Store", href: "/store/" },
       ]}
       path="/store/"
+      products={products.map((p) => ({
+        name: p.name,
+        description: p.tagline,
+        price: String(p.priceUsd),
+        url: `/store/${p.slug}/`,
+      }))}
     >
       <PageHero
         eyebrow="Store"
         title={
           <>
-            Premium templates — <em className="text-accent-bright not-italic">coming soon.</em>
+            Premium templates — <em className="text-accent-bright not-italic">ship faster.</em>
           </>
         }
-        subhead="Figma kits, Discord asset packs, and lander templates. Join Discord to get notified when the store opens."
+        subhead="Digital products from the same team that delivers client work. Stripe checkout — instant download."
       />
 
-      <section className="py-16">
-        <div className="content-wrap max-w-xl">
-          <ul className="space-y-3 text-sm text-text-secondary">
-            <li>· Discord launch kit templates</li>
-            <li>· Web3 trust lander blocks</li>
-            <li>· Forum seller storefront UI</li>
-          </ul>
-          <a
-            href={discordHref("store-notify")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-block rounded bg-discord px-6 py-3 font-mono text-[11px] font-bold text-white"
-            {...ctaTrackAttrs("discord", "store-notify")}
-          >
-            Notify me on Discord
-          </a>
+      {CATEGORIES.map((cat) => {
+        const items = products.filter((p) => p.category === cat);
+        if (items.length === 0) return null;
+        return (
+          <section key={cat} className="border-b border-b1 py-16">
+            <div className="content-wrap">
+              <h2 className="font-mono text-[10px] uppercase tracking-wider text-muted">{cat}</h2>
+              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((p) => (
+                  <StoreProductCard key={p.slug} product={p} />
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })}
+
+      <section className="py-12">
+        <div className="content-wrap font-mono text-[10px] text-muted">
+          <p>Submit your template for review — 70% creator / 30% BrandForge revenue split. Discord intake.</p>
+          <p className="mt-2">Marketplace submissions: /community/</p>
         </div>
       </section>
 
       <CTASection
-        title="Need assets now?"
-        subhead="Blueprint package includes brand kit + templates in 1–2 weeks."
+        title="Need custom work?"
+        subhead="Packages include bespoke delivery — store templates are self-serve."
         campaign="store-footer-cta"
       />
     </PageShell>

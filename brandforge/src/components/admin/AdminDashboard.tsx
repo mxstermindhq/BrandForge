@@ -386,6 +386,26 @@ export function AdminDashboard(): React.JSX.Element {
         </table>
       </section>
 
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-md border border-b1 bg-s1 p-6">
+          <h2 className="font-bold">Store</h2>
+          <p className="mt-2 font-mono text-[10px] text-muted">
+            {(data as { store?: { productCount: number } }).store?.productCount ?? 0} products live
+          </p>
+          <p className="mt-2 text-xs text-text-secondary">
+            {(data as { store?: { note: string } }).store?.note}
+          </p>
+        </div>
+        <div className="rounded-md border border-b1 bg-s1 p-6">
+          <h2 className="font-bold">Partners</h2>
+          <p className="mt-2 font-mono text-[10px]">
+            {(data as { partners?: { count: number; affiliateCommission: string } }).partners?.count ?? 0}{" "}
+            listed · {(data as { partners?: { affiliateCommission: string } }).partners?.affiliateCommission}{" "}
+            affiliate
+          </p>
+        </div>
+      </section>
+
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-md border border-b1 bg-s1 p-4">
           <h3 className="font-bold">Bundles</h3>

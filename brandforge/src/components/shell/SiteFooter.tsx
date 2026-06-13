@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE } from "@/config/site";
+import { CrossPlatformLink } from "@/components/marketing/CrossPlatformLink";
 
 export function SiteFooter(): React.JSX.Element {
   return (
@@ -27,18 +27,32 @@ export function SiteFooter(): React.JSX.Element {
           <Link href="/brand-guide/" className="hover:text-text">
             Brand guide
           </Link>
+          <Link href="/partners/" className="hover:text-text">
+            Partners
+          </Link>
+          <Link href="/store/" className="hover:text-text">
+            Store
+          </Link>
+          <Link href="/mxstermind/" className="hover:text-text">
+            MXSTERMIND
+          </Link>
           <Link href="/blog/" className="hover:text-text">
             Blog
           </Link>
+          <CrossPlatformLink
+            href="https://mxstermind.com"
+            platform="mxstermind"
+            campaign="footer-mxm"
+            className="hover:text-text"
+          >
+            mxstermind.com ↗
+          </CrossPlatformLink>
           <Link href="/terms/" className="hover:text-text">
             Terms
           </Link>
           <Link href="/privacy/" className="hover:text-text">
             Privacy
           </Link>
-          <a href={SITE.premium} className="hover:text-text" rel="noopener noreferrer">
-            mxstermind.com
-          </a>
         </nav>
         <p className="mt-6 font-mono text-[10px] text-[var(--m2)]">© 2026 BrandForge · Design, dev & growth for operators</p>
       </div>

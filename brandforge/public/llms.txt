@@ -44,7 +44,15 @@
 - Partners & Tools | BrandForge: https://brandforge.gg/partners/
   Recommended tools and partnership opportunities.
 - Template Store | BrandForge: https://brandforge.gg/store/
-  Premium templates and assets — coming soon.
+  Premium templates and digital kits — $19–$49 with instant delivery.
+- MXSTERMIND Bridge | BrandForge: https://brandforge.gg/mxstermind/
+  BrandForge builds identity. MXSTERMIND scales economics. Ecosystem hub.
+- Membership | BrandForge: https://brandforge.gg/membership/
+  Insider and Pro community tiers — Discord roles and early access.
+- Events & Workshops | BrandForge: https://brandforge.gg/events/
+  Monthly branding workshops and office hours on Discord.
+- Community Showcase | BrandForge: https://brandforge.gg/community/
+  Projects built with BrandForge — submit yours on Discord.
 - Roadmap | BrandForge: https://brandforge.gg/roadmap/
   Validate, brand, launch, grow, scale — operator playbook.
 - Brand Guide | BrandForge: https://brandforge.gg/brand-guide/
@@ -121,6 +129,8 @@
   Compare n8n and Make for CRM sync, lead routing, and forum ops — when to pick each.
 - Landing Page CRO Checklist 2026: https://brandforge.gg/blog/landing-page-conversion-checklist-2026/
   Hero clarity, FAQ schema, speed, and Discord CTAs — 12-point checklist for operator landers.
+- Partner Spotlight: WhiteSky Hosting: https://brandforge.gg/blog/partner-spotlight-whitesky-hosting/
+  How WhiteSky Hosting and BrandForge co-delivered a forum-native VPS storefront — hosting partner spotlight #1.
 - Forum Seller Reputation Guide: https://brandforge.gg/blog/complete-guide-forum-seller-reputation/
   How marketplace operators build vouches, trust UX, and brand consistency on HF, Voided, and niche forums — without looking like a reskin.
 - Discord Server Branding for Growth: https://brandforge.gg/blog/discord-server-branding-for-growth/
@@ -167,12 +177,16 @@
   Visual AI for trading chart analysis — candlesticks, S/R, risk flags. Drag-drop PNG/JPG, sub-2.5s analysis. 5 weeks.
 
 ## Partners & resources
-- Partners & tools: https://brandforge.gg/partners/
-- Template store (coming soon): https://brandforge.gg/store/
+- MXSTERMIND bridge: https://brandforge.gg/mxstermind/
+- Partners & affiliates: https://brandforge.gg/partners/
+- Template store: https://brandforge.gg/store/
+- Membership: https://brandforge.gg/membership/
+- Events: https://brandforge.gg/events/
+- Community showcase: https://brandforge.gg/community/
 
 ## Policies
 - Terms: https://brandforge.gg/terms/
 - Privacy: https://brandforge.gg/privacy/
 - Ethics: https://brandforge.gg/ethics-standards/
 
-Generated 2026-06-13 · 82 indexable pages · 167 lines
+Generated 2026-06-13 · 87 indexable pages · 177 lines

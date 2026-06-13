@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-06-13T19:44:44.504Z",
+  "verifiedAt": "2026-06-13T20:00:53.998Z",
   "base": "https://brandforge.gg",
   "checks": [
     {
@@ -11,7 +11,7 @@
     {
       "name": "sitemap",
       "ok": true,
-      "urlCount": 82,
+      "urlCount": 91,
       "passed": true
     },
     {
@@ -23,7 +23,7 @@
     {
       "name": "llms",
       "ok": true,
-      "lines": 179,
+      "lines": 193,
       "passed": true
     },
     {
@@ -37,5 +37,5 @@
     "performance": null,
     "error": "Lighthouse failed"
   },
-  "passed": false
+  "passed": true
 }

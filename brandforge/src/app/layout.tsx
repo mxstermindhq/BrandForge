@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { PartnerReferralCapture } from "@/components/marketing/PartnerReferralCapture";
 import { PrefetchLinks } from "@/components/perf/PrefetchLinks";
 import { ServiceWorkerRegister } from "@/components/perf/ServiceWorkerRegister";
 import { SITE } from "@/config/site";
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
       </head>
       <body className="bg-bg text-text antialiased">
         {children}
+        <PartnerReferralCapture />
         <PrefetchLinks />
         <ServiceWorkerRegister />
         <GoogleAnalytics />

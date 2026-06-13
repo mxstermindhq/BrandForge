@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
+import { CrossPlatformLink } from "@/components/marketing/CrossPlatformLink";
 
 const CopyInviteButton = dynamic(
   () => import("@/components/marketing/CopyInviteButton").then((m) => ({ default: m.CopyInviteButton })),
@@ -78,6 +79,26 @@ export function StaticSiteHeader(): React.JSX.Element {
             className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
           >
             Blog
+          </Link>
+          <Link
+            href="/store/"
+            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
+          >
+            Store
+          </Link>
+          <CrossPlatformLink
+            href="https://mxstermind.com"
+            platform="mxstermind"
+            campaign="header-for-economists"
+            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
+          >
+            For Economists ↗
+          </CrossPlatformLink>
+          <Link
+            href="/mxstermind/"
+            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
+          >
+            MXSTERMIND
           </Link>
         </nav>
         <div className="flex items-center gap-2.5">

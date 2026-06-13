@@ -1,13 +1,13 @@
 {
-  "checkedAt": "2026-06-13T19:43:19.425Z",
+  "checkedAt": "2026-06-13T19:59:17.738Z",
   "passed": true,
   "blockers": [],
   "homeMobile": null,
   "bundles": {
-    "recordedAt": "2026-06-13T19:43:18.884Z",
+    "recordedAt": "2026-06-13T19:59:17.210Z",
     "routes": {},
-    "totalJsKb": 971,
-    "totalCssKb": 52,
+    "totalJsKb": 986,
+    "totalCssKb": 53,
     "imgKb": 4221,
     "homeRoute": {
       "homeKb": 0,
@@ -18,7 +18,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-13T19:43:19.101Z",
+    "scannedAt": "2026-06-13T19:59:17.402Z",
     "totalImages": 9,
     "totalWeightKb": 4221,
     "thresholdKb": 200,

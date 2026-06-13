@@ -542,6 +542,47 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       },
     ],
   },
+  "partner-spotlight-whitesky-hosting": {
+    slug: "partner-spotlight-whitesky-hosting",
+    title: "Partner Spotlight — WhiteSky Hosting + BrandForge",
+    metaTitle: "Partner Spotlight: WhiteSky Hosting | BrandForge",
+    metaDescription:
+      "How WhiteSky Hosting and BrandForge co-delivered a forum-native VPS storefront — hosting partner spotlight #1.",
+    datePublished: "2026-06-13",
+    readingTime: "6 min",
+    sections: [
+      {
+        heading: "Why we partner with WhiteSky",
+        ...p([
+          "Forum operators selling hosting need credible storefronts and infrastructure buyers already trust. WhiteSky handles VPS delivery; BrandForge ships the conversion layer — see /portfolio/whiteskyhosting/.",
+        ]),
+      },
+      {
+        heading: "Co-marketing that works",
+        ...p([
+          "Partner badges on portfolio pages, shared Discord announcements, and ?ref=brandforge tracking. Affiliates earn 20% on qualified referrals — apply on /partners/.",
+        ]),
+      },
+    ],
+    faqs: [
+      {
+        question: "How do I become a partner?",
+        answer: "Discord intake on /partners/ — weekly review.",
+      },
+      {
+        question: "Affiliate tracking?",
+        answer: "Use ?ref=yourcode — GA4 partner_referral events.",
+      },
+      {
+        question: "Hosting only?",
+        answer: "No — tools, agencies, and communities welcome.",
+      },
+      {
+        question: "Next spotlight?",
+        answer: "Monthly on /blog/ — nominate partners on Discord.",
+      },
+    ],
+  },
   "building-brandforge-in-public-01": BUILD_IN_PUBLIC_01,
 };
 

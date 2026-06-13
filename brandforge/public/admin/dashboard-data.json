@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-06-13T19:43:18.432Z",
+  "generatedAt": "2026-06-13T19:59:16.561Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
   "ga4Property": "G-G3L5EBB195",
   "contentStats": {
-    "total": 82,
-    "blog": 19,
+    "total": 87,
+    "blog": 20,
     "portfolio": 25,
     "niche": 8,
     "services": 9,
     "roadmap": 6,
-    "static": 15
+    "static": 19
   },
   "lighthouse": {
     "history": [
@@ -222,10 +222,10 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-06-13T19:43:17.691Z",
+    "recordedAt": "2026-06-13T19:59:16.074Z",
     "routes": {},
-    "totalJsKb": 971,
-    "totalCssKb": 52,
+    "totalJsKb": 986,
+    "totalCssKb": 53,
     "imgKb": 4221,
     "homeRoute": {
       "homeKb": 0,
@@ -236,7 +236,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-13T19:43:17.929Z",
+    "scannedAt": "2026-06-13T19:59:16.271Z",
     "totalImages": 9,
     "totalWeightKb": 4221,
     "thresholdKb": 200,
@@ -290,10 +290,10 @@
     "passed": false
   },
   "schema": {
-    "validatedAt": "2026-06-13T19:38:18.874Z",
+    "validatedAt": "2026-06-13T19:55:28.904Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
-    "total": 81,
-    "pass": 81,
+    "total": 91,
+    "pass": 91,
     "fail": 0,
     "warn": 3,
     "pages": [
@@ -403,6 +403,11 @@
         "blocks": 1
       },
       {
+        "page": "/blog/partner-spotlight-whitesky-hosting/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
         "page": "/blog/web3-branding-building-trust-decentralized-markets/",
         "status": "pass",
         "blocks": 1
@@ -423,12 +428,27 @@
         "blocks": 1
       },
       {
+        "page": "/client/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/community/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
         "page": "/contact/",
         "status": "pass",
         "blocks": 1
       },
       {
         "page": "/ethics-standards/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/events/",
         "status": "pass",
         "blocks": 1
       },
@@ -484,6 +504,16 @@
       },
       {
         "page": "/launch/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/membership/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/mxstermind/",
         "status": "pass",
         "blocks": 1
       },
@@ -723,7 +753,27 @@
         "blocks": 1
       },
       {
+        "page": "/store/brand-style-guide-template/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/store/discord-launch-kit/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/store/forum-store-ui-kit/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
         "page": "/store/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/store/web3-trust-lander/",
         "status": "pass",
         "blocks": 1
       },
@@ -874,8 +924,8 @@
       "path": "/partners/",
       "title": "Partners & Tools | BrandForge",
       "category": "static",
-      "internalLinksIn": 0,
-      "orphan": true,
+      "internalLinksIn": 1,
+      "orphan": false,
       "lastModified": "2026-06-13",
       "schema": "WebPage + Org",
       "schemaOk": true
@@ -883,6 +933,46 @@
     {
       "path": "/store/",
       "title": "Template Store | BrandForge",
+      "category": "static",
+      "internalLinksIn": 2,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/mxstermind/",
+      "title": "MXSTERMIND Bridge | BrandForge",
+      "category": "static",
+      "internalLinksIn": 2,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/membership/",
+      "title": "Membership | BrandForge",
+      "category": "static",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/events/",
+      "title": "Events & Workshops | BrandForge",
+      "category": "static",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/community/",
+      "title": "Community Showcase | BrandForge",
       "category": "static",
       "internalLinksIn": 0,
       "orphan": true,
@@ -1092,6 +1182,18 @@
       "category": "blog",
       "internalLinksIn": 0,
       "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "partner-spotlight-whitesky-hosting",
+      "path": "/blog/partner-spotlight-whitesky-hosting/",
+      "title": "Partner Spotlight: WhiteSky Hosting | BrandForge",
+      "description": "How WhiteSky Hosting and BrandForge co-delivered a forum-native VPS storefront — hosting partner spotlight #1.",
+      "category": "blog",
+      "internalLinksIn": 1,
+      "orphan": false,
       "lastModified": null,
       "schema": "Article + FAQ",
       "schemaOk": true
@@ -1784,15 +1886,15 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-13T19:38:18.907Z",
+    "checkedAt": "2026-06-13T19:55:28.935Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-06-13T19:38:18.236Z",
+      "recordedAt": "2026-06-13T19:55:28.391Z",
       "routes": {},
-      "totalJsKb": 971,
-      "totalCssKb": 52,
+      "totalJsKb": 986,
+      "totalCssKb": 53,
       "imgKb": 4221,
       "homeRoute": {
         "homeKb": 0,
@@ -1803,7 +1905,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-13T19:38:18.484Z",
+      "scannedAt": "2026-06-13T19:55:28.579Z",
       "totalImages": 9,
       "totalWeightKb": 4221,
       "thresholdKb": 200,
@@ -1861,5 +1963,77 @@
       "sampled": []
     }
   },
-  "postDeploy": null
+  "postDeploy": {
+    "verifiedAt": "2026-06-13T19:44:44.504Z",
+    "base": "https://brandforge.gg",
+    "checks": [
+      {
+        "name": "home-200",
+        "ok": true,
+        "status": 200,
+        "passed": true
+      },
+      {
+        "name": "sitemap",
+        "ok": true,
+        "urlCount": 82,
+        "passed": true
+      },
+      {
+        "name": "robots",
+        "ok": true,
+        "hasSitemap": true,
+        "passed": true
+      },
+      {
+        "name": "llms",
+        "ok": true,
+        "lines": 179,
+        "passed": true
+      },
+      {
+        "name": "admin-noindex",
+        "ok": true,
+        "noindex": true,
+        "passed": true
+      }
+    ],
+    "homeMobile": {
+      "performance": null,
+      "error": "Lighthouse failed"
+    },
+    "passed": false
+  },
+  "store": {
+    "productCount": 4,
+    "products": [
+      {
+        "slug": "discord-launch-kit",
+        "name": "Discord Launch Kit",
+        "priceUsd": 19
+      },
+      {
+        "slug": "forum-store-ui-kit",
+        "name": "Forum Seller Store UI Kit",
+        "priceUsd": 29
+      },
+      {
+        "slug": "web3-trust-lander",
+        "name": "Web3 Trust Lander Blocks",
+        "priceUsd": 39
+      },
+      {
+        "slug": "brand-style-guide-template",
+        "name": "Brand Style Guide Template",
+        "priceUsd": 24
+      }
+    ],
+    "note": "Revenue sync from Stripe/LemonSqueezy → audit/store-snapshot.json (future)",
+    "conversions": null
+  },
+  "partners": {
+    "count": 6,
+    "affiliateCommission": "20%",
+    "note": "partner_referral events in GA4; monthly manual commission report"
+  }
 }
