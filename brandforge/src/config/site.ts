@@ -5,6 +5,8 @@ export const SITE = {
   telegram: "https://t.me/Notmxstermind",
   premium: "https://mxstermind.com",
   gaMeasurementId: "G-G3L5EBB195",
+  /** Set when Calendly is live — embed shown on /packages/ for custom tier */
+  calendlyUrl: "",
 } as const;
 
 export type PackageKey =

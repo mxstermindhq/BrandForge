@@ -22,6 +22,16 @@ export function GoogleAnalytics(): React.JSX.Element | null {
     window.gtag=function(){dataLayer.push(arguments);};
     gtag("js",new Date());
     gtag("config",id,{send_page_view:true});
+    document.addEventListener("click",function(e){
+      var t=e.target;
+      if(!t||!t.closest)return;
+      var el=t.closest("[data-bf-cta]");
+      if(!el)return;
+      gtag("event","cta_click",{
+        platform:el.getAttribute("data-bf-cta")||"unknown",
+        campaign:el.getAttribute("data-bf-campaign")||"unknown"
+      });
+    },true);
   }
   function scheduleAfterLoad(){
     if(typeof requestIdleCallback==="function"){

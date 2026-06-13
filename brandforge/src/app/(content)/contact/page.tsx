@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { PACKAGES } from "@/config/site";
-import { SITE, telegramUrl } from "@/config/site";
+import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Contact BrandForge — Discord & Telegram",
@@ -57,11 +58,12 @@ export default function ContactPage(): React.JSX.Element {
       <section className="py-16">
         <div className="content-wrap grid gap-6 md:grid-cols-2">
           <a
-            href={SITE.discord}
+            href={discordHref("contact-page-discord")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-md border border-b1 bg-s1 p-8 transition-colors hover:border-discord"
             data-cursor="hover"
+            {...ctaTrackAttrs("discord", "contact-page-discord")}
           >
             <p className="font-mono text-[10px] uppercase tracking-wider text-discord">Primary</p>
             <h2 className="mt-2 text-2xl font-bold">Discord</h2>
@@ -72,11 +74,12 @@ export default function ContactPage(): React.JSX.Element {
             <p className="mt-4 font-mono text-[11px] text-accent-bright">discord.gg/a8Nz2R6M55 →</p>
           </a>
           <a
-            href={telegramUrl(PACKAGES.custom.telegramMsg)}
+            href={telegramHref(PACKAGES.custom.telegramMsg, "contact-page-telegram")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-md border border-b1 bg-s1 p-8 transition-colors hover:border-telegram"
             data-cursor="hover"
+            {...ctaTrackAttrs("telegram", "contact-page-telegram")}
           >
             <p className="font-mono text-[10px] uppercase tracking-wider text-telegram">Alternative</p>
             <h2 className="mt-2 text-2xl font-bold">Telegram</h2>

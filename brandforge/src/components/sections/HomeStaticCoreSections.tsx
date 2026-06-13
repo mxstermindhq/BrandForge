@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { VouchCard } from "@/components/content/VouchCard";
-import { VisualStatCard } from "@/components/visual";
+import { AnimatedHeroStats } from "@/components/marketing/AnimatedHeroStats";
+import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
 import { HERO_STATS, PACKAGES_LIST, SERVICES, VOUCHES } from "@/content/home";
-import { PACKAGES, SITE, telegramUrl } from "@/config/site";
+import { PACKAGES } from "@/config/site";
 import type { PackageKey } from "@/config/site";
+import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 function SectionEyebrow({ children }: { children: string }): React.JSX.Element {
   return (
@@ -83,24 +85,16 @@ export function HomeHeroStatic(): React.JSX.Element {
             View packages ↓
           </Link>
           <a
-            href={SITE.discord}
+            href={discordHref("home-hero")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded border border-b2 px-6 py-3 text-sm font-semibold text-text-secondary hover:border-[var(--a-mid)] hover:text-text"
+            {...ctaTrackAttrs("discord", "home-hero")}
           >
             Get a quote on Discord
           </a>
         </div>
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="BrandForge track record">
-          {HERO_STATS.map((stat) => (
-            <VisualStatCard
-              key={stat.label}
-              value={stat.value}
-              label={stat.label}
-              icon={stat.icon}
-            />
-          ))}
-        </div>
+        <AnimatedHeroStats stats={HERO_STATS} />
       </div>
     </section>
   );
@@ -151,9 +145,17 @@ type StaticPackageCardProps = {
   pkg: (typeof PACKAGES_LIST)[number];
 };
 
+function packageBadgeLabel(pkg: (typeof PACKAGES_LIST)[number]): string | null {
+  if (pkg.popular && pkg.key === "automator") return "Most popular";
+  if (pkg.popular) return "Enterprise tier";
+  return null;
+}
+
 function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
   const pkgConfig = PACKAGES[pkg.key as PackageKey];
   const isRetainer = pkg.key !== "blueprint";
+  const campaign = `package-${pkg.key}`;
+  const badge = packageBadgeLabel(pkg);
 
   return (
     <article
@@ -161,9 +163,9 @@ function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
         pkg.popular ? "border-accent bg-gradient-to-br from-bg to-[rgba(124,58,237,0.07)]" : ""
       } ${pkg.slotLimited ? "ring-1 ring-amber/30" : ""}`}
     >
-      {pkg.popular ? (
+      {badge ? (
         <p className="mb-3 inline-block w-fit bg-accent px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-white">
-          Enterprise tier
+          {badge}
         </p>
       ) : null}
       {pkg.slotLimited ? (
@@ -198,23 +200,28 @@ function StaticPackageCard({ pkg }: StaticPackageCardProps): React.JSX.Element {
         ))}
       </ul>
       <p className="mt-3 font-mono text-[9px] leading-snug text-muted">{pkg.handoff}</p>
+      <div className="mt-6 flex flex-col gap-2">
+        <a
+          href={discordHref(campaign)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`block w-full rounded border py-3 text-center text-sm font-bold transition-colors ${
+            pkg.popular
+              ? "border-accent bg-accent text-white hover:bg-transparent hover:text-accent-bright"
+              : "border-accent text-accent-bright hover:bg-accent hover:text-white"
+          }`}
+          {...ctaTrackAttrs("discord", campaign)}
+        >
+          {isRetainer ? "Apply on Discord →" : "Order on Discord →"}
+        </a>
+        <CopyIntakeButton text={pkgConfig.discordMsg} className="w-full" />
+      </div>
       <a
-        href={SITE.discord}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`mt-6 block w-full rounded border py-3 text-center text-sm font-bold transition-colors ${
-          pkg.popular
-            ? "border-accent bg-accent text-white hover:bg-transparent hover:text-accent-bright"
-            : "border-accent text-accent-bright hover:bg-accent hover:text-white"
-        }`}
-      >
-        {isRetainer ? "Apply on Discord →" : "Order on Discord →"}
-      </a>
-      <a
-        href={telegramUrl(pkgConfig.telegramMsg)}
+        href={telegramHref(pkgConfig.telegramMsg, campaign)}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 block text-center font-mono text-[10px] text-muted hover:text-[var(--tg)]"
+        {...ctaTrackAttrs("telegram", campaign)}
       >
         Or order via Telegram →
       </a>

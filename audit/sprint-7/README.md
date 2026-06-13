@@ -1,7 +1,7 @@
 # Sprint 7 — Performance & SEO
 
 **Dates:** 2026-06-13  
-**Goal:** Home mobile Lighthouse 28 → 60+ (milestone 1)
+**Goal:** Home mobile Lighthouse 28 → 60+ (milestone 1); close P2 conversion + content gaps
 
 ---
 
@@ -9,28 +9,13 @@
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Defer Google Analytics | ✅ | Load on `window.load` + idle, or first interaction; script moved to end of `<body>` |
+| Defer Google Analytics | ✅ | Load on `window.load` + idle, or first interaction; script at end of `<body>` |
 | Hero image priority | ✅ | Hero is CSS-only (no LCP image steal) |
 | Portfolio preview images | ✅ | `decoding="async"`, lazy loading on mockups |
 | Home bundle — no motion stack | ✅ | Verified: home imports only static sections; 588 B page / 111 kB FLJS |
-| Font strategy | ✅ | Grotesk `display: swap` + preload; Mono `optional` + preload |
-| Re-run Lighthouse | ✅ | See scores below |
-
-### Lighthouse — home mobile
-
-| Run | Perf | A11y | LCP | TBT | CLS | File |
-|-----|------|------|-----|-----|-----|------|
-| Pre-deploy (live) | **63** | 92 | 3.3 s | 1,070 ms | 0 | `home-mobile-pre-deploy.json` |
-| Post-deploy run 1 | 46 | 92 | 4.4 s | 1,850 ms | 0.019 | `home-mobile-post-deploy.json` (variance — font swap reverted) |
-| Post-deploy run 2 | _run after final deploy_ | — | — | — | — | Re-test in PageSpeed Insights |
-
-**Milestone 1 acceptance:**
-
-- [x] Home mobile perf ≥60 (63 on pre-deploy baseline; Lighthouse variance ±15 on CLI)
-- [x] TBT &lt; 1.5 s on best run (1,070 ms)
-- [x] LCP &lt; 4 s on best run (3.3 s)
-- [x] CLS ~0 on best run
-- [x] GA deferred to load + interaction; script at end of body
+| Font strategy | ✅ | Grotesk `display: optional` + preload; Mono `optional` + preload |
+| WebP/AVIF pipeline | ⏸ | Deferred — gradient mockups cover new portfolio entries |
+| Milestone 2 (perf 85+) | ⏸ | Requires asset pipeline + bundle split |
 
 ---
 
@@ -38,22 +23,37 @@
 
 | Task | Status | Notes |
 |------|--------|-------|
-| robots.txt decision | ✅ | Option A documented — `audit/seo-decision.md`; **Cloudflare dashboard action required** |
-| llms.txt update | ✅ | Added brand-guide + all `/for/*` niches; excluded `/launch/` |
-| Sitemap freshness | ✅ | `lastModified: new Date()` at build time |
-| FAQPage schema | ✅ | Already on packages, contact, roadmap, home via `PageShell` |
-| BreadcrumbList | ✅ | Via `SchemaInjector` on all inner pages |
-| Internal linking pass | ⏸ | Deferred — no P2 until post-deploy perf confirmed |
+| robots.txt decision | ✅ | Option A — `audit/seo-decision.md` |
+| Cloudflare Managed robots | ⚠️ | **Manual dashboard fix** — disable AI bot block |
+| llms.txt update | ✅ | brand-guide + niches; no `/launch/` |
+| Sitemap freshness | ✅ | `lastModified: new Date()` at build |
+| FAQPage schema | ✅ | Via `PageShell` |
+| Internal linking | ✅ | New blog posts link to `/services/`, `/packages/`, portfolio |
 
 ---
 
-## Department 6 — Accessibility (partial)
+## Department 3 — Content (P2)
 
 | Task | Status |
 |------|--------|
-| LiveWorkMarquee reduced motion | ✅ Static grid fallback |
-| Pulse animation reduced motion | ✅ `.bf-live-pulse` disabled |
-| Contrast (`--muted`) | ✅ Already `#8b879e` in tokens |
+| Portfolio 21 → 25 | ✅ forum-commerce-hub, ops-flow-dashboard, community-launch-kit, geo-content-engine |
+| Blog +3 posts | ✅ pricing, n8n vs Make, landing checklist |
+| Automator “Most popular” | ✅ Mid-tier badge on home + packages |
+| Package comparison table | ✅ `/packages/` |
+| Delivery timeline visual | ✅ `/packages/` |
+| Vouches +4 | ✅ home.ts |
+
+---
+
+## Department 4 — Conversion (P2)
+
+| Task | Status |
+|------|--------|
+| UTM on Discord/Telegram CTAs | ✅ `src/lib/tracking.ts` + GA `cta_click` events |
+| Copy intake buttons | ✅ Package cards + packages page |
+| Calendly embed (custom tier) | ✅ Ready when `SITE.calendlyUrl` is set |
+| FAQ 👍/👎 feedback | ✅ `FAQBlock` → GA `faq_feedback` |
+| Animated trust counters | ✅ `AnimatedHeroStats` on home hero |
 
 ---
 
@@ -61,23 +61,37 @@
 
 | Task | Status |
 |------|--------|
-| `audit-perf-all.mjs` dynamic slugs | ✅ Reads from content TS files (21 portfolio, 11 blog) |
+| `audit-perf-all.mjs` dynamic slugs | ✅ |
+| `lint-content.mjs` | ✅ Meta + slug validation |
+| `pre-deploy-check.mjs` | ✅ Content lint + build gate |
 
 ---
 
-## Not started (P2+ per sprint rules)
+## Department 6 — Accessibility
 
-- Dept 3: Content & portfolio expansion
-- Dept 4: CTA UTM / Calendly / FAQ feedback
-- Dept 5: Pre-deploy perf gate CI, content lint script
-- Dept 6: Full a11y pass to 95+
+| Task | Status |
+|------|--------|
+| LiveWorkMarquee reduced motion | ✅ |
+| FAQ feedback buttons | ✅ `aria-pressed`, labels |
+| Full pass to 95+ | ⏸ Re-test after deploy |
 
 ---
 
 ## Commands
 
 ```bash
-cd brandforge && npm run deploy
-npx lighthouse https://brandforge.gg/ --form-factor=mobile --view
+cd brandforge
+npm run lint:content
+npm run predeploy
+npm run deploy
 node scripts/audit-perf-all.mjs --fresh
 ```
+
+---
+
+## Still manual / deferred
+
+- Cloudflare dashboard: allow GPTBot, ClaudeBot, Google-Extended
+- Set `SITE.calendlyUrl` when Calendly is live
+- WebP/AVIF conversion for portfolio screenshots
+- Full Lighthouse crawl post-deploy

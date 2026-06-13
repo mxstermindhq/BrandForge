@@ -10,6 +10,8 @@
     "build": "next build && node scripts/prune-portfolio-out.mjs",
     "start": "next start -p 3002",
     "lint": "eslint .",
+    "lint:content": "node scripts/lint-content.mjs",
+    "predeploy": "node scripts/pre-deploy-check.mjs",
     "deploy": "npm run build && npx wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {

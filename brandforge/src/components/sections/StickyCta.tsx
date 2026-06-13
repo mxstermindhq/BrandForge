@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SITE } from "@/config/site";
+import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 
 /** Fixed bottom CTA — appears after scrolling past hero. */
 export function StickyCta(): React.JSX.Element | null {
@@ -32,10 +32,11 @@ export function StickyCta(): React.JSX.Element | null {
           Packages
         </Link>
         <a
-          href={SITE.discord}
+          href={discordHref("sticky-cta-mobile")}
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 rounded bg-accent py-2.5 text-center font-mono text-[10px] font-bold text-white"
+          {...ctaTrackAttrs("discord", "sticky-cta-mobile")}
         >
           Get a quote
         </a>

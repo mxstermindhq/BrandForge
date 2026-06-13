@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SITE } from "@/config/site";
+import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 
 /** Server-rendered header — no Lenis, GSAP, or magnetic interactions. */
 export function StaticSiteHeader(): React.JSX.Element {
@@ -72,10 +72,11 @@ export function StaticSiteHeader(): React.JSX.Element {
         </nav>
         <div className="flex items-center gap-2.5">
           <a
-            href={SITE.discord}
+            href={discordHref("header-discord")}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded bg-discord px-4 py-2 font-mono text-[11px] font-bold text-white"
+            {...ctaTrackAttrs("discord", "header-discord")}
           >
             Open Discord
           </a>

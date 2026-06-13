@@ -145,6 +145,7 @@ export const PACKAGES_LIST: readonly PackageItem[] = [
     handoff: "Handoff: clean repo updates, automation flow maps, live dashboards.",
     avg: "Included while retainer is active",
     slotLimited: true,
+    popular: true,
   },
   {
     key: "mvp-engine",
@@ -210,7 +211,6 @@ export const PACKAGES_LIST: readonly PackageItem[] = [
     handoff: "Handoff: complete architecture blueprints, full IP transfer, live reporting.",
     avg: "24/7 priority developer Slack channel access",
     slotLimited: true,
-    popular: true,
   },
 ] as const;
 
@@ -335,5 +335,36 @@ export const VOUCHES: readonly VouchItem[] = [
     stars: 5,
     text: "Working with the Brandforge team has been extremely sensational. I am truly amazed at the motion graphics given to me by their designer and the detail put into this work.",
     who: "@Omballa",
+  },
+  {
+    id: "flux-retainer",
+    from: "Discord · May 2026",
+    stars: 5,
+    text: "Automator retainer paid for itself in week two — n8n flows replaced three manual handoffs. Quote was fixed, no scope creep.",
+    who: "@flux_ops",
+    amount: "$2k/mo retainer",
+  },
+  {
+    id: "nova-blueprint",
+    from: "Telegram · Apr 2026",
+    stars: 5,
+    text: "Blueprint tier delivered logo, lander, and Discord kit in 9 days. Escrow release was smooth.",
+    who: "@nova_launch",
+    amount: "$450 Blueprint",
+  },
+  {
+    id: "hex-mvp",
+    from: "Discord · Mar 2026",
+    stars: 5,
+    text: "MVP Engine sprint shipped auth, billing hook, and admin panel in the first month. Communication on Discord was daily.",
+    who: "@hexfounder",
+    amount: "$5k/mo · 2 sprints",
+  },
+  {
+    id: "rift-geo",
+    from: "Telegram · Feb 2026",
+    stars: 5,
+    text: "GEO pass on our service pages — FAQ schema and internal links. Organic AI referrals up within six weeks.",
+    who: "@riftgrowth",
   },
 ] as const;

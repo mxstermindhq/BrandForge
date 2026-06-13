@@ -6,10 +6,14 @@ import {
   PageHero,
   PageShell,
 } from "@/components/content";
+import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { DeliveryTimeline } from "@/components/marketing/DeliveryTimeline";
+import { PackageComparisonTable } from "@/components/marketing/PackageComparisonTable";
 import { PACKAGES_LIST } from "@/content/home";
-import { SITE, telegramUrl, PACKAGES } from "@/config/site";
+import { PACKAGES, SITE } from "@/config/site";
 import type { PackageKey } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { ctaTrackAttrs, discordHref, telegramHref } from "@/lib/tracking";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Packages & Pricing — BrandForge",
@@ -46,7 +50,15 @@ const PACKAGES_FAQ = [
   },
 ] as const;
 
+function tierBadge(pkg: (typeof PACKAGES_LIST)[number]): string | null {
+  if (pkg.popular && pkg.key === "automator") return "Most popular";
+  if (pkg.popular) return "Enterprise tier";
+  return null;
+}
+
 export default function PackagesPage(): React.JSX.Element {
+  const customConfig = PACKAGES.custom;
+
   return (
     <PageShell
       breadcrumbs={[
@@ -66,19 +78,23 @@ export default function PackagesPage(): React.JSX.Element {
         subhead="From one-time blueprint to enterprise retainer — fixed USD, capacity limits per tier, and a clear delivery matrix on the home page. Quote in 24 hours on Discord or Telegram."
       />
 
+      <DeliveryTimeline />
+
       <section className="py-16">
         <div className="content-wrap space-y-8">
           {PACKAGES_LIST.map((pkg) => {
             const config = PACKAGES[pkg.key as PackageKey];
             const isRetainer = pkg.key !== "blueprint";
+            const campaign = `packages-page-${pkg.key}`;
+            const badge = tierBadge(pkg);
             return (
               <article
                 key={pkg.key}
                 className={`rounded-md border bg-s1 p-8 ${pkg.popular ? "border-accent" : "border-b1"} ${pkg.slotLimited ? "ring-1 ring-amber/30" : ""}`}
               >
-                {pkg.popular ? (
+                {badge ? (
                   <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-accent-bright">
-                    Enterprise tier
+                    {badge}
                   </p>
                 ) : null}
                 {pkg.slotLimited ? (
@@ -110,21 +126,24 @@ export default function PackagesPage(): React.JSX.Element {
                 <p className="mt-2 font-mono text-[10px] text-accent-bright">{pkg.avg}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <a
-                    href={SITE.discord}
+                    href={discordHref(campaign)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded bg-discord px-5 py-2.5 font-mono text-[11px] font-bold text-white"
+                    {...ctaTrackAttrs("discord", campaign)}
                   >
                     {isRetainer ? "Apply on Discord" : "Order on Discord"}
                   </a>
                   <a
-                    href={telegramUrl(config.telegramMsg)}
+                    href={telegramHref(config.telegramMsg, campaign)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded border border-b2 px-5 py-2.5 font-mono text-[11px] text-text-secondary hover:text-text"
+                    {...ctaTrackAttrs("telegram", campaign)}
                   >
                     {isRetainer ? "Apply on Telegram" : "Order on Telegram"}
                   </a>
+                  <CopyIntakeButton text={config.discordMsg} />
                 </div>
               </article>
             );
@@ -147,8 +166,48 @@ export default function PackagesPage(): React.JSX.Element {
         </p>
       </section>
 
+      <PackageComparisonTable />
+
+      <section className="border-t border-b1 bg-s1 py-16" aria-labelledby="custom-tier-title">
+        <div className="content-wrap">
+          <h2 id="custom-tier-title" className="text-2xl font-bold">
+            Custom scope above Tier 5?
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm text-text-secondary">
+            Message with your brief — we reply with a fixed quote in 24 hours. Copy the intake template,
+            then open Discord or Telegram.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href={discordHref("packages-custom")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded bg-discord px-5 py-2.5 font-mono text-[11px] font-bold text-white"
+              {...ctaTrackAttrs("discord", "packages-custom")}
+            >
+              Discuss custom scope on Discord
+            </a>
+            <CopyIntakeButton text={customConfig.discordMsg} label="Copy custom intake message" />
+          </div>
+          {SITE.calendlyUrl ? (
+            <div className="mt-10 overflow-hidden rounded-md border border-b1 bg-bg">
+              <iframe
+                title="Book a BrandForge scoping call"
+                src={`${SITE.calendlyUrl}?hide_gdpr_banner=1`}
+                className="h-[680px] w-full border-0"
+                loading="lazy"
+              />
+            </div>
+          ) : null}
+        </div>
+      </section>
+
       <FAQBlock items={PACKAGES_FAQ} />
-      <CTASection title="Ready for a fixed quote?" subhead="Send scope on Discord or Telegram — reply within 24 hours." />
+      <CTASection
+        title="Ready for a fixed quote?"
+        subhead="Send scope on Discord or Telegram — reply within 24 hours."
+        campaign="packages-footer-cta"
+      />
     </PageShell>
   );
 }

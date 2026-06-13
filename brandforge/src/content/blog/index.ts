@@ -247,7 +247,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     slug: "brand-identity-vs-brand-design-difference",
     title: "Brand identity vs brand design — what's the difference?",
     metaTitle: "Identity vs Design | BrandForge",
-    metaDescription: "Systems vs one-off visuals — when to buy each.",
+    metaDescription:
+      "Systems vs one-off visuals — when to buy brand identity vs design-only work.",
     datePublished: "2026-05-06",
     readingTime: "9 min",
     sections: [
@@ -381,6 +382,154 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       {
         question: "mxstermind AI?",
         answer: "Enterprise integrations — Studio developers hub.",
+      },
+    ],
+  },
+  "how-to-price-digital-services-2026": {
+    slug: "how-to-price-digital-services-2026",
+    title: "How to price digital services in 2026",
+    metaTitle: "Price Digital Services 2026 | BrandForge",
+    metaDescription:
+      "Fixed packages vs retainers, capacity limits, and escrow-friendly quotes — operator pricing guide.",
+    datePublished: "2026-06-10",
+    readingTime: "10 min",
+    sections: [
+      {
+        heading: "Stop selling hours",
+        ...p([
+          "Forum buyers and SaaS founders both punish hourly ambiguity. Package tiers with honest ranges and capacity caps convert faster — see /packages/ for how BrandForge structures five tiers.",
+          "Quote in 24 hours after scope on Discord. Escrow and crypto keep high-trust deals moving.",
+        ]),
+      },
+      {
+        heading: "Retainers need boundaries",
+        ...p([
+          "Monthly retainers work when deliverables are capped — e.g. three workflows or three feature deployments per sprint. Uncapped retainers become unpaid consulting.",
+          "The Automator tier at $1.5k–$3k/mo is built for operators who need continuous automation without hiring in-house.",
+        ]),
+      },
+      {
+        heading: "When to escalate to premium",
+        ...p([
+          "Scope above Tier 5 belongs at mxstermind.com — bespoke squads, longer timelines, outcome-based deals. BrandForge packages stay fast and bounded.",
+        ]),
+      },
+    ],
+    faqs: [
+      {
+        question: "What is a fair Blueprint price?",
+        answer: "BrandForge Blueprint runs $300–$500 for logo, lander, and funnel structure.",
+      },
+      {
+        question: "Do you offer discounts?",
+        answer: "Fixed quotes reflect scope — rush delivery is quoted separately.",
+      },
+      {
+        question: "How do capacity limits work?",
+        answer: "Each tier caps concurrent deliverables; extra scope is quoted before work starts.",
+      },
+      {
+        question: "Related reading?",
+        answer: "/blog/what-is-cro-conversion-rate-optimisation/ and /packages/.",
+      },
+    ],
+  },
+  "n8n-vs-make-automation-guide": {
+    slug: "n8n-vs-make-automation-guide",
+    title: "n8n vs Make: which automation stack fits your ops?",
+    metaTitle: "n8n vs Make Automation Guide | BrandForge",
+    metaDescription:
+      "Compare n8n and Make for CRM sync, lead routing, and forum ops — when to pick each.",
+    datePublished: "2026-06-08",
+    readingTime: "9 min",
+    sections: [
+      {
+        heading: "Make wins on speed",
+        ...p([
+          "Make (Integromat) is fastest for simple SaaS-to-SaaS recipes — form to Slack, Stripe to spreadsheet. Non-technical operators can maintain basic flows.",
+          "BrandForge uses Make for quick wins inside The Automator retainer when governance is light.",
+        ]),
+      },
+      {
+        heading: "n8n wins on control",
+        ...p([
+          "Self-hosted n8n suits teams that need custom nodes, error handling, and data residency. Forum operators with sensitive buyer data often prefer it.",
+          "See /portfolio/ops-flow-dashboard/ for a dashboard + n8n engagement pattern.",
+        ]),
+      },
+      {
+        heading: "Hybrid is normal",
+        ...p([
+          "Most mature ops stacks mix both — Make for marketing triggers, n8n for core CRM sync. /services/automation/ covers implementation either way.",
+        ]),
+      },
+    ],
+    faqs: [
+      {
+        question: "Which does BrandForge prefer?",
+        answer: "Scope-dependent — we quote both in The Automator tier.",
+      },
+      {
+        question: "Can you migrate flows?",
+        answer: "Yes — audit existing recipes and rebuild with cleaner error paths.",
+      },
+      {
+        question: "Hosting included?",
+        answer: "Quoted per retainer; self-hosted n8n or cloud Make both supported.",
+      },
+      {
+        question: "First automation to build?",
+        answer: "Lead capture → CRM → Slack alert — highest ROI for most operators.",
+      },
+    ],
+  },
+  "landing-page-conversion-checklist-2026": {
+    slug: "landing-page-conversion-checklist-2026",
+    title: "Landing page conversion checklist for 2026",
+    metaTitle: "Landing Page CRO Checklist 2026 | BrandForge",
+    metaDescription:
+      "Hero clarity, FAQ schema, speed, and Discord CTAs — 12-point checklist for operator landers.",
+    datePublished: "2026-06-05",
+    readingTime: "11 min",
+    sections: [
+      {
+        heading: "Three-second clarity test",
+        ...p([
+          "Visitors must know what you sell, who it is for, and the next step without scrolling. One primary CTA — Discord or Telegram for high-trust B2B, not a buried form.",
+          "BrandForge Blueprint tier ships this pattern in 1–2 weeks — logo, lander, funnel structure.",
+        ]),
+      },
+      {
+        heading: "Speed is conversion",
+        ...p([
+          "Mobile PageSpeed above 90 is table stakes. Defer analytics, lazy-load below-fold media, keep hero CSS-only when possible.",
+          "See /blog/what-is-cro-conversion-rate-optimisation/ for measurement discipline.",
+        ]),
+      },
+      {
+        heading: "FAQ blocks for humans and AI",
+        ...p([
+          "Four real FAQs with JSON-LD help Google and generative engines cite you accurately — part of GEO, not decoration.",
+          "Internal links to /services/ and /packages/ keep buyers in your ecosystem.",
+        ]),
+      },
+    ],
+    faqs: [
+      {
+        question: "How many CTAs on a lander?",
+        answer: "One primary outbound CTA repeated — avoid competing buttons.",
+      },
+      {
+        question: "Does BrandForge do CRO audits?",
+        answer: "Yes — included in Automator retainers and available as add-ons.",
+      },
+      {
+        question: "Escrow copy on page?",
+        answer: "High-trust niches should state escrow acceptance above the fold.",
+      },
+      {
+        question: "Checklist download?",
+        answer: "Copy this post's headings into your brief on Discord — we reply in 24h.",
       },
     ],
   },
