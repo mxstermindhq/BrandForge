@@ -29,7 +29,9 @@ export function GoogleAnalytics(): React.JSX.Element | null {
       if(!el)return;
       var cta=el.getAttribute("data-bf-cta")||"unknown";
       var campaign=el.getAttribute("data-bf-campaign")||"unknown";
-      if(cta==="discord")gtag("event","click_discord",{campaign:campaign});
+      var pagePath=location.pathname||"/";
+      gtag("event","page_conversion",{page_path:pagePath,cta:cta,campaign:campaign});
+      if(cta==="discord")gtag("event","click_discord",{campaign:campaign,page_path:pagePath});
       else if(cta==="telegram")gtag("event","click_telegram",{campaign:campaign});
       else if(cta==="package")gtag("event","click_package_tier",{campaign:campaign});
       else if(cta==="calendly")gtag("event","click_calendly",{campaign:campaign});

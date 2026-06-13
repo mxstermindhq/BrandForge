@@ -1,0 +1,16 @@
+{
+  "updatedAt": null,
+  "note": "Populate via GA4 Data API in CI, or export from GA4 Explore and paste here. Rebuild to refresh dashboard.",
+  "topPages7d": [],
+  "topPages30d": [],
+  "conversions": {
+    "click_discord": null,
+    "click_package_tier": null,
+    "click_calendly": null,
+    "resource_download": null,
+    "page_conversion": null
+  },
+  "trafficSources": [],
+  "devices": { "mobile": null, "desktop": null },
+  "contentScorecard": []
+}

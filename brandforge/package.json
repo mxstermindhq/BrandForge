@@ -7,14 +7,25 @@
   },
   "scripts": {
     "dev": "next dev -p 3002",
-    "build": "node scripts/optimize-site-images.mjs && node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs",
+    "build": "node scripts/optimize-site-images.mjs && node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs && node scripts/track-bundles.mjs && node scripts/audit-images.mjs && node scripts/generate-dashboard-data.mjs",
+    "pre-deploy": "node scripts/pre-deploy.mjs",
+    "pre-deploy:quick": "node scripts/pre-deploy.mjs --skip-lighthouse",
+    "post-deploy": "node scripts/post-deploy.mjs",
+    "audit:perf": "node scripts/audit-perf-all.mjs",
+    "audit:perf:fast": "node scripts/audit-perf-all.mjs --fast",
+    "audit:images": "node scripts/audit-images.mjs",
+    "audit:links": "node scripts/check-links.mjs",
+    "audit:schema": "node scripts/validate-schema.mjs",
+    "audit:bundles": "node scripts/track-bundles.mjs",
+    "report:weekly": "node scripts/weekly-report.mjs",
+    "dashboard:data": "node scripts/generate-dashboard-data.mjs",
     "optimize:site": "node scripts/optimize-site-images.mjs",
     "start": "next start -p 3002",
     "lint": "eslint .",
     "lint:content": "node scripts/lint-content.mjs",
     "optimize:portfolio": "node scripts/optimize-portfolio-images.mjs",
     "predeploy": "node scripts/pre-deploy-check.mjs",
-    "deploy": "npm run build && node scripts/purge-cache.mjs && npx wrangler deploy --config wrangler.jsonc"
+    "deploy": "npm run pre-deploy:quick && node scripts/purge-cache.mjs && npx wrangler deploy --config wrangler.jsonc && node scripts/post-deploy.mjs && node scripts/notify-discord.mjs deploy \"Deployed to brandforge.gg\""
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

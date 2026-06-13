@@ -1,0 +1,1865 @@
+{
+  "generatedAt": "2026-06-13T19:43:18.432Z",
+  "site": "brandforge.gg",
+  "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
+  "lookerStudioUrl": null,
+  "ga4Property": "G-G3L5EBB195",
+  "contentStats": {
+    "total": 82,
+    "blog": 19,
+    "portfolio": 25,
+    "niche": 8,
+    "services": 9,
+    "roadmap": 6,
+    "static": 15
+  },
+  "lighthouse": {
+    "history": [
+      {
+        "label": "Sprint 3",
+        "source": "sprint-3",
+        "date": "2026-06-13",
+        "homeMobile": 71,
+        "lcp": "2.8 s",
+        "tbt": "960 ms",
+        "cls": "0",
+        "siteWideAverage": null
+      },
+      {
+        "label": "Sprint 4",
+        "source": "sprint-4",
+        "date": "2026-06-13T18:52:43.239Z",
+        "homeMobile": 71,
+        "lcp": 2791.498,
+        "tbt": 959.4999999999995,
+        "cls": 0,
+        "siteWideAverage": null
+      },
+      {
+        "label": "Sprint 5",
+        "source": "sprint-5",
+        "date": "2026-06-13T19:26:06.480Z",
+        "homeMobile": 53,
+        "lcp": 3553.1,
+        "tbt": 3004.6340000000037,
+        "cls": 0.026351669572689192,
+        "siteWideAverage": null
+      },
+      {
+        "label": "Sprint 5 live",
+        "source": "sprint-5-live",
+        "date": "2026-06-13T19:24:34.140Z",
+        "homeMobile": 53,
+        "lcp": 3553.1,
+        "tbt": 3004.6340000000037,
+        "cls": 0.026351669572689192,
+        "siteWideAverage": null
+      },
+      {
+        "label": "Sprint 7",
+        "source": "sprint-7",
+        "date": "2026-06-13T18:00:31.043Z",
+        "homeMobile": 43,
+        "lcp": 4716.898,
+        "tbt": 1908.5389999999989,
+        "cls": 0,
+        "siteWideAverage": null
+      },
+      {
+        "label": "Site-wide audit",
+        "source": "brandforge-perf-all",
+        "date": "2026-06-03T01:50:26.782Z",
+        "homeMobile": 28,
+        "lcp": 8626.878,
+        "tbt": 3071.0009999999947,
+        "cls": 0,
+        "siteWideAverage": 65
+      }
+    ],
+    "regressions": [
+      {
+        "from": "Sprint 4",
+        "to": "Sprint 5",
+        "drop": 18
+      },
+      {
+        "from": "Sprint 5 live",
+        "to": "Sprint 7",
+        "drop": 10
+      },
+      {
+        "from": "Sprint 7",
+        "to": "Site-wide audit",
+        "drop": 15
+      }
+    ],
+    "current": {
+      "home": {
+        "path": "/",
+        "url": "https://brandforge.gg",
+        "performance": 28,
+        "lcp": 8626.878,
+        "tbt": 3071.0009999999947,
+        "cls": 0,
+        "fcp": 8626.878,
+        "si": 8641,
+        "cached": false
+      },
+      "siteWideAverage": 65,
+      "auditedAt": "2026-06-03T01:50:26.782Z",
+      "worstPages": [
+        {
+          "path": "/",
+          "url": "https://brandforge.gg",
+          "performance": 28,
+          "lcp": 8626.878,
+          "tbt": 3071.0009999999947,
+          "cls": 0,
+          "fcp": 8626.878,
+          "si": 8641,
+          "cached": false
+        },
+        {
+          "path": "/blog/how-we-built-carspotlive-mobile-app-case-study/",
+          "url": "https://brandforge.gg/blog/how-we-built-carspotlive-mobile-app-case-study/",
+          "performance": 46,
+          "lcp": 5658.388,
+          "tbt": 9657.041999999998,
+          "cls": 0,
+          "fcp": 2310.015,
+          "si": 3171,
+          "cached": false
+        },
+        {
+          "path": "/blog/what-is-geo-generative-engine-optimisation/",
+          "url": "https://brandforge.gg/blog/what-is-geo-generative-engine-optimisation/",
+          "performance": 48,
+          "lcp": 4455.207,
+          "tbt": 1859.3279999999995,
+          "cls": 0,
+          "fcp": 4455.207,
+          "si": 2839,
+          "cached": false
+        },
+        {
+          "path": "/services/",
+          "url": "https://brandforge.gg/services/",
+          "performance": 49,
+          "lcp": 4145.306,
+          "tbt": 1936.071,
+          "cls": 0,
+          "fcp": 4145.306,
+          "si": 4145,
+          "cached": false
+        },
+        {
+          "path": "/packages/",
+          "url": "https://brandforge.gg/packages/",
+          "performance": 49,
+          "lcp": 3972.766,
+          "tbt": 3374.1999999999985,
+          "cls": 0,
+          "fcp": 3972.766,
+          "si": 3971,
+          "cached": false
+        },
+        {
+          "path": "/for/ecommerce-brands/",
+          "url": "https://brandforge.gg/for/ecommerce-brands/",
+          "performance": 52,
+          "lcp": 4399.881,
+          "tbt": 1132.6059999999989,
+          "cls": 0,
+          "fcp": 4399.881,
+          "si": 3520,
+          "cached": false
+        },
+        {
+          "path": "/about/",
+          "url": "https://brandforge.gg/about/",
+          "performance": 53,
+          "lcp": 3654.198,
+          "tbt": 2254.323,
+          "cls": 0,
+          "fcp": 3654.198,
+          "si": 3650,
+          "cached": false
+        },
+        {
+          "path": "/portfolio/",
+          "url": "https://brandforge.gg/portfolio/",
+          "performance": 54,
+          "lcp": 3686.014,
+          "tbt": 1891.1189999999988,
+          "cls": 0,
+          "fcp": 3686.014,
+          "si": 3698,
+          "cached": false
+        },
+        {
+          "path": "/blog/how-to-build-a-web-store-gaming-community/",
+          "url": "https://brandforge.gg/blog/how-to-build-a-web-store-gaming-community/",
+          "performance": 55,
+          "lcp": 3979.463,
+          "tbt": 1202.4959999999996,
+          "cls": 0,
+          "fcp": 3979.463,
+          "si": 2765,
+          "cached": false
+        },
+        {
+          "path": "/blog/how-to-choose-a-design-agency-2026/",
+          "url": "https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/",
+          "performance": 55,
+          "lcp": 4061.72,
+          "tbt": 5618.869000000001,
+          "cls": 0,
+          "fcp": 1995.976,
+          "si": 2468,
+          "cached": false
+        }
+      ]
+    }
+  },
+  "bundles": {
+    "recordedAt": "2026-06-13T19:43:17.691Z",
+    "routes": {},
+    "totalJsKb": 971,
+    "totalCssKb": 52,
+    "imgKb": 4221,
+    "homeRoute": {
+      "homeKb": 0,
+      "prevHomeKb": 0,
+      "deltaKb": 0,
+      "regressed": false
+    },
+    "flags": []
+  },
+  "images": {
+    "scannedAt": "2026-06-13T19:43:17.929Z",
+    "totalImages": 9,
+    "totalWeightKb": 4221,
+    "thresholdKb": 200,
+    "oversized": [
+      {
+        "path": "/img/logo-mark-512.png",
+        "kb": 279
+      },
+      {
+        "path": "/img/og-image.png",
+        "kb": 1711
+      }
+    ],
+    "legacyFormats": [
+      {
+        "path": "/img/apple-touch-icon.png",
+        "kb": 36,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/favicon-16x16.png",
+        "kb": 1,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/favicon-32x32.png",
+        "kb": 2,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-header.png",
+        "kb": 14,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-mark-512.png",
+        "kb": 279,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-nav.png",
+        "kb": 5,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/og-image.png",
+        "kb": 1711,
+        "suggest": "Convert to AVIF + WebP"
+      }
+    ],
+    "passed": false
+  },
+  "schema": {
+    "validatedAt": "2026-06-13T19:38:18.874Z",
+    "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
+    "total": 81,
+    "pass": 81,
+    "fail": 0,
+    "warn": 3,
+    "pages": [
+      {
+        "page": "/404/",
+        "status": "warn",
+        "message": "No JSON-LD found"
+      },
+      {
+        "page": "/404.html",
+        "status": "skip",
+        "message": "No schema required"
+      },
+      {
+        "page": "/about/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/admin/",
+        "status": "skip",
+        "message": "No schema required"
+      },
+      {
+        "page": "/blog/ai-tools-every-operator-should-use/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/brand-identity-vs-brand-design-difference/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/building-brandforge-in-public-01/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/complete-guide-forum-seller-reputation/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/discord-server-branding-complete-guide/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/discord-server-branding-for-growth/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/escrow-friendly-agency-intake/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/forum-marketing-2026-what-still-works/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-to-build-a-brand-from-scratch-2026/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-to-build-a-web-store-gaming-community/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-to-choose-a-design-agency-2026/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-to-pick-the-right-brandforge-tier/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-to-price-digital-services-2026/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/how-we-built-carspotlive-mobile-app-case-study/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/landing-page-conversion-checklist-2026/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/n8n-vs-make-automation-guide/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/web3-branding-building-trust-decentralized-markets/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/what-is-cro-conversion-rate-optimisation/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/what-is-geo-generative-engine-optimisation/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/brand-guide/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/contact/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/ethics-standards/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/automation-ops-teams/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/content-creators/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/ecommerce-brands/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/forum-sellers/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/gaming-server-owners/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/mobile-app-founders/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/saas-startups/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/for/web3-crypto-projects/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/launch/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/offline.html",
+        "status": "skip",
+        "message": "No schema required"
+      },
+      {
+        "page": "/packages/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/partners/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/ai-voice-receptionist/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/boostingfactory/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/carspotlive/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/cascade-markets/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/cloutscout/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/community-launch-kit/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/confidential-engagement/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/crystal-wars/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/directfiber/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/drain-cx/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/dyotravel/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/fluorite-store/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/forum-commerce-hub/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/gazedvalleybeef/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/geo-content-engine/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/grindnode/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/jarro-ai/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/lava-pw/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/linkedin-automation/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/ops-flow-dashboard/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/passle/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/repsheets/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/sui-blockchain-app/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/valaccs/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/portfolio/whiteskyhosting/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/privacy/",
+        "status": "warn",
+        "message": "No JSON-LD found"
+      },
+      {
+        "page": "/roadmap/build-your-brand/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/grow-your-audience/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/launch-strategy/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/scale-operations/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/tools-resources/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/roadmap/validate-your-idea/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/ai-tools/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/automation/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/brand-identity/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/discord-branding/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/mobile-apps/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/paid-ads/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/seo-growth/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/social-media/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/services/web-design/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/store/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/terms/",
+        "status": "warn",
+        "message": "No JSON-LD found"
+      }
+    ]
+  },
+  "links": null,
+  "abTests": {
+    "updatedAt": "2026-06-13",
+    "active": [
+      {
+        "testId": "home-hero-primary-cta-2026-06",
+        "location": "Home hero primary CTA",
+        "variants": [
+          {
+            "id": "A",
+            "label": "Start Your Rebrand",
+            "destination": "/#packages"
+          },
+          {
+            "id": "B",
+            "label": "Get Discord-Ready Branding",
+            "destination": "Discord"
+          }
+        ],
+        "startDate": "2026-06-13",
+        "status": "running",
+        "impressions": {
+          "A": null,
+          "B": null
+        },
+        "conversions": {
+          "A": null,
+          "B": null
+        },
+        "confidence": null,
+        "winner": null,
+        "notes": "Sync impressions/conversions from GA4 Explore → ab_test_impression / ab_test_conversion by variant."
+      }
+    ],
+    "completed": []
+  },
+  "ga4": {
+    "updatedAt": null,
+    "note": "Populate via GA4 Data API in CI, or export from GA4 Explore and paste here. Rebuild to refresh dashboard.",
+    "topPages7d": [],
+    "topPages30d": [],
+    "conversions": {
+      "click_discord": null,
+      "click_package_tier": null,
+      "click_calendly": null,
+      "resource_download": null,
+      "page_conversion": null
+    },
+    "trafficSources": [],
+    "devices": {
+      "mobile": null,
+      "desktop": null
+    },
+    "contentScorecard": []
+  },
+  "contentPages": [
+    {
+      "path": "/",
+      "title": "BrandForge — Design, Development & Growth",
+      "category": "static",
+      "internalLinksIn": 5,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/services/",
+      "title": "Services Hub | BrandForge",
+      "category": "static",
+      "internalLinksIn": 4,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/packages/",
+      "title": "Packages & Pricing | BrandForge",
+      "category": "static",
+      "internalLinksIn": 7,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/portfolio/",
+      "title": "Portfolio | BrandForge",
+      "category": "static",
+      "internalLinksIn": 7,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/blog/",
+      "title": "Blog | BrandForge",
+      "category": "static",
+      "internalLinksIn": 3,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/for/",
+      "title": "Who We Serve | BrandForge",
+      "category": "static",
+      "internalLinksIn": 2,
+      "orphan": false,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/about/",
+      "title": "About BrandForge",
+      "category": "static",
+      "internalLinksIn": 1,
+      "orphan": false,
+      "lastModified": "2026-06-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/contact/",
+      "title": "Contact | BrandForge",
+      "category": "static",
+      "internalLinksIn": 1,
+      "orphan": false,
+      "lastModified": "2026-06-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/partners/",
+      "title": "Partners & Tools | BrandForge",
+      "category": "static",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/store/",
+      "title": "Template Store | BrandForge",
+      "category": "static",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": "2026-06-13",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/roadmap/",
+      "title": "Roadmap | BrandForge",
+      "category": "static",
+      "internalLinksIn": 3,
+      "orphan": false,
+      "lastModified": "2026-06-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/brand-guide/",
+      "title": "Brand Guide | BrandForge",
+      "category": "static",
+      "internalLinksIn": 1,
+      "orphan": false,
+      "lastModified": "2026-06-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/ethics-standards/",
+      "title": "Ethics & Standards | BrandForge",
+      "category": "static",
+      "internalLinksIn": 1,
+      "orphan": false,
+      "lastModified": "2026-06-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/privacy/",
+      "title": "Privacy Policy | BrandForge",
+      "category": "static",
+      "internalLinksIn": 2,
+      "orphan": false,
+      "lastModified": "2026-01-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "path": "/terms/",
+      "title": "Terms | BrandForge",
+      "category": "static",
+      "internalLinksIn": 4,
+      "orphan": false,
+      "lastModified": "2026-01-01",
+      "schema": "WebPage + Org",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-to-build-a-brand-from-scratch-2026",
+      "path": "/blog/how-to-build-a-brand-from-scratch-2026/",
+      "title": "Build a Brand From Scratch 2026 | BrandForge",
+      "description": "Operator guide: positioning, identity, Discord, and lander — without agency fluff.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "what-is-geo-generative-engine-optimisation",
+      "path": "/blog/what-is-geo-generative-engine-optimisation/",
+      "title": "What Is GEO? Generative Engine Optimisation",
+      "description": "GEO earns AI citations with FAQs, schema, and entity-clear copy — BrandForge explains for operators.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "discord-server-branding-complete-guide",
+      "path": "/blog/discord-server-branding-complete-guide/",
+      "title": "Discord Server Branding Guide | BrandForge",
+      "description": "Roles, banners, onboarding, and GFX for gaming and trading servers.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-to-build-a-web-store-gaming-community",
+      "path": "/blog/how-to-build-a-web-store-gaming-community/",
+      "title": "Gaming Community Web Store Guide",
+      "description": "Trust, checkout, and catalog UX for community stores.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "forum-marketing-2026-what-still-works",
+      "path": "/blog/forum-marketing-2026-what-still-works/",
+      "title": "Forum Marketing 2026 | BrandForge",
+      "description": "Vouches, threads, and proof patterns that still convert.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-we-built-carspotlive-mobile-app-case-study",
+      "path": "/blog/how-we-built-carspotlive-mobile-app-case-study/",
+      "title": "CarSpotLive Case Study | BrandForge Blog",
+      "description": "Mobile app delivery — maps, Firebase, App Store 2024.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "brand-identity-vs-brand-design-difference",
+      "path": "/blog/brand-identity-vs-brand-design-difference/",
+      "title": "Identity vs Design | BrandForge",
+      "description": "Systems vs one-off visuals — when to buy brand identity vs design-only work.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "what-is-cro-conversion-rate-optimisation",
+      "path": "/blog/what-is-cro-conversion-rate-optimisation/",
+      "title": "Conversion Rate Optimisation Guide",
+      "description": "CRO for operator landers and stores — measurable fixes.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-to-choose-a-design-agency-2026",
+      "path": "/blog/how-to-choose-a-design-agency-2026/",
+      "title": "Choose a Design Agency 2026",
+      "description": "Package vs bespoke, proof, escrow — operator checklist.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "ai-tools-every-operator-should-use",
+      "path": "/blog/ai-tools-every-operator-should-use/",
+      "title": "AI Tools for Operators | BrandForge",
+      "description": "Assistants, automation, and doc-grounded bots — not hype.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-to-price-digital-services-2026",
+      "path": "/blog/how-to-price-digital-services-2026/",
+      "title": "Price Digital Services 2026 | BrandForge",
+      "description": "Fixed packages vs retainers, capacity limits, and escrow-friendly quotes — operator pricing guide.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "n8n-vs-make-automation-guide",
+      "path": "/blog/n8n-vs-make-automation-guide/",
+      "title": "n8n vs Make Automation Guide | BrandForge",
+      "description": "Compare n8n and Make for CRM sync, lead routing, and forum ops — when to pick each.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "landing-page-conversion-checklist-2026",
+      "path": "/blog/landing-page-conversion-checklist-2026/",
+      "title": "Landing Page CRO Checklist 2026 | BrandForge",
+      "description": "Hero clarity, FAQ schema, speed, and Discord CTAs — 12-point checklist for operator landers.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "complete-guide-forum-seller-reputation",
+      "path": "/blog/complete-guide-forum-seller-reputation/",
+      "title": "Forum Seller Reputation Guide | BrandForge",
+      "description": "How marketplace operators build vouches, trust UX, and brand consistency on HF, Voided, and niche forums — without looking like a reskin.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "discord-server-branding-for-growth",
+      "path": "/blog/discord-server-branding-for-growth/",
+      "title": "Discord Server Branding for Growth | BrandForge",
+      "description": "Growth-focused Discord branding — banners, onboarding, role art, and launch assets that convert lurkers into members and paying tiers.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "escrow-friendly-agency-intake",
+      "path": "/blog/escrow-friendly-agency-intake/",
+      "title": "Escrow-Friendly Agency Intake | BrandForge",
+      "description": "What forum and OTC buyers should include in the first Discord message — scope, escrow, refs, and fixed-quote checklist.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "how-to-pick-the-right-brandforge-tier",
+      "path": "/blog/how-to-pick-the-right-brandforge-tier/",
+      "title": "Pick the Right BrandForge Tier | BrandForge",
+      "description": "Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to escalate to mxstermind.com.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "web3-branding-building-trust-decentralized-markets",
+      "path": "/blog/web3-branding-building-trust-decentralized-markets/",
+      "title": "Web3 Branding & Trust Guide | BrandForge",
+      "description": "How crypto and Web3 operators build credible brands before chain jargon — landers, proof, and GEO for cold traffic.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "building-brandforge-in-public-01",
+      "path": "/blog/building-brandforge-in-public-01/",
+      "title": "Building BrandForge in Public — Update 01",
+      "description": "First build-in-public update: portfolio expansion, visual overhaul, performance work, and what we are shipping next.",
+      "category": "blog",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Article + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "whiteskyhosting",
+      "path": "/portfolio/whiteskyhosting/",
+      "title": "Whiteskyhosting.com Case Study",
+      "description": "Hosting and VPS company — full design and development from scratch with conversion-focused pricing and plan comparison tables.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "carspotlive",
+      "path": "/portfolio/carspotlive/",
+      "title": "CarSpotLive Case Study",
+      "description": "Full car-spotting mobile app — UI/UX, native iOS and Android, real-time mapping, Firebase backend, App Store December 2024.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "directfiber",
+      "path": "/portfolio/directfiber/",
+      "title": "DirectFiber Case Study",
+      "description": "Enterprise ISP portal with custom billing — customer portal, plan management, usage dashboards, and billing engine.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "drain-cx",
+      "path": "/portfolio/drain-cx/",
+      "title": "Drain.cx Case Study",
+      "description": "Scripts and competitive tools for Rust, Rainbow Six Siege, and Apex Legends — full e-commerce storefront and delivery.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "boostingfactory",
+      "path": "/portfolio/boostingfactory/",
+      "title": "Boostingfactory.com Case Study",
+      "description": "Boosting service for HotS, LoL, MW, Apex, and Overwatch — order system, service catalog, and trust signals from scratch.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "fluorite-store",
+      "path": "/portfolio/fluorite-store/",
+      "title": "Fluorite.store Case Study",
+      "description": "Competitive edge tools for MLBB, Free Fire, and COD Mobile — full design and development from scratch.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "passle",
+      "path": "/portfolio/passle/",
+      "title": "Passle Case Study",
+      "description": "Creator monetization — subscriptions, PPV, tipping, Keys wallet. 95% revenue split. Crypto, Apple Pay, cards.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "dyotravel",
+      "path": "/portfolio/dyotravel/",
+      "title": "Dyo Travel Case Study",
+      "description": "Hotel booking with API-driven dynamic pricing, room listings, cancellation policies, deployment and live support.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "repsheets",
+      "path": "/portfolio/repsheets/",
+      "title": "Repsheets Case Study",
+      "description": "Web3 crypto prediction market landing — performance-first structure. Client discontinued post-delivery.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "cascade-markets",
+      "path": "/portfolio/cascade-markets/",
+      "title": "Cascade Markets Case Study",
+      "description": "Web3 crypto prediction market landing — performance-first structure. Client discontinued post-delivery.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "grindnode",
+      "path": "/portfolio/grindnode/",
+      "title": "Grindnode Case Study",
+      "description": "Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "cloutscout",
+      "path": "/portfolio/cloutscout/",
+      "title": "Cloutscout.ai Case Study",
+      "description": "Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "lava-pw",
+      "path": "/portfolio/lava-pw/",
+      "title": "Lava.pw Case Study",
+      "description": "Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "sui-blockchain-app",
+      "path": "/portfolio/sui-blockchain-app/",
+      "title": "SUI Blockchain App Fork Case Study",
+      "description": "Forked Solana aggregation app for SUI — team of 4, vector DB, real-time pipelines, 2 weeks, $9k budget.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "jarro-ai",
+      "path": "/portfolio/jarro-ai/",
+      "title": "Jarro AI Case Study",
+      "description": "Visual AI for trading chart analysis — candlesticks, S/R, risk flags. Drag-drop PNG/JPG, sub-2.5s analysis. 5 weeks.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "linkedin-automation",
+      "path": "/portfolio/linkedin-automation/",
+      "title": "LinkedIn Automation Platform Case Study",
+      "description": "$4,660 scoped build — account creator, USPhonebook scraper, OctaBrowser, Clerk Auth, milestone payments.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "gazedvalleybeef",
+      "path": "/portfolio/gazedvalleybeef/",
+      "title": "GazedValleyBeef Case Study",
+      "description": "Three months Instagram content for premium WA grass-fed Black Angus — farm-to-table visual storytelling.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "valaccs",
+      "path": "/portfolio/valaccs/",
+      "title": "ValAccs.com Case Study",
+      "description": "Valorant account store — multi-category sorting, Billgang payments, dark Valorant-inspired UI, ~2 week delivery.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "ai-voice-receptionist",
+      "path": "/portfolio/ai-voice-receptionist/",
+      "title": "AI Voice Receptionist Case Study",
+      "description": "Prototype AI receptionist for dental clinics in France — appointments and patient queries via voice, in active development.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "crystal-wars",
+      "path": "/portfolio/crystal-wars/",
+      "title": "Crystal Wars Case Study",
+      "description": "Unity strategy game — civilization selection, troop deployment, ranked play. Full dev negotiations in progress.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "confidential-engagement",
+      "path": "/portfolio/confidential-engagement/",
+      "title": "Confidential Engagement Case Study",
+      "description": "Digital goods storefront for a forum operator — Billgang checkout, tiered catalog, escrow-friendly copy, and dark UI tuned for repeat buyers.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "forum-commerce-hub",
+      "path": "/portfolio/forum-commerce-hub/",
+      "title": "Forum Commerce Hub Case Study",
+      "description": "Digital goods storefront for a forum operator — Billgang checkout, tiered catalog, escrow-friendly copy, and dark UI tuned for repeat buyers.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "ops-flow-dashboard",
+      "path": "/portfolio/ops-flow-dashboard/",
+      "title": "Ops Flow Dashboard Case Study",
+      "description": "n8n-backed operations dashboard — lead routing, Slack alerts, and CRM sync for a SaaS team replacing manual spreadsheet handoffs.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "community-launch-kit",
+      "path": "/portfolio/community-launch-kit/",
+      "title": "Community Launch Kit Case Study",
+      "description": "Full Discord launch kit — server structure, role hierarchy, branded banners, welcome bot flows, and announcement templates for a gaming community.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "geo-content-engine",
+      "path": "/portfolio/geo-content-engine/",
+      "title": "GEO Content Engine Case Study",
+      "description": "Service-page GEO overhaul — FAQ schema, entity-clear copy, internal links, and llms.txt alignment for a B2B operator targeting AI citations.",
+      "category": "portfolio",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "CreativeWork",
+      "schemaOk": true
+    },
+    {
+      "slug": "gaming-server-owners",
+      "path": "/for/gaming-server-owners/",
+      "title": "For Gaming Server Owners | BrandForge",
+      "description": "Discord branding, GFX, landers, and growth for gaming communities. Fixed quotes in 24h.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "web3-crypto-projects",
+      "path": "/for/web3-crypto-projects/",
+      "title": "For Web3 & Crypto Projects | BrandForge",
+      "description": "Landing pages, brand, and GEO for crypto operators. Cascade Markets proof.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "saas-startups",
+      "path": "/for/saas-startups/",
+      "title": "For SaaS Startups | BrandForge",
+      "description": "Landers, brand, and automation for early SaaS. LinkedIn automation case study.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "ecommerce-brands",
+      "path": "/for/ecommerce-brands/",
+      "title": "For E-commerce Brands | BrandForge",
+      "description": "Storefronts and conversion UX — ValAccs and travel references.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "content-creators",
+      "path": "/for/content-creators/",
+      "title": "For Content Creators | BrandForge",
+      "description": "Short-form systems, brand kits, and landers for creators and educators.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "forum-sellers",
+      "path": "/for/forum-sellers/",
+      "title": "For Forum Sellers | BrandForge",
+      "description": "Identity, stores, and trust UX for marketplace operators.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "mobile-app-founders",
+      "path": "/for/mobile-app-founders/",
+      "title": "For Mobile App Founders | BrandForge",
+      "description": "iOS and Android MVPs, UI/UX, Firebase backends, and App Store release — CarSpotLive proof.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "automation-ops-teams",
+      "path": "/for/automation-ops-teams/",
+      "title": "For Automation & Ops Teams | BrandForge",
+      "description": "n8n and Make workflows, CRM sync, Slack alerts, and internal dashboards — The Automator retainer.",
+      "category": "niche",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "WebPage",
+      "schemaOk": true
+    },
+    {
+      "slug": "brand-identity",
+      "path": "/services/brand-identity/",
+      "title": "Brand Identity Design — Logo & Systems | BrandForge",
+      "description": "Logo, colour systems, typography, and brand guidelines for operators who need to look funded fast. From $500. Quote in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "web-design",
+      "path": "/services/web-design/",
+      "title": "Web Design & Development — Sites That Convert | BrandForge",
+      "description": "Custom landing pages and marketing sites — Next.js, performance-first, mobile-ready. From $2,500. Fixed quote in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "mobile-apps",
+      "path": "/services/mobile-apps/",
+      "title": "Mobile App Development — iOS & Android | BrandForge",
+      "description": "iOS and Android apps from design to App Store release. CarSpotLive reference build. Fixed USD quote in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "discord-branding",
+      "path": "/services/discord-branding/",
+      "title": "Discord Server Branding & Setup | BrandForge",
+      "description": "Discord branding, roles, channels, banners, and onboarding for gaming and trading communities. Fixed quote in 24h.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "automation",
+      "path": "/services/automation/",
+      "title": "Workflow Automation — n8n, Make, Zapier | BrandForge",
+      "description": "CRM sync, intake routing, alerts, and ops automation with n8n, Make, or Zapier. Fixed USD quote from BrandForge in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "ai-tools",
+      "path": "/services/ai-tools/",
+      "title": "Custom AI Tools & Knowledge Bases | BrandForge",
+      "description": "Custom AI assistants and internal copilots trained on your docs — not generic ChatGPT wrappers. BrandForge fixed quote in 24h.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "seo-growth",
+      "path": "/services/seo-growth/",
+      "title": "SEO & GEO Growth — Search + AI Visibility | BrandForge",
+      "description": "Traditional SEO plus Generative Engine Optimisation so Google and AI assistants cite BrandForge clients. Monthly and project quotes.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "paid-ads",
+      "path": "/services/paid-ads/",
+      "title": "Paid Ads Management — Google, Meta, TikTok | BrandForge",
+      "description": "Paid ads with creative systems and ROAS tracking for operators. Google, Meta, TikTok. BrandForge — quote in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "social-media",
+      "path": "/services/social-media/",
+      "title": "Social Media & Short-Form Systems | BrandForge",
+      "description": "Content calendars, short-form templates, and posting systems for operators. BrandForge — fixed quote in 24 hours.",
+      "category": "service",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "Service + FAQ",
+      "schemaOk": true
+    },
+    {
+      "slug": "validate-your-idea",
+      "path": "/roadmap/validate-your-idea/",
+      "title": "validate-your-idea",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    },
+    {
+      "slug": "build-your-brand",
+      "path": "/roadmap/build-your-brand/",
+      "title": "build-your-brand",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    },
+    {
+      "slug": "launch-strategy",
+      "path": "/roadmap/launch-strategy/",
+      "title": "launch-strategy",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    },
+    {
+      "slug": "grow-your-audience",
+      "path": "/roadmap/grow-your-audience/",
+      "title": "grow-your-audience",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    },
+    {
+      "slug": "scale-operations",
+      "path": "/roadmap/scale-operations/",
+      "title": "scale-operations",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    },
+    {
+      "slug": "tools-resources",
+      "path": "/roadmap/tools-resources/",
+      "title": "tools-resources",
+      "description": "",
+      "category": "roadmap",
+      "internalLinksIn": 0,
+      "orphan": true,
+      "lastModified": null,
+      "schema": "HowTo",
+      "schemaOk": true
+    }
+  ],
+  "seoKeywords": [
+    {
+      "keyword": "discord server branding",
+      "pages": [
+        "/services/discord-branding/",
+        "/blog/discord-server-branding-complete-guide/"
+      ],
+      "position": null,
+      "checkedAt": null
+    },
+    {
+      "keyword": "web3 brand design",
+      "pages": [
+        "/for/web3-crypto-projects/",
+        "/services/brand-identity/"
+      ],
+      "position": null,
+      "checkedAt": null
+    },
+    {
+      "keyword": "forum seller store design",
+      "pages": [
+        "/for/forum-sellers/",
+        "/portfolio/forum-commerce-hub/"
+      ],
+      "position": null,
+      "checkedAt": null
+    },
+    {
+      "keyword": "generative engine optimisation",
+      "pages": [
+        "/blog/what-is-geo-generative-engine-optimisation/"
+      ],
+      "position": null,
+      "checkedAt": null
+    }
+  ],
+  "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
+  "preDeploy": {
+    "checkedAt": "2026-06-13T19:38:18.907Z",
+    "passed": true,
+    "blockers": [],
+    "homeMobile": null,
+    "bundles": {
+      "recordedAt": "2026-06-13T19:38:18.236Z",
+      "routes": {},
+      "totalJsKb": 971,
+      "totalCssKb": 52,
+      "imgKb": 4221,
+      "homeRoute": {
+        "homeKb": 0,
+        "prevHomeKb": 0,
+        "deltaKb": 0,
+        "regressed": false
+      },
+      "flags": []
+    },
+    "images": {
+      "scannedAt": "2026-06-13T19:38:18.484Z",
+      "totalImages": 9,
+      "totalWeightKb": 4221,
+      "thresholdKb": 200,
+      "oversized": [
+        {
+          "path": "/img/logo-mark-512.png",
+          "kb": 279
+        },
+        {
+          "path": "/img/og-image.png",
+          "kb": 1711
+        }
+      ],
+      "legacyFormats": [
+        {
+          "path": "/img/apple-touch-icon.png",
+          "kb": 36,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/favicon-16x16.png",
+          "kb": 1,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/favicon-32x32.png",
+          "kb": 2,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/logo-header.png",
+          "kb": 14,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/logo-mark-512.png",
+          "kb": 279,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/logo-nav.png",
+          "kb": 5,
+          "suggest": "Convert to AVIF + WebP"
+        },
+        {
+          "path": "/img/og-image.png",
+          "kb": 1711,
+          "suggest": "Convert to AVIF + WebP"
+        }
+      ],
+      "passed": false
+    },
+    "perf": {
+      "homeMobile": null,
+      "sampled": []
+    }
+  },
+  "postDeploy": null
+}

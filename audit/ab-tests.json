@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2026-06-13",
+  "active": [
+    {
+      "testId": "home-hero-primary-cta-2026-06",
+      "location": "Home hero primary CTA",
+      "variants": [
+        { "id": "A", "label": "Start Your Rebrand", "destination": "/#packages" },
+        { "id": "B", "label": "Get Discord-Ready Branding", "destination": "Discord" }
+      ],
+      "startDate": "2026-06-13",
+      "status": "running",
+      "impressions": { "A": null, "B": null },
+      "conversions": { "A": null, "B": null },
+      "confidence": null,
+      "winner": null,
+      "notes": "Sync impressions/conversions from GA4 Explore → ab_test_impression / ab_test_conversion by variant."
+    }
+  ],
+  "completed": []
+}

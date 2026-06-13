@@ -77,15 +77,22 @@ function extractMetrics(report) {
 mkdirSync(OUT_DIR, { recursive: true });
 
 const fresh = process.argv.includes("--fresh");
+const fast = process.argv.includes("--fast");
 if (fresh && existsSync(OUT_DIR)) {
   rmSync(OUT_DIR, { recursive: true, force: true });
   mkdirSync(OUT_DIR, { recursive: true });
 }
 
-const paths = allPaths();
-console.log(
-  `Auditing ${paths.length} URLs (${PORTFOLIO_SLUGS.length} portfolio, ${BLOG_SLUGS.length} blog)…\n`,
-);
+let paths = allPaths();
+if (fast) {
+  const sample = paths.filter((p) => p !== "/").sort(() => Math.random() - 0.5).slice(0, 5);
+  paths = ["/", ...sample];
+  console.log(`--fast mode: auditing ${paths.length} URLs (home + 5 random)\n`);
+} else {
+  console.log(
+    `Auditing ${paths.length} URLs (${PORTFOLIO_SLUGS.length} portfolio, ${BLOG_SLUGS.length} blog)…\n`,
+  );
+}
 
 const results = [];
 let i = 0;
@@ -147,4 +154,27 @@ const summary = {
 };
 
 writeFileSync(SUMMARY_PATH, JSON.stringify(summary, null, 2));
+
+if (fast) {
+  const preDeployPath = join(ROOT, "..", "audit", "pre-deploy-latest.json");
+  const home = results.find((r) => r.path === "/");
+  const existing = existsSync(preDeployPath)
+    ? JSON.parse(readFileSync(preDeployPath, "utf8"))
+    : {};
+  writeFileSync(
+    preDeployPath,
+    JSON.stringify(
+      {
+        ...existing,
+        checkedAt: new Date().toISOString(),
+        homeMobile: home?.performance ?? null,
+        sampled: results.filter((r) => r.path !== "/"),
+        fast: true,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
 console.log(`\nWrote ${SUMMARY_PATH}`);
