@@ -1,0 +1,40 @@
+name: BrandForge CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "brandforge/**"
+      - ".github/workflows/brandforge-ci.yml"
+  pull_request:
+    paths:
+      - "brandforge/**"
+      - ".github/workflows/brandforge-ci.yml"
+
+defaults:
+  run:
+    working-directory: brandforge
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: brandforge/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint content
+        run: npm run lint:content
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Production build
+        run: npm run build

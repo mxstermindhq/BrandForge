@@ -26,13 +26,26 @@ const legacy = [];
 let totalKb = 0;
 
 if (fs.existsSync(IMG_ROOT)) {
-  for (const file of walk(IMG_ROOT)) {
+  const allFiles = walk(IMG_ROOT);
+  const basenamesWithModern = new Set(
+    allFiles
+      .filter((f) => /\.(webp|avif)$/i.test(f))
+      .map((f) => path.basename(f).replace(/\.(webp|avif)$/i, "")),
+  );
+
+  for (const file of allFiles) {
     const kb = fs.statSync(file).size / 1024;
     totalKb += kb;
     const rel = path.relative(path.join(BF_ROOT, "public"), file).replace(/\\/g, "/");
     const ext = path.extname(file).toLowerCase();
+    const base = path.basename(file, ext);
+    const isSourceWithModern =
+      [".jpg", ".jpeg", ".png"].includes(ext) && basenamesWithModern.has(base);
+
+    if (isSourceWithModern) continue;
+
     if (kb > MAX_KB) oversized.push({ path: `/${rel}`, kb: Math.round(kb) });
-    if ([".jpg", ".jpeg", ".png"].includes(ext) && !file.includes(".webp") && !file.includes(".avif")) {
+    if ([".jpg", ".jpeg", ".png"].includes(ext)) {
       legacy.push({ path: `/${rel}`, kb: Math.round(kb), suggest: "Convert to AVIF + WebP" });
     }
   }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SchemaInjector } from "@/components/content/SchemaInjector";
 import { SiteFooter } from "@/components/shell/SiteFooter";
 import { ContactActionBar } from "@/components/shell/ContactActionBar";
 import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
@@ -15,6 +16,14 @@ export const metadata: Metadata = {
 export default function TermsPage(): React.JSX.Element {
   return (
     <>
+      <SchemaInjector
+        pageType="default"
+        path="/terms/"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Terms", href: "/terms/" },
+        ]}
+      />
       <StaticSiteHeader />
       <ContactActionBar />
       <main className="mx-auto max-w-[760px] px-8 pb-24 pt-36">

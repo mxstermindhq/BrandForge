@@ -3,7 +3,8 @@
 **Last updated:** 2026-06-14  
 **Positioning:** mxstermind.com = **Founder Operating System** (not bespoke agency)  
 **Scope:** Sprints 1–7 (brandforge.gg) + ecosystem best-in-class targets (TheOne monorepo)  
-**Production:** https://brandforge.gg · deploy `cb26b7d3` · commit `017b2b4`  
+**Production:** https://brandforge.gg · deploy `feea4662` · commit `57d6ac9`  
+**Last ship (pending):** home static hero, server blog hub, HSTS, CI gate
 **Overall grade (Post-Sprint 7):** **B-** → target **A** for best-in-class operator studio
 
 ---
@@ -35,7 +36,7 @@
 | Conversion tracking | Events coded | GA4 Real-Time verified + CRM | 🟠 |
 | Store revenue | Discord fallback | Stripe live + first sale | 🔴 |
 | Ops automation | Scripts ✅, uptime ❌ | CI gates + 5-min monitor + alerts | 🟠 |
-| Ecosystem bridge | BF → MM ✅ | Reciprocal nav + unified attribution | 🟠 |
+| Ecosystem bridge | BF → MM ✅ | Reciprocal nav + unified attribution | 🟠 Partial — mxstermind.com apex serves SaaS app; marketing site on worker |
 | Marketplace (`web/`) | Separate app | Prod smoke test + Sentry on checkout | 🔴 (ecosystem) |
 | LeadForge | Pre-1.0 | Rate limits, tests, billing hardened | 🔴 (ecosystem) |
 

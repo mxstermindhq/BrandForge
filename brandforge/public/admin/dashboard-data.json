@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-14T07:55:44.768Z",
+  "generatedAt": "2026-06-14T08:31:22.671Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,11 +145,11 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-06-14T07:55:43.206Z",
+    "recordedAt": "2026-06-14T08:31:21.888Z",
     "routes": {},
-    "totalJsKb": 995,
+    "totalJsKb": 984,
     "totalCssKb": 53,
-    "imgKb": 4221,
+    "imgKb": 2409,
     "homeRoute": {
       "homeKb": 0,
       "prevHomeKb": 0,
@@ -159,20 +159,11 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-14T07:55:43.539Z",
-    "totalImages": 9,
-    "totalWeightKb": 4221,
+    "scannedAt": "2026-06-14T08:31:22.195Z",
+    "totalImages": 4,
+    "totalWeightKb": 2409,
     "thresholdKb": 200,
-    "oversized": [
-      {
-        "path": "/img/logo-mark-512.png",
-        "kb": 279
-      },
-      {
-        "path": "/img/og-image.png",
-        "kb": 1711
-      }
-    ],
+    "oversized": [],
     "legacyFormats": [
       {
         "path": "/img/apple-touch-icon.png",
@@ -190,30 +181,15 @@
         "suggest": "Convert to AVIF + WebP"
       },
       {
-        "path": "/img/logo-header.png",
-        "kb": 14,
-        "suggest": "Convert to AVIF + WebP"
-      },
-      {
-        "path": "/img/logo-mark-512.png",
-        "kb": 279,
-        "suggest": "Convert to AVIF + WebP"
-      },
-      {
         "path": "/img/logo-nav.png",
         "kb": 5,
         "suggest": "Convert to AVIF + WebP"
-      },
-      {
-        "path": "/img/og-image.png",
-        "kb": 1711,
-        "suggest": "Convert to AVIF + WebP"
       }
     ],
-    "passed": false
+    "passed": true
   },
   "schema": {
-    "validatedAt": "2026-06-13T20:19:47.430Z",
+    "validatedAt": "2026-06-14T08:11:13.713Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
     "total": 92,
     "pass": 92,
@@ -1822,12 +1798,12 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-13T20:19:47.457Z",
+    "checkedAt": "2026-06-14T08:11:13.810Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-06-13T20:19:46.928Z",
+      "recordedAt": "2026-06-14T08:11:12.347Z",
       "routes": {},
       "totalJsKb": 995,
       "totalCssKb": 53,
@@ -1841,7 +1817,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-13T20:19:47.127Z",
+      "scannedAt": "2026-06-14T08:11:12.880Z",
       "totalImages": 9,
       "totalWeightKb": 4221,
       "thresholdKb": 200,
@@ -1900,7 +1876,7 @@
     }
   },
   "postDeploy": {
-    "verifiedAt": "2026-06-13T20:21:18.228Z",
+    "verifiedAt": "2026-06-14T08:14:26.765Z",
     "base": "https://brandforge.gg",
     "checks": [
       {

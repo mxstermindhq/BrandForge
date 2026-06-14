@@ -47,3 +47,21 @@ async function convert({ src, maxWidth, webpKb, avifKb }) {
 }
 
 for (const t of TARGETS) await convert(t);
+
+/** Recompress PNG sources so deploy audit stays under threshold. */
+async function compressPngSources() {
+  for (const { src, maxWidth } of TARGETS) {
+    const input = path.join(imgDir, src);
+    if (!fs.existsSync(input)) continue;
+    const kb = fs.statSync(input).size / 1024;
+    if (kb <= 200) continue;
+    const buffer = await sharp(input)
+      .resize({ width: maxWidth, withoutEnlargement: true })
+      .png({ compressionLevel: 9, palette: true, quality: 80 })
+      .toBuffer();
+    fs.writeFileSync(input, buffer);
+    console.log(`✓ ${src} compressed — ${Math.round(buffer.length / 1024)}KB`);
+  }
+}
+
+await compressPngSources();

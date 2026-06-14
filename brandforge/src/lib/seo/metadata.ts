@@ -22,7 +22,7 @@ export function buildPageMetadata(meta: PageSeoMeta): Metadata {
       description: meta.ogDescription ?? description,
       images: [
         {
-          url: meta.ogImage ?? "/img/og-image.png",
+          url: meta.ogImage ?? "/img/og-image.webp",
           width: 1200,
           height: 630,
         },
@@ -32,7 +32,7 @@ export function buildPageMetadata(meta: PageSeoMeta): Metadata {
       card: "summary_large_image",
       title: meta.ogTitle ?? title,
       description: meta.ogDescription ?? description,
-      images: [meta.ogImage ?? "/img/og-image.png"],
+      images: [meta.ogImage ?? "/img/og-image.webp"],
     },
     robots: { index: true, follow: true },
   };
