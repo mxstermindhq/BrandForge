@@ -6,9 +6,9 @@ import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Services — Bespoke Design & Engineering | mxstermind",
+  title: "Services — Founder OS Modules | mxstermind",
   description:
-    "Custom brand, full-stack, Web3, automation, and growth architecture for established businesses. No packages — fixed scope after fit.",
+    "Monetization, product engineering, Web3, automation, and growth architecture — modules of the Founder Operating System.",
   path: "/services/",
 });
 
@@ -21,26 +21,26 @@ export default function ServicesHubPage(): React.JSX.Element {
       ]}
       path="/services/"
       schemaType="service"
-      serviceName="mxstermind bespoke services"
-      serviceDescription="Custom design, engineering, Web3, automation, and growth for established businesses."
+      serviceName="mxstermind Founder OS modules"
+      serviceDescription="Monetization, design, engineering, Web3, automation, and growth systems for founders scaling beyond packages."
       faqs={SERVICES_HUB_FAQ}
     >
       <PageHero
         eyebrow="Services"
         title={
           <>
-            One studio. <em className="text-accent-bright not-italic">Custom scope.</em>
+            One OS. <em className="text-accent-bright not-italic">Many modules.</em>
           </>
         }
-        subhead="Brand, product, engineering, Web3, automation, and growth — quoted as a single outcome when your build demands it."
+        subhead="Monetization, product, engineering, Web3, automation, and growth — scoped as operating-system outcomes for your stage."
         primaryCta={{ label: "Apply on Discord", href: SITE.discord }}
       />
 
       <section className="py-16">
         <div className="content-wrap">
           <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-            mxstermind does not publish shopping-cart packages. Every engagement starts with fit review on Discord or Telegram,
-            then a fixed USD scope document. For productized tiers, see{" "}
+            mxstermind is the Founder Operating System — not a package cart. Every OS engagement starts with fit review on Discord or Telegram,
+            then a fixed USD scope for the operating layer you need. For bounded execution, see{" "}
             <a href={SITE.packages} className="text-accent-bright hover:text-text" rel="noopener noreferrer">
               BrandForge packages
             </a>

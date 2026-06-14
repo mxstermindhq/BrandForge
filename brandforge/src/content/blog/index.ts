@@ -22,7 +22,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         heading: "Start with the buyer screenshot",
         ...p([
           "Your brand is what strangers assume in three seconds on a Discord banner or store header. In 2026 that is still true for forum sellers, Web3 founders, and SaaS operators — only the channels multiplied.",
-          "BrandForge builds from that screenshot backward: positioning line, tokens, exports, then web. mxstermind.com picks up when you need bespoke systems across product and growth.",
+          "BrandForge builds from that screenshot backward: positioning line, tokens, exports, then web. mxstermind.com Founder OS picks up when you need operating systems across product and growth.",
         ]),
       },
       {
@@ -328,14 +328,14 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     slug: "how-to-choose-a-design-agency-2026",
     title: "How to choose a design agency in 2026",
     metaTitle: "Choose a Design Agency 2026",
-    metaDescription: "Package vs bespoke, proof, escrow — operator checklist.",
+    metaDescription: "Package vs Founder OS, proof, escrow — operator checklist.",
     datePublished: "2026-05-02",
     readingTime: "11 min",
     sections: [
       {
         heading: "Fit first",
         ...p([
-          "Pick BrandForge for fixed packages and speed. Pick mxstermind for bespoke diagnosis. Ask for live URLs, escrow terms, and who actually delivers.",
+          "Pick BrandForge for fixed packages and speed. Use mxstermind Founder OS for operating-system diagnosis. Ask for live URLs, escrow terms, and who actually delivers.",
         ]),
       },
     ],
@@ -420,7 +420,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       {
         heading: "When to escalate to premium",
         ...p([
-          "Scope above Tier 5 belongs at mxstermind.com — bespoke squads, longer timelines, outcome-based deals. BrandForge packages stay fast and bounded.",
+          "Scope above Tier 5 belongs at mxstermind.com — Founder OS squads, longer timelines, outcome-based deals. BrandForge packages stay fast and bounded.",
         ]),
       },
     ],

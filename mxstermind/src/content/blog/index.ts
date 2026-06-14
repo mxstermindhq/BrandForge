@@ -31,15 +31,15 @@ export const BLOG_SLUGS = [
 export const BLOG_HUB_FAQ: readonly FaqItem[] = [
   {
     question: "Who writes mxstermind editorial content?",
-    answer: "Published by mxstermind — the same studio that ships the case studies linked in each article.",
+    answer: "Published by mxstermind — the Founder OS team behind the case studies linked in each article.",
   },
   {
     question: "Can I request a topic?",
-    answer: "Message Discord with your question. We prioritise topics that help established buyers scope bespoke work.",
+    answer: "Message Discord with your question. We prioritise topics that help founders scope Founder OS work.",
   },
   {
     question: "How does mxstermind relate to BrandForge blog posts?",
-    answer: "BrandForge.gg covers operator packages and roadmap stages. mxstermind.com goes deeper on bespoke builds and technical delivery.",
+    answer: "BrandForge.gg covers operator packages and roadmap stages. mxstermind.com goes deeper on Founder OS systems and technical delivery.",
   },
   {
     question: "Do you accept guest posts?",
@@ -87,10 +87,10 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
   },
   "bespoke-agency-vs-package-agency-which-is-right": {
     slug: "bespoke-agency-vs-package-agency-which-is-right",
-    title: "Bespoke agency vs package agency — which is right?",
-    metaTitle: "Bespoke vs Package Agency | mxstermind",
+    title: "Founder OS vs package agency — which is right?",
+    metaTitle: "Founder OS vs Package Agency | mxstermind",
     metaDescription:
-      "When to hire mxstermind bespoke vs BrandForge packages — decision framework for founders and established businesses.",
+      "When to use mxstermind Founder OS vs BrandForge packages — decision framework for founders scaling beyond tiers.",
     datePublished: "2026-05-12",
     readingTime: "12 min",
     sections: [
@@ -98,11 +98,11 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
         heading: "Packages optimise for speed and clarity",
         ...p(
           "BrandForge.gg publishes tiers because many operators want a known price for brand, web, or growth — quote in 24 hours, defined deliverables, escrow-friendly.",
-          "Packages fail when your scope crosses mobile + backend + automation + brand in one timeline. That is where bespoke studios earn their fee.",
+          "Packages fail when your scope crosses mobile + backend + automation + brand in one timeline. That is where Founder OS implementations earn their place.",
         ),
       },
       {
-        heading: "Bespoke optimises for outcome complexity",
+        heading: "Founder OS optimises for operating complexity",
         ...p(
           "mxstermind quotes after fit review. You get a scope document, not a shopping cart. Typical signals: internal engineering team, procurement review, NDA, or Web3/fintech integrations.",
           "If you only need a landing and logo, start at brandforge.gg/packages/. If you need a trading desk or verification system, see /portfolio/ and /apply/.",
@@ -111,7 +111,7 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     ],
     faqs: [
       { question: "Can we start with a package and upgrade?", answer: "Yes — many clients start on BrandForge and move to mxstermind for phase two." },
-      { question: "Is bespoke always more expensive?", answer: "Usually higher floor, but avoids change-order death on complex builds." },
+      { question: "Is Founder OS always more expensive?", answer: "Usually higher floor, but avoids change-order death on complex builds." },
       { question: "Same team?", answer: "Same studio network — different intake and scope process." },
       { question: "How to apply?", answer: "/apply/ or Discord." },
     ],
@@ -152,7 +152,7 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     title: "How to brief a design agency without wasting time",
     metaTitle: "Brief a Design Agency Properly | mxstermind",
     metaDescription:
-      "Outcome, references, deadline, budget band — the four fields mxstermind needs to quote bespoke work in 24 hours.",
+      "Outcome, references, deadline, budget band — the four fields mxstermind needs to scope Founder OS work in 24 hours.",
     datePublished: "2026-05-08",
     readingTime: "11 min",
     sections: [
@@ -299,14 +299,14 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     title: "How much should a website cost — an honest answer",
     metaTitle: "Website Cost Honest Answer | mxstermind",
     metaDescription:
-      "Template, package, bespoke — realistic USD ranges and what moves price for established businesses.",
+      "Template, package, Founder OS — realistic USD ranges and what moves price for established businesses.",
     datePublished: "2026-04-28",
     readingTime: "13 min",
     sections: [
       {
         heading: "Three tiers of reality",
         ...p(
-          "Template + DIY: hundreds. Productized agency packages (BrandForge): low thousands for defined deliverables. Bespoke product sites with integrations: often $5k–$50k+ with mxstermind.",
+          "Template + DIY: hundreds. Productized agency packages (BrandForge): low thousands for defined deliverables. Founder OS product builds with integrations: often $5k–$50k+ with mxstermind.",
           "Price moves with auth, CMS, integrations, motion budget, and who maintains after launch.",
         ),
       },
@@ -320,7 +320,7 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
     ],
     faqs: [
       { question: "Cheapest path?", answer: "BrandForge packages for operator landers." },
-      { question: "Enterprise?", answer: "mxstermind bespoke — message with budget band." },
+      { question: "Enterprise?", answer: "mxstermind Founder OS — message with budget band." },
       { question: "Hidden costs?", answer: "Hosting, domains, third-party SaaS — listed in scope doc." },
       { question: "Quote speed?", answer: "24 hours on Discord/Telegram." },
     ],
@@ -344,7 +344,7 @@ export const BLOG_POSTS: Record<(typeof BLOG_SLUGS)[number], BlogPost> = {
       {
         heading: "Same team, two front doors",
         ...p(
-          "BrandForge.gg for packages. mxstermind.com for bespoke. Ethics align — delivery standards do not change because the logo on the invoice differs.",
+          "BrandForge.gg for packages. mxstermind.com for Founder OS. Ethics align — delivery standards do not change because the logo on the invoice differs.",
         ),
       },
     ],

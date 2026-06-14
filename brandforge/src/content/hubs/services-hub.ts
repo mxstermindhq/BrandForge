@@ -100,6 +100,6 @@ export const SERVICES_HUB_FAQ = [
   {
     question: "What is the difference between BrandForge and mxstermind?",
     answer:
-      "BrandForge sells fixed packages for operators who want speed and clear USD pricing. mxstermind.com is the premium bespoke studio for established businesses that need custom scope — no templates, no package tiers.",
+      "BrandForge sells fixed packages for operators who want speed and clear USD pricing. mxstermind.com is the Founder Operating System — monetization, ops, and growth systems beyond fixed packages.",
   },
 ] as const;

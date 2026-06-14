@@ -37,7 +37,7 @@ export const BLOG_EXTRA_SECTIONS_2: Record<
     {
       heading: "Comparison pages earn citations",
       paragraphs: [
-        "Assistants love “X vs Y” when both sides are factual. Write BrandForge vs hourly freelancer, package vs bespoke, escrow vs upfront — with honest tradeoffs, not smear. Self-contained paragraphs beat tables buried in JavaScript.",
+        "Assistants love “X vs Y” when both sides are factual. Write BrandForge vs hourly freelancer, Package vs Founder OS, escrow vs upfront — with honest tradeoffs, not smear. Self-contained paragraphs beat tables buried in JavaScript.",
         "Host comparisons on your domain, link from /packages/, and keep numbers current. Forum sellers should mirror the same facts in sig copy. Stale pricing in AI answers hurts worse than no citation — update within 48h of SKU changes.",
       ],
     },

@@ -76,11 +76,11 @@ export const PORTFOLIO_HUB_FAQ = [
   {
     question: "How is mxstermind different from BrandForge packages?",
     answer:
-      "BrandForge ships productized packages for operators who want speed and fixed tiers. mxstermind takes bespoke engagements when scope crosses product, engineering, and growth.",
+      "BrandForge ships fixed packages for operators who want speed and clear USD pricing. mxstermind is the Founder OS when scope crosses monetization, ops, and growth systems.",
   },
   {
     question: "What does a typical engagement budget look like?",
     answer:
-      "Most mxstermind builds start above package tiers — often $5k–$50k+ depending on stack, integrations, and timeline. We quote fixed USD after a scoping conversation.",
+      "Founder OS implementations typically start above package tiers — often $5k–$50k+ depending on stack, integrations, and timeline. We quote fixed USD after scoping the operating layer.",
   },
 ] as const;

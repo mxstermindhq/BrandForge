@@ -30,7 +30,7 @@ export default function EthicsPage(): React.JSX.Element {
       <section className="py-8">
         <div className="content-wrap max-w-3xl text-sm text-text-secondary">
           <p>
-            Bespoke engagements with longer discovery live at{" "}
+            Founder OS scope with longer discovery live at{" "}
             <Link href="https://mxstermind.com/ethics-standards" className="text-accent-bright">
               mxstermind ethics
             </Link>

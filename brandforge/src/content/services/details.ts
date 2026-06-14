@@ -163,7 +163,7 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
       "We design in the same stack we ship — usually Next.js with static export or edge deploy friendly output. That means no surprise handoff where the developer rebuilds half the layout. Drain.cx is the reference: pixel-faithful production with motion that respects reduced-motion preferences.",
       "Performance is not a post-launch audit checkbox. Images are sized, fonts are subset, and JavaScript is budgeted. Forum operators and paid-traffic buyers feel slow pages immediately — bounce rates do not lie.",
       "Every site includes the boring work that agencies skip: meta titles, canonical URLs, Open Graph, XML sitemap, and FAQ blocks where they help AI search engines summarize you accurately. That is GEO-ready structure, not buzzword slides.",
-      "Integrations — Stripe, crypto checkout, Discord widgets, CRM forms — are scoped upfront. BrandForge quotes fixed USD for defined flows. If you need a full marketplace or custom auth, mxstermind.com scopes bespoke engineering.",
+      "Integrations — Stripe, crypto checkout, Discord widgets, CRM forms — are scoped upfront. BrandForge quotes fixed USD for defined flows. If you need a full marketplace or custom auth, mxstermind.com scopes Founder OS engineering.",
       "Handoff means repo access or deploy credentials, a short launch checklist, and documented edit paths for copy you will change weekly. You are not locked into a proprietary CMS unless you asked for one.",
     ],
     faqs: [
@@ -244,7 +244,7 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
       "Stack choice is honest. Cross-platform saves budget when UI is standard. Native or hybrid approaches are quoted when performance or OS integrations demand it. We do not force React Native because it is trendy if Flutter or native Swift/Kotlin fits your deadline.",
       "API design is part of mobile delivery. If your backend does not exist, we scope it — or integrate with Firebase and third-party services when speed beats custom servers.",
       "Web3 mobile — wallet connect, transaction signing, network switching — was delivered on the SUI rebuild with a four-person team in two weeks. That is the ceiling pace with clear scope and daily coordination on Discord.",
-      "App store compliance, privacy labels, and crash reporting are line items in the quote, not surprises at submission. BrandForge names the studio in project docs; mxstermind.com handles larger product teams and multi-quarter roadmaps.",
+      "App store compliance, privacy labels, and crash reporting are line items in the quote, not surprises at submission. BrandForge names the studio in project docs; mxstermind.com Founder OS handles larger product teams and multi-quarter roadmaps.",
     ],
     faqs: [
       {
@@ -408,7 +408,7 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
       "n8n self-hosted is preferred when you want control and lower per-task fees. Make and Zapier are fine when speed beats infrastructure. The quote names the platform and who pays monthly task costs.",
       "Discord and Telegram are first-class endpoints. Operator businesses live in chat; your automation should meet orders where they arrive, not force everyone into a SaaS form.",
       "The LinkedIn automation platform in our portfolio was a four-figure scoped build — not a toy Zap. Dashboards, limits, and compliance-aware sending were part of delivery.",
-      "Handoff includes exported workflows, credential rotation notes, and a runbook for common failures. mxstermind.com takes multi-system enterprise integrations when you outgrow no-code limits.",
+      "Handoff includes exported workflows, credential rotation notes, and a runbook for common failures. mxstermind.com Founder OS takes multi-system enterprise integrations when you outgrow no-code limits.",
     ],
     faqs: [
       {
@@ -571,7 +571,7 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
       "Every Growth Engine month can include search reporting: which queries move, which FAQ blocks appear in AI overviews, where competitors cite better structure. Adjustments are operational, not quarterly deck theater.",
       "Site migrations and replatforms are high-risk moments. BrandForge preserves URL equity, redirects, and schema when you move from static HTML to Next.js or from a template to custom code.",
       "Content hubs — services, case studies, roadmap pages — are how BrandForge structures its own site. We apply the same architecture to clients: hubs, deep pages, internal links, sitemap discipline.",
-      "mxstermind.com clients with large editorial programs get bespoke search strategy. BrandForge packages cover operators who need results without hiring a head of marketing.",
+      "mxstermind.com clients with large editorial programs get Founder OS search strategy. BrandForge packages cover operators who need results without hiring a head of marketing.",
     ],
     faqs: [
       {
@@ -651,7 +651,7 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
       "Creative is systematized — hook variants, aspect ratios, iteration calendar — so you are not filming one-off ads that die in three days. Short-form templates align with our social media service when bundled.",
       "Weekly reporting uses kill/scale language. Campaigns that miss CPA targets pause until creative or offer changes — not endless hope spending.",
       "Platform mix depends on audience. Meta for broad B2C, Google for intent, TikTok for creative-led products. We do not force TikTok because it is trendy if your buyer is not there.",
-      "BrandForge ad management pairs with Growth Engine retainers. mxstermind.com handles large multi-market budgets and custom attribution when package analytics are not enough.",
+      "BrandForge ad management pairs with Growth Engine retainers. mxstermind.com Founder OS handles large multi-market budgets and custom attribution when package analytics are not enough.",
     ],
     faqs: [
       {

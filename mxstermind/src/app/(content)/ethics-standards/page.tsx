@@ -8,7 +8,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "Ethics & Standards | mxstermind",
   description:
-    "Selective intake, delivery, payments, privacy, and quality standards for bespoke mxstermind engagements.",
+    "Selective intake, delivery, payments, privacy, and quality standards for Founder OS clients.",
   path: "/ethics-standards/",
 });
 
@@ -25,7 +25,7 @@ export default function EthicsPage(): React.JSX.Element {
     >
       <PageHero
         eyebrow="Standards"
-        title="Rules scoped into every bespoke quote"
+        title="Rules scoped into every Founder OS quote"
         subhead="Operational ethics for established buyers — not marketing filler."
       />
       <section className="py-8">

@@ -44,7 +44,7 @@ export function SiteFooter(): React.JSX.Element {
           </a>
         </nav>
         <p className="mt-6 font-mono text-[10px] text-muted">
-          © 2026 mxstermind · Bespoke design, engineering & growth
+          © 2026 mxstermind · Founder Operating System
         </p>
       </div>
     </footer>

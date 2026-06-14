@@ -66,7 +66,7 @@ export default function StorePage(): React.JSX.Element {
 
       <CTASection
         title="Need custom work?"
-        subhead="Packages include bespoke delivery — store templates are self-serve."
+        subhead="Packages include hands-on delivery — store templates are self-serve."
         campaign="store-footer-cta"
       />
     </PageShell>

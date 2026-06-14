@@ -3,8 +3,8 @@ import { ForgeButton } from "@/components/marketplace/ForgeButton";
 import { StellarForgeCanvas } from "@/app/(landing)/_components/forge/StellarForgeCanvas";
 
 export const metadata: Metadata = {
-  title: "Mxstermind Network",
-  description: "Need talent? The Mxstermind network coordinates vetted operators.",
+  title: "Mxstermind — Founder Operating System",
+  description: "Graduate from packages to the Founder OS — monetization, ops, and growth systems at mxstermind.com.",
 };
 
 export default function MxstermindBridgePage() {
@@ -29,8 +29,9 @@ export default function MxstermindBridgePage() {
           <span className="text-[#7eb8ff]">Go to Mxstermind</span>
         </h1>
         <p className="mt-6 max-w-lg text-base text-[var(--forge-text-muted)]">
-          BrandForge is the execution marketplace — buy products and services instantly. Mxstermind is the network:
-          vetted operators, scoped intros, and coordination when you need a human in the loop.
+          BrandForge is the execution marketplace — buy products and services instantly. mxstermind is the
+          Founder Operating System: monetization rails, ops workflows, and growth infrastructure when you
+          outgrow packages.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <ForgeButton href="https://mxstermind.com" variant="primary" external dataTrack="mxstermind_cta">

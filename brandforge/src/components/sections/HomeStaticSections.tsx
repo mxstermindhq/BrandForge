@@ -73,12 +73,12 @@ export function IcpSection(): React.JSX.Element {
           Built for <em className="text-accent-bright not-italic">digital founders</em> — not generic agencies.
         </SectionTitle>
         <p className="mt-5 max-w-3xl text-sm leading-relaxed text-text-secondary">
-          BrandForge is the package tier: fixed scope, fast delivery, one team. Need a fully bespoke build with
-          dedicated senior capacity? That&apos;s{" "}
+          BrandForge is the package tier: fixed scope, fast delivery, one team. Need the Founder Operating
+          System?{" "}
           <a href={SITE.premium} className="text-accent-bright hover:text-text" rel="noopener noreferrer">
             mxstermind.com
           </a>{" "}
-          — premium studio, no templates.
+          — monetization, ops, and growth beyond packages.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {ICP_CARDS.map((card) => (
@@ -259,9 +259,9 @@ export function MxstermindPromoSection(): React.JSX.Element {
     <aside className="border-b border-b1 bg-s1 py-10">
       <div className="content-wrap flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
         <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-          Running a serious operation that needs a fully custom engagement?{" "}
+          Revenue validated and need monetization rails, ops workflows, or growth systems?{" "}
           <strong className="font-semibold text-text">
-            Our premium studio takes on selective clients — no packages, no templates.
+            mxstermind is the Founder Operating System — not another agency retainer.
           </strong>
         </p>
         <a

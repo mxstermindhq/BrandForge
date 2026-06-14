@@ -7,7 +7,7 @@ export const post: BlogPost = {
   title: "How to pick the right BrandForge tier",
   metaTitle: "Pick the Right BrandForge Tier | BrandForge",
   metaDescription:
-    "Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to escalate to mxstermind.com.",
+    "Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to graduate to mxstermind.com (Founder OS).",
   datePublished: "2026-06-08",
   readingTime: "9 min",
   category: "Guides",
@@ -19,7 +19,7 @@ export const post: BlogPost = {
     { heading: "Community + AI", ...p(["Discord + bots + video pipelines → AI & Community $7.5k/mo.", "/for/gaming-server-owners/ for community proof."]) },
     { heading: "Full squad", ...p(["Design + dev + growth concurrently → Full-Stack $10k+/mo.", "Three dedicated work streams."]) },
     { heading: "Compare tables", ...p(["/packages/ comparison table — copy into your brief.", "Delivery timeline on same page."]) },
-    { heading: "When packages break", ...p(["Bespoke multi-quarter builds → mxstermind.com.", "BrandForge stays bounded and fast."]) },
+    { heading: "When packages break", ...p(["Founder OS multi-quarter builds → mxstermind.com.", "BrandForge stays bounded and fast."]) },
     { heading: "Next step", ...p(["Message tier name on Discord — quote in 24h.", "Mention this article for faster routing."]) },
   ],
   relatedServices: [

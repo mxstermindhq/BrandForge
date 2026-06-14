@@ -1,37 +1,42 @@
 # mxstermind
 
-> mxstermind.com is a premium bespoke design and development studio for established businesses, complex products, and operators who have outgrown fixed packages.
+> mxstermind.com is the Founder Operating System for operators who validated revenue and need monetization, ops, growth stack, and economics beyond fixed packages — not a bespoke agency.
+
+## What it is
+- Founder Operating System (OS) — monetization rails, ops workflows, growth infrastructure
+- Sister platform to BrandForge.gg (fixed USD packages for brand, web, and growth execution)
+- Same team network — different layer: execution vs operating system
 
 ## Who we serve
-- Established businesses needing senior capacity without agency overhead
-- Founders with multi-surface products (web, mobile, automation, AI)
-- Teams that want diagnosis before build — not template packages
+- Founders with revenue traction needing systems, not hourly agency retainers
+- Operators scaling communities, products, or multi-surface businesses
+- Teams that outgrew package tiers and need economics + ops wired together
 
 ## Key pages
 - Home: https://mxstermind.com/
-- Services: https://mxstermind.com/services/
+- Services (OS modules): https://mxstermind.com/services/
 - Portfolio: https://mxstermind.com/portfolio/
 - Process: https://mxstermind.com/process/
-- Apply: https://mxstermind.com/apply/
+- Apply (OS access): https://mxstermind.com/apply/
 - About: https://mxstermind.com/about/
 - Developers: https://mxstermind.com/developers/
 - Blog: https://mxstermind.com/blog/
 - Ethics: https://mxstermind.com/ethics-standards/
-- For established businesses: https://mxstermind.com/for/established-businesses/
+- BrandForge bridge: https://brandforge.gg/mxstermind/
 
 ## How to engage
-Apply via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Scoped intake — no package checkout.
+Apply for Founder OS access via Discord (https://discord.gg/a8Nz2R6M55) or Telegram (https://t.me/Notmxstermind). Share stage, revenue model, and OS needs.
 
 ## Policies
 - Terms: https://mxstermind.com/terms/
 - Privacy: https://mxstermind.com/privacy/
 - Ethics: https://mxstermind.com/ethics-standards/
 
-## Package tier (sister brand)
+## Package execution (sister brand)
 Fixed USD packages for faster launches: https://brandforge.gg/packages/
 
 ## Portfolio highlights
-cascade.markets, drain.cx, CarSpot Live, Sui blockchain app, crypto trading platform, Telegram verification system.
+cascade.markets, drain.cx, CarSpotLive, Sui blockchain app, crypto trading platform, ops automation dashboards.
 
 ## Ethics
 Aligned with BrandForge standards at https://brandforge.gg/ethics-standards/

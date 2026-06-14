@@ -30,7 +30,7 @@ const ABOUT_FAQ = [
   {
     question: "When should I use mxstermind instead of BrandForge?",
     answer:
-      "Choose BrandForge for bounded scope with fast turnaround. Choose mxstermind.com when you need bespoke teams, complex integrations, or outcome-based engagements above package tiers.",
+      "Choose BrandForge for bounded scope with fast turnaround. Choose mxstermind.com when you need the Founder OS — monetization rails, ops workflows, and growth infrastructure above package tiers.",
   },
 ] as const;
 

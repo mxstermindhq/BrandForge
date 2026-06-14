@@ -7,7 +7,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Name the offer before the logo",
       paragraphs: [
         "Operators burn budget on mascots before they can explain the SKU in one line. Write the outcome first: what ships, to whom, in how many days, with what proof. That sentence becomes your Discord pinned post, forum thread title, and hero H1 on the lander.",
-        "BrandForge Brand Sprint packages lock that positioning with tokens and exports — fixed USD, quote in 24h on Discord or Telegram. When the offer spans product and growth, mxstermind.com takes the bespoke lane; start at /packages/ if you want a bounded first buy.",
+        "BrandForge Brand Sprint packages lock that positioning with tokens and exports — fixed USD, quote in 24h on Discord or Telegram. When the offer spans product and growth, mxstermind.com is the Founder OS for lane; start at /packages/ if you want a bounded first buy.",
       ],
     },
     {
@@ -83,7 +83,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Banner specs that survive mobile",
       paragraphs: [
         "Safe zones matter: keep logos and offer text out of crop edges on iOS Discord. Provide layered source files so mods can swap seasonal promos without rebuilding from scratch. One wrong aspect ratio makes a $2k server look amateur.",
-        "Order Discord branding through /services/discord-branding/ with references from communities you respect. Telegram mirrors are common for Web3 — keep avatar and banner consistent across both. mxstermind.com handles larger community products when you outgrow package scope.",
+        "Order Discord branding through /services/discord-branding/ with references from communities you respect. Telegram mirrors are common for Web3 — keep avatar and banner consistent across both. mxstermind.com Founder OS handles larger community products when you outgrow package scope.",
       ],
     },
     {
@@ -214,7 +214,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Buy order for operators",
       paragraphs: [
         "Sequence: positioning line, identity tokens, Discord/web application, then ads. Skipping identity before paid traffic burns forum standing and ad budget alike. CRO on /services/web-design/ cannot fix off-brand trust signals.",
-        "Compare SKUs on /packages/ before you open ten Fiverr orders. When identity must span product, docs, and Studio editorial, escalate to mxstermind.com with the same escrow discipline you demand from vendors.",
+        "Compare SKUs on /packages/ before you open ten Fiverr orders. When identity must span product, docs, and Studio editorial, graduate to mxstermind.com (Founder OS) with the same escrow discipline you demand from vendors.",
       ],
     },
   ],
@@ -252,9 +252,9 @@ export const BLOG_EXTRA_SECTIONS: Record<
 
   "how-to-choose-a-design-agency-2026": [
     {
-      heading: "Package vs bespoke diagnosis",
+      heading: "Package vs Founder OS diagnosis",
       paragraphs: [
-        "BrandForge sells fixed USD packages with stated deliverables and revision bounds — built for forum, Web3, and SaaS operators who need speed. mxstermind.com sells bespoke diagnosis when the problem is product, data, and multi-channel growth together.",
+        "BrandForge sells fixed USD packages with stated deliverables and revision bounds — built for forum, Web3, and SaaS operators who need speed. mxstermind.com sells Founder OS diagnosis when the problem is product, data, and multi-channel growth together.",
         "Ask any vendor to map your ask to a SKU or a written scope. Vague hourly-only quotes are a 2026 red flag. Start comparison at /packages/ and /services/ before you book discovery calls that sell fluff.",
       ],
     },
@@ -269,7 +269,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Escrow and milestone discipline",
       paragraphs: [
         "Milestones should tie to artifacts: tokens delivered, store staged, app build uploaded. Avoid 100% upfront on strangers. Forum culture rewards operators who document delivery — your agency should not fight that norm.",
-        "Fixed USD packages reduce surprise invoices; bespoke work still needs caps. Quote BrandForge in 24h on Discord with asset list and deadline. Studio intake on mxstermind.com for larger builds — same escrow mindset, longer horizon.",
+        "Fixed USD packages reduce surprise invoices; Founder OS work still needs caps. Quote BrandForge in 24h on Discord with asset list and deadline. Studio intake on mxstermind.com for larger builds — same escrow mindset, longer horizon.",
       ],
     },
     {

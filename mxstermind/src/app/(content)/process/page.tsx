@@ -4,9 +4,9 @@ import { PROCESS_FAQ, PROCESS_STEPS } from "@/content/hubs/process-hub";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Process — How Engagements Work | mxstermind",
+  title: "Process — How the Founder OS Works | mxstermind",
   description:
-    "Apply, fit review, fixed scope, build, handoff — mxstermind process for bespoke business engagements.",
+    "Apply, fit review, OS scope, build, handoff — mxstermind process for Founder Operating System access.",
   path: "/process/",
 });
 

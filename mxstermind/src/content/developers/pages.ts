@@ -91,7 +91,7 @@ export const DEV_PAGES: Record<DevSlug, DevPageDetail> = {
     meta: {
       title: "Tech Stack — Documented Choices | mxstermind",
       description:
-        "Next.js, React Native, Node, PostgreSQL, Cloudflare — reasoned stack choices for bespoke product builds.",
+        "Next.js, React Native, Node, PostgreSQL, Cloudflare — reasoned stack choices for Founder OS product builds.",
     },
     eyebrow: "Developers",
     title: "Stack we stand behind",
@@ -331,7 +331,7 @@ export const DEV_PAGES: Record<DevSlug, DevPageDetail> = {
     decisions: [
       {
         title: "Document at handoff",
-        body: "Every bespoke build includes a one-page architecture summary — not a 100-slide deck.",
+        body: "Every Founder OS build includes a one-page architecture summary — not a 100-slide deck.",
       },
       {
         title: "Redaction by default",

@@ -39,7 +39,7 @@ const PACKAGES_FAQ = [
   {
     question: "What if my project is bigger than Tier 5?",
     answer:
-      "For bespoke scope above package tiers, mxstermind.com handles premium engagements — custom teams, longer timelines, outcome-based structuring. BrandForge packages stay fast and bounded.",
+      "Above package tiers, mxstermind.com is the Founder Operating System — operating-system scope, longer timelines, outcome-based structuring. BrandForge packages stay fast and bounded.",
   },
   {
     question: "How fast does work start after I pay?",
@@ -171,7 +171,7 @@ export default function PackagesPage(): React.JSX.Element {
           <Link href="/services/" className="text-accent-bright">
             services hub
           </Link>
-          . Premium bespoke work lives at{" "}
+          . Founder OS work lives at{" "}
           <a href={SITE.premium} className="text-accent-bright">
             mxstermind.com
           </a>
@@ -197,7 +197,7 @@ export default function PackagesPage(): React.JSX.Element {
               className="rounded bg-discord px-5 py-2.5 font-mono text-[11px] font-bold text-white"
               {...ctaTrackAttrs("discord", "packages-custom")}
             >
-              Discuss custom scope on Discord
+              Discuss Founder OS on Discord
             </a>
             <CopyInviteButton campaign="packages-custom-copy" />
           </div>

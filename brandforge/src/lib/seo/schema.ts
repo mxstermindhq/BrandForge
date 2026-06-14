@@ -21,6 +21,7 @@ function organizationSchema(): Record<string, unknown> {
       "@type": "Organization",
       name: "mxstermind",
       url: SITE.premium,
+      description: "Founder Operating System — monetization, ops, and growth systems beyond packages.",
     },
     contactPoint: {
       "@type": "ContactPoint",

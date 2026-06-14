@@ -61,7 +61,7 @@ export const ROADMAP_STAGES: Record<string, RoadmapStage> = {
     body: [
       "BrandForge sees operators skip this stage and then blame the designer for low sales. Validation is cheap relative to a full brand and site. Use a simple lander, talk to buyers in the channel you will sell in forever, and measure whether anyone pulls out a card.",
       "Forum sellers: post a vouch-backed thread with a limited SKU before you commission art. Web3 founders: test narrative on X and Telegram before token spend. SaaS: run a fake-door or concierge MVP.",
-      "mxstermind.com is for later — when validation succeeded and you need bespoke systems. BrandForge packages meet most operators at stage two onward.",
+      "mxstermind.com is for later — when validation succeeded and you need operating systems. BrandForge packages meet most operators at stage two onward.",
     ],
     faqs: [
       {
@@ -186,7 +186,7 @@ export const ROADMAP_STAGES: Record<string, RoadmapStage> = {
         answer: "Yes via /services/discord-branding/ — structure, roles, banners.",
       },
       {
-        question: "mxstermind for launch?",
+        question: "Founder OS for launch?",
         answer: "When launch includes custom app, multi-region, or enterprise procurement — apply at mxstermind.com.",
       },
     ],
@@ -287,7 +287,7 @@ export const ROADMAP_STAGES: Record<string, RoadmapStage> = {
         answer: "See /services/ai-tools/ — grounded on your docs, not generic.",
       },
       {
-        question: "When is mxstermind needed?",
+        question: "When is the Founder OS needed?",
         answer: "Multi-system enterprise graphs or regulated data — Studio scopes discovery first.",
       },
     ],
@@ -364,7 +364,7 @@ export const ROADMAP_HUB_FAQ: readonly FaqItem[] = [
   {
     question: "Is this different from mxstermind?",
     answer:
-      "mxstermind is bespoke for established businesses. BrandForge roadmap is operator-first with fixed pricing culture.",
+      "mxstermind is the Founder OS for established businesses. BrandForge roadmap is operator-first with fixed pricing culture.",
   },
   {
     question: "Which roadmap stage should I start at?",

@@ -2,8 +2,9 @@
 export const ECOSYSTEM = {
   mxstermind: {
     url: "https://mxstermind.com",
-    tagline: "Premium studio for bespoke product, economics, and growth systems.",
-    audience: "Established operators who outgrew fixed packages — custom teams, outcome-based deals.",
+    tagline: "Founder Operating System — monetization, ops workflows, growth stack, and economics.",
+    audience:
+      "Founders who validated revenue and need an operating system beyond fixed packages — not another bespoke agency engagement.",
     discord: "https://discord.gg/a8Nz2R6M55",
     /** MXSTERMIND should link back with ?utm_source=mxstermind&utm_medium=cross_nav */
     crossNavCampaign: "bf-mxm-bridge",
@@ -13,5 +14,5 @@ export const ECOSYSTEM = {
     audience: "Discord communities, forum sellers, Web3 founders, and SaaS operators shipping fast.",
   },
   bridgeCopy:
-    "BrandForge builds your identity. MXSTERMIND scales your economics. Start with packages; graduate when scope exceeds tiers.",
+    "BrandForge executes your brand and web packages. mxstermind is the Founder Operating System for monetization, ops, and scale — graduate when packages are no longer enough.",
 } as const;

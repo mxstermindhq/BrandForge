@@ -66,7 +66,7 @@ export const BUILD_IN_PUBLIC_01 = {
       heading: "If you are reading this as a potential client",
       ...p([
         "DM us on Discord or Telegram with your niche, deadline, and two reference links. You will get a fixed USD quote within 24 hours. Escrow and crypto are normal for our clients.",
-        "If your scope is above packages, mxstermind.com is the premium studio line — we will tell you honestly which door fits.",
+        "If your scope is above packages, mxstermind.com is the Founder Operating System — we will tell you honestly which door fits.",
         "This series will stay direct — no corporate press release tone. If you want the next update, bookmark /blog/ or open Discord and ask for the build log.",
       ]),
     },
@@ -86,7 +86,7 @@ export const BUILD_IN_PUBLIC_01 = {
     },
     {
       question: "Is mxstermind the same team?",
-      answer: "Related studio for bespoke work — BrandForge is the fixed-package line at brandforge.gg.",
+      answer: "Related studio for Founder OS work — BrandForge is the fixed-package line at brandforge.gg.",
     },
   ],
 } as const satisfies {

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Mono } from "next/font/google";
+import { MXM_POSITIONING } from "@/config/positioning";
 import { SITE } from "@/config/site";
 import "./globals.css";
 
@@ -20,25 +21,29 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "mxstermind — Bespoke Design, Engineering & Growth",
+    default: `mxstermind — ${MXM_POSITIONING.title}`,
     template: "%s · mxstermind",
   },
-  description:
-    "Selective studio for established businesses and serious founders. Custom scope — brand, product, Web3, automation. Apply on Discord or Telegram.",
+  description: MXM_POSITIONING.shortDescription,
   openGraph: {
     type: "website",
     url: SITE.url,
     siteName: "mxstermind",
-    title: "mxstermind — Bespoke Studio",
-    description:
-      "No packages. No templates. Outcome-led design, engineering, and growth for scaling companies.",
-    images: [{ url: "/img/og-image.png", width: 1200, height: 630, alt: "mxstermind — bespoke studio" }],
+    title: `mxstermind — ${MXM_POSITIONING.title}`,
+    description: MXM_POSITIONING.tagline,
+    images: [
+      {
+        url: "/img/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: `mxstermind — ${MXM_POSITIONING.title}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "mxstermind — Bespoke Studio",
-    description:
-      "Selective engagements for established businesses. Custom scope only.",
+    title: `mxstermind — ${MXM_POSITIONING.title}`,
+    description: MXM_POSITIONING.tagline,
     images: ["/img/og-image.png"],
   },
   robots: { index: true, follow: true },

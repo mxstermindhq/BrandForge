@@ -8,7 +8,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "For Established Businesses | mxstermind",
   description:
-    "Bespoke design and engineering when template agencies and hourly dev shops are not enough — mxstermind for scaling companies.",
+    "Founder Operating System for scaling companies — monetization, ops, and growth beyond template agencies.",
   path: "/for/established-businesses/",
 });
 

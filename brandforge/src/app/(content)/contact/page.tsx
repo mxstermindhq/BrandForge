@@ -109,7 +109,7 @@ export default function ContactPage(): React.JSX.Element {
           </a>
         </div>
         <p className="content-wrap mt-10 max-w-2xl text-sm text-text-secondary">
-          Premium bespoke engagements above package scope:{" "}
+          Premium Founder OS scope above package scope:{" "}
           <a href={SITE.premium} className="text-accent-bright">
             mxstermind.com
           </a>

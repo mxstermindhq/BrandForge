@@ -23,7 +23,7 @@ export default function PortfolioHubPage(): React.JSX.Element {
       <PageHero
         eyebrow="Portfolio"
         title="Shipped under real constraints"
-        subhead="Permissioned case studies from bespoke engagements — Web3, mobile, fintech, and automation."
+        subhead="Permissioned case studies from Founder OS implementations — Web3, mobile, fintech, and automation."
       />
       <section className="py-12">
         <div className="content-wrap grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

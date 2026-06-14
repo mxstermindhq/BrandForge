@@ -22,7 +22,7 @@ const HUB_FAQ = [
   },
   {
     question: "Custom scope above packages?",
-    answer: "mxstermind.com for premium bespoke; BrandForge packages stay fast and bounded.",
+    answer: "mxstermind.com for Founder OS; BrandForge packages stay fast and bounded.",
   },
   {
     question: "Not sure which niche fits?",

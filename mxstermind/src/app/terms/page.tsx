@@ -6,7 +6,7 @@ import { SITE } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "mxstermind terms — bespoke engagements, milestones, payments, and delivery standards.",
+  description: "mxstermind terms — Founder OS access, milestones, payments, and delivery standards.",
   alternates: { canonical: `${SITE.url}/terms/` },
 };
 
@@ -28,12 +28,12 @@ export default function TermsPage(): React.JSX.Element {
           Last updated: May 19, 2026
         </p>
         <p className="mt-10 text-sm leading-relaxed text-text-secondary">
-          These Terms govern bespoke design, engineering, and growth engagements from mxstermind at
+          These Terms govern Founder Operating System access and implementation engagements from mxstermind at
           mxstermind.com. By applying or signing a scope document, you agree to these Terms.
         </p>
         <h2 className="mt-8 font-serif text-lg text-accent-bright">Engagements &amp; scope</h2>
         <p className="mt-3 text-sm text-text-secondary">
-          mxstermind does not sell shopping-cart packages. Every engagement begins with fit review,
+          mxstermind is the Founder Operating System — not a shopping-cart package store. Every OS engagement begins with fit review,
           then a fixed USD scope document with milestones, deliverables, and revision boundaries.
           Work outside scope requires a written change order.
         </p>
@@ -48,7 +48,7 @@ export default function TermsPage(): React.JSX.Element {
           <a href={SITE.packages} className="text-accent-bright hover:underline" rel="noopener noreferrer">
             brandforge.gg/packages
           </a>
-          . Those Terms apply to BrandForge orders, not mxstermind bespoke work.
+          . Those Terms apply to BrandForge orders, not mxstermind Founder OS work.
         </p>
         <p className="mt-8 text-sm text-text-secondary">
           Questions:{" "}

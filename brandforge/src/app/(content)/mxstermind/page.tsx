@@ -13,9 +13,9 @@ import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "MXSTERMIND Bridge — BrandForge Ecosystem",
+  title: "MXSTERMIND — Founder Operating System | BrandForge",
   description:
-    "BrandForge builds your identity. MXSTERMIND scales your economics. Shared case studies, joint resources, and cross-platform navigation.",
+    "BrandForge executes packages. mxstermind is the Founder OS for monetization, ops, and scale. Shared case studies and cross-platform navigation.",
   path: "/mxstermind/",
 });
 
@@ -30,11 +30,11 @@ export default function MxstermindBridgePage(): React.JSX.Element {
       faqs={ECOSYSTEM_FAQ}
     >
       <PageHero
-        eyebrow="Ecosystem"
+        eyebrow="Founder Operating System"
         title={
           <>
-            BrandForge builds identity.{" "}
-            <em className="text-accent-bright not-italic">MXSTERMIND scales economics.</em>
+            BrandForge executes packages.{" "}
+            <em className="text-accent-bright not-italic">mxstermind runs the OS.</em>
           </>
         }
         subhead={ECOSYSTEM.bridgeCopy}
@@ -43,10 +43,10 @@ export default function MxstermindBridgePage(): React.JSX.Element {
       <section className="border-b border-b1 bg-s1 py-16">
         <div className="content-wrap grid gap-10 lg:grid-cols-2">
           <div>
-            <h2 className="text-lg font-bold">What is MXSTERMIND?</h2>
+            <h2 className="text-lg font-bold">What is mxstermind?</h2>
             <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              {ECOSYSTEM.mxstermind.tagline} One studio line for operators who validated revenue and
-              need bespoke product, data pipelines, and growth systems — not package tiers.
+              {ECOSYSTEM.mxstermind.tagline} The Founder OS for operators who validated revenue and
+              need monetization rails, ops workflows, and growth systems — not another agency SOW.
             </p>
             <CrossPlatformLink
               href={ECOSYSTEM.mxstermind.url}
@@ -54,7 +54,7 @@ export default function MxstermindBridgePage(): React.JSX.Element {
               campaign="mxm-bridge-hero"
               className="mt-6 inline-block rounded border border-accent px-5 py-2.5 font-mono text-[11px] font-bold text-accent-bright"
             >
-              Explore MXSTERMIND ↗
+              Explore Founder OS ↗
             </CrossPlatformLink>
           </div>
           <div>
@@ -110,8 +110,8 @@ export default function MxstermindBridgePage(): React.JSX.Element {
         <div className="content-wrap max-w-xl">
           <h2 className="text-lg font-bold">The Creator Economy Stack</h2>
           <p className="mt-3 text-sm text-text-secondary">
-            Joint PDF — BrandForge branding guide + MXSTERMIND monetization framework. Download on
-            either site; join Discord for Ecosystem Member role.
+            Joint PDF — BrandForge branding guide + mxstermind Founder OS monetization framework.
+            Download on either site; join Discord for Ecosystem Member role.
           </p>
           <div className="mt-6">
             <EcosystemDownloadLink
@@ -145,8 +145,8 @@ export default function MxstermindBridgePage(): React.JSX.Element {
 
       <FAQBlock items={ECOSYSTEM_FAQ} pageSlug="/mxstermind/" />
       <CTASection
-        title="Ready for the next tier?"
-        subhead="Packages on BrandForge — bespoke on MXSTERMIND. We tell you honestly which fits."
+        title="Ready for the operating layer?"
+        subhead="Packages on BrandForge — Founder OS on mxstermind. We tell you honestly which fits."
         campaign="mxm-bridge-footer"
       />
     </PageShell>

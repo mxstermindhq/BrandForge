@@ -25,7 +25,7 @@ export const post: BlogPost = {
       heading: "Separate investor story from user story",
       ...p([
         "One page rarely serves both. Operators who convert split proof: metrics and team for investors, workflow and screenshots for users.",
-        "mxstermind.com handles bespoke token launches; BrandForge packages fit bounded pre-TGE and post-launch landers.",
+        "mxstermind.com (Founder OS) handles token launches; BrandForge packages fit bounded pre-TGE and post-launch landers.",
       ]),
     },
     {

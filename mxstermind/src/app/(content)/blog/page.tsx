@@ -7,7 +7,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "Blog — Editorial | mxstermind",
   description:
-    "Architecture notes, bespoke vs package guidance, Web3 branding, and ethics — published by mxstermind.",
+    "Architecture notes, Founder OS vs package guidance, Web3 branding, and ethics — published by mxstermind.",
   path: "/blog/",
 });
 
@@ -24,7 +24,7 @@ export default function BlogHubPage(): React.JSX.Element {
       <PageHero
         eyebrow="Editorial"
         title="Notes from shipped work"
-        subhead="Long-form guidance for established buyers scoping bespoke design, engineering, and growth."
+        subhead="Long-form guidance for founders scoping Founder OS systems, engineering, and growth."
       />
       <section className="py-12">
         <div className="content-wrap divide-y divide-b1 border-y border-b1">

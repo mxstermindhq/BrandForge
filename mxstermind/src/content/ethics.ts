@@ -6,7 +6,7 @@ export const MM_ETHICS_SECTIONS: readonly EthicsSectionData[] = [
     title: "Selective engagements",
     body: [
       "mxstermind takes a limited number of concurrent builds. We decline work that does not fit capacity, ethics, or outcome clarity — even when budget is attractive.",
-      "BrandForge packages remain the faster path for operators who want defined tiers. mxstermind is for custom scope when product, engineering, and growth must move together.",
+      "BrandForge packages remain the faster path for bounded execution. mxstermind is the Founder Operating System when monetization, ops, and growth must move together.",
     ],
   },
   {
@@ -55,12 +55,12 @@ export const MM_ETHICS_FAQ: readonly FaqItem[] = [
   {
     question: "What are mxstermind ethics and standards?",
     answer:
-      "Six written sections covering selective intake, delivery, payments, privacy, quality, and conduct — aligned with BrandForge philosophy but tuned for bespoke business engagements.",
+      "Six written sections covering selective intake, delivery, payments, privacy, quality, and conduct — aligned with BrandForge philosophy but tuned for Founder OS clients.",
   },
   {
     question: "How is mxstermind related to BrandForge?",
     answer:
-      "Same team, different offer. BrandForge.gg ships productized packages; mxstermind.com handles custom scope for established businesses and serious founders.",
+      "Same team, different layer. BrandForge.gg ships fixed packages for execution; mxstermind.com is the Founder Operating System for monetization, ops, and scale.",
   },
   {
     question: "Do you sign enterprise MSAs?",

@@ -14,14 +14,14 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Error copy is product design",
       paragraphs: [
         "On mobile Web3, the error message is the brand moment after a failed transaction. Generic “something went wrong” copy sends users back to Discord to ask mods — or worse, to a competitor app. We wrote human-readable errors tied to recoverable actions: retry, switch network, check balance, contact support with a reference code.",
-        "That discipline matters for investor demos and retention alike. Bespoke mobile scope includes copy, not only components. When your milestone is public, treat signing failures as UX requirements in the scope doc — not post-launch polish. Intake starts at /apply/ with your current stack and milestone date.",
+        "That discipline matters for investor demos and retention alike. Founder OS mobile scope includes copy, not only components. When your milestone is public, treat signing failures as UX requirements in the scope doc — not post-launch polish. Intake starts at /apply/ with your current stack and milestone date.",
       ],
     },
     {
       heading: "Phase two without scope creep",
       paragraphs: [
         "Two-week engagements succeed when phase two is named on day one. We handed off a gap list: social features, analytics dashboards, and advanced portfolio views stayed explicitly out of scope. Stakeholders signed that list so the demo did not become a stealth full rewrite.",
-        "That boundary is how mxstermind protects quality on hard deadlines. If you need wallet plus growth site plus admin panel, split milestones and price each outcome — see /process/ for how we write those slices. Package landers live at brandforge.gg/packages/; chain migrations stay bespoke here.",
+        "That boundary is how mxstermind protects quality on hard deadlines. If you need wallet plus growth site plus admin panel, split milestones and price each outcome — see /process/ for how we write those slices. Package landers live at brandforge.gg/packages/; chain migrations stay on mxstermind Founder OS here.",
       ],
     },
     {
@@ -37,14 +37,14 @@ export const BLOG_EXTRA_SECTIONS: Record<
     {
       heading: "Signals your project belongs at mxstermind",
       paragraphs: [
-        "Bespoke intake makes sense when work crosses surfaces: mobile wallet, admin panel, brand system, and analytics in one timeline. Add procurement review, named engineering counterparts, or compliance attachments and packages stop being comparable — you are buying coordinated delivery, not a SKU.",
+        "Founder OS intake makes sense when work crosses surfaces: mobile wallet, admin panel, brand system, and analytics in one timeline. Add procurement review, named engineering counterparts, or compliance attachments and packages stop being comparable — you are buying coordinated delivery, not a SKU.",
         "Portfolio depth is the fastest self-check. Browse /portfolio/ for trading desks, verification systems, and chain migrations — if your brief rhymes with those builds, start at /apply/. mxstermind quotes after fit review with a written scope document, not a shopping cart.",
       ],
     },
     {
       heading: "When packages are the professional choice",
       paragraphs: [
-        "There is no virtue in bespoke pricing for a bounded lander and logo when you have no internal engineering team. BrandForge.gg publishes tiers because operators and smaller established teams want known USD, escrow-friendly terms, and delivery in days — not a six-week discovery phase.",
+        "There is no virtue in custom OS pricing for a bounded lander and logo when you have no internal engineering team. BrandForge.gg publishes tiers because operators and smaller established teams want known USD, escrow-friendly terms, and delivery in days — not a six-week discovery phase.",
         "Start at brandforge.gg/packages/ when scope fits a published deliverable list. Many clients begin there and escalate to mxstermind for phase two product work. Same studio network — different intake path. Choosing the smaller door first is strategy, not a downgrade.",
       ],
     },
@@ -52,7 +52,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Procurement and NDAs change the math",
       paragraphs: [
         "Enterprise buyers rarely purchase from a package page alone. They need vendor diligence, milestone language, data handling answers, and sometimes MSAs before deposit. mxstermind is structured for that conversation — /ethics-standards/ is the operational pre-read, /process/ is the engagement map.",
-        "Packages can still run in parallel for a subsidiary brand or internal tool while bespoke work handles the flagship product. Clarity on which entity signs which scope prevents finance surprises. Message Discord with both tracks described; we route each to the correct front door without duplicate teams.",
+        "Packages can still run in parallel for a subsidiary brand or internal tool while Founder OS work handles the flagship product. Clarity on which entity signs which scope prevents finance surprises. Message Discord with both tracks described; we route each to the correct front door without duplicate teams.",
       ],
     },
     {
@@ -76,7 +76,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Content that feeds the loop",
       paragraphs: [
         "Each loop turn needs content with a job: answer a buyer question, show proof, or capture intent. Thin blog posts do not compound — structured editorial tied to shipped work does. That is why mxstermind publishes case-derived articles with paths to /developers/ and live portfolio URLs.",
-        "GEO and traditional SEO both reward self-contained paragraphs on service and case pages. Write what you cost, how quotes arrive, and what proof exists — without forcing a sales call first. Package-tier SEO maintenance lives on BrandForge; bespoke editorial depth stays here when the brand needs diagnosis before a SKU fits.",
+        "GEO and traditional SEO both reward self-contained paragraphs on service and case pages. Write what you cost, how quotes arrive, and what proof exists — without forcing a sales call first. Package-tier SEO maintenance lives on BrandForge; Founder OS editorial depth stays here when the brand needs diagnosis before a SKU fits.",
       ],
     },
     {
@@ -107,7 +107,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Budget bands save everyone time",
       paragraphs: [
         "We are not fishing for your maximum budget — bands prevent misfit. Saying “mid five figures with room for mobile” routes differently than “low four figures for a lander refresh.” Wrong-fit honesty is faster than a proposal you will not sign.",
-        "If the band fits BrandForge packages, we say so and point to brandforge.gg/packages/. If it fits bespoke work, you get a scope outline with milestones — design sign-off, staging, production, handoff — tied to verifiable outputs. See /process/ for the full engagement map after intake.",
+        "If the band fits BrandForge packages, we say so and point to brandforge.gg/packages/. If it fits Founder OS work, you get a scope outline with milestones — design sign-off, staging, production, handoff — tied to verifiable outputs. See /process/ for the full engagement map after intake.",
       ],
     },
     {
@@ -131,7 +131,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Typography and motion discipline",
       paragraphs: [
         "Inter on a purple gradient does not read as premium — it reads as template. Web3 brands that survive scrutiny pick one display face, one workhorse sans, and motion that explains state change instead of decorating loading screens. Traders notice when typography matches the seriousness of the product.",
-        "Cascade Markets shipped with that restraint: dark UI, legible type scale, CTA hierarchy that survives Discord dark mode screenshots. See /portfolio/cascade-markets/ and service depth at /services/. Bespoke Web3 product plus brand combined stays on mxstermind; simple landers may fit brandforge.gg/packages/.",
+        "Cascade Markets shipped with that restraint: dark UI, legible type scale, CTA hierarchy that survives Discord dark mode screenshots. See /portfolio/cascade-markets/ and service depth at /services/. Founder OS Web3 product plus brand combined stays on mxstermind; simple landers may fit brandforge.gg/packages/.",
       ],
     },
     {
@@ -244,7 +244,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
     {
       heading: "When hourly still makes sense",
       paragraphs: [
-        "Outcome-based scope is our default for bespoke builds — but advisory audits, emergency hotfixes on foreign codebases, or short research spikes sometimes fit hourly or day-rate blocks with a capped ceiling. We name that explicitly instead of pretending a SKU fits.",
+        "Outcome-based scope is our default for Founder OS builds — but advisory audits, emergency hotfixes on foreign codebases, or short research spikes sometimes fit hourly or day-rate blocks with a capped ceiling. We name that explicitly instead of pretending a SKU fits.",
         "If you are unsure which model fits, send outcome and constraints to /apply/. We will recommend milestones, a capped advisory block, or a BrandForge package redirect when the work is bounded. The goal is fit, not maximizing contract size — selective intake protects delivery quality for every active client.",
       ],
     },
@@ -252,7 +252,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
 
   "how-much-should-a-website-cost-honest-answer": [
     {
-      heading: "What moves price on bespoke builds",
+      heading: "What moves price on Founder OS builds",
       paragraphs: [
         "Auth, role-based admin, third-party APIs, CMS complexity, motion budget, and post-launch ownership each move price independently. A marketing site with five templated pages is not comparable to a logged-in product shell with webhooks — yet both get called “a website” in budget meetings.",
         "mxstermind quotes after reviewing your four brief fields and existing assets. Browse /portfolio/ for builds rhyming with your scope — trading desks, verification flows, mobile-adjacent web — before you anchor on a number from a forum thread. /developers/ lists technical lanes that affect estimate ranges.",
@@ -262,14 +262,14 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Maintenance and hosting reality",
       paragraphs: [
         "Launch price excludes ongoing costs unless scope says otherwise: domains, edge hosting, email, analytics, CMS seats, and third-party SaaS. We list those in the handoff doc so finance is not surprised month two. Clients who own infra should name their host and deploy process in message one.",
-        "Retainer without defined outputs is another hidden cost — ask what a month buys in verifiable work. BrandForge packages include bounded maintenance tiers; bespoke clients often prefer milestone blocks for updates. Either way, ownership should be explicit before production — see /process/ for handoff standards.",
+        "Retainer without defined outputs is another hidden cost — ask what a month buys in verifiable work. BrandForge packages include bounded maintenance tiers; Founder OS clients often prefer milestone blocks for updates. Either way, ownership should be explicit before production — see /process/ for handoff standards.",
       ],
     },
     {
       heading: "Package floor vs Studio ceiling",
       paragraphs: [
         "BrandForge.gg/packages/ publishes USD floors for operator landers, identity, and growth tiers — quote in 24 hours, defined deliverables, escrow-friendly. That is the professional choice when scope fits the list and you want speed over custom architecture.",
-        "mxstermind bespoke work spans mid four figures through six figures depending on integrations and surfaces. The ceiling is not arbitrary — it reflects coordinated product, brand, and engineering delivery. Starting on packages and escalating for phase two is common; starting bespoke for a five-page lander usually is not.",
+        "mxstermind Founder OS work spans mid four figures through six figures depending on integrations and surfaces. The ceiling is not arbitrary — it reflects coordinated product, brand, and engineering delivery. Starting on packages and escalating for phase two is common; starting Founder OS for a five-page lander usually is not.",
       ],
     },
     {
@@ -285,7 +285,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
     {
       heading: "Selective intake protects quality",
       paragraphs: [
-        "We cap concurrent bespoke engagements so named contributors are not spread across twelve half-started builds. Saying no to wrong-fit work is part of delivery ethics — not gatekeeping. Established buyers should prefer a studio that declines over one that deposits and deprioritizes.",
+        "We cap concurrent Founder OS clients so named contributors are not spread across twelve half-started builds. Saying no to wrong-fit work is part of delivery ethics — not gatekeeping. Established buyers should prefer an OS that declines wrong-fit work over one that deposits and deprioritizes.",
         "Fit review happens before scope and before deposit. If your timeline, budget band, or outcome mismatches capacity, we redirect — often to brandforge.gg/packages/ for bounded web or identity work. Intake at /apply/ and Discord share the same review path; transparency beats a forced yes.",
       ],
     },
@@ -307,7 +307,7 @@ export const BLOG_EXTRA_SECTIONS: Record<
       heading: "Quality bar before production",
       paragraphs: [
         "Staging exists for a reason: performance, accessibility baseline, copy accuracy, and analytics verification before DNS cutover. Skipping staging to hit a ceremonial launch date is a client choice we document — not our default recommendation. Production means production-ready, not “we will fix it live.”",
-        "Handoff includes runbooks, known gaps, and owner assignments — see /process/ for the full sequence. Same ethics apply across mxstermind bespoke and BrandForge packages; only intake and scope format differ. Contact Discord or Telegram linked from /apply/ for diligence questions before you sign.",
+        "Handoff includes runbooks, known gaps, and owner assignments — see /process/ for the full sequence. Same ethics apply across mxstermind Founder OS and BrandForge packages; only intake and scope format differ. Contact Discord or Telegram linked from /apply/ for diligence questions before you sign.",
       ],
     },
   ],

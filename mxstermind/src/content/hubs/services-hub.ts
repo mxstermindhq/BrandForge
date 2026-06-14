@@ -1,31 +1,32 @@
 import type { FaqItem, ServiceCardData } from "@/types/content";
+import { MXM_POSITIONING } from "@/config/positioning";
 
 export const SERVICE_HUB_CARDS: readonly ServiceCardData[] = [
   {
     slug: "brand-product",
     icon: "◈",
-    title: "Brand & product design",
-    description: "Identity, product UI, and editorial systems for companies outgrowing template aesthetics.",
+    title: "Brand & product systems",
+    description: "Identity and product UI as part of the OS — for companies outgrowing template aesthetics.",
     href: "/apply/",
   },
   {
     slug: "engineering",
     icon: "◇",
-    title: "Full-stack engineering",
-    description: "Web, mobile, APIs, and infra — scoped as outcomes, not hourly bodies.",
+    title: "Product engineering",
+    description: "Web, mobile, APIs, and infra — wired into your operating model, not hourly bodies.",
     href: "/developers/",
   },
   {
     slug: "web3",
     icon: "⬡",
-    title: "Web3 & fintech systems",
+    title: "Web3 & fintech OS",
     description: "Wallet UX, trading interfaces, and chain migrations under real deadlines.",
     href: "/developers/blockchain/",
   },
   {
     slug: "automation-ai",
     icon: "◎",
-    title: "Automation & AI",
+    title: "Automation & AI ops",
     description: "Internal copilots, verification bots, and ops pipelines with audit trails.",
     href: "/developers/ai-systems/",
   },
@@ -33,7 +34,7 @@ export const SERVICE_HUB_CARDS: readonly ServiceCardData[] = [
     slug: "growth",
     icon: "△",
     title: "Growth architecture",
-    description: "SEO, GEO, content systems, and launch strategy for established revenue lines.",
+    description: "SEO, GEO, content systems, and launch loops for established revenue lines.",
     href: "/process/",
   },
 ];
@@ -42,21 +43,20 @@ export const SERVICES_HUB_FAQ: readonly FaqItem[] = [
   {
     question: "Does mxstermind sell fixed packages like BrandForge?",
     answer:
-      "No. BrandForge.gg publishes package tiers for operators who want speed. mxstermind quotes custom scope after a fit conversation on Discord or Telegram.",
+      "No. BrandForge.gg publishes package tiers for bounded execution. mxstermind is the Founder Operating System — scoped after a fit conversation on Discord or Telegram.",
   },
   {
-    question: "What budget should we expect for a bespoke engagement?",
+    question: "What does Founder OS access include?",
     answer:
-      "Most mxstermind projects start above package tiers — commonly $5k–$50k+ USD depending on stack, integrations, and timeline. We quote fixed USD after scoping.",
+      "Monetization, ops, and growth systems tailored to your stage — commonly above package tiers. We quote fixed USD after scoping the operating layer you need.",
   },
   {
     question: "Who is mxstermind for?",
-    answer:
-      "Scaling companies, serious founders, and established brands with technical buyers who need one studio for design, engineering, and growth — not three vendors.",
+    answer: MXM_POSITIONING.audience,
   },
   {
     question: "How do we start?",
     answer:
-      "Apply via /apply/ or message Discord. Share outcome, deadline, and budget band. We reply within 24 hours with fit and next steps.",
+      "Apply via /apply/ or message Discord. Share stage, revenue model, and OS needs. We reply within 24 hours with fit and next steps.",
   },
 ];

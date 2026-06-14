@@ -74,7 +74,7 @@ export const NICHE_PAGES: Record<string, NichePage> = {
     pricingAnchor: "Landers from Launch Stack · rush Web3 scoped on Discord",
     portfolioSlugs: ["cascade-markets", "sui-blockchain-app"],
     body: [
-      "We understand escrow, crypto payments, and TGE timelines. BrandForge quotes fixed scope; mxstermind handles enterprise bespoke.",
+      "We understand escrow, crypto payments, and TGE timelines. BrandForge quotes fixed scope; mxstermind handles Founder OS.",
     ],
     faqs: [
       {
@@ -129,7 +129,7 @@ export const NICHE_PAGES: Record<string, NichePage> = {
         answer: "/services/automation/ and integrations in custom quotes.",
       },
       {
-        question: "When mxstermind?",
+        question: "When Founder OS?",
         answer: "Multi-quarter product + growth systems — apply at mxstermind.com.",
       },
     ],

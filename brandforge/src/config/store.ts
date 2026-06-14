@@ -110,7 +110,7 @@ export const STORE_PRODUCTS: readonly StoreProduct[] = [
     faqs: [
       {
         question: "Includes smart contracts?",
-        answer: "No — design and copy blocks only. Engineering: /services/web-design/ or MXSTERMIND bespoke.",
+        answer: "No — design and copy blocks only. Engineering: /services/web-design/ or mxstermind Founder OS.",
       },
       {
         question: "Can I resell?",

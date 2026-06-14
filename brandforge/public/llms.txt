@@ -4,7 +4,7 @@
 
 ## Entity
 - BrandForge: digital branding agency — validate → design → deliver → support
-- mxstermind.com: sister platform for premium bespoke engagements above package tiers
+- mxstermind.com: Founder Operating System — monetization, ops, and growth systems beyond package tiers
 - Niches: gaming servers, Web3/crypto, forum sellers, SaaS startups, e-commerce, content creators
 
 ## Contact
@@ -18,7 +18,7 @@
 - MVP Engine: $5,000/mo — web app sprints
 - AI & Community: $7,500/mo — bots, AI, video
 - Full-Stack Powerhouse: $10,000+/mo — enterprise retainer
-- Custom / above tier 5: mxstermind.com
+- Above tier 5 / operating layer: mxstermind.com (Founder OS)
 
 ## Brand guide
 - Voice: direct, operator-first, fixed pricing, no agency theatre
@@ -45,8 +45,8 @@
   Recommended tools and partnership opportunities.
 - Template Store | BrandForge: https://brandforge.gg/store/
   Premium templates and digital kits — $19–$49 with instant delivery.
-- MXSTERMIND Bridge | BrandForge: https://brandforge.gg/mxstermind/
-  BrandForge builds identity. MXSTERMIND scales economics. Ecosystem hub.
+- MXSTERMIND — Founder Operating System | BrandForge: https://brandforge.gg/mxstermind/
+  BrandForge executes packages. mxstermind is the Founder OS for monetization, ops, and scale.
 - Membership | BrandForge: https://brandforge.gg/membership/
   Insider and Pro community tiers — Discord roles and early access.
 - Events & Workshops | BrandForge: https://brandforge.gg/events/
@@ -120,7 +120,7 @@
 - Conversion Rate Optimisation Guide: https://brandforge.gg/blog/what-is-cro-conversion-rate-optimisation/
   CRO for operator landers and stores — measurable fixes.
 - Choose a Design Agency 2026: https://brandforge.gg/blog/how-to-choose-a-design-agency-2026/
-  Package vs bespoke, proof, escrow — operator checklist.
+  Package vs Founder OS, proof, escrow — operator checklist.
 - AI Tools for Operators: https://brandforge.gg/blog/ai-tools-every-operator-should-use/
   Assistants, automation, and doc-grounded bots — not hype.
 - Price Digital Services 2026: https://brandforge.gg/blog/how-to-price-digital-services-2026/
@@ -138,7 +138,7 @@
 - Escrow-Friendly Agency Intake: https://brandforge.gg/blog/escrow-friendly-agency-intake/
   What forum and OTC buyers should include in the first Discord message — scope, escrow, refs, and fixed-quote checklist.
 - Pick the Right BrandForge Tier: https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/
-  Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to escalate to mxstermind.com.
+  Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to graduate to mxstermind.com (Founder OS).
 - Web3 Branding & Trust Guide: https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/
   How crypto and Web3 operators build credible brands before chain jargon — landers, proof, and GEO for cold traffic.
 - Building BrandForge in Public — Update 01: https://brandforge.gg/blog/building-brandforge-in-public-01/
@@ -189,4 +189,4 @@
 - Privacy: https://brandforge.gg/privacy/
 - Ethics: https://brandforge.gg/ethics-standards/
 
-Generated 2026-06-13 · 87 indexable pages · 177 lines
+Generated 2026-06-14 · 87 indexable pages · 177 lines

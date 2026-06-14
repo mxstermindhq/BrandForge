@@ -49,15 +49,33 @@ export function SiteHeader(): React.JSX.Element {
               {item.label}
             </Link>
           ))}
+          <a
+            href={SITE.mxstermindBridge}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-accent-bright"
+          >
+            BrandForge ↗
+          </a>
         </nav>
-        <Link
-          href={SITE.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-sm bg-accent px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-bg"
-        >
-          Discord
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={SITE.brandforge}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden rounded-sm border border-b1 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-accent-bright hover:border-accent sm:inline-block"
+          >
+            BrandForge ↗
+          </Link>
+          <Link
+            href={SITE.discord}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-sm bg-accent px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-bg"
+          >
+            Discord
+          </Link>
+        </div>
       </div>
     </header>
   );

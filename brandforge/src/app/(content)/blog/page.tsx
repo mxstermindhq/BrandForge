@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     question: "mxstermind blog?",
-    answer: "Bespoke and Studio notes at mxstermind.com/blog — cross-linked where relevant.",
+    answer: "Founder OS notes at mxstermind.com/blog — cross-linked where relevant.",
   },
   {
     question: "Suggest a topic?",

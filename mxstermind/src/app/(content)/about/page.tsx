@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
+import { MXM_POSITIONING } from "@/config/positioning";
 import { SITE } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -8,15 +9,16 @@ const ABOUT_FAQ = [
   {
     question: "Who is mxstermind?",
     answer:
-      "A selective studio for established businesses and serious founders — same team network as BrandForge, bespoke intake and scope.",
+      "The Founder Operating System — monetization, ops, and growth infrastructure for founders who outgrew packages. Same team network as BrandForge.",
   },
   {
     question: "Where are you based?",
-    answer: "Remote-first — EU and US timezone coverage on active engagements.",
+    answer: "Remote-first — EU and US timezone coverage for active OS clients.",
   },
   {
     question: "Do you take early-stage startups?",
-    answer: "Sometimes — if scope is bounded and budget matches complexity. Many early operators are better served by BrandForge packages.",
+    answer:
+      "Often better served by BrandForge packages first. The Founder OS fits when you have revenue traction and systems complexity.",
   },
   {
     question: "How do I verify delivered work?",
@@ -25,9 +27,8 @@ const ABOUT_FAQ = [
 ] as const;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "About — Studio Story | mxstermind",
-  description:
-    "mxstermind is the bespoke studio arm — custom design, engineering, and growth for scaling companies.",
+  title: `About — ${MXM_POSITIONING.title} | mxstermind`,
+  description: MXM_POSITIONING.shortDescription,
   path: "/about/",
 });
 
@@ -43,25 +44,26 @@ export default function AboutPage(): React.JSX.Element {
     >
       <PageHero
         eyebrow="About"
-        title="Editorial studio, production discipline"
-        subhead="mxstermind exists for buyers who need custom scope — not another template agency or hourly dev shop."
+        title="Built as a system, not a service menu"
+        subhead="mxstermind is the Founder Operating System — economics, workflows, and growth wired together for operators scaling beyond packages."
       />
       <section className="py-12">
         <div className="content-wrap max-w-2xl space-y-6 text-sm leading-relaxed text-text-secondary">
           <p>
-            The same operators who built BrandForge packages for forum sellers and Web3 founders saw a pattern: established
-            businesses arrived with cross-functional scope — mobile plus backend plus brand — that did not fit a cart checkout.
+            The same operators who built BrandForge packages for forum sellers and Web3 founders saw a
+            pattern: revenue-validated founders needed an operating layer — monetization rails, ops
+            automation, and growth systems — not another agency SOW every quarter.
           </p>
           <p>
-            mxstermind is the selective front door for those engagements. One scope document. Named contributors. Discord and
-            Telegram as the system of record — no portal theatre.
+            mxstermind is that layer. One OS mindset. Named contributors. Discord and Telegram as the
+            system of record — no portal theatre.
           </p>
           <p>
-            Productized work remains on{" "}
+            Bounded execution remains on{" "}
             <a href={SITE.brandforge} className="text-accent-bright hover:text-text" rel="noopener noreferrer">
               brandforge.gg
             </a>
-            . Bespoke work lives here.
+            . The Founder OS lives here.
           </p>
           <Link href="/portfolio/" className="inline-block font-mono text-[11px] text-accent-bright hover:text-text">
             View portfolio →
@@ -69,7 +71,7 @@ export default function AboutPage(): React.JSX.Element {
         </div>
       </section>
       <FAQBlock items={ABOUT_FAQ} />
-      <CTASection title="Apply when fit is bespoke" subhead="Outcome, deadline, budget band — reply within 24 hours." />
+      <CTASection title={MXM_POSITIONING.ctaApply} subhead="Stage, revenue model, OS needs — reply within 24 hours." />
     </PageShell>
   );
 }

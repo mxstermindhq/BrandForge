@@ -215,7 +215,7 @@ export const HOME_FAQ: readonly FaqItem[] = [
   {
     question: "Is there a bigger option for serious projects?",
     answer:
-      "Yes. Tier 5 is the enterprise retainer, or mxstermind.com for fully bespoke engagements above package capacity.",
+      "Yes. Tier 5 is the enterprise retainer, or mxstermind.com for Founder OS access above package capacity.",
   },
   {
     question: "What data do you collect?",

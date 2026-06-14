@@ -26,7 +26,7 @@ export const ESTABLISHED_BUSINESSES_FAQ: readonly FaqItem[] = [
 export const ESTABLISHED_BUSINESSES_COPY = {
   headline: "For established businesses",
   subhead:
-    "When template agencies and hourly dev shops are not enough — but a 50-person consultancy is too slow and too expensive.",
+    "When fixed packages and hourly dev shops are not enough — mxstermind is the Founder OS for scaling operators.",
   pains: [
     "Internal teams are at capacity but the board wants the new product line live this quarter",
     "Last agency delivered slides; engineering still has no staging URL",

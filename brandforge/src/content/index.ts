@@ -110,8 +110,8 @@ export const STATIC_CONTENT_ROUTES: readonly ContentEntry[] = [
   {
     slug: "mxstermind",
     path: "/mxstermind/",
-    title: "MXSTERMIND Bridge | BrandForge",
-    description: "BrandForge builds identity. MXSTERMIND scales economics. Ecosystem hub.",
+    title: "MXSTERMIND — Founder Operating System | BrandForge",
+    description: "BrandForge executes packages. mxstermind is the Founder OS for monetization, ops, and scale.",
     category: "static",
     lastModified: "2026-06-13",
   },

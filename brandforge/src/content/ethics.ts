@@ -46,7 +46,7 @@ export const BF_ETHICS_SECTIONS: readonly EthicsSectionData[] = [
     title: "Community standards",
     body: [
       "Real vouches only with permission. Competitors get respect — we compete on output, not slurs in public channels.",
-      "BrandForge and mxstermind are labeled honestly: packages here, bespoke there. Same team, different fit.",
+      "BrandForge and mxstermind are labeled honestly: packages here, Founder OS there. Same team, different fit.",
     ],
   },
 ];
@@ -68,6 +68,6 @@ export const BF_ETHICS_FAQ: readonly FaqItem[] = [
   },
   {
     question: "Is this different from mxstermind ethics?",
-    answer: "Same backbone — BrandForge states it direct; Studio states it for longer bespoke engagements.",
+    answer: "Same backbone — BrandForge states it direct; Studio states it for longer Founder OS scope.",
   },
 ];
