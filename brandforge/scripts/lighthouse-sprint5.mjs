@@ -32,7 +32,6 @@ const HUBS = [
   "/packages/",
   "/portfolio/",
   "/partners/",
-  "/store/",
   "/contact/",
   "/roadmap/",
   "/blog/",

@@ -6,7 +6,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "Membership — BrandForge Insider & Pro",
   description:
-    "Free Insider Discord role or paid Pro for priority support, templates, and early store access.",
+    "Free Insider Discord role or paid Pro for priority support, templates, and early resource drops.",
   path: "/membership/",
 });
 
@@ -38,7 +38,7 @@ const TIERS = [
     price: "$29/mo",
     features: [
       "Priority support thread",
-      "Early store template access",
+      "Early template drops via Discord",
       "Workshop recordings",
       "Monthly office hours",
     ],

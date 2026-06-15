@@ -43,8 +43,6 @@
   Discord or Telegram — fixed quote in 24 hours.
 - Partners & Tools | BrandForge: https://brandforge.gg/partners/
   Recommended tools and partnership opportunities.
-- Template Store | BrandForge: https://brandforge.gg/store/
-  Premium templates and digital kits — $19–$49 with instant delivery.
 - MXSTERMIND — Founder Operating System | BrandForge: https://brandforge.gg/mxstermind/
   BrandForge executes packages. mxstermind is the Founder OS for monetization, ops, and scale.
 - Membership | BrandForge: https://brandforge.gg/membership/
@@ -181,7 +179,6 @@
 ## Partners & resources
 - MXSTERMIND bridge: https://brandforge.gg/mxstermind/
 - Partners & affiliates: https://brandforge.gg/partners/
-- Template store: https://brandforge.gg/store/
 - Membership: https://brandforge.gg/membership/
 - Events: https://brandforge.gg/events/
 - Community showcase: https://brandforge.gg/community/
@@ -191,4 +188,4 @@
 - Privacy: https://brandforge.gg/privacy/
 - Ethics: https://brandforge.gg/ethics-standards/
 
-Generated 2026-06-15 · 88 indexable pages · 179 lines
+Generated 2026-06-15 · 87 indexable pages · 177 lines

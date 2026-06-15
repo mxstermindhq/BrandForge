@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { PageHero, PageShell } from "@/components/content";
 import { ctaTrackAttrs, discordHref } from "@/lib/tracking";
@@ -76,7 +77,11 @@ export default function CommunityPage(): React.JSX.Element {
         <div className="content-wrap text-sm text-text-secondary">
           <h2 className="text-lg font-bold text-text">Template marketplace</h2>
           <p className="mt-2">
-            Submit templates for review — 70% creator / 30% BrandForge. See /store/ for live products.
+            Submit templates for review — 70% creator / 30% BrandForge. See{" "}
+            <Link href="/packages/" className="text-accent-bright hover:text-text">
+              packages
+            </Link>{" "}
+            for scoped delivery.
           </p>
         </div>
       </section>

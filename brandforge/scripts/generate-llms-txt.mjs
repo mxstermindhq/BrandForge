@@ -76,7 +76,6 @@ lines.push(
   "## Partners & resources",
   "- MXSTERMIND bridge: https://brandforge.gg/mxstermind/",
   "- Partners & affiliates: https://brandforge.gg/partners/",
-  "- Template store: https://brandforge.gg/store/",
   "- Membership: https://brandforge.gg/membership/",
   "- Events: https://brandforge.gg/events/",
   "- Community showcase: https://brandforge.gg/community/",

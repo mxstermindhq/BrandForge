@@ -11,7 +11,6 @@ const PATH_LABELS: Record<string, string> = {
   "/mxstermind/": "mxstermind Founder OS",
   "/contact/": "contact",
   "/ethics-standards/": "ethics standards",
-  "/store/": "store",
   "/services/brand-identity/": "brand identity",
   "/services/web-design/": "web design",
   "/services/social-media/": "social media",

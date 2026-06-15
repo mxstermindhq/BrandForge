@@ -4,8 +4,6 @@ import { PORTFOLIO_PROJECTS, PORTFOLIO_SLUGS } from "./portfolio/projects";
 import { ROADMAP_STAGES, ROADMAP_SLUGS } from "./roadmap/stages";
 import { SERVICE_DETAILS } from "./services/details";
 import { SERVICE_SLUGS } from "./hubs/services-hub";
-import { STORE_PRODUCTS } from "@/config/store";
-
 export type ContentCategory =
   | "static"
   | "blog"
@@ -100,14 +98,6 @@ export const STATIC_CONTENT_ROUTES: readonly ContentEntry[] = [
     lastModified: "2026-06-13",
   },
   {
-    slug: "store",
-    path: "/store/",
-    title: "Template Store | BrandForge",
-    description: "Premium templates and digital kits — $19–$49 with instant delivery.",
-    category: "static",
-    lastModified: "2026-06-13",
-  },
-  {
     slug: "mxstermind",
     path: "/mxstermind/",
     title: "MXSTERMIND — Founder Operating System | BrandForge",
@@ -181,7 +171,7 @@ export const STATIC_CONTENT_ROUTES: readonly ContentEntry[] = [
   },
 ] as const;
 
-const NOINDEX_PATHS = new Set(["/launch/", "/client/", "/admin/", "/store/success/"]);
+const NOINDEX_PATHS = new Set(["/launch/", "/client/", "/admin/"]);
 
 function blogEntries(): ContentEntry[] {
   return BLOG_SLUGS.map((slug) => {
@@ -249,18 +239,6 @@ function roadmapEntries(): ContentEntry[] {
   });
 }
 
-function storeProductEntries(): ContentEntry[] {
-  return STORE_PRODUCTS.map((p) => ({
-    slug: p.slug,
-    path: `/store/${p.slug}/`,
-    title: `${p.name} | BrandForge Store`,
-    description: p.tagline,
-    category: "static" as const,
-    lastModified: "2026-06-13",
-    tags: [p.category, "store"],
-  }));
-}
-
 /** All indexable content entries for sitemap, llms.txt, and lint. */
 export function getAllContentEntries(): ContentEntry[] {
   return [
@@ -270,7 +248,6 @@ export function getAllContentEntries(): ContentEntry[] {
     ...roadmapEntries(),
     ...nicheEntries(),
     ...blogEntries(),
-    ...storeProductEntries(),
   ].filter((e) => !NOINDEX_PATHS.has(e.path) && !e.noindex);
 }
 

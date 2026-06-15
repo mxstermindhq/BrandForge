@@ -80,12 +80,6 @@ export function StaticSiteHeader(): React.JSX.Element {
           >
             Blog
           </Link>
-          <Link
-            href="/store/"
-            className="font-mono text-[10px] uppercase tracking-wider text-muted hover:text-text"
-          >
-            Store
-          </Link>
           <CrossPlatformLink
             href="https://mxstermind.com"
             platform="mxstermind"

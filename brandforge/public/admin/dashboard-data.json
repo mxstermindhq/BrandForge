@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-06-15T11:43:15.615Z",
+  "generatedAt": "2026-06-15T12:06:20.993Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
   "ga4Property": "G-G3L5EBB195",
   "contentStats": {
-    "total": 88,
+    "total": 87,
     "blog": 21,
     "portfolio": 25,
     "niche": 8,
     "services": 9,
     "roadmap": 6,
-    "static": 19
+    "static": 18
   },
   "lighthouse": {
     "history": [
@@ -145,9 +145,9 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-06-15T11:43:14.723Z",
+    "recordedAt": "2026-06-15T12:06:20.418Z",
     "routes": {},
-    "totalJsKb": 984,
+    "totalJsKb": 973,
     "totalCssKb": 54,
     "imgKb": 2519,
     "homeRoute": {
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-15T11:43:15.014Z",
+    "scannedAt": "2026-06-15T12:06:20.620Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -189,10 +189,10 @@
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-06-15T10:18:28.004Z",
+    "validatedAt": "2026-06-15T11:52:11.912Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
-    "total": 100,
-    "pass": 100,
+    "total": 102,
+    "pass": 102,
     "fail": 0,
     "warn": 1,
     "pages": [
@@ -253,6 +253,11 @@
       },
       {
         "page": "/blog/category/seo/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/category/thought-leadership/",
         "status": "pass",
         "blocks": 1
       },
@@ -333,6 +338,11 @@
       },
       {
         "page": "/blog/partner-spotlight-whitesky-hosting/",
+        "status": "pass",
+        "blocks": 1
+      },
+      {
+        "page": "/blog/the-state-of-things-2026/",
         "status": "pass",
         "blocks": 1
       },
@@ -867,16 +877,6 @@
       "title": "Partners & Tools | BrandForge",
       "category": "static",
       "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/store/",
-      "title": "Template Store | BrandForge",
-      "category": "static",
-      "internalLinksIn": 3,
       "orphan": false,
       "lastModified": "2026-06-13",
       "schema": "WebPage + Org",
@@ -1840,16 +1840,16 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-15T10:18:28.056Z",
+    "checkedAt": "2026-06-15T11:52:11.983Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-06-15T10:18:26.928Z",
+      "recordedAt": "2026-06-15T11:52:09.949Z",
       "routes": {},
-      "totalJsKb": 981,
-      "totalCssKb": 53,
-      "imgKb": 2409,
+      "totalJsKb": 984,
+      "totalCssKb": 54,
+      "imgKb": 2519,
       "homeRoute": {
         "homeKb": 0,
         "prevHomeKb": 0,
@@ -1859,9 +1859,9 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-15T10:18:27.352Z",
+      "scannedAt": "2026-06-15T11:52:10.772Z",
       "totalImages": 4,
-      "totalWeightKb": 2409,
+      "totalWeightKb": 2519,
       "thresholdKb": 200,
       "oversized": [],
       "legacyFormats": [
@@ -1894,7 +1894,7 @@
     }
   },
   "postDeploy": {
-    "verifiedAt": "2026-06-15T10:20:21.964Z",
+    "verifiedAt": "2026-06-15T11:55:53.396Z",
     "base": "https://brandforge.gg",
     "checks": [
       {
@@ -1906,7 +1906,7 @@
       {
         "name": "sitemap",
         "ok": true,
-        "urlCount": 91,
+        "urlCount": 92,
         "passed": true
       },
       {
@@ -1918,7 +1918,7 @@
       {
         "name": "llms",
         "ok": true,
-        "lines": 193,
+        "lines": 195,
         "passed": true
       },
       {
@@ -1933,33 +1933,6 @@
       "error": "Lighthouse failed"
     },
     "passed": true
-  },
-  "store": {
-    "productCount": 4,
-    "products": [
-      {
-        "slug": "discord-launch-kit",
-        "name": "Discord Launch Kit",
-        "priceUsd": 19
-      },
-      {
-        "slug": "forum-store-ui-kit",
-        "name": "Forum Seller Store UI Kit",
-        "priceUsd": 29
-      },
-      {
-        "slug": "web3-trust-lander",
-        "name": "Web3 Trust Lander Blocks",
-        "priceUsd": 39
-      },
-      {
-        "slug": "brand-style-guide-template",
-        "name": "Brand Style Guide Template",
-        "priceUsd": 24
-      }
-    ],
-    "note": "Revenue sync from Stripe/LemonSqueezy → audit/store-snapshot.json (future)",
-    "conversions": null
   },
   "partners": {
     "count": 6,

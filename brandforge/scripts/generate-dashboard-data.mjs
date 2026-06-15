@@ -157,17 +157,6 @@ const data = {
     "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   preDeploy: readJson(path.join(AUDIT_ROOT, "pre-deploy-latest.json")),
   postDeploy: readJson(path.join(AUDIT_ROOT, "post-deploy-latest.json")),
-  store: {
-    productCount: 4,
-    products: [
-      { slug: "discord-launch-kit", name: "Discord Launch Kit", priceUsd: 19 },
-      { slug: "forum-store-ui-kit", name: "Forum Seller Store UI Kit", priceUsd: 29 },
-      { slug: "web3-trust-lander", name: "Web3 Trust Lander Blocks", priceUsd: 39 },
-      { slug: "brand-style-guide-template", name: "Brand Style Guide Template", priceUsd: 24 },
-    ],
-    note: "Revenue sync from Stripe/LemonSqueezy → audit/store-snapshot.json (future)",
-    conversions: ga4Snapshot.conversions?.purchase_initiated ?? null,
-  },
   partners: {
     count: 6,
     affiliateCommission: "20%",

@@ -30,9 +30,6 @@ export function SiteFooter(): React.JSX.Element {
           <Link href="/partners/" className="hover:text-text">
             Partners
           </Link>
-          <Link href="/store/" className="hover:text-text">
-            Store
-          </Link>
           <Link href="/mxstermind/" className="hover:text-text">
             MXSTERMIND
           </Link>

@@ -7,7 +7,6 @@ Static export — no server routes. This documents the **content API surface** a
 | Module | Path | Exports |
 |--------|------|---------|
 | Content index | `src/content/index.ts` | `getAllContentEntries()`, `CONTENT_STATS` |
-| Store | `src/config/store.ts` | `STORE_PRODUCTS`, `getStoreProduct()` |
 | Partners | `src/content/partners/registry.ts` | `PARTNERS`, `AFFILIATE_PROGRAM` |
 | Ecosystem | `src/content/shared/ecosystem.ts` | FAQs, case studies, testimonials |
 | Sitemap | `src/app/sitemap.ts` | Auto from content index |
@@ -19,8 +18,6 @@ Static export — no server routes. This documents the **content API surface** a
 |-------|------|
 | `cross_platform_nav` | BrandForge ↔ MXSTERMIND link click |
 | `partner_referral` | Inbound `?ref=` or outbound partner click |
-| `purchase_initiated` | Store Buy button |
-| `purchase_completed` | Stripe/LemonSqueezy webhook (manual/CI) |
 | `page_conversion` | Any CTA click with `page_path` |
 | `resource_download` | PDF / lead magnet download |
 
