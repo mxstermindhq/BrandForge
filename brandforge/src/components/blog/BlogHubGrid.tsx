@@ -2,7 +2,16 @@ import Link from "next/link";
 import { BlogCard } from "@/components/content/BlogCard";
 import type { BlogCardData } from "@/types/content";
 
-export const BLOG_CATEGORIES = ["All", "Discord", "Web3", "Forums", "Guides", "SEO", "Automation"] as const;
+export const BLOG_CATEGORIES = [
+  "All",
+  "Discord",
+  "Web3",
+  "Forums",
+  "Guides",
+  "SEO",
+  "Automation",
+  "Thought Leadership",
+] as const;
 
 type BlogHubGridProps = {
   posts: readonly BlogCardData[];
@@ -44,7 +53,7 @@ export function BlogHubGrid({ posts, activeCategory = "All" }: BlogHubGridProps)
         aria-label="Filter by category"
       >
         {BLOG_CATEGORIES.map((cat) => {
-          const href = cat === "All" ? "/blog/" : `/blog/category/${cat.toLowerCase()}/`;
+          const href = cat === "All" ? "/blog/" : `/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}/`;
           const active = category === cat;
 
           return (

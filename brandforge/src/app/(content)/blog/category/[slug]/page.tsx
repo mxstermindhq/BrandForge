@@ -27,11 +27,12 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   guides: "Guides",
   seo: "SEO",
   automation: "Automation",
+  "thought-leadership": "Thought Leadership",
 };
 
 export function generateStaticParams(): { slug: string }[] {
   return BLOG_CATEGORIES.filter((c) => c !== "All").map((cat) => ({
-    slug: cat.toLowerCase(),
+    slug: cat.toLowerCase().replace(/\s+/g, "-"),
   }));
 }
 

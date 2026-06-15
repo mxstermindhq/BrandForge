@@ -48,9 +48,26 @@ export default async function BlogPostPage({ params }: PageProps): Promise<React
         url: `${SITE.url}${path}`,
       }}
     >
-      <PageHero eyebrow="BrandForge editorial" title={post.title} subhead={post.metaDescription} />
+      <PageHero
+        eyebrow="BrandForge editorial"
+        title={post.title}
+        subhead={post.subtitle ?? post.metaDescription}
+      />
       <BlogArticle post={post} />
-      <CTASection title="Apply this to your build" subhead="Discord or Telegram — name this article." />
+      <CTASection
+        title={
+          slug === "the-state-of-things-2026"
+            ? "Start building something that matters"
+            : "Apply this to your build"
+        }
+        subhead={
+          slug === "the-state-of-things-2026"
+            ? "Join Discord for a fixed quote in 24 hours — mention The State of Things."
+            : "Discord or Telegram — name this article."
+        }
+        discordLabel={slug === "the-state-of-things-2026" ? "Join Discord" : undefined}
+        campaign={slug === "the-state-of-things-2026" ? "blog-state-of-things-cta" : undefined}
+      />
     </PageShell>
   );
 }

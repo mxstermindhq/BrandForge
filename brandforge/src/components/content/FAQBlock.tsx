@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { FaqItem } from "@/types/content";
+import { BlogInlineText } from "@/lib/blog/inline-links";
 import { trackEvent } from "@/lib/tracking";
 
 const FEEDBACK_STORAGE_KEY = "bf-faq-feedback";
@@ -103,7 +104,9 @@ function FAQItemRow({
           </span>
         </span>
       </summary>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">{item.answer}</p>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">
+        <BlogInlineText text={item.answer} />
+      </p>
       <div className="mt-3 flex items-center gap-2" role="group" aria-label="Was this answer helpful?">
         <span className="font-mono text-[9px] uppercase tracking-wider text-muted">Helpful?</span>
         <button

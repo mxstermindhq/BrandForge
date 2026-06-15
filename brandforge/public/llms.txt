@@ -139,6 +139,8 @@
   What forum and OTC buyers should include in the first Discord message — scope, escrow, refs, and fixed-quote checklist.
 - Pick the Right BrandForge Tier: https://brandforge.gg/blog/how-to-pick-the-right-brandforge-tier/
   Blueprint vs Automator vs MVP Engine — match package tier to stage, capacity limits, and when to graduate to mxstermind.com (Founder OS).
+- The State of Things 2026 — World Problems & What To Do: https://brandforge.gg/blog/the-state-of-things-2026/
+  The 10 biggest problems in the world right now — from AI readiness to trust in reality — and what you can actually do about them.
 - Web3 Branding & Trust Guide: https://brandforge.gg/blog/web3-branding-building-trust-decentralized-markets/
   How crypto and Web3 operators build credible brands before chain jargon — landers, proof, and GEO for cold traffic.
 - Building BrandForge in Public — Update 01: https://brandforge.gg/blog/building-brandforge-in-public-01/
@@ -189,4 +191,4 @@
 - Privacy: https://brandforge.gg/privacy/
 - Ethics: https://brandforge.gg/ethics-standards/
 
-Generated 2026-06-14 · 87 indexable pages · 177 lines
+Generated 2026-06-15 · 88 indexable pages · 179 lines

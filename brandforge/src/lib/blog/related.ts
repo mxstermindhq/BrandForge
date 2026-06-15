@@ -48,6 +48,15 @@ const CATEGORY_DEFAULTS: Record<
     portfolio: ["whiteskyhosting"],
     niches: ["saas-startups"],
   },
+  "Thought Leadership": {
+    services: [
+      { label: "Brand identity", href: "/services/brand-identity/" },
+      { label: "Web design", href: "/services/web-design/" },
+      { label: "Automation", href: "/services/automation/" },
+    ],
+    portfolio: ["ops-flow-dashboard", "geo-content-engine"],
+    niches: ["saas-startups", "web3-crypto-projects"],
+  },
 };
 
 const TAG_NICHE: Record<string, string> = {

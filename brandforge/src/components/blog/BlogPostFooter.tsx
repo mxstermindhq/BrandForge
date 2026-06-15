@@ -8,7 +8,7 @@ type BlogPostFooterProps = {
   post: BlogPost;
 };
 
-/** Related services, portfolio, and niche links at end of blog posts. */
+/** Related services, portfolio, blog, and niche links at end of blog posts. */
 export function BlogPostFooter({ post }: BlogPostFooterProps): React.JSX.Element {
   const related = defaultRelatedForPost(post);
 
@@ -19,6 +19,8 @@ export function BlogPostFooter({ post }: BlogPostFooterProps): React.JSX.Element
   const niches = related.niches
     .map((slug) => NICHE_PAGES[slug])
     .filter(Boolean);
+
+  const relatedBlog = post.relatedBlog ?? [];
 
   return (
     <aside className="content-wrap border-t border-b1 py-10">
@@ -52,6 +54,23 @@ export function BlogPostFooter({ post }: BlogPostFooterProps): React.JSX.Element
               </li>
             ))}
           </ul>
+          {relatedBlog.length > 0 ? (
+            <>
+              <h3 className="mt-6 text-sm font-bold">Related posts</h3>
+              <ul className="mt-3 space-y-2">
+                {relatedBlog.map((b) => (
+                  <li key={b.slug}>
+                    <Link
+                      href={`/blog/${b.slug}/`}
+                      className="text-sm text-accent-bright hover:text-text"
+                    >
+                      {b.title} →
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </div>
         <div>
           <h3 className="text-sm font-bold">Who this is for</h3>

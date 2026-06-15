@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3002",
-    "build": "node scripts/optimize-site-images.mjs && node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs && node scripts/track-bundles.mjs && node scripts/audit-images.mjs && node scripts/generate-dashboard-data.mjs",
+    "build": "node scripts/optimize-site-images.mjs && node scripts/generate-blog-og-images.mjs && node scripts/generate-llms-txt.mjs && node scripts/generate-rss.mjs && next build && node scripts/prune-portfolio-out.mjs && node scripts/track-bundles.mjs && node scripts/audit-images.mjs && node scripts/generate-dashboard-data.mjs",
     "pre-deploy": "node scripts/pre-deploy.mjs",
     "pre-deploy:quick": "node scripts/pre-deploy.mjs --skip-lighthouse",
     "post-deploy": "node scripts/post-deploy.mjs",
