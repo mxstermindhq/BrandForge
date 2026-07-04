@@ -1,10 +1,39 @@
 import Link from "next/link";
-import { CTASection, FAQBlock, InlineCTA } from "@/components/content";
-import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
-import { BeforeAfterSlider } from "@/components/marketing/BeforeAfterSlider";
-import { VideoThumbnail } from "@/components/marketing/VideoThumbnail";
-import { ResultStatBox } from "@/components/marketing/ResultStatBox";
+import dynamic from "next/dynamic";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
+
+const CTASection = dynamic(
+  () => import("@/components/content/CTASection").then((m) => ({ default: m.CTASection })),
+  { loading: () => <div className="py-24" aria-hidden /> },
+);
+
+const FAQBlock = dynamic(
+  () => import("@/components/content/FAQBlock").then((m) => ({ default: m.FAQBlock })),
+  { loading: () => <div className="content-wrap py-24" aria-hidden /> },
+);
+
+const InlineCTA = dynamic(
+  () => import("@/components/content/InlineCTA").then((m) => ({ default: m.InlineCTA })),
+  { loading: () => <div className="my-12 h-32 animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
+
+const CopyIntakeButton = dynamic(
+  () => import("@/components/marketing/CopyIntakeButton").then((m) => ({ default: m.CopyIntakeButton })),
+);
+
+const BeforeAfterSlider = dynamic(
+  () => import("@/components/marketing/BeforeAfterSlider").then((m) => ({ default: m.BeforeAfterSlider })),
+  { loading: () => <div className="mt-6 h-48 animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
+
+const VideoThumbnail = dynamic(
+  () => import("@/components/marketing/VideoThumbnail").then((m) => ({ default: m.VideoThumbnail })),
+  { loading: () => <div className="mt-8 aspect-video animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
+
+const ResultStatBox = dynamic(
+  () => import("@/components/marketing/ResultStatBox").then((m) => ({ default: m.ResultStatBox })),
+);
 import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
 import {
   resolveProjectGallery,

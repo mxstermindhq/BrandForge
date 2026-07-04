@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BlogArticle, CTASection, PageHero, PageShell } from "@/components/content";
+import dynamic from "next/dynamic";
+import { BlogArticle, PageHero, PageShell } from "@/components/content";
+
+const CTASection = dynamic(
+  () => import("@/components/content/CTASection").then((m) => ({ default: m.CTASection })),
+  { loading: () => <div className="py-24" aria-hidden /> },
+);
 import { SITE } from "@/config/site";
 import { BLOG_POSTS, BLOG_SLUGS } from "@/content/blog/index";
 import { buildPageMetadata } from "@/lib/seo/metadata";

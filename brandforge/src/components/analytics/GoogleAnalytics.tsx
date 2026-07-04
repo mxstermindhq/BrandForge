@@ -41,7 +41,7 @@ export function GoogleAnalytics(): React.JSX.Element | null {
   }
   function scheduleAfterLoad(){
     if(typeof requestIdleCallback==="function"){
-      requestIdleCallback(load,{timeout:2500});
+      requestIdleCallback(load,{timeout:5000});
     }else{
       setTimeout(load,1);
     }

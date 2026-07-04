@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
-  CTASection,
-  FAQBlock,
   PageHero,
   PageShell,
   PortfolioCard,
 } from "@/components/content";
+
+const CTASection = dynamic(
+  () => import("@/components/content/CTASection").then((m) => ({ default: m.CTASection })),
+  { loading: () => <div className="py-24" aria-hidden /> },
+);
+
+const FAQBlock = dynamic(
+  () => import("@/components/content/FAQBlock").then((m) => ({ default: m.FAQBlock })),
+  { loading: () => <div className="content-wrap py-24" aria-hidden /> },
+);
 import { PORTFOLIO_HUB_CARDS } from "@/content/hubs/portfolio-hub";
 import { NICHE_PAGES, NICHE_SLUGS } from "@/content/niche/pages";
 import { buildPageMetadata } from "@/lib/seo/metadata";

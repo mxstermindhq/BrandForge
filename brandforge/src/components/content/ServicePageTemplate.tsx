@@ -1,7 +1,23 @@
 import Link from "next/link";
-import { CTASection, FAQBlock, InlineCTA, PageHero } from "@/components/content";
+import dynamic from "next/dynamic";
+import { PageHero } from "@/components/content";
 import { ServiceHeroVisual } from "@/components/content/ServiceHeroVisual";
 import type { ServiceDetail } from "@/types/service-page";
+
+const CTASection = dynamic(
+  () => import("@/components/content/CTASection").then((m) => ({ default: m.CTASection })),
+  { loading: () => <div className="py-24" aria-hidden /> },
+);
+
+const FAQBlock = dynamic(
+  () => import("@/components/content/FAQBlock").then((m) => ({ default: m.FAQBlock })),
+  { loading: () => <div className="content-wrap py-24" aria-hidden /> },
+);
+
+const InlineCTA = dynamic(
+  () => import("@/components/content/InlineCTA").then((m) => ({ default: m.InlineCTA })),
+  { loading: () => <div className="my-12 h-32 animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
 
 type ServicePageTemplateProps = {
   service: ServiceDetail;

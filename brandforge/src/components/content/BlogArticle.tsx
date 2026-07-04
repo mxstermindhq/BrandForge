@@ -1,12 +1,30 @@
-import { FAQBlock, InlineCTA } from "@/components/content";
 import { BlogPullQuote } from "@/components/blog/BlogPullQuote";
 import { BlogSolutionBox } from "@/components/blog/BlogSolutionBox";
 import { BlogStatCallout } from "@/components/blog/BlogStatCallout";
-import { CodeBlock } from "@/components/blog/CodeBlock";
-import { BlogPostFooter } from "@/components/blog/BlogPostFooter";
 import { OptimizedPicture } from "@/components/visual/OptimizedPicture";
 import type { BlogPost } from "@/content/blog/index";
 import { BlogInlineText } from "@/lib/blog/inline-links";
+import dynamic from "next/dynamic";
+
+const CodeBlock = dynamic(
+  () => import("@/components/blog/CodeBlock").then((m) => ({ default: m.CodeBlock })),
+  { loading: () => <div className="mt-4 h-24 animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
+
+const BlogPostFooter = dynamic(
+  () => import("@/components/blog/BlogPostFooter").then((m) => ({ default: m.BlogPostFooter })),
+  { loading: () => <aside className="content-wrap border-t border-b1 py-10" aria-hidden /> },
+);
+
+const FAQBlock = dynamic(
+  () => import("@/components/content/FAQBlock").then((m) => ({ default: m.FAQBlock })),
+  { loading: () => <div className="content-wrap py-24" aria-hidden /> },
+);
+
+const InlineCTA = dynamic(
+  () => import("@/components/content/InlineCTA").then((m) => ({ default: m.InlineCTA })),
+  { loading: () => <div className="my-12 h-32 animate-pulse rounded-md bg-s1" aria-hidden /> },
+);
 
 type BlogArticleProps = {
   post: BlogPost;
