@@ -1,0 +1,500 @@
+{
+  "validatedAt": "2026-06-13T20:19:47.430Z",
+  "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
+  "total": 92,
+  "pass": 92,
+  "fail": 0,
+  "warn": 3,
+  "pages": [
+    {
+      "page": "/404/",
+      "status": "warn",
+      "message": "No JSON-LD found"
+    },
+    {
+      "page": "/404.html",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/about/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/admin/",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/blog/ai-tools-every-operator-should-use/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/brand-identity-vs-brand-design-difference/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/building-brandforge-in-public-01/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/complete-guide-forum-seller-reputation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/discord-server-branding-complete-guide/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/discord-server-branding-for-growth/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/escrow-friendly-agency-intake/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/forum-marketing-2026-what-still-works/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-to-build-a-brand-from-scratch-2026/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-to-build-a-web-store-gaming-community/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-to-choose-a-design-agency-2026/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-to-pick-the-right-brandforge-tier/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-to-price-digital-services-2026/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/how-we-built-carspotlive-mobile-app-case-study/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/landing-page-conversion-checklist-2026/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/n8n-vs-make-automation-guide/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/partner-spotlight-whitesky-hosting/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/web3-branding-building-trust-decentralized-markets/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/what-is-cro-conversion-rate-optimisation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/blog/what-is-geo-generative-engine-optimisation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/brand-guide/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/client/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/community/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/contact/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/ethics-standards/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/events/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/automation-ops-teams/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/content-creators/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/ecommerce-brands/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/forum-sellers/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/gaming-server-owners/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/mobile-app-founders/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/saas-startups/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/for/web3-crypto-projects/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/launch/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/membership/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/mxstermind/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/offline.html",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/packages/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/partners/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/ai-voice-receptionist/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/boostingfactory/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/carspotlive/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/cascade-markets/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/cloutscout/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/community-launch-kit/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/confidential-engagement/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/crystal-wars/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/directfiber/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/drain-cx/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/dyotravel/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/fluorite-store/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/forum-commerce-hub/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/gazedvalleybeef/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/geo-content-engine/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/grindnode/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/jarro-ai/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/lava-pw/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/linkedin-automation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/ops-flow-dashboard/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/passle/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/repsheets/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/sui-blockchain-app/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/valaccs/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/whiteskyhosting/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/privacy/",
+      "status": "warn",
+      "message": "No JSON-LD found"
+    },
+    {
+      "page": "/roadmap/build-your-brand/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/grow-your-audience/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/launch-strategy/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/scale-operations/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/tools-resources/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/roadmap/validate-your-idea/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/ai-tools/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/automation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/brand-identity/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/discord-branding/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/mobile-apps/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/paid-ads/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/seo-growth/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/social-media/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/services/web-design/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/brand-style-guide-template/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/discord-launch-kit/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/forum-store-ui-kit/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/success/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/store/web3-trust-lander/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/terms/",
+      "status": "warn",
+      "message": "No JSON-LD found"
+    }
+  ]
+}

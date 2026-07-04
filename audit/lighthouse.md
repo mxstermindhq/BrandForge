@@ -1,82 +1,48 @@
-# BrandForge Lighthouse Audit — Phase 6
+# BrandForge Lighthouse Audit
 
-**Date:** 2026-05-19  
-**App:** `brandforge/` production build (`next build` + `next start -p 3003`)  
-**Tool:** Lighthouse CLI (headless Chrome)  
-**Targets (spec):** Desktop performance 95+, mobile 85+, LCP &lt; 2.5s, CLS ≈ 0, INP &lt; 200ms
-
-Raw JSON reports: `audit/lh-{page}-{desktop|mobile}.json`
+**Last updated:** 2026-06-13  
+**Full report:** `audit/brandforge-audit.md`  
+**Summary JSON:** `audit/brandforge-perf-all.json` (51 URLs, mobile, 2026-06-03)
 
 ---
 
-## Summary scores
+## Production scores (live URLs)
 
-| Page | Form factor | Performance | A11y | Best practices | SEO | LCP | CLS | TBT |
-|------|-------------|-------------|------|----------------|-----|-----|-----|-----|
-| `/` | Desktop | **60** | 96 | 100 | 100 | 1.4 s | 0.008 | 1,310 ms |
-| `/` | Mobile | **39** | 96 | 100 | 100 | 5.2 s | 0 | 8,730 ms |
-| `/terms` | Desktop | **82** | 95 | 100 | 100 | 0.9 s | 0 | 380 ms |
-| `/terms` | Mobile | **57** | 95 | 100 | 100 | 3.3 s | 0.009 | 3,520 ms |
-| `/privacy` | Desktop | **82** | 95 | 100 | 100 | 1.0 s | 0.003 | 380 ms |
-| `/privacy` | Mobile | **49** | 95 | 100 | 100 | 4.4 s | 0 | 4,630 ms |
+| Page | Form factor | Performance | A11y | Best | SEO | LCP | CLS | TBT |
+|------|-------------|-------------|------|------|-----|-----|-----|-----|
+| brandforge.gg `/` | Mobile | **28** | 89 | 81 | 100 | 8.6 s | 0 | 3.1 s |
+| brandforge.gg `/` | Desktop | **65** | — | — | — | ~1.1 s | ~0.006 | ~1.1 s |
+| brandforge.gg `/packages/` | Mobile | **49** | — | — | — | ~4.0 s | 0 | ~3.4 s |
+| Site average (51 URLs) | Mobile | **65** | — | — | — | — | 0 | — |
+| Best page | Mobile | **84** | — | — | — | — | — | `/brand-guide/` |
 
-**Verdict:** Core Web Vitals layout stability is good (CLS near zero). LCP is strong on desktop and acceptable on legal pages. **Performance targets are not met** — the home page pays a heavy JS tax from GSAP + Lenis + Three.js/R3F on throttled mobile CPU (TBT dominates the score).
-
----
-
-## Optimizations applied (Phase 6)
-
-| Change | Intent |
-|--------|--------|
-| Dynamic `SceneCanvas` import in `AppProviders` | Keep Three/R3F out of initial bundle |
-| `useDeferredMount` (~1.4s idle) before WebGL | Prioritize LCP / first paint |
-| `frameloop="demand"` + `CanvasInvalidator` | Avoid idle GPU when scene is static |
-| Unmount WebGL when hero scroll progress ≥ 98% | Stop WebGL after hero exits viewport |
-| Code-split below-fold sections (`ServicesPin`, `Portfolio`, `PackageStack`, `Vouches`) | Smaller home route JS (6.9 kB page chunk vs 10.9 kB pre-split) |
-| `next/image` + blur placeholder for header logo | Optimized LCP candidate + zero layout shift |
-| Dynamic `CustomCursor` + `PageTransitionCurtain` | Defer non-critical interaction layers |
-| **Mobile lite mode (≤768px)** | Skips WebGL, Lenis, loader, cursor, and page curtain on mobile |
-| **Font subset** | Space Grotesk weights reduced to 300/400/600/700 (dropped 500) |
-| **Static home sections** | ICP, process, delivery, support, FAQ — server-rendered without GSAP |
+**Targets:** Desktop 95+, mobile 85+, LCP &lt; 2.5 s, CLS ≈ 0 — **not met on home mobile**.
 
 ---
 
-## Home page — desktop deep dive
+## Key findings (Jun 2026)
 
-| Audit | Value | Notes |
-|-------|-------|-------|
-| Bootup time | ~2.0 s | GSAP, Lenis, R3F chunk parse/eval |
-| Main-thread work | ~6.0 s | ScrollTrigger registration + hydration |
-| Unused JavaScript | ~188 KiB est. | Shared vendor chunks (Three, GSAP) loaded for hero |
-| LCP element | Hero typography | 1.4 s — within target |
+1. **CLS fixed** — static home removed lazy `#packages` hydration shift (was 0.86 in May).
+2. **LCP still critical** — mobile home 8.6 s; main thread + fonts + GA.
+3. **Content pages healthy** — most portfolio/roadmap/service pages score 74–84 mobile.
+4. **Home is the outlier** — only page below 30 perf in full crawl.
 
 ---
 
-## Gaps vs targets & recommended follow-ups
+## Raw reports
 
-1. **Mobile TBT (8.7 s on `/`)** — Mitigated by mobile lite path (no Three/Lenis/loader). Re-audit recommended.
-   - Further: lazy ScrollTrigger registration per section on desktop
-2. **Mobile LCP (5.2 s on `/`)** — Font subset applied; mobile lite removes WebGL contention
-3. **Desktop perf 60** — Mostly TBT from boot; splitting `LenisProvider` + lazy ScrollTrigger registration per section would help legal pages reach 90+
-4. **INP** — Lab INP on desktop was ~1.3 s (loader + hydration); real-user INP likely lower once `sessionStorage` skips loader
+- `audit/lh-bf-all/` — per-URL mobile JSON (51 files)
+- `audit/lh-bf-home-mobile-2026.json`
+- `audit/lh-bf-home-desktop-2026.json`
+- `audit/lh-bf-packages-mobile-2026.json`
 
 ---
 
-## How to re-run
+## Re-run
 
 ```bash
-cd brandforge
-npm run build
-npx next start -p 3003
-
-# From repo root (one page example)
-npx lighthouse http://localhost:3003 --preset=desktop \
-  --only-categories=performance,accessibility,best-practices,seo \
-  --output=json --output-path=audit/lh-home-desktop.json
+cd brandforge && node scripts/audit-perf-all.mjs --fresh
+npx lighthouse https://brandforge.gg/ --form-factor=mobile --view
 ```
 
-Clear `sessionStorage.bf-loader-seen` before auditing first-visit loader impact.
-
----
-
-*Phase 6 complete. Performance budget documented; further gains require mobile lite path or post-hydration motion boot.*
+Update `audit-perf-all.mjs` portfolio slug list before full crawl (currently 8 of 21).

@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-06-13T20:19:46.928Z",
+  "routes": {},
+  "totalJsKb": 995,
+  "totalCssKb": 53,
+  "imgKb": 4221,
+  "homeRoute": {
+    "homeKb": 0,
+    "prevHomeKb": 0,
+    "deltaKb": 0,
+    "regressed": false
+  },
+  "flags": []
+}

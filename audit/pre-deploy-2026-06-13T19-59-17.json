@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-06-13T19:59:17.738Z",
+  "passed": true,
+  "blockers": [],
+  "homeMobile": null,
+  "bundles": {
+    "recordedAt": "2026-06-13T19:59:17.210Z",
+    "routes": {},
+    "totalJsKb": 986,
+    "totalCssKb": 53,
+    "imgKb": 4221,
+    "homeRoute": {
+      "homeKb": 0,
+      "prevHomeKb": 0,
+      "deltaKb": 0,
+      "regressed": false
+    },
+    "flags": []
+  },
+  "images": {
+    "scannedAt": "2026-06-13T19:59:17.402Z",
+    "totalImages": 9,
+    "totalWeightKb": 4221,
+    "thresholdKb": 200,
+    "oversized": [
+      {
+        "path": "/img/logo-mark-512.png",
+        "kb": 279
+      },
+      {
+        "path": "/img/og-image.png",
+        "kb": 1711
+      }
+    ],
+    "legacyFormats": [
+      {
+        "path": "/img/apple-touch-icon.png",
+        "kb": 36,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/favicon-16x16.png",
+        "kb": 1,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/favicon-32x32.png",
+        "kb": 2,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-header.png",
+        "kb": 14,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-mark-512.png",
+        "kb": 279,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/logo-nav.png",
+        "kb": 5,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/og-image.png",
+        "kb": 1711,
+        "suggest": "Convert to AVIF + WebP"
+      }
+    ],
+    "passed": false
+  },
+  "perf": {
+    "homeMobile": null,
+    "sampled": []
+  }
+}

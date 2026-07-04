@@ -1,0 +1,30 @@
+{
+  "scannedAt": "2026-06-14T08:45:45.078Z",
+  "totalImages": 4,
+  "totalWeightKb": 2409,
+  "thresholdKb": 200,
+  "oversized": [],
+  "legacyFormats": [
+    {
+      "path": "/img/apple-touch-icon.png",
+      "kb": 36,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/favicon-16x16.png",
+      "kb": 1,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/favicon-32x32.png",
+      "kb": 2,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/logo-nav.png",
+      "kb": 5,
+      "suggest": "Convert to AVIF + WebP"
+    }
+  ],
+  "passed": true
+}

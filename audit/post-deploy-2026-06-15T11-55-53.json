@@ -1,0 +1,41 @@
+{
+  "verifiedAt": "2026-06-15T11:55:53.396Z",
+  "base": "https://brandforge.gg",
+  "checks": [
+    {
+      "name": "home-200",
+      "ok": true,
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "sitemap",
+      "ok": true,
+      "urlCount": 92,
+      "passed": true
+    },
+    {
+      "name": "robots",
+      "ok": true,
+      "hasSitemap": true,
+      "passed": true
+    },
+    {
+      "name": "llms",
+      "ok": true,
+      "lines": 195,
+      "passed": true
+    },
+    {
+      "name": "admin-noindex",
+      "ok": true,
+      "noindex": true,
+      "passed": true
+    }
+  ],
+  "homeMobile": {
+    "performance": null,
+    "error": "Lighthouse failed"
+  },
+  "passed": true
+}

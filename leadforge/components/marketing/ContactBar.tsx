@@ -1,6 +1,6 @@
 import { LEADFORGE_TELEGRAM_MSG, SITE, telegramUrl } from "@/lib/site";
 
-/** Discord + Telegram strip — same channels as BrandForge. */
+/** Discord + Telegram strip — mxstermind Studio Tools. */
 export function ContactBar(): React.JSX.Element {
   return (
     <div
@@ -9,7 +9,10 @@ export function ContactBar(): React.JSX.Element {
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-6 py-2">
         <p className="hidden font-mono text-[9px] uppercase tracking-wider text-tx-muted sm:block">
-          Questions? Same team as BrandForge · Reply on Discord or Telegram
+          <a href={SITE.mxstermind} className="text-gold hover:underline">
+            mxstermind.com
+          </a>{" "}
+          · Studio Tools · Discord or Telegram
         </p>
         <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
           <a

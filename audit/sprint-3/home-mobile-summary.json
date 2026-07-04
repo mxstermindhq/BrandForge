@@ -1,10 +1,10 @@
 {
   "url": "https://brandforge.gg/",
-  "perf": 72,
+  "perf": 71,
   "a11y": 93,
   "seo": 100,
-  "lcp": "3.1 s",
-  "tbt": "850 ms",
+  "lcp": "2.8 s",
+  "tbt": "960 ms",
   "cls": "0",
   "date": "2026-06-13"
 }

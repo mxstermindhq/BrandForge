@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-06-13T20:16:40.938Z",
+  "base": "https://brandforge.gg",
+  "pagesSampled": 40,
+  "totalSitemapUrls": 91,
+  "linksChecked": 128,
+  "broken": [
+    {
+      "url": "https://brandforge.gg/portfolio/telegram-verification-system/",
+      "status": 404,
+      "type": "internal",
+      "from": "https://brandforge.gg/services/automation/"
+    }
+  ],
+  "passed": false
+}

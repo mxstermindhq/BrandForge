@@ -1,0 +1,54 @@
+{
+  "scannedAt": "2026-06-13T19:55:28.579Z",
+  "totalImages": 9,
+  "totalWeightKb": 4221,
+  "thresholdKb": 200,
+  "oversized": [
+    {
+      "path": "/img/logo-mark-512.png",
+      "kb": 279
+    },
+    {
+      "path": "/img/og-image.png",
+      "kb": 1711
+    }
+  ],
+  "legacyFormats": [
+    {
+      "path": "/img/apple-touch-icon.png",
+      "kb": 36,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/favicon-16x16.png",
+      "kb": 1,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/favicon-32x32.png",
+      "kb": 2,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/logo-header.png",
+      "kb": 14,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/logo-mark-512.png",
+      "kb": 279,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/logo-nav.png",
+      "kb": 5,
+      "suggest": "Convert to AVIF + WebP"
+    },
+    {
+      "path": "/img/og-image.png",
+      "kb": 1711,
+      "suggest": "Convert to AVIF + WebP"
+    }
+  ],
+  "passed": false
+}

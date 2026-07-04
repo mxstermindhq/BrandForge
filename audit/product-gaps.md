@@ -3,8 +3,7 @@
 **Last updated:** 2026-06-14  
 **Positioning:** mxstermind.com = **Founder Operating System** (not bespoke agency)  
 **Scope:** Sprints 1–7 (brandforge.gg) + ecosystem best-in-class targets (TheOne monorepo)  
-**Production:** https://brandforge.gg · deploy `feea4662` · commit `57d6ac9`  
-**Last ship (pending):** home static hero, server blog hub, HSTS, CI gate
+**Production:** https://brandforge.gg · deploy `58f1b0c8` · commit `eeb5c93`
 **Overall grade (Post-Sprint 7):** **B-** → target **A** for best-in-class operator studio
 
 ---

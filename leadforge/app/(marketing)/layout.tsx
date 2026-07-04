@@ -11,9 +11,17 @@ export default function MarketingLayout({
     <>
       <header className="sticky top-0 z-50 h-[60px] border-b border-border bg-bg/70 backdrop-blur">
         <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="font-display text-xl text-gold">
-            ⬡ LeadForge
-          </Link>
+          <div className="flex items-baseline gap-3">
+            <Link href="/" className="font-display text-xl text-gold">
+              ⬡ LeadForge
+            </Link>
+            <a
+              href={SITE.mxstermind}
+              className="hidden font-mono text-[9px] tracking-widest text-tx-muted hover:text-gold sm:inline"
+            >
+              ← mxstermind.com
+            </a>
+          </div>
           <div className="flex items-center gap-4 text-sm text-tx-muted sm:gap-6">
             <Link href="/pricing" className="hover:text-tx">
               Pricing
@@ -56,11 +64,10 @@ export default function MarketingLayout({
               AI buyer intelligence · multi-platform lead scraping
             </p>
             <p className="mt-2 text-xs text-tx-muted">
-              A{" "}
-              <a href={SITE.brandforge} className="text-gold hover:underline" target="_blank" rel="noopener noreferrer">
-                BrandForge
-              </a>{" "}
-              tool
+              Part of{" "}
+              <a href={SITE.mxstermindTools} className="text-gold hover:underline">
+                mxstermind Studio Tools
+              </a>
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">

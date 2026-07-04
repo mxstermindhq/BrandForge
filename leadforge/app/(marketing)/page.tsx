@@ -170,7 +170,7 @@ export default function LandingPage(): React.JSX.Element {
       <section className="mt-28 rounded-2xl border border-border bg-bg-surface px-6 py-12 text-center">
         <h2 className="font-display text-3xl font-light">Need help finding buyers?</h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-tx-muted">
-          Same Discord & Telegram as BrandForge — real humans, fixed quotes, no sales calls.
+          Same Discord & Telegram as mxstermind Studio — real humans, fixed quotes, no sales calls.
         </p>
         <ContactCTA className="mt-8" />
       </section>

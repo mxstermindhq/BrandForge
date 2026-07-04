@@ -36,7 +36,7 @@ function buildSupabaseEnv(): CloudflareEnv {
     STRIPE_WEBHOOK_SECRET: readEnvString("STRIPE_WEBHOOK_SECRET"),
     RESEND_API_KEY: readEnvString("RESEND_API_KEY"),
     ADMIN_EMAIL: readEnvString("ADMIN_EMAIL"),
-    APP_URL: readEnvString("APP_URL", "https://leadforge-gilt.vercel.app"),
+    APP_URL: readEnvString("APP_URL", "https://tools.mxstermind.com"),
     APP_ENV: readEnvString("APP_ENV", "production"),
     SEARCH_PROVIDER: readEnvString("SEARCH_PROVIDER") || undefined,
     SERPER_API_KEY: readEnvString("SERPER_API_KEY") || undefined,

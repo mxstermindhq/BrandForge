@@ -1,329 +1,253 @@
-# BrandForge.gg — Full Codebase Audit
+# BrandForge.gg — Production Audit
 
-**Audit date:** 2026-05-27  
-**Auditor scope:** Complete read of production static site (`site/`, 25 files) + deployment/config layer + legacy `web/` Next.js marketplace (sampled for migration risk). Binary assets (PNG/ICO) verified by path inventory only.  
-**Production today:** Cloudflare Workers Assets serving `site/` via `npm run site:deploy`  
-**Transformation target:** Next.js 15 App Router animated experience in `brandforge/` (new app, non-destructive to legacy `web/`)
-
----
-
-## 1. File Inventory (Production Source of Truth)
-
-### `site/` — 25 files (100% text sources read)
-
-| Path | Role |
-|------|------|
-| `index.html` | Single-page landing (~554 lines), inline critical CSS + JSON-LD |
-| `terms.html` | Legal — packages, revisions, refunds |
-| `privacy.html` | Legal — Discord/Telegram + Cloudflare analytics |
-| `css/main.css` | Non-critical styles (~minified 1 file, ~all section styles) |
-| `js/app.js` | IntersectionObserver reveals, package CTA clipboard, sticky bar |
-| `js/config.js` | Discord/Telegram URLs, package intake messages |
-| `js/analytics.js` | Cloudflare Web Analytics beacon loader |
-| `scripts/inject-analytics.mjs` | Deploy-time token injection into config.js |
-| `scripts/generate-favicons.mjs` | Local favicon generation (not deployed) |
-| `sitemap.xml` | `/`, `/terms.html`, `/privacy.html` |
-| `robots.txt` | Allow all + sitemap + llms.txt comment |
-| `llms.txt` | Agent/LLM context file |
-| `site.webmanifest` | PWA manifest |
-| `wrangler.jsonc` | Cloudflare Workers Assets config |
-| `.assetsignore` | Excludes scripts/, package.json from deploy |
-| `package.json` | Local deploy scripts only |
-| `img/*` | logo-header, logo-mark-512, favicons, og-image (binary) |
-| `favicon.ico` | binary |
-
-### Repository context (not transformation source)
-
-| Area | Files | Notes |
-|------|-------|-------|
-| `web/` | ~200+ TS/TSX | Legacy Next.js 15 marketplace — light theme, Supabase, OpenNext CF |
-| Root `server.js`, `src/server/` | Node API | Marketplace backend — out of scope |
-| `supabase/` | SQL migrations | Marketplace data — out of scope |
+**Audit date:** 2026-06-13  
+**URL:** https://brandforge.gg  
+**Stack:** Next.js 15.5 · static export · Cloudflare Workers Assets (`brandforge/`)  
+**Deploy:** `cd brandforge && npm run deploy`  
+**Latest deploy:** commit `5888368` (includes `/launch/` campaign page)
 
 ---
 
-## 2. Architecture Assessment
+## Executive summary
 
-### Rendering approach
+| Area | Grade | Verdict |
+|------|-------|---------|
+| **Content & routes** | A | 71 static pages live — full hub + 21 portfolio + 11 blog + launch ops page |
+| **SEO / schema** | A | Per-page metadata, JSON-LD, sitemap, llms.txt — home SEO **100** |
+| **Conversion funnel** | A | Discord/Telegram CTAs, package intake messages, FAQ, ethics, brand guide |
+| **Mobile performance** | D | Home still worst page — **28** perf, **8.6 s LCP** (Jun 3 crawl) |
+| **Desktop performance** | C | Home **65** — acceptable hero, heavy JS on inner pages |
+| **Ops / crawl hygiene** | B− | robots.txt conflict at edge; perf audit script stale |
 
-**Current:** Pure static HTML/CSS/vanilla JS. Zero build step for content. Cloudflare Workers Assets = CDN static file host. No SSR, no hydration, no component tree.
+**Bottom line:** BrandForge is content-complete and SEO-strong. The main gap is **mobile home speed** — everything else averages ~65 mobile Lighthouse perf across 51 crawled URLs.
 
-**Critical render path:**
-1. HTML document with ~2KB inline critical CSS (hero, nav, reset, tokens)
-2. Google Fonts preconnect + stylesheet (render-blocking external)
-3. `css/main.css` loaded via preload/onload pattern (non-blocking)
-4. Three deferred scripts: `config.js` → `analytics.js` → `app.js`
-5. No bundler, no code splitting, no tree shaking
+---
 
-**Strengths:** Trivial TTFB, minimal JS payload (~3KB effective), excellent for mid-range machines and forum operators on slow connections.
+## 1. Live site check (2026-06-13)
 
-**Weaknesses:** No component reusability, duplicated tokens across inline CSS + main.css + legal pages, monolithic 554-line HTML, animation limited to CSS transitions + IO class toggles.
+| URL | HTTP | Notes |
+|-----|------|-------|
+| `/` | 200 | Static hero + full legacy sections restored |
+| `/launch/` | 200 | Internal campaign calendar — `noindex` |
+| `/sitemap.xml` | 200 | ~65 indexable URLs |
+| `/robots.txt` | 200 | **Conflict** — see §6 |
 
-### Component structure and reusability
+---
 
-**Rating: 1/10**
+## 2. Route inventory
 
-- No components — semantic HTML sections with repeated patterns (eyebrow, sec-h, cards, grids)
-- Copy, schema, and styles tightly coupled in one file
-- Legal pages duplicate token definitions in inline `<style>` blocks
-- Package CTA logic in global IIFE, not modular
+**Build output:** 71 prerendered routes (Jun 13 build)
 
-### Asset loading strategy
+| Type | Count | Examples |
+|------|-------|----------|
+| Hubs | 12 | `/`, `/services/`, `/packages/`, `/portfolio/`, `/about/`, `/contact/`, `/roadmap/`, `/blog/`, `/ethics-standards/`, `/brand-guide/`, `/terms/`, `/privacy/` |
+| Services | 9 | `/services/brand-identity/` … `/services/social-media/` |
+| Portfolio | 21 | cascade-markets, carspotlive, drain-cx, valaccs, … |
+| Roadmap stages | 6 | validate → tools-resources |
+| Niche `/for/*` | 6 | gaming-server-owners, forum-sellers, web3, … |
+| Blog posts | 11 | GEO, CRO, Discord branding, build-in-public, … |
+| Ops (noindex) | 1 | `/launch/` — weekly outreach calendar |
+| System | 2 | `robots.txt`, `sitemap.xml` |
 
-| Asset | Strategy | Issue |
-|-------|----------|-------|
-| Fonts | Google Fonts CDN | External dependency, FOUT, privacy |
-| CSS | Critical inline + async main.css | Good pattern for static |
-| JS | defer, no modules | No type safety, global `BF_CONFIG` |
-| Images | `<img>` native, fetchpriority on logo | No responsive srcset, no WebP/AVIF |
-| JSON-LD | Inline script | Must migrate to Next metadata/JSON-LD component |
+**Not in sitemap (intentional):** `/launch/` (`robots: noindex`)
 
-### Technical debt and anti-patterns
+---
 
-1. **Dual CSS sources** — `:root` tokens defined in `index.html` inline block AND assumed in `main.css` (main.css does not redefine `:root`; depends on inline load order — legal pages only partial tokens)
-2. **Global mutable config** — `inject-analytics.mjs` mutates `config.js` on disk at deploy time
-3. **Smooth scroll conflict risk** — `html { scroll-behavior: smooth }` + anchor click JS + future Lenis = triple scroll controllers if not removed
-4. **Hover transforms on layout** — `.port-card:hover`, `.pkg:hover` use `translateY` (GPU-safe) but also trigger repaints via border-color
-5. **Hero grid animation** — `will-change: background-position` on infinite CSS animation — continuous compositor work even off-screen
-6. **No ES modules** — IIFE pattern blocks tree-shaking and typed imports
-7. **Accessibility gaps** — FAQ accordion is static (good), but no `aria-expanded` patterns; sticky CTA lacks focus trap consideration
-8. **Schema/HTML duplication** — FAQ content in JSON-LD and HTML body (maintenance burden)
-
-### Dependency map
+## 3. Architecture (current)
 
 ```
-index.html
-├── inline critical CSS (tokens, hero, nav, buttons)
-├── css/main.css (sections, responsive, components)
-├── js/config.js (BF_CONFIG — discord, telegram, packages)
-├── js/analytics.js → reads BF_CONFIG.cfBeaconToken
-└── js/app.js → reads BF_CONFIG, DOM queries [data-pkg], .rv, #sticky-cta
-
-terms.html / privacy.html
-├── css/main.css (partial — mostly unused)
-├── inline legal CSS (duplicate tokens)
-└── js/config.js + analytics.js
-
-Deploy pipeline (root package.json)
-└── site/scripts/inject-analytics.mjs → mutates config.js
-    └── wrangler deploy --config site/wrangler.jsonc
+brandforge/
+├── src/app/              Next.js App Router — static export
+│   ├── page.tsx          Home — fully static (no WebGL/GSAP on home)
+│   ├── (content)/        Marketing hubs + dynamic [slug] routes
+│   └── (content)/launch/ Internal campaign CRM (client component)
+├── src/content/          Typed copy modules (home, blog, portfolio, launch)
+├── src/components/
+│   ├── sections/         HomeStaticCoreSections, HomeStaticSections
+│   ├── content/          PageShell, FAQBlock, CopyButton, SchemaInjector
+│   └── shell/            StaticSiteHeader, ContactActionBar, SiteFooter
+├── out/                  Static export → Wrangler assets
+└── wrangler.jsonc        Cloudflare Workers Assets
 ```
 
----
+### Home page (important change since May audit)
 
-## 3. Animation Readiness Score
+Home no longer hydrates `HomeMotionSections`, Lenis, WebGL, or GSAP pin stacks. It uses:
 
-### Score: **2 / 10**
+- `HomeHeroStatic` — CSS gradient hero, no canvas
+- `HomeCoreSections` — services, packages, vouches (static HTML)
+- `HomeStaticSections` — ICP, process, delivery table, support, trust
+- `LiveWorkMarquee`, `HomePortfolioPreview`, FAQ, CTA
 
-| Capability | Current state |
-|------------|---------------|
-| Scroll-linked animation | None — IO fade-up only |
-| Pin/scrub sections | None |
-| Split/kinetic type | None — plain text nodes |
-| WebGL / shaders | None — CSS radial gradients + grid |
-| Smooth scroll library | None (native + CSS smooth) |
-| GSAP / R3F | Not present in production site |
-| Custom cursor | None |
-| Page transitions | None (MPA-style legal pages) |
-
-### What exists
-
-- `.rv` + IntersectionObserver → opacity + translateY reveal (CSS transition)
-- CSS `@keyframes fu` hero entrance (opacity + translateY)
-- `.hero-grid` infinite background-position animation
-- `.live-dot` pulse animation
-- `:hover` transforms on cards/buttons
-- `prefers-reduced-motion` class toggled on `<html>` — disables IO animation, hero grid, hover transforms
-
-### Blocking GPU-accelerated animation
-
-1. **No animation layer architecture** — everything is DOM/CSS; no canvas, no GSAP timeline, no scroll proxy
-2. **Lenis + native smooth scroll** must be removed before Lenis integration
-3. **554-line monolith** — cannot attach ScrollTrigger per-section without component boundaries
-4. **No `transform3d` discipline** — some animations OK, but no centralized motion config
-5. **External font load** delays first meaningful paint for kinetic type measuring
-
-### Scroll performance risks
-
-- Long single page (~15 sections) — many IO observers (one per `.rv` element, ~40+)
-- Sticky nav + sticky bottom CTA + fixed positioning — OK if z-index managed
-- Horizontal scroll sections (Phase 3) will need `overflow: hidden` on pin containers — not present
-- Delivery `<table>` — wide layout on mobile with horizontal scroll only
-
-### Layout thrash opportunities
-
-- SplitText / character spans will force layout reads if implemented naïvely — must batch DOM writes
-- Package price DOM is static — safe
-- Trust bar flex wrap — safe
-- Future magnetic buttons must use `transform` only, not margin/left/top
+Motion stack (`AppProviders`, `SceneCanvas`, `LenisProvider`) remains in codebase for optional future use but **is not mounted on home or content layout**.
 
 ---
 
-## 4. Design System Extraction
+## 4. Lighthouse — production
 
-### CSS custom properties (from `index.html` inline `:root`)
+**Source:** `audit/lh-bf-all/` (51 URLs, mobile, 2026-06-03) · `audit/lh-bf-home-*-2026.json`
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--bg` | `#060608` | Page background |
-| `--s1` | `#0b0b0f` | Surface 1 (sections, cards) |
-| `--s2` | `#0f0f14` | Surface 2 (ICP, trust, xlink) |
-| `--b1` | `#181820` | Border primary |
-| `--b2` | `#222230` | Border secondary |
-| `--a` | `#7c3aed` | Primary accent (buttons) |
-| `--a2` | `#9d5fff` | Accent bright (links, eyebrows) |
-| `--a-dim` | `rgba(124,58,237,.07)` | Hover wash |
-| `--a-glow` | `rgba(124,58,237,.3)` | Button shadow |
-| `--a-mid` | `rgba(124,58,237,.45)` | Border hover |
-| `--green` | `#22c55e` | Trust, live dot, pkg-avg |
-| `--amber` | `#f59e0b` | Star ratings |
-| `--text` | `#e2e0ea` | Primary text |
-| `--t2` | `#a09cb8` | Secondary text |
-| `--muted` | `#5c5870` | Muted text |
-| `--m2` | `#2a2838` | Dim labels |
-| `--dc` | `#5865f2` | Discord pill |
-| `--tg` | `#229ed9` | Telegram accent |
-| `--font` | `'Space Grotesk', sans-serif` | Display + body |
-| `--mono` | `'Space Mono', monospace` | Labels, stats, nav |
-| `--max` | `1200px` | Content max-width |
-| `--r` | `4px` | Border radius |
+### Home `/`
 
-### Typography scale (implicit, not tokenized)
+| Metric | Mobile | Desktop | Target |
+|--------|--------|---------|--------|
+| Performance | **28** (Jun 3) / **12** (May 19) | **65** | 85+ / 95+ |
+| LCP | **8.6 s** | ~1.1 s | < 2.5 s |
+| TBT | **3.1 s** | ~1.1 s | < 200 ms |
+| CLS | **0** | ~0.006 | ≈ 0 |
+| SEO | **100** | — | 100 |
+| Accessibility | **89** | — | 95+ |
+| Best practices | **81** | — | 100 |
 
-| Element | Size | Weight | Font |
-|---------|------|--------|------|
-| Hero h1 | clamp(40px, 6.5vw, 84px) | 700 / 300 (.lt) | Grotesk |
-| sec-h | clamp(28px, 4vw, 48px) | 700 | Grotesk |
-| eyebrow | 9–10px | 400 | Mono, uppercase, letter-spacing .24–.26em |
-| body/sec-p | 14–15px | 400 | Grotesk |
-| stat-n | 28px | 400 | Mono |
-| pkg-price | 36px | 400 | Mono |
+CLS regression from May (0.86) appears **fixed** — static home removed lazy package hydration shift.
 
-### Spacing (implicit)
+### Site-wide mobile perf (51 pages)
 
-- Section padding: `100px 0` (`.sec`)
-- Wrap padding: `32px` (18px mobile)
-- Grid gaps: `14–16px`
-- Hero padding: `120px 0 80px`
+| Stat | Value |
+|------|-------|
+| Average performance | **65** |
+| Pages &lt; 50 | **5** (home + 4 heavy blog/hub pages) |
+| Pages ≥ 75 | **8** |
+| Worst | `/` **28**, CarSpotLive blog **46** |
+| Best | `/brand-guide/` **84**, whiteskyhosting portfolio **82** |
 
-### Inconsistencies flagged
+**Pattern:** Content pages (portfolio, roadmap, terms) score 74–84. **Home and long blog posts** drag averages down via TBT + LCP.
 
-1. **Legal pages** use subset of tokens (`--bg`, `--s1`, `--b1`, `--a`, `--a2` only) — missing `--t2`, surfaces
-2. **Legacy `web/src/styles/tokens.css`** is entirely different brand (light mode, blue accent, Cormorant/DM Sans) — must NOT merge
-3. **Font weights** — index loads Grotesk 300–700; legal pages load 400/600/700 only
-4. **Border radius** — `--r: 4px` but some cards use `5px` or `6px` hardcoded
-5. **Emphasis color** — `em` in headings always `--a2`, never `--a`
+### Raw reports
 
-### Strongest visual foundation (animation-ready)
+- `audit/brandforge-perf-all.json` — summary JSON
+- `audit/lh-bf-all/*.json` — per-URL mobile reports
+- `audit/lh-bf-home-mobile-2026.json`, `audit/lh-bf-home-desktop-2026.json`
+- `audit/lighthouse.md` — quick reference table
 
-1. **Hero** — mesh + grid layers, clear z-index stack, full viewport — ideal for WebGL particle underlay
-2. **Package cards** — `.pkg.pop` gradient border treatment — good for scale/blur scroll choreography
-3. **Service columns** — 3-col grid with top accent line hover — candidate for horizontal pin sequence
-4. **Typography pairing** — Grotesk + Mono is distinctive and reference-aligned
-
-### Needs most rework before animation
-
-1. **FAQ grid** — static cards; need accordion or stagger without height animation (use opacity/transform)
-2. **Delivery table** — semantic table hard to animate; consider row-by-row reveal or card fallback on mobile
-3. **Vouches** — blockquote grid; needs 3D tilt layer (transform-only)
-4. **Nav** — currently always opaque; Phase 5 requires scroll-driven background transition
-
----
-
-## 5. Migration Risk Map (Static → Next.js 15 App Router)
-
-| Section | Preserve verbatim | Rebuild | Complexity |
-|---------|-------------------|---------|------------|
-| Copy/content | ✅ All text, packages, FAQ, vouches | Structured as TS content modules | **Low** |
-| Design tokens | ✅ Values | Tailwind v4 + CSS vars in `tokens.css` | **Low** |
-| JSON-LD | ⚠️ Logic | `generateMetadata` + JSON-LD component | **Low** |
-| Images/assets | ✅ Files | `next/image` + public/ | **Low** |
-| Package CTAs | ⚠️ Behavior | React hooks + clipboard API | **Medium** |
-| Legal pages | ✅ Content | `/terms`, `/privacy` routes | **Low** |
-| Analytics | ⚠️ Pattern | Env-based CF beacon in layout | **Low** |
-| Scroll reveals | ❌ | GSAP ScrollTrigger | **Medium** |
-| Hero | ❌ | R3F particles + kinetic type | **High** |
-| Services | ❌ | Pinned horizontal scrollytelling | **High** |
-| Packages | ❌ | Scroll-scrub card stack | **High** |
-| Deploy | ❌ | OpenNext Cloudflare or static export decision | **Medium** |
-
-### What breaks moving to Next.js 15
-
-- All `#anchor` URLs — become same-page sections (OK) but need Lenis scrollTo
-- `.html` legal URLs — redirect `/terms.html` → `/terms`
-- `BF_CONFIG` global — becomes env + typed config module
-- `inject-analytics.mjs` — replaced by `NEXT_PUBLIC_CF_BEACON_TOKEN`
-- Cloudflare Workers Assets deploy — must add OpenNext or `@cloudflare/next-on-pages` pipeline for Next
-
-### Legacy `web/` reuse
-
-**Do not fork marketplace app.** Conflicting design system, Supabase auth, 200+ routes. New app in `brandforge/` is the correct isolation.
-
-### GSAP SplitText note
-
-SplitText is a GSAP Club plugin (not on public npm). **Implementation decision:** use `@gsap/react` with a typed in-house `splitText` utility (span-per-char/word) achieving identical animation surface. Documented in code comments. If Club files are added later, swap registerPlugin only.
-
----
-
-## 6. Honest Quality Assessment
-
-### Where the codebase is strong
-
-- **Content completeness** — ICP, delivery table, support tiers, intake checklist, legal alignment
-- **Performance baseline** — tiny JS, fast static delivery, good for target audience hardware
-- **SEO** — JSON-LD, canonical, OG, sitemap, llms.txt
-- **Accessibility basics** — skip link, aria labels, reduced motion support
-- **Sales funnel** — package-aware Discord/Telegram intake messages
-
-### Where it falls short of Awwwards tier
-
-- No motion design system, no scroll narrative, no WebGL identity
-- Visual language is competent dark SaaS, not kinetic/editorial
-- Single CSS file minification hurts maintainability
-- No typed data layer for packages/portfolio/vouches
-- No page transitions, loading ritual, or cursor craft
-
-### Recommended phase order
-
-1. **Phase 1 — Global shell** (Lenis + GSAP + R3F canvas + tokens) ← START HERE
-2. **Phase 2 — Kinetic typography** (hero + section headings)
-3. **Phase 3 — Scrollytelling** (services pin, packages stack, portfolio reveals)
-4. **Phase 4 — WebGL hero** (particles + shader displacement)
-5. **Phase 5 — Micro-interactions** (cursor, magnetic CTAs, nav, transitions, loader)
-6. **Phase 6 — Performance audit** (Lighthouse, lazy R3F, next/image)
-
----
-
-## 7. Target Stack Alignment
-
-| Requirement | Plan |
-|-------------|------|
-| Next.js 15 App Router | `brandforge/` new app |
-| TypeScript strict | `strict: true`, `noImplicitReturns`, no `any` |
-| Tailwind CSS v4 | `@import "tailwindcss"` + `@theme` mapping tokens |
-| Lenis v2 | `lenis` package, synced to `gsap.ticker` |
-| GSAP v3 + ScrollTrigger | `@gsap/react` + registerPlugins |
-| R3F + drei | Fixed canvas in layout, `pointer-events: none` |
-| Shaders | Phase 4 — `shaderMaterial` in hero |
-| Page transitions | Phase 5 — GSAP curtain (view-transitions optional) |
-
-### Single install command (Phase 1)
+### Re-run full crawl
 
 ```bash
-cd brandforge && npm install next@15 react@18 react-dom@18 gsap @gsap/react lenis three @react-three/fiber @react-three/drei && npm install -D typescript @types/node @types/react @types/react-dom @types/three tailwindcss @tailwindcss/postcss postcss eslint eslint-config-next
+cd brandforge && node scripts/audit-perf-all.mjs --fresh
 ```
 
----
-
-## 8. Content Module Extraction (for migration)
-
-All copy lives in `site/index.html` sections: hero, live-strip, who, services, portfolio (6 cards), packages (3 tiers), process, delivery table, support, trust, vouches (6), FAQ (10), xlink, CTA, footer.
-
-Contact constants:
-- Discord: `https://discord.gg/a8Nz2R6M55`
-- Telegram: `https://t.me/Notmxstermind`
-- Premium: `https://mxstermind.com`
+> **Note:** `scripts/audit-perf-all.mjs` still hardcodes 8 portfolio slugs — update to import `PORTFOLIO_SLUGS` from content before next run (21 projects missing from crawl).
 
 ---
 
-*Audit complete. Phase 1 may proceed in `brandforge/`.*
+## 5. SEO & AI discoverability
+
+| Check | Status |
+|-------|--------|
+| Unique titles + meta per route | ✅ `buildPageMetadata()` |
+| Canonical URLs | ✅ |
+| OG + Twitter cards | ✅ `/img/og-image.png` |
+| Organization + BreadcrumbList JSON-LD | ✅ `SchemaInjector` |
+| FAQPage schema | ✅ Hubs, services, portfolio, blog, ethics |
+| WebSite + SearchAction (home) | ✅ |
+| Visible FAQ blocks | ✅ Home + inner pages |
+| Sitemap | ✅ ~65 URLs — `src/app/sitemap.ts` |
+| llms.txt | ✅ `public/llms.txt` — missing `/brand-guide/` |
+| sr-only home summary | ✅ Package pricing for crawlers |
+| Cross-link mxstermind | ✅ Footer + promo section |
+
+---
+
+## 6. Issues & recommendations
+
+### P0 — Mobile home performance
+
+**Problem:** LCP 8.6 s, perf 28 despite static home.
+
+**Likely causes:**
+1. Shared Next.js JS chunks (~103 kB First Load JS on content pages)
+2. Google Analytics (`G-G3L5EBB195`) — third-party main-thread work
+3. Font loading (Space Grotesk + Space Mono, `display: optional` helps but LCP element may still wait)
+4. Large hero typography + marquee + portfolio preview images without priority hints
+
+**Fixes (ordered):**
+1. Defer GA until after `load` or first interaction
+2. Add `fetchPriority="high"` to above-fold logo / hero visual if any
+3. Audit portfolio preview images — WebP, explicit width/height, lazy below fold only
+4. Consider route-level JS splitting — home imports only static components (already done; verify chunk graph)
+
+### P1 — robots.txt conflict
+
+Production `robots.txt` contains **two layers**:
+
+1. **Cloudflare Managed** — blocks GPTBot, ClaudeBot, Google-Extended, etc.
+2. **App `robots.ts`** — explicitly allows those bots
+
+Edge config wins for blocked user-agents. If AI-SEO is intentional, disable or align Cloudflare Managed robots in the dashboard.
+
+### P2 — Stale audit tooling
+
+| Item | Fix |
+|------|-----|
+| `audit-perf-all.mjs` portfolio list | Import from `@/content/portfolio/projects` |
+| Sitemap `lastModified` | Dynamic date or update on deploy |
+| `llms.txt` | Add brand-guide; omit `/launch/` (noindex ops) |
+
+### P3 — Accessibility (89 mobile home)
+
+Re-run axe/Lighthouse on home after perf pass. Prior audits flagged contrast on `--muted` (partially fixed). Check marquee motion + reduced-motion coverage on `LiveWorkMarquee`.
+
+### P4 — Launch page ops
+
+`/launch/` is live, noindex, not in sitemap — **correct for internal ops**.
+
+- 7-day campaign starting Fri 13 Jun 2026, 18:51 local
+- Discord + 9 platforms with copy buttons
+- Update weekly via `src/content/launch/campaign.ts`
+
+---
+
+## 7. Conversion & content quality
+
+| Element | Status |
+|---------|--------|
+| Package tiers (5 + custom) | ✅ Home + `/packages/` |
+| Discord/Telegram intake templates | ✅ `config/site.ts` per tier |
+| Portfolio case studies | ✅ 21 projects with detail pages |
+| Vouches + trust stats | ✅ Home |
+| Delivery table + support tiers | ✅ Restored in static sections |
+| Ethics + brand guide | ✅ Copy-paste templates |
+| Blog depth | ✅ ~8 sections × 11 posts |
+| Roadmap checklists | ✅ Copy buttons per stage |
+| Contact | ✅ Discord/Telegram only — no form (intentional) |
+
+---
+
+## 8. Security & deploy
+
+| Item | Status |
+|------|--------|
+| Static export — no server secrets in client | ✅ |
+| Env vars | GA ID public only |
+| Cloudflare Workers Assets | ✅ No Node runtime |
+| HTTPS | ✅ brandforge.gg |
+
+---
+
+## 9. Priority action list
+
+| # | Action | Effort | Impact |
+|---|--------|--------|--------|
+| 1 | Defer Google Analytics load | Low | Medium TBT reduction |
+| 2 | Image audit on home portfolio preview | Low | LCP |
+| 3 | Fix Cloudflare vs app robots.txt | Low | AI crawl consistency |
+| 4 | Update `audit-perf-all.mjs` slug lists | Low | Accurate monitoring |
+| 5 | Re-run 65-URL Lighthouse crawl post-fix | Medium | Baseline |
+| 6 | Target home mobile perf 60+ then 85+ | High | Core Web Vitals |
+
+---
+
+## 10. Related audit files
+
+| File | Scope |
+|------|-------|
+| `audit/lighthouse.md` | Lighthouse score quick reference |
+| `audit/performance-audit.md` | May 2026 deep-dive (pre-static home) |
+| `audit/seo-final-report.md` | SEO checklist both domains |
+| `audit/content-audit.md` | Content architecture (partially outdated route counts) |
+| `audit/brandforge-fix-report.md` | May remediation log |
+| `audit/brandforge-perf-all.json` | Jun 3 mobile summary (51 URLs) |
+
+---
+
+*Next audit recommended after mobile home perf pass — re-run Lighthouse on `/` and full sitemap.*

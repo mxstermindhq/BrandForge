@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-15T12:06:20.993Z",
+  "generatedAt": "2026-07-04T13:14:15.606Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,7 +145,7 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-06-15T12:06:20.418Z",
+    "recordedAt": "2026-07-04T13:14:14.686Z",
     "routes": {},
     "totalJsKb": 973,
     "totalCssKb": 54,
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-06-15T12:06:20.620Z",
+    "scannedAt": "2026-07-04T13:14:15.014Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -189,10 +189,10 @@
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-06-15T11:52:11.912Z",
+    "validatedAt": "2026-07-04T13:10:49.766Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
-    "total": 102,
-    "pass": 102,
+    "total": 96,
+    "pass": 96,
     "fail": 0,
     "warn": 1,
     "pages": [
@@ -692,36 +692,6 @@
         "blocks": 1
       },
       {
-        "page": "/store/brand-style-guide-template/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/store/discord-launch-kit/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/store/forum-store-ui-kit/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/store/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/store/success/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/store/web3-trust-lander/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
         "page": "/terms/",
         "status": "pass",
         "blocks": 1
@@ -729,11 +699,11 @@
     ]
   },
   "links": {
-    "checkedAt": "2026-06-13T20:21:56.583Z",
+    "checkedAt": "2026-07-04T13:11:16.592Z",
     "base": "https://brandforge.gg",
     "pagesSampled": 40,
-    "totalSitemapUrls": 91,
-    "linksChecked": 125,
+    "totalSitemapUrls": 87,
+    "linksChecked": 128,
     "broken": [],
     "passed": true
   },
@@ -1840,14 +1810,14 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-15T11:52:11.983Z",
+    "checkedAt": "2026-06-15T15:40:29.171Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-06-15T11:52:09.949Z",
+      "recordedAt": "2026-06-15T15:40:27.934Z",
       "routes": {},
-      "totalJsKb": 984,
+      "totalJsKb": 973,
       "totalCssKb": 54,
       "imgKb": 2519,
       "homeRoute": {
@@ -1859,7 +1829,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-15T11:52:10.772Z",
+      "scannedAt": "2026-06-15T15:40:28.391Z",
       "totalImages": 4,
       "totalWeightKb": 2519,
       "thresholdKb": 200,
@@ -1894,7 +1864,7 @@
     }
   },
   "postDeploy": {
-    "verifiedAt": "2026-06-15T11:55:53.396Z",
+    "verifiedAt": "2026-06-15T15:41:40.875Z",
     "base": "https://brandforge.gg",
     "checks": [
       {
@@ -1906,7 +1876,7 @@
       {
         "name": "sitemap",
         "ok": true,
-        "urlCount": 92,
+        "urlCount": 87,
         "passed": true
       },
       {
@@ -1918,7 +1888,7 @@
       {
         "name": "llms",
         "ok": true,
-        "lines": 195,
+        "lines": 192,
         "passed": true
       },
       {
