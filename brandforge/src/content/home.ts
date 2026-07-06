@@ -311,7 +311,6 @@ export const VOUCHES: readonly VouchItem[] = [
     who: "@vizzy",
     amount: "$900 + $2,000+ verified projects",
     role: "Forum operator",
-    portfolioSlug: "forum-commerce-hub",
   },
   {
     id: "day",
@@ -352,7 +351,6 @@ export const VOUCHES: readonly VouchItem[] = [
     who: "@flux_ops",
     amount: "$2k/mo retainer",
     role: "Ops lead",
-    portfolioSlug: "ops-flow-dashboard",
   },
   {
     id: "nova-blueprint",
@@ -362,7 +360,6 @@ export const VOUCHES: readonly VouchItem[] = [
     who: "@nova_launch",
     amount: "$450 Blueprint",
     role: "Forum seller",
-    portfolioSlug: "community-launch-kit",
   },
   {
     id: "hex-mvp",
@@ -381,6 +378,5 @@ export const VOUCHES: readonly VouchItem[] = [
     text: "GEO pass on our service pages — FAQ schema and internal links. Organic AI referrals up within six weeks.",
     who: "@riftgrowth",
     role: "Growth lead",
-    portfolioSlug: "geo-content-engine",
   },
 ] as const;

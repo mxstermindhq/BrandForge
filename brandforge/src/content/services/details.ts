@@ -386,11 +386,6 @@ export const SERVICE_DETAILS: readonly ServiceDetail[] = [
         href: "/portfolio/linkedin-automation/",
         blurb: "$4,660 scoped automation product with dashboards.",
       },
-      {
-        label: "Ops Flow Dashboard",
-        href: "/portfolio/ops-flow-dashboard/",
-        blurb: "n8n workflows with CRM sync and Slack alerts for SaaS ops teams.",
-      },
     ],
     blogLinks: [
       {

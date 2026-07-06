@@ -319,7 +319,7 @@ export const post: BlogPost = {
     { label: "Web design", href: "/services/web-design/" },
     { label: "Social media", href: "/services/social-media/" },
   ],
-  relatedPortfolio: ["geo-content-engine", "ops-flow-dashboard", "carspotlive"],
+  relatedPortfolio: ["carspotlive"],
   relatedNiches: ["saas-startups", "web3-crypto-projects"],
   relatedBlog: [
     { slug: "what-is-geo-generative-engine-optimisation", title: "What is GEO?" },
@@ -350,7 +350,7 @@ export const post: BlogPost = {
     {
       question: "Can automation really replace my manual work?",
       answer:
-        "Partially — repetitive ops yes; judgment and trust no. See [automation](/services/automation/) for bounded workflows and [ops-flow-dashboard](/portfolio/ops-flow-dashboard/) for shipped patterns.",
+        "Partially — repetitive ops yes; judgment and trust no. See [automation](/services/automation/) for bounded workflows and shipped patterns.",
     },
   ],
 };

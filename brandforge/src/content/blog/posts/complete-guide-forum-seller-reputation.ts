@@ -75,7 +75,7 @@ export const post: BlogPost = {
     { label: "Brand identity", href: "/services/brand-identity/" },
     { label: "Web design", href: "/services/web-design/" },
   ],
-  relatedPortfolio: ["valaccs", "forum-commerce-hub", "whiteskyhosting"],
+  relatedPortfolio: ["valaccs", "whiteskyhosting"],
   relatedNiches: ["forum-sellers", "ecommerce-brands"],
   faqs: [
     {

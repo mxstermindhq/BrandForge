@@ -309,11 +309,10 @@ export const NICHE_PAGES: Record<string, NichePage> = {
       "Hourly consultants with no documentation handoff",
     ],
     proof: [
-      { name: "Ops Flow Dashboard", href: "/portfolio/ops-flow-dashboard/" },
       { name: "Automation service", href: "/services/automation/" },
     ],
     pricingAnchor: "The Automator $1.5k–$3k/mo · 3 active workflows",
-    portfolioSlugs: ["ops-flow-dashboard", "linkedin-automation", "jarro-ai"],
+    portfolioSlugs: ["linkedin-automation", "jarro-ai"],
     body: [
       "We map your data flow, build n8n or Make recipes, and ship dashboards ops can actually read — fixed monthly capacity, no silent scope creep.",
     ],

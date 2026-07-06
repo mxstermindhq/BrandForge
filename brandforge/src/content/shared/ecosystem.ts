@@ -40,20 +40,6 @@ export const DUAL_TESTIMONIALS = [
 
 export const JOINT_CASE_STUDIES = [
   {
-    slug: "community-launch-kit",
-    name: "Community Launch Kit",
-    brandforge: "Full Discord branding, roles, welcome bot, launch templates",
-    mxstermind: "Monetization OS — member tier economics and revenue rails (follow-on)",
-    href: "/portfolio/community-launch-kit/",
-  },
-  {
-    slug: "ops-flow-dashboard",
-    name: "Ops Flow Dashboard",
-    brandforge: "Internal dashboard UI and automation handoff",
-    mxstermind: "Ops OS — n8n integrations and CRM bi-directional sync",
-    href: "/portfolio/ops-flow-dashboard/",
-  },
-  {
     slug: "carspotlive",
     name: "CarSpotLive",
     brandforge: "Mobile product design and App Store launch",

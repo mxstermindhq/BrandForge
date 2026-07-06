@@ -14,16 +14,6 @@ export const metadata: Metadata = {
 
 const SHOWCASE = [
   {
-    name: "Forum Commerce Hub",
-    by: "BrandForge delivery",
-    href: "/portfolio/forum-commerce-hub/",
-  },
-  {
-    name: "Community Launch Kit",
-    by: "BrandForge delivery",
-    href: "/portfolio/community-launch-kit/",
-  },
-  {
     name: "Drain.cx storefront",
     by: "BrandForge delivery",
     href: "/portfolio/drain-cx/",

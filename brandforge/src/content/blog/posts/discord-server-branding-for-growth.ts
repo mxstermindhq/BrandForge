@@ -25,7 +25,7 @@ export const post: BlogPost = {
       heading: "Onboarding that converts lurkers",
       ...p([
         "Welcome bot + rules + one clear next step beat ten channels on day one. Role selection should gate content — not confuse it.",
-        "Case study: /portfolio/community-launch-kit/ — full launch kit with bot flows and announcement templates.",
+        "Case study: /portfolio/drain-cx/ — gaming tools storefront with Discord integration.",
       ]),
     },
     {
@@ -75,7 +75,7 @@ export const post: BlogPost = {
     { label: "Discord branding", href: "/services/discord-branding/" },
     { label: "Social media", href: "/services/social-media/" },
   ],
-  relatedPortfolio: ["community-launch-kit", "carspotlive", "drain-cx"],
+  relatedPortfolio: ["carspotlive", "drain-cx"],
   relatedNiches: ["gaming-server-owners", "content-creators"],
   faqs: [
     {

@@ -13,8 +13,6 @@ const POPULAR_PROJECTS = [
   { name: "Drain.cx", href: "/portfolio/drain-cx/" },
   { name: "Cascade Markets", href: "/portfolio/cascade-markets/" },
   { name: "Whiteskyhosting", href: "/portfolio/whiteskyhosting/" },
-  { name: "Ops Flow Dashboard", href: "/portfolio/ops-flow-dashboard/" },
-  { name: "Community Launch Kit", href: "/portfolio/community-launch-kit/" },
 ] as const;
 
 const NICHE_LINKS = [

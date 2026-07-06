@@ -463,7 +463,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         heading: "n8n wins on control",
         ...p([
           "Self-hosted n8n suits teams that need custom nodes, error handling, and data residency. Forum operators with sensitive buyer data often prefer it.",
-          "See /portfolio/ops-flow-dashboard/ for a dashboard + n8n engagement pattern.",
+          "See /services/automation/ for n8n dashboard and workflow engagement patterns.",
         ]),
       },
       {

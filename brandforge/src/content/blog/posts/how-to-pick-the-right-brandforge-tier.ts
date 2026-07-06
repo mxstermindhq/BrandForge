@@ -14,7 +14,7 @@ export const post: BlogPost = {
   tags: ["packages", "pricing", "retainers", "mvp"],
   sections: [
     { heading: "Stage 0: validate", ...p(["No paid proof yet → Blueprint $300–500.", "Logo, lander, funnel structure in 1–2 weeks."]) },
-    { heading: "Stage 1: automate ops", ...p(["Manual handoffs eating hours → Automator $1.5k–3k/mo.", "Three active workflows max — see /portfolio/ops-flow-dashboard/."]) },
+    { heading: "Stage 1: automate ops", ...p(["Manual handoffs eating hours → Automator $1.5k–3k/mo.", "Three active workflows max — see /services/automation/ for n8n patterns."]) },
     { heading: "Stage 2: ship product", ...p(["Need features monthly → MVP Engine $5k/mo.", "CarSpotLive-scale apps quoted separately if larger."]) },
     { heading: "Community + AI", ...p(["Discord + bots + video pipelines → AI & Community $7.5k/mo.", "/for/gaming-server-owners/ for community proof."]) },
     { heading: "Full squad", ...p(["Design + dev + growth concurrently → Full-Stack $10k+/mo.", "Three dedicated work streams."]) },
@@ -26,7 +26,7 @@ export const post: BlogPost = {
     { label: "Automation", href: "/services/automation/" },
     { label: "Mobile apps", href: "/services/mobile-apps/" },
   ],
-  relatedPortfolio: ["carspotlive", "ops-flow-dashboard"],
+  relatedPortfolio: ["carspotlive"],
   faqs: [
     { question: "Most popular tier?", answer: "Automator for ops-heavy operators — badge on /packages/." },
     { question: "Can I switch tiers?", answer: "Yes — quote new scope when needs change." },

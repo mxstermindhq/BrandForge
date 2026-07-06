@@ -20,7 +20,7 @@ const PATH_LABELS: Record<string, string> = {
   "/services/mobile-apps/": "mobile apps",
   "/services/paid-ads/": "paid ads",
   "/services/ai-tools/": "AI tools",
-  "/portfolio/ops-flow-dashboard/": "ops-flow-dashboard",
+
   "/roadmap/validate-your-idea/": "validate your idea",
   "/for/web3-crypto-projects/": "Web3 operators",
   "/for/saas-startups/": "SaaS startups",

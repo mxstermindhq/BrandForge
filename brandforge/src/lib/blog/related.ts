@@ -11,7 +11,7 @@ const CATEGORY_DEFAULTS: Record<
       { label: "Discord branding", href: "/services/discord-branding/" },
       { label: "Social media", href: "/services/social-media/" },
     ],
-    portfolio: ["community-launch-kit", "drain-cx"],
+    portfolio: ["drain-cx"],
     niches: ["gaming-server-owners", "content-creators"],
   },
   Web3: {
@@ -27,17 +27,17 @@ const CATEGORY_DEFAULTS: Record<
       { label: "Brand identity", href: "/services/brand-identity/" },
       { label: "Web design", href: "/services/web-design/" },
     ],
-    portfolio: ["valaccs", "forum-commerce-hub"],
+    portfolio: ["valaccs"],
     niches: ["forum-sellers", "ecommerce-brands"],
   },
   SEO: {
     services: [{ label: "SEO & growth", href: "/services/seo-growth/" }],
-    portfolio: ["geo-content-engine"],
+    portfolio: [],
     niches: ["saas-startups"],
   },
   Automation: {
     services: [{ label: "Automation", href: "/services/automation/" }],
-    portfolio: ["ops-flow-dashboard", "linkedin-automation"],
+    portfolio: ["linkedin-automation"],
     niches: ["automation-ops-teams", "saas-startups"],
   },
   Guides: {
@@ -54,7 +54,7 @@ const CATEGORY_DEFAULTS: Record<
       { label: "Web design", href: "/services/web-design/" },
       { label: "Automation", href: "/services/automation/" },
     ],
-    portfolio: ["ops-flow-dashboard", "geo-content-engine"],
+    portfolio: [],
     niches: ["saas-startups", "web3-crypto-projects"],
   },
 };

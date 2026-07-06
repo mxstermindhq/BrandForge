@@ -62,8 +62,6 @@ export const FEATURED_PROJECT_SLUGS = [
   "drain-cx",
   "cascade-markets",
   "whiteskyhosting",
-  "ops-flow-dashboard",
-  "community-launch-kit",
 ] as const;
 
 export function isFeaturedProject(slug: string): boolean {

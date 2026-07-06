@@ -60,7 +60,7 @@ export const PARTNERS: readonly PartnerEntry[] = [
     name: "n8n",
     tier: "tool",
     description: "Workflow automation for Automator tier and ops dashboards.",
-    whyRecommend: "Self-hostable automation — see /portfolio/ops-flow-dashboard/.",
+    whyRecommend: "Self-hostable automation for Automator tier and ops dashboards.",
     href: "https://n8n.io/",
     affiliate: false,
   },
