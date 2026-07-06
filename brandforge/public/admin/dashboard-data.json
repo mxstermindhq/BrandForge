@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-07-04T15:46:26.618Z",
+  "generatedAt": "2026-07-06T06:44:50.610Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
   "ga4Property": "G-G3L5EBB195",
   "contentStats": {
-    "total": 87,
+    "total": 83,
     "blog": 21,
-    "portfolio": 25,
+    "portfolio": 21,
     "niche": 8,
     "services": 9,
     "roadmap": 6,
@@ -145,9 +145,9 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-04T15:46:26.167Z",
+    "recordedAt": "2026-07-06T06:44:49.996Z",
     "routes": {},
-    "totalJsKb": 1139,
+    "totalJsKb": 1133,
     "totalCssKb": 54,
     "imgKb": 2519,
     "homeRoute": {
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-04T15:46:26.335Z",
+    "scannedAt": "2026-07-06T06:44:50.268Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -189,7 +189,7 @@
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-07-04T13:10:49.766Z",
+    "validatedAt": "2026-07-04T15:46:27.725Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
     "total": 96,
     "pass": 96,
@@ -1438,55 +1438,7 @@
       "slug": "confidential-engagement",
       "path": "/portfolio/confidential-engagement/",
       "title": "Confidential Engagement Case Study",
-      "description": "Digital goods storefront for a forum operator — Billgang checkout, tiered catalog, escrow-friendly copy, and dark UI tuned for repeat buyers.",
-      "category": "portfolio",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": null,
-      "schema": "CreativeWork",
-      "schemaOk": true
-    },
-    {
-      "slug": "forum-commerce-hub",
-      "path": "/portfolio/forum-commerce-hub/",
-      "title": "Forum Commerce Hub Case Study",
-      "description": "Digital goods storefront for a forum operator — Billgang checkout, tiered catalog, escrow-friendly copy, and dark UI tuned for repeat buyers.",
-      "category": "portfolio",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": null,
-      "schema": "CreativeWork",
-      "schemaOk": true
-    },
-    {
-      "slug": "ops-flow-dashboard",
-      "path": "/portfolio/ops-flow-dashboard/",
-      "title": "Ops Flow Dashboard Case Study",
-      "description": "n8n-backed operations dashboard — lead routing, Slack alerts, and CRM sync for a SaaS team replacing manual spreadsheet handoffs.",
-      "category": "portfolio",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": null,
-      "schema": "CreativeWork",
-      "schemaOk": true
-    },
-    {
-      "slug": "community-launch-kit",
-      "path": "/portfolio/community-launch-kit/",
-      "title": "Community Launch Kit Case Study",
-      "description": "Full Discord launch kit — server structure, role hierarchy, branded banners, welcome bot flows, and announcement templates for a gaming community.",
-      "category": "portfolio",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": null,
-      "schema": "CreativeWork",
-      "schemaOk": true
-    },
-    {
-      "slug": "geo-content-engine",
-      "path": "/portfolio/geo-content-engine/",
-      "title": "GEO Content Engine Case Study",
-      "description": "Service-page GEO overhaul — FAQ schema, entity-clear copy, internal links, and llms.txt alignment for a B2B operator targeting AI citations.",
+      "description": "",
       "category": "portfolio",
       "internalLinksIn": 0,
       "orphan": true,
@@ -1810,14 +1762,14 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-06-15T15:40:29.171Z",
+    "checkedAt": "2026-07-04T15:46:27.759Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-06-15T15:40:27.934Z",
+      "recordedAt": "2026-07-04T15:46:27.140Z",
       "routes": {},
-      "totalJsKb": 973,
+      "totalJsKb": 1139,
       "totalCssKb": 54,
       "imgKb": 2519,
       "homeRoute": {
@@ -1829,7 +1781,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-06-15T15:40:28.391Z",
+      "scannedAt": "2026-07-04T15:46:27.350Z",
       "totalImages": 4,
       "totalWeightKb": 2519,
       "thresholdKb": 200,
@@ -1864,7 +1816,7 @@
     }
   },
   "postDeploy": {
-    "verifiedAt": "2026-06-15T15:41:40.875Z",
+    "verifiedAt": "2026-07-04T15:47:38.260Z",
     "base": "https://brandforge.gg",
     "checks": [
       {
@@ -1899,8 +1851,12 @@
       }
     ],
     "homeMobile": {
-      "performance": null,
-      "error": "Lighthouse failed"
+      "performance": 64,
+      "lcp": 3071.042,
+      "tbt": 1176.1370000000006,
+      "cls": 0,
+      "fcp": 3071.042,
+      "si": 3071
     },
     "passed": true
   },

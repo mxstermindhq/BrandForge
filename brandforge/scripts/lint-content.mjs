@@ -31,8 +31,8 @@ for (const slug of bare) {
   }
 }
 
-if (manifest.portfolio.length < 25) {
-  errors.push(`Expected ≥25 portfolio projects, found ${manifest.portfolio.length}`);
+if (manifest.portfolio.length < 21) {
+  errors.push(`Expected ≥21 portfolio projects, found ${manifest.portfolio.length}`);
 }
 if (manifest.blogPosts.length < 14) {
   errors.push(`Expected ≥14 blog posts, found ${manifest.blogPosts.length}`);
