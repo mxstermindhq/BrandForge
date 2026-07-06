@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-06T06:44:50.610Z",
+  "generatedAt": "2026-07-06T06:53:17.004Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,7 +145,7 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-06T06:44:49.996Z",
+    "recordedAt": "2026-07-06T06:53:16.633Z",
     "routes": {},
     "totalJsKb": 1133,
     "totalCssKb": 54,
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-06T06:44:50.268Z",
+    "scannedAt": "2026-07-06T06:53:16.794Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -189,10 +189,10 @@
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-07-04T15:46:27.725Z",
+    "validatedAt": "2026-07-06T06:44:51.787Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
-    "total": 96,
-    "pass": 96,
+    "total": 92,
+    "pass": 92,
     "fail": 0,
     "warn": 1,
     "pages": [
@@ -497,11 +497,6 @@
         "blocks": 1
       },
       {
-        "page": "/portfolio/community-launch-kit/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
         "page": "/portfolio/confidential-engagement/",
         "status": "pass",
         "blocks": 1
@@ -532,17 +527,7 @@
         "blocks": 1
       },
       {
-        "page": "/portfolio/forum-commerce-hub/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
         "page": "/portfolio/gazedvalleybeef/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/portfolio/geo-content-engine/",
         "status": "pass",
         "blocks": 1
       },
@@ -568,11 +553,6 @@
       },
       {
         "page": "/portfolio/linkedin-automation/",
-        "status": "pass",
-        "blocks": 1
-      },
-      {
-        "page": "/portfolio/ops-flow-dashboard/",
         "status": "pass",
         "blocks": 1
       },
@@ -1762,14 +1742,14 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-07-04T15:46:27.759Z",
+    "checkedAt": "2026-07-06T06:44:51.826Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-07-04T15:46:27.140Z",
+      "recordedAt": "2026-07-06T06:44:51.119Z",
       "routes": {},
-      "totalJsKb": 1139,
+      "totalJsKb": 1133,
       "totalCssKb": 54,
       "imgKb": 2519,
       "homeRoute": {
@@ -1781,7 +1761,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-07-04T15:46:27.350Z",
+      "scannedAt": "2026-07-06T06:44:51.351Z",
       "totalImages": 4,
       "totalWeightKb": 2519,
       "thresholdKb": 200,
@@ -1816,7 +1796,7 @@
     }
   },
   "postDeploy": {
-    "verifiedAt": "2026-07-04T15:47:38.260Z",
+    "verifiedAt": "2026-07-06T06:46:28.220Z",
     "base": "https://brandforge.gg",
     "checks": [
       {
@@ -1828,7 +1808,7 @@
       {
         "name": "sitemap",
         "ok": true,
-        "urlCount": 87,
+        "urlCount": 83,
         "passed": true
       },
       {
@@ -1851,14 +1831,14 @@
       }
     ],
     "homeMobile": {
-      "performance": 64,
-      "lcp": 3071.042,
-      "tbt": 1176.1370000000006,
+      "performance": 41,
+      "lcp": 4893.836,
+      "tbt": 2354.164999999999,
       "cls": 0,
-      "fcp": 3071.042,
-      "si": 3071
+      "fcp": 4893.836,
+      "si": 4892
     },
-    "passed": true
+    "passed": false
   },
   "partners": {
     "count": 6,
