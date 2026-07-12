@@ -1,6 +1,5 @@
-import { SiteFooter } from "@/components/shell/SiteFooter";
-import { ContactActionBar } from "@/components/shell/ContactActionBar";
-import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
+import { ForgeHeader } from "@/components/shell/ForgeHeader";
+import { ForgeFooter } from "@/components/shell/ForgeFooter";
 import { BreadcrumbNav } from "@/components/content/BreadcrumbNav";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
 import type { BreadcrumbItem, FaqItem, SchemaInjectorProps, SchemaPageType } from "@/types/content";
@@ -21,7 +20,6 @@ type PageShellProps = {
   showBreadcrumbs?: boolean;
 };
 
-/** Standard marketing page wrapper — header, schema, breadcrumbs, footer. */
 export function PageShell({
   children,
   breadcrumbs,
@@ -52,17 +50,16 @@ export function PageShell({
         products={products}
         howTo={howTo}
       />
-      <StaticSiteHeader />
-      <ContactActionBar />
-      <main id="main" className="min-h-[60vh]">
+      <ForgeHeader />
+      <main id="main" className="min-h-[60vh] pt-16">
         {showBreadcrumbs ? (
-          <div className="content-wrap pt-[148px]">
+          <div className="content-wrap pt-4">
             <BreadcrumbNav items={breadcrumbs} />
           </div>
         ) : null}
         {children}
       </main>
-      <SiteFooter />
+      <ForgeFooter />
     </>
   );
 }

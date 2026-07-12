@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ForgeHeader } from "@/components/shell/ForgeHeader";
+import { ForgeFooter } from "@/components/shell/ForgeFooter";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
-import { SiteFooter } from "@/components/shell/SiteFooter";
-import { ContactActionBar } from "@/components/shell/ContactActionBar";
-import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { SITE } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -23,14 +22,13 @@ export default function PrivacyPage(): React.JSX.Element {
           { label: "Privacy", href: "/privacy/" },
         ]}
       />
-      <StaticSiteHeader />
-      <ContactActionBar />
-      <main className="mx-auto max-w-[760px] px-8 pb-24 pt-36">
+      <ForgeHeader />
+      <main id="main" className="min-h-[60vh] mx-auto max-w-[760px] px-8 pb-24 pt-28">
         <nav className="mb-10 flex justify-between font-mono text-[11px] text-muted">
-          <Link href="/" className="hover:text-text" data-cursor="hover">
+          <Link href="/" className="hover:text-text">
             ← BrandForge.gg
           </Link>
-          <Link href="/terms" className="hover:text-text" data-cursor="hover">
+          <Link href="/terms" className="hover:text-text">
             Terms
           </Link>
         </nav>
@@ -45,13 +43,13 @@ export default function PrivacyPage(): React.JSX.Element {
         </p>
         <p className="mt-8 text-sm text-text-secondary">
           See also our{" "}
-          <Link href="/terms" className="text-accent-bright hover:underline" data-cursor="hover">
+          <Link href="/terms" className="text-accent hover:underline">
             Terms of Service
           </Link>
           .
         </p>
       </main>
-      <SiteFooter />
+      <ForgeFooter />
     </>
   );
 }

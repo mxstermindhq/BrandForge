@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CTASection, FAQBlock, PageHero, PageShell } from "@/components/content";
 import { PortfolioFilterGrid } from "@/components/portfolio/PortfolioFilterGrid";
-import { PORTFOLIO_HUB_FAQ } from "@/content/hubs/portfolio-hub";
+import { PORTFOLIO_HUB_FAQ } from "@/content/portfolio/faq";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({

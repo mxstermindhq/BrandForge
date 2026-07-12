@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ForgeHeader } from "@/components/shell/ForgeHeader";
+import { ForgeFooter } from "@/components/shell/ForgeFooter";
 import { SchemaInjector } from "@/components/content/SchemaInjector";
-import { SiteFooter } from "@/components/shell/SiteFooter";
-import { ContactActionBar } from "@/components/shell/ContactActionBar";
-import { StaticSiteHeader } from "@/components/shell/StaticSiteHeader";
 import { SITE } from "@/config/site";
-import { discordHref } from "@/lib/tracking";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -24,14 +22,13 @@ export default function TermsPage(): React.JSX.Element {
           { label: "Terms", href: "/terms/" },
         ]}
       />
-      <StaticSiteHeader />
-      <ContactActionBar />
-      <main className="mx-auto max-w-[760px] px-8 pb-24 pt-36">
+      <ForgeHeader />
+      <main id="main" className="min-h-[60vh] mx-auto max-w-[760px] px-8 pb-24 pt-28">
         <nav className="mb-10 flex justify-between font-mono text-[11px] text-muted">
-          <Link href="/" className="hover:text-text" data-cursor="hover">
+          <Link href="/" className="hover:text-text">
             ← BrandForge.gg
           </Link>
-          <Link href="/privacy" className="hover:text-text" data-cursor="hover">
+          <Link href="/privacy" className="hover:text-text">
             Privacy
           </Link>
         </nav>
@@ -43,24 +40,19 @@ export default function TermsPage(): React.JSX.Element {
           These Terms govern purchases of design, development, and growth services from BrandForge at
           brandforge.gg. By requesting a quote or placing an order, you agree to these Terms.
         </p>
-        <h2 className="mt-8 text-lg text-accent-bright">Services &amp; packages</h2>
-        <p className="mt-3 text-sm text-text-secondary">
-          BrandForge offers five fixed-scope tiers (Blueprint, Automator, MVP Engine, AI &amp;
-          Community, Full-Stack Powerhouse) and custom scopes quoted in writing before work begins.
-        </p>
         <p className="mt-8 text-sm text-text-secondary">
           Questions:{" "}
-          <a href={discordHref("terms")} className="text-accent-bright hover:underline" data-cursor="hover">
+          <a href={SITE.discord} className="text-accent hover:underline">
             Discord
           </a>{" "}
           or{" "}
-          <a href={SITE.telegram} className="text-accent-bright hover:underline" data-cursor="hover">
+          <a href={SITE.telegram} className="text-accent hover:underline">
             Telegram
           </a>
           .
         </p>
       </main>
-      <SiteFooter />
+      <ForgeFooter />
     </>
   );
 }
