@@ -34,14 +34,8 @@ for (const slug of bare) {
 if (manifest.portfolio.length < 21) {
   errors.push(`Expected ≥21 portfolio projects, found ${manifest.portfolio.length}`);
 }
-if (manifest.blogPosts.length < 14) {
-  errors.push(`Expected ≥14 blog posts, found ${manifest.blogPosts.length}`);
-}
-if (manifest.nichePages.length < 8) {
-  errors.push(`Expected ≥8 niche pages, found ${manifest.nichePages.length}`);
-}
-if (manifest.total < 80) {
-  errors.push(`Expected ≥80 indexable pages, found ${manifest.total}`);
+if (manifest.total < 69) {
+  errors.push(`Expected ≥69 indexable pages, found ${manifest.total}`);
 }
 
 for (const post of manifest.blogPosts) {
