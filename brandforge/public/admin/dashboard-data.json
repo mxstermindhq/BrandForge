@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-07-06T06:53:17.004Z",
+  "generatedAt": "2026-07-12T23:13:42.534Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
   "ga4Property": "G-G3L5EBB195",
   "contentStats": {
-    "total": 83,
+    "total": 69,
     "blog": 21,
     "portfolio": 21,
     "niche": 8,
     "services": 9,
     "roadmap": 6,
-    "static": 18
+    "static": 4
   },
   "lighthouse": {
     "history": [
@@ -145,10 +145,10 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-06T06:53:16.633Z",
+    "recordedAt": "2026-07-12T23:13:41.829Z",
     "routes": {},
-    "totalJsKb": 1133,
-    "totalCssKb": 54,
+    "totalJsKb": 869,
+    "totalCssKb": 59,
     "imgKb": 2519,
     "homeRoute": {
       "homeKb": 0,
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-06T06:53:16.794Z",
+    "scannedAt": "2026-07-12T23:13:42.102Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -744,31 +744,11 @@
   "contentPages": [
     {
       "path": "/",
-      "title": "BrandForge — Design, Development & Growth",
+      "title": "BrandForge — Design, Development & Growth Studio",
       "category": "static",
-      "internalLinksIn": 5,
+      "internalLinksIn": 6,
       "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/services/",
-      "title": "Services Hub | BrandForge",
-      "category": "static",
-      "internalLinksIn": 4,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/packages/",
-      "title": "Packages & Pricing | BrandForge",
-      "category": "static",
-      "internalLinksIn": 8,
-      "orphan": false,
-      "lastModified": "2026-06-13",
+      "lastModified": "2026-07-06",
       "schema": "WebPage + Org",
       "schemaOk": true
     },
@@ -776,129 +756,9 @@
       "path": "/portfolio/",
       "title": "Portfolio | BrandForge",
       "category": "static",
-      "internalLinksIn": 7,
+      "internalLinksIn": 9,
       "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/blog/",
-      "title": "Blog | BrandForge",
-      "category": "static",
-      "internalLinksIn": 3,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/for/",
-      "title": "Who We Serve | BrandForge",
-      "category": "static",
-      "internalLinksIn": 2,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/about/",
-      "title": "About BrandForge",
-      "category": "static",
-      "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-01",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/contact/",
-      "title": "Contact | BrandForge",
-      "category": "static",
-      "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-01",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/partners/",
-      "title": "Partners & Tools | BrandForge",
-      "category": "static",
-      "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/mxstermind/",
-      "title": "MXSTERMIND — Founder Operating System | BrandForge",
-      "category": "static",
-      "internalLinksIn": 2,
-      "orphan": false,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/membership/",
-      "title": "Membership | BrandForge",
-      "category": "static",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/events/",
-      "title": "Events & Workshops | BrandForge",
-      "category": "static",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/community/",
-      "title": "Community Showcase | BrandForge",
-      "category": "static",
-      "internalLinksIn": 0,
-      "orphan": true,
-      "lastModified": "2026-06-13",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/roadmap/",
-      "title": "Roadmap | BrandForge",
-      "category": "static",
-      "internalLinksIn": 3,
-      "orphan": false,
-      "lastModified": "2026-06-01",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/brand-guide/",
-      "title": "Brand Guide | BrandForge",
-      "category": "static",
-      "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-01",
-      "schema": "WebPage + Org",
-      "schemaOk": true
-    },
-    {
-      "path": "/ethics-standards/",
-      "title": "Ethics & Standards | BrandForge",
-      "category": "static",
-      "internalLinksIn": 1,
-      "orphan": false,
-      "lastModified": "2026-06-01",
+      "lastModified": "2026-07-06",
       "schema": "WebPage + Org",
       "schemaOk": true
     },
@@ -1084,8 +944,8 @@
       "title": "Partner Spotlight: WhiteSky Hosting | BrandForge",
       "description": "How WhiteSky Hosting and BrandForge co-delivered a forum-native VPS storefront — hosting partner spotlight #1.",
       "category": "blog",
-      "internalLinksIn": 1,
-      "orphan": false,
+      "internalLinksIn": 0,
+      "orphan": true,
       "lastModified": null,
       "schema": "Article + FAQ",
       "schemaOk": true

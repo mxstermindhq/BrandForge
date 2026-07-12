@@ -25,38 +25,10 @@
 - Full guide: https://brandforge.gg/brand-guide/
 
 ## Hub pages
-- BrandForge — Design, Development & Growth: https://brandforge.gg/
-  Fixed USD packages for brand, web, and growth. Quote in 24 hours.
-- Services Hub | BrandForge: https://brandforge.gg/services/
-  Brand identity, web design, mobile apps, automation, SEO, and paid ads.
-- Packages & Pricing | BrandForge: https://brandforge.gg/packages/
-  Five fixed USD tiers from Blueprint to Full-Stack retainer.
+- BrandForge — Design, Development & Growth Studio: https://brandforge.gg/
+  Raw ideas forged into battle-ready brands. Fixed quote in 24 hours.
 - Portfolio | BrandForge: https://brandforge.gg/portfolio/
-  Live, upcoming, and archived case studies with outcomes.
-- Blog | BrandForge: https://brandforge.gg/blog/
-  Operator guides on GEO, Discord, forums, CRO, and automation.
-- Who We Serve | BrandForge: https://brandforge.gg/for/
-  Niche guides for gaming, Web3, SaaS, forums, e-commerce, and creators.
-- About BrandForge: https://brandforge.gg/about/
-  Development-first studio for operators who want one squad.
-- Contact | BrandForge: https://brandforge.gg/contact/
-  Discord or Telegram — fixed quote in 24 hours.
-- Partners & Tools | BrandForge: https://brandforge.gg/partners/
-  Recommended tools and partnership opportunities.
-- MXSTERMIND — Founder Operating System | BrandForge: https://brandforge.gg/mxstermind/
-  BrandForge executes packages. mxstermind is the Founder OS for monetization, ops, and scale.
-- Membership | BrandForge: https://brandforge.gg/membership/
-  Insider and Pro community tiers — Discord roles and early access.
-- Events & Workshops | BrandForge: https://brandforge.gg/events/
-  Monthly branding workshops and office hours on Discord.
-- Community Showcase | BrandForge: https://brandforge.gg/community/
-  Projects built with BrandForge — submit yours on Discord.
-- Roadmap | BrandForge: https://brandforge.gg/roadmap/
-  Validate, brand, launch, grow, scale — operator playbook.
-- Brand Guide | BrandForge: https://brandforge.gg/brand-guide/
-  Design tokens, voice, and copy patterns.
-- Ethics & Standards | BrandForge: https://brandforge.gg/ethics-standards/
-  How BrandForge works with clients and communities.
+  Live and archived projects with outcomes.
 - Privacy Policy | BrandForge: https://brandforge.gg/privacy/
   BrandForge privacy policy.
 - Terms | BrandForge: https://brandforge.gg/terms/
@@ -188,4 +160,4 @@
 - Privacy: https://brandforge.gg/privacy/
 - Ethics: https://brandforge.gg/ethics-standards/
 
-Generated 2026-07-06 · 83 indexable pages · 177 lines
+Generated 2026-07-12 · 69 indexable pages · 149 lines

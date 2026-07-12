@@ -6,20 +6,12 @@ export const dynamic = "force-static";
 
 const PRIORITY: Partial<Record<string, number>> = {
   "/": 1,
-  "/services/": 0.9,
-  "/packages/": 0.9,
-  "/portfolio/": 0.85,
-  "/blog/": 0.8,
-  "/for/": 0.8,
+  "/portfolio/": 0.9,
 };
 
 function priorityFor(path: string, category: string): number {
   if (PRIORITY[path] !== undefined) return PRIORITY[path]!;
-  if (category === "service") return 0.85;
-  if (category === "portfolio") return 0.8;
-  if (category === "niche") return 0.75;
-  if (category === "roadmap") return 0.75;
-  if (category === "blog") return 0.65;
+  if (category === "portfolio") return 0.85;
   return 0.7;
 }
 

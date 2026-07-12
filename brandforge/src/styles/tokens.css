@@ -1,28 +1,24 @@
-/**
- * BrandForge design tokens — extracted from site/index.html :root
- * Used by Tailwind @theme and component-level custom properties.
- */
 :root {
-  --bg: #060608;
-  --s1: #0b0b0f;
-  --s2: #0f0f14;
-  --b1: #181820;
-  --b2: #222230;
-  --a: #7c3aed;
-  --a2: #9d5fff;
-  --a-dim: rgba(124, 58, 237, 0.07);
-  --a-glow: rgba(124, 58, 237, 0.3);
-  --a-mid: rgba(124, 58, 237, 0.45);
+  --bg: #0A0A0B;
+  --s1: #111114;
+  --s2: #18181C;
+  --b1: #222226;
+  --b2: #2C2C32;
+  --a: #FF5722;
+  --a2: #FF7722;
+  --a-dim: rgba(255, 87, 34, 0.07);
+  --a-glow: rgba(255, 87, 34, 0.3);
+  --a-mid: rgba(255, 87, 34, 0.45);
+  --amber: #FFB300;
   --green: #22c55e;
-  --amber: #f59e0b;
-  --text: #e2e0ea;
-  --t2: #a09cb8;
-  --muted: #8b879e;
-  --m2: #6e6a82;
-  --dc: #5865f2;
-  --tg: #229ed9;
+  --text: #E8E6F0;
+  --t2: #A8A2C0;
+  --muted: #8A869E;
+  --m2: #6E6A82;
+  --dc: #5865F2;
+  --tg: #229ED9;
   --max: 1200px;
-  --r: 4px;
+  --r: 6px;
   --font-display: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
   --font-mono-stack: var(--font-mono-face), "Space Mono", ui-monospace, monospace;
 }

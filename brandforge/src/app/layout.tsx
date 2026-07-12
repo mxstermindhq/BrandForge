@@ -1,13 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { PartnerReferralCapture } from "@/components/marketing/PartnerReferralCapture";
-import { PrefetchLinks } from "@/components/perf/PrefetchLinks";
-import { ServiceWorkerRegister } from "@/components/perf/ServiceWorkerRegister";
 import { SITE } from "@/config/site";
 import "./globals.css";
 
-/** Trim weights — 300 dropped; mono 700 rarely used in UI. */
 const grotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
@@ -29,41 +25,36 @@ const mono = Space_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "BrandForge — Design, Development & Growth Packages",
+    default: "BrandForge — Design, Development & Growth Studio",
     template: "%s · BrandForge",
   },
   description:
-    "Design, development, and growth packages for digital founders and operators. Fixed USD pricing. Quote in 24 hours. Escrow and crypto accepted.",
+    "Raw ideas forged into battle-ready brands. Design, development, and growth by an elite squad. Fixed quote in 24 hours. Discord and Telegram.",
   openGraph: {
     type: "website",
     url: SITE.url,
     siteName: "BrandForge",
-    title: "BrandForge — Design, Dev & Growth Packages",
+    title: "BrandForge — Design, Dev & Growth Studio",
     description:
-      "One team for brand, website, and growth. Fixed USD packages. Quote in 24 hours.",
+      "Raw ideas forged into battle-ready brands. Discord and Telegram.",
     images: [{ url: "/img/og-image.webp", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BrandForge — Design, Dev & Growth Packages",
+    title: "BrandForge — Design, Dev & Growth Studio",
     description:
-      "One team for brand, website, and growth. Fixed USD packages. Quote in 24 hours.",
+      "Raw ideas forged into battle-ready brands. Discord and Telegram.",
     images: ["/img/og-image.webp"],
   },
   robots: { index: true, follow: true },
-  alternates: {
-    types: {
-      "application/rss+xml": [{ url: "/rss.xml", title: "BrandForge Blog RSS" }],
-    },
-  },
   other: {
     "ai-content-declaration":
-      "BrandForge.gg — digital branding agency for Discord, gaming, Web3, forums, and SaaS. Packages from $300. Contact via Discord or Telegram.",
+      "BrandForge.gg — digital branding agency. Contact via Discord or Telegram.",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#060608",
+  themeColor: "#0A0A0B",
   colorScheme: "dark",
 };
 
@@ -77,15 +68,11 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
       <head>
         <link rel="dns-prefetch" href="https://discord.gg" />
         <link rel="dns-prefetch" href="https://t.me" />
-        <link rel="prefetch" href="/packages/" />
         <link rel="prefetch" href="/portfolio/" />
         <link rel="preload" href="/img/logo-header.webp" as="image" type="image/webp" />
       </head>
       <body className="bg-bg text-text antialiased">
         {children}
-        <PartnerReferralCapture />
-        <PrefetchLinks />
-        <ServiceWorkerRegister />
         <GoogleAnalytics />
       </body>
     </html>
