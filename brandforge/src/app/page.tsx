@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ForgeCanvas } from "@/components/canvas/ForgeCanvas";
 import { ForgeHeader } from "@/components/shell/ForgeHeader";
 import { ForgeFooter } from "@/components/shell/ForgeFooter";
+import { PortfolioProjectCard } from "@/components/portfolio/PortfolioProjectCard";
 import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
 import { VOUCHES } from "@/content/home";
 import { SITE } from "@/config/site";
@@ -95,57 +96,15 @@ function PortfolioSection() {
         </p>
 
         <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {SHOWCASE.map((project) => {
-            const isArchived = project.status === "archived";
-            return (
-              <Link
-                key={project.slug}
-                href={`/portfolio/${project.slug}/`}
-                className={`group relative flex flex-col overflow-hidden border border-b1/50 bg-s1/30 transition-all hover:border-b1 hover:bg-s1/50 ${
-                  isArchived ? "opacity-70 grayscale hover:opacity-100 hover:grayscale-0" : ""
-                }`}
-              >
-                <div
-                  className="relative h-40 sm:h-44 flex items-center justify-center overflow-hidden"
-                  style={{
-                    background: `linear-gradient(135deg, ${project.brandGradient[0]}, ${project.brandGradient[1]})`,
-                  }}
-                >
-                  <span className="relative text-xs font-bold text-white/80 drop-shadow-sm px-4 text-center leading-relaxed">
-                    {project.name}
-                  </span>
-                </div>
-                <div className="flex flex-col flex-1 px-4 sm:px-5 py-4">
-                  <div className="absolute top-0 left-0 w-8 h-8" style={{ background: `linear-gradient(135deg, ${project.brandGradient[0]}80, ${project.brandGradient[1]}20)` }} />
-                  <p className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-muted">
-                    {project.category}
-                  </p>
-                  <h3 className="mt-1.5 text-sm sm:text-base font-bold text-text group-hover:text-accent transition-colors">
-                    {project.name}
-                  </h3>
-                  <p className="mt-1.5 flex-1 text-xs leading-relaxed text-t2 line-clamp-2">
-                    {project.description}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {project.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="border border-b1/60 px-2 py-0.5 font-mono text-[8px] sm:text-[9px] text-t2"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {SHOWCASE.map((project) => (
+            <PortfolioProjectCard key={project.slug} project={project} />
+          ))}
         </div>
 
         <div className="mt-8 text-center">
           <Link
             href="/portfolio/"
-            className="inline-flex items-center gap-2 rounded-md border border-b2 px-5 py-3 text-sm font-bold text-text transition-all hover:border-accent hover:text-accent"
+            className="inline-flex items-center gap-2 border border-b2 px-5 py-3 text-sm font-bold text-text transition-all hover:border-accent hover:text-accent"
           >
             View all projects →
           </Link>

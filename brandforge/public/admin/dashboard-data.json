@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T00:42:56.273Z",
+  "generatedAt": "2026-07-13T01:07:05.465Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,7 +145,7 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-13T00:42:55.909Z",
+    "recordedAt": "2026-07-13T01:07:05.139Z",
     "routes": {},
     "totalJsKb": 855,
     "totalCssKb": 62,
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-13T00:42:56.062Z",
+    "scannedAt": "2026-07-13T01:07:05.283Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
