@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T00:19:16.393Z",
+  "generatedAt": "2026-07-13T00:42:56.273Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,7 +145,7 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-13T00:19:15.857Z",
+    "recordedAt": "2026-07-13T00:42:55.909Z",
     "routes": {},
     "totalJsKb": 855,
     "totalCssKb": 62,
@@ -159,7 +159,7 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-13T00:19:16.121Z",
+    "scannedAt": "2026-07-13T00:42:56.062Z",
     "totalImages": 4,
     "totalWeightKb": 2519,
     "thresholdKb": 200,
@@ -189,7 +189,7 @@
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-07-13T00:07:22.413Z",
+    "validatedAt": "2026-07-13T00:37:24.497Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
     "total": 25,
     "pass": 25,
@@ -739,15 +739,15 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-07-13T00:07:22.451Z",
+    "checkedAt": "2026-07-13T00:37:24.526Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-07-13T00:07:21.977Z",
+      "recordedAt": "2026-07-13T00:37:24.068Z",
       "routes": {},
-      "totalJsKb": 856,
-      "totalCssKb": 63,
+      "totalJsKb": 855,
+      "totalCssKb": 62,
       "imgKb": 2519,
       "homeRoute": {
         "homeKb": 0,
@@ -758,7 +758,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-07-13T00:07:22.159Z",
+      "scannedAt": "2026-07-13T00:37:24.266Z",
       "totalImages": 4,
       "totalWeightKb": 2519,
       "thresholdKb": 200,

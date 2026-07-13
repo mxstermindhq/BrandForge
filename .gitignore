@@ -38,3 +38,8 @@ Thumbs.db
 
 # Archives
 *.zip
+
+# Verification scripts
+verify-*.mjs
+check-*.mjs
+
