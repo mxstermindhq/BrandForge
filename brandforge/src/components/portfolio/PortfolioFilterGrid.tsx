@@ -66,7 +66,7 @@ export function PortfolioFilterGrid(): React.JSX.Element {
           placeholder="Search by client, niche, or stack…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-lg rounded border border-b2 bg-s2 px-4 py-2.5 text-sm text-text placeholder:text-muted"
+          className="w-full max-w-lg border border-b1/60 bg-s2 px-4 py-2.5 text-sm text-text placeholder:text-muted"
         />
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter portfolio by status">
           {STATUS_FILTERS.map((f) => (
@@ -76,10 +76,10 @@ export function PortfolioFilterGrid(): React.JSX.Element {
               role="tab"
               aria-selected={statusFilter === f.key}
               onClick={() => setStatusFilter(f.key)}
-              className={`rounded-full border px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+              className={`border px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                 statusFilter === f.key
-                  ? "border-accent bg-accent text-white"
-                  : "border-b2 text-muted hover:border-accent hover:text-text"
+                  ? "border-accent bg-accent/15 text-accent"
+                  : "border-b1/60 text-muted hover:border-accent/60 hover:text-text"
               }`}
             >
               {f.label}
@@ -94,10 +94,10 @@ export function PortfolioFilterGrid(): React.JSX.Element {
               role="tab"
               aria-selected={nicheFilter === f.key}
               onClick={() => setNicheFilter(f.key)}
-              className={`rounded-full border px-3 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-wider ${
+              className={`border px-3 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-wider ${
                 nicheFilter === f.key
-                  ? "border-accent/60 bg-accent/15 text-accent-bright"
-                  : "border-b2 text-muted hover:border-accent"
+                  ? "border-accent/60 bg-accent/15 text-accent"
+                  : "border-b1/60 text-muted hover:border-accent/60"
               }`}
             >
               {f.label}

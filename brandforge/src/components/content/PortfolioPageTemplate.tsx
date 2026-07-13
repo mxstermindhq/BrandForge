@@ -1,34 +1,11 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
-
-const CTASection = dynamic(
-  () => import("@/components/content/CTASection").then((m) => ({ default: m.CTASection })),
-  { loading: () => <div className="py-24" aria-hidden /> },
-);
-
-const FAQBlock = dynamic(
-  () => import("@/components/content/FAQBlock").then((m) => ({ default: m.FAQBlock })),
-  { loading: () => <div className="content-wrap py-24" aria-hidden /> },
-);
-
-const CopyIntakeButton = dynamic(
-  () => import("@/components/marketing/CopyIntakeButton").then((m) => ({ default: m.CopyIntakeButton })),
-);
-
-const BeforeAfterSlider = dynamic(
-  () => import("@/components/marketing/BeforeAfterSlider").then((m) => ({ default: m.BeforeAfterSlider })),
-  { loading: () => <div className="mt-6 h-48 animate-pulse rounded-md bg-s1" aria-hidden /> },
-);
-
-const VideoThumbnail = dynamic(
-  () => import("@/components/marketing/VideoThumbnail").then((m) => ({ default: m.VideoThumbnail })),
-  { loading: () => <div className="mt-8 aspect-video animate-pulse rounded-md bg-s1" aria-hidden /> },
-);
-
-const ResultStatBox = dynamic(
-  () => import("@/components/marketing/ResultStatBox").then((m) => ({ default: m.ResultStatBox })),
-);
+import { CTASection } from "@/components/content/CTASection";
+import { FAQBlock } from "@/components/content/FAQBlock";
+import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
+import { BeforeAfterSlider } from "@/components/marketing/BeforeAfterSlider";
+import { VideoThumbnail } from "@/components/marketing/VideoThumbnail";
+import { ResultStatBox } from "@/components/marketing/ResultStatBox";
 import { PORTFOLIO_PROJECTS } from "@/content/portfolio/projects";
 import {
   resolveProjectGallery,
@@ -36,6 +13,7 @@ import {
 } from "@/lib/portfolio/screenshot-url";
 import { getRelatedProjects, nicheLinksForProject } from "@/lib/portfolio/related";
 import { ctaTrackAttrs, discordHref, portfolioExternalHref } from "@/lib/tracking";
+import { SITE } from "@/config/site";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -215,11 +193,11 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
           <p className="text-lg font-bold text-text">Want results like this?</p>
           <p className="mt-2 text-sm text-t2">DM scope on Discord or Telegram — name this project type for a faster quote.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a href="https://discord.gg/a8Nz2R6M55" target="_blank" rel="noopener noreferrer"
+            <a href={SITE.discord} target="_blank" rel="noopener noreferrer"
               className="rounded-md bg-discord px-4 py-2.5 text-xs font-bold text-white transition-opacity hover:opacity-90">
               Message on Discord
             </a>
-            <a href="https://t.me/Notmxstermind" target="_blank" rel="noopener noreferrer"
+            <a href={SITE.telegram} target="_blank" rel="noopener noreferrer"
               className="rounded-md border border-amber/50 px-4 py-2.5 text-xs font-bold text-amber transition-all hover:bg-amber/10 hover:border-amber">
               Chat on Telegram
             </a>

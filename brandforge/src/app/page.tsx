@@ -64,7 +64,7 @@ function HeroSection() {
               className="relative border border-b1/60 bg-s1/40 px-4 py-5 text-center"
             >
               <div className="absolute top-0 left-2 right-2 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-              <p className="text-2xl sm:text-3xl font-black text-text leading-none tracking-tight">
+              <p className="text-2xl sm:text-3xl font-black text-text leading-none tracking-tight font-display">
                 {stat.value}
               </p>
               <p className="mt-1.5 text-[10px] sm:text-[11px] font-medium text-t2 uppercase tracking-[0.12em]">

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { trackEvent } from "@/lib/tracking";
+import { SITE } from "@/config/site";
 
 type VideoThumbnailProps = {
   title: string;
@@ -85,10 +86,10 @@ export function VideoThumbnail({
                   Full motion showcase available on request — DM BrandForge on Discord with this project name.
                 </p>
                 <a
-                  href="https://discord.gg/brandforge"
+                  href={SITE.discord}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-block rounded bg-discord px-4 py-2 font-mono text-[10px] font-bold text-white"
+                  className="mt-4 inline-block border border-accent/60 bg-accent/15 px-4 py-2 font-mono text-[10px] font-bold text-accent hover:bg-accent/25"
                 >
                   Request showcase on Discord
                 </a>

@@ -23,18 +23,18 @@ export function CTASection({
   showCalendly = false,
 }: CTASectionProps): React.JSX.Element {
   return (
-    <section className="border-t border-b1 bg-s1 py-[var(--spacing-section)]" aria-labelledby="cta-title">
+      <section className="border-t border-b1/50 bg-s1/30 py-[var(--spacing-section)]" aria-labelledby="cta-title">
       <div className="content-wrap text-center">
-        <h2 id="cta-title" className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold">
+        <h2 id="cta-title" className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold text-text">
           {title}
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm text-text-secondary">{subhead}</p>
+        <p className="mx-auto mt-4 max-w-xl text-sm text-t2">{subhead}</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
             href={discordHref(campaign)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded bg-discord px-7 py-3.5 font-mono text-[11px] font-bold text-white"
+            className="border border-accent/60 bg-accent/15 px-7 py-3.5 font-mono text-[11px] font-bold text-accent hover:bg-accent/25"
             {...ctaTrackAttrs("discord", campaign)}
           >
             {discordLabel}
@@ -43,7 +43,7 @@ export function CTASection({
             href={telegramHref("Hi BrandForge — I'd like a quote.", campaign)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded border border-b2 px-6 py-3.5 font-mono text-[11px] font-semibold text-text-secondary hover:text-text"
+            className="border border-b1/60 px-6 py-3.5 font-mono text-[11px] font-semibold text-t2 hover:border-accent/60 hover:text-text"
             {...ctaTrackAttrs("telegram", campaign)}
           >
             {telegramLabel}
