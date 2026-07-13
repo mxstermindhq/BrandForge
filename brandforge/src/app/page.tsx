@@ -16,7 +16,8 @@ const REVIEWS = VOUCHES.slice(0, 6);
 
 function HeroSection() {
   return (
-    <section id="hero" className="relative z-10 min-h-[85vh] flex items-center pt-20 pb-16 sm:pb-20">
+    <section id="hero" className="relative z-10 min-h-[85vh] flex items-center pt-20 pb-16 sm:pb-20 overflow-hidden">
+      <ForgeCanvas />
       <div className="content-wrap w-full">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-accent mb-4 sm:mb-5">
@@ -51,16 +52,24 @@ function HeroSection() {
             </a>
           </div>
         </div>
-        <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-2xl">
+        <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 max-w-2xl">
           {[
             { value: "25+", label: "Projects delivered" },
             { value: "12", label: "Countries served" },
             { value: "14", label: "Verified vouches" },
             { value: "24h", label: "Quote turnaround" },
           ].map((stat) => (
-            <div key={stat.label}>
-              <p className="text-xl sm:text-2xl font-bold text-accent">{stat.value}</p>
-              <p className="mt-0.5 text-[11px] sm:text-xs text-t2">{stat.label}</p>
+            <div
+              key={stat.label}
+              className="relative border border-b1/60 bg-s1/40 px-4 py-5 text-center"
+            >
+              <div className="absolute top-0 left-2 right-2 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+              <p className="text-2xl sm:text-3xl font-black text-text leading-none tracking-tight">
+                {stat.value}
+              </p>
+              <p className="mt-1.5 text-[10px] sm:text-[11px] font-medium text-t2 uppercase tracking-[0.12em]">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -92,28 +101,22 @@ function PortfolioSection() {
               <Link
                 key={project.slug}
                 href={`/portfolio/${project.slug}/`}
-                className={`group relative flex flex-col overflow-hidden rounded-lg border border-b1/60 bg-s1/60 backdrop-blur-xl transition-all hover:border-b1 hover:bg-s1/80 ${
+                className={`group relative flex flex-col overflow-hidden border border-b1/50 bg-s1/30 transition-all hover:border-b1 hover:bg-s1/50 ${
                   isArchived ? "opacity-70 grayscale hover:opacity-100 hover:grayscale-0" : ""
                 }`}
               >
-                <div className="relative h-40 sm:h-44 bg-gradient-to-br from-b2 to-s2 flex items-center justify-center overflow-hidden">
-                  <div
-                    className="absolute inset-0 opacity-[0.07]"
-                    style={{
-                      background: `linear-gradient(135deg, ${project.brandGradient[0]}, ${project.brandGradient[1]})`,
-                    }}
-                  />
-                  {project.url ? (
-                    <span className="relative text-xs font-mono text-t2 px-4 text-center leading-relaxed break-all line-clamp-2">
-                      {project.url.replace(/https?:\/\//, "")}
-                    </span>
-                  ) : (
-                    <span className="relative text-xs font-mono text-muted">
-                      {project.status === "upcoming" ? "In development" : "Case study"}
-                    </span>
-                  )}
+                <div
+                  className="relative h-40 sm:h-44 flex items-center justify-center overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${project.brandGradient[0]}, ${project.brandGradient[1]})`,
+                  }}
+                >
+                  <span className="relative text-xs font-bold text-white/80 drop-shadow-sm px-4 text-center leading-relaxed">
+                    {project.name}
+                  </span>
                 </div>
-                <div className="flex flex-col flex-1 p-4 sm:p-5">
+                <div className="flex flex-col flex-1 px-4 sm:px-5 py-4">
+                  <div className="absolute top-0 left-0 w-8 h-8" style={{ background: `linear-gradient(135deg, ${project.brandGradient[0]}80, ${project.brandGradient[1]}20)` }} />
                   <p className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-muted">
                     {project.category}
                   </p>
@@ -127,7 +130,7 @@ function PortfolioSection() {
                     {project.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full border border-b1 px-2 py-0.5 font-mono text-[8px] sm:text-[9px] text-t2"
+                        className="border border-b1/60 px-2 py-0.5 font-mono text-[8px] sm:text-[9px] text-t2"
                       >
                         {tag}
                       </span>
@@ -171,14 +174,15 @@ function SocialProofSection() {
             return (
               <div
                 key={v.id}
-                className="rounded-lg border border-b1/60 bg-s1/60 backdrop-blur-xl p-5 sm:p-6"
+                className="relative border border-b1/50 bg-s1/30 p-5 sm:p-6"
               >
-                <p className="text-amber text-xs sm:text-sm tracking-wider">{stars}</p>
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-accent/80 via-accent/40 to-transparent" />
+                <p className="text-amber/80 text-xs sm:text-sm tracking-wider">{stars}</p>
                 <p className="mt-3 text-xs sm:text-sm leading-relaxed text-text-secondary">
                   &ldquo;{v.text}&rdquo;
                 </p>
-                <div className="mt-4 flex items-center gap-2.5 border-t border-b1/40 pt-3">
-                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-accent/20 text-[10px] sm:text-xs font-bold text-accent">
+                <div className="mt-4 flex items-center gap-2.5 border-t border-b1/30 pt-3">
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center border border-accent/40 text-[10px] sm:text-xs font-bold text-accent">
                     {v.who.replace("@", "").charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -282,7 +286,6 @@ export default function HomePage() {
 
   return (
     <>
-      <ForgeCanvas />
       <SchemaInjector
         pageType="home"
         path="/"

@@ -1,26 +1,27 @@
 :root {
-  --bg: #0A0A0B;
-  --s1: #111114;
-  --s2: #18181C;
-  --b1: #222226;
-  --b2: #2C2C32;
-  --a: #FF5722;
-  --a2: #FF7722;
-  --a-dim: rgba(255, 87, 34, 0.07);
-  --a-glow: rgba(255, 87, 34, 0.3);
-  --a-mid: rgba(255, 87, 34, 0.45);
-  --amber: #FFB300;
-  --green: #22c55e;
-  --text: #E8E6F0;
-  --t2: #A8A2C0;
-  --muted: #8A869E;
-  --m2: #6E6A82;
+  --bg: #0E0B09;
+  --s1: #161210;
+  --s2: #1D1916;
+  --b1: #2C2621;
+  --b2: #3D352E;
+  --a: #B08D3E;
+  --a2: #C9A64F;
+  --a-dim: rgba(176, 141, 62, 0.08);
+  --a-glow: rgba(176, 141, 62, 0.25);
+  --a-mid: rgba(176, 141, 62, 0.4);
+  --amber: #D4A029;
+  --green: #3A9D5C;
+  --text: #EDE7DC;
+  --t2: #B8AFA3;
+  --muted: #958C80;
+  --m2: #756E64;
   --dc: #5865F2;
   --tg: #229ED9;
   --max: 1200px;
   --r: 6px;
-  --font-display: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
-  --font-mono-stack: var(--font-mono-face), "Space Mono", ui-monospace, monospace;
+  --font-display: var(--font-display-face), "Big Shoulders Display", system-ui, sans-serif;
+  --font-mono-stack: var(--font-mono-face), "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans-text: var(--font-sans-face), "Inter", system-ui, sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {

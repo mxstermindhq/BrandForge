@@ -5,7 +5,7 @@ export function ForgeHeader() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 border-b border-b1/60 bg-bg/70 backdrop-blur-xl">
       <nav className="content-wrap flex items-center justify-between h-14 sm:h-16">
-        <Link href="/" className="text-base sm:text-lg font-bold tracking-tight text-text">
+        <Link href="/" className="text-base sm:text-lg font-black tracking-tight text-text">
           Brand<span className="text-accent">Forge</span>
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">

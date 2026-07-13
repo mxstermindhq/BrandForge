@@ -1,21 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Space_Mono } from "next/font/google";
+import { Big_Shoulders, Inter, IBM_Plex_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { SITE } from "@/config/site";
 import "./globals.css";
 
-const grotesk = Space_Grotesk({
+const display = Big_Shoulders({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-grotesk",
+  weight: ["400", "600", "700", "900"],
+  variable: "--font-display-face",
   display: "optional",
   preload: true,
   adjustFontFallback: true,
 });
 
-const mono = Space_Mono({
+const sans = Inter({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans-face",
+  display: "optional",
+  preload: true,
+  adjustFontFallback: true,
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-mono-face",
   display: "optional",
   preload: true,
@@ -54,7 +63,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0B",
+  themeColor: "#0E0B09",
   colorScheme: "dark",
 };
 
@@ -64,7 +73,7 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps): React.JSX.Element {
   return (
-    <html lang="en" className={`${grotesk.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <head>
         <link rel="dns-prefetch" href="https://discord.gg" />
         <link rel="dns-prefetch" href="https://t.me" />

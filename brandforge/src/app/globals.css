@@ -16,8 +16,9 @@
   --color-amber: var(--amber);
   --color-discord: var(--dc);
   --color-telegram: var(--tg);
-  --font-sans: var(--font-display);
+  --font-sans: var(--font-sans-text);
   --font-mono: var(--font-mono-stack);
+  --font-display: var(--font-display-face);
   --radius-brand: var(--r);
   --spacing-section: 100px;
   --width-content: var(--max);
@@ -44,10 +45,15 @@
   }
 
   body {
-    font-family: var(--font-display);
+    font-family: var(--font-sans-text);
     line-height: 1.65;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
   }
 
   ::selection {

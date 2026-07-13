@@ -38,12 +38,15 @@ export function TabletMockup({
           />
         ) : (
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 flex items-center justify-center"
             style={{
               background: `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`,
             }}
-            aria-hidden
-          />
+          >
+            <span className="text-xs font-bold text-white/80 drop-shadow-sm px-3 text-center leading-relaxed">
+              {projectName}
+            </span>
+          </div>
         )}
       </div>
     </div>

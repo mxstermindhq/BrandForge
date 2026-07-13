@@ -19,7 +19,7 @@ function legacyPath(filename: string): string {
   return `${LEGACY_ROOT}/${filename}`;
 }
 
-/** Prefer /img/portfolio/[slug]/ WebP, then legacy /portfolio/, then remote OG. */
+/** Prefer local /img/portfolio/[slug]/ WebP, then local legacy, then undefined (gradient fallback). */
 export function resolveProjectScreenshot(project: ScreenshotSource): string | undefined {
   const file = SCREENSHOT_FILES[project.slug];
   if (file) return resolveFilePath(project.slug, file);
@@ -27,7 +27,7 @@ export function resolveProjectScreenshot(project: ScreenshotSource): string | un
   const gallery = SCREENSHOT_GALLERY[project.slug];
   if (gallery?.[0]) return resolveFilePath(project.slug, gallery[0]);
 
-  return project.ogImageUrl;
+  return undefined;
 }
 
 export function resolveProjectGallery(slug: string): readonly string[] {
