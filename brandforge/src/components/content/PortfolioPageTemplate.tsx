@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { ProjectMockup, ProjectStatusBadge, TechChip, VisualStatCard } from "@/components/visual";
+import { PortfolioProjectCard } from "@/components/portfolio/PortfolioProjectCard";
 import { CTASection } from "@/components/content/CTASection";
 import { FAQBlock } from "@/components/content/FAQBlock";
-import { CopyIntakeButton } from "@/components/marketing/CopyIntakeButton";
 import { BeforeAfterSlider } from "@/components/marketing/BeforeAfterSlider";
 import { VideoThumbnail } from "@/components/marketing/VideoThumbnail";
 import { ResultStatBox } from "@/components/marketing/ResultStatBox";
@@ -11,9 +10,8 @@ import {
   resolveProjectGallery,
   resolveProjectScreenshot,
 } from "@/lib/portfolio/screenshot-url";
-import { getRelatedProjects, nicheLinksForProject } from "@/lib/portfolio/related";
-import { ctaTrackAttrs, discordHref, portfolioExternalHref } from "@/lib/tracking";
-import { SITE } from "@/config/site";
+import { getRelatedProjects } from "@/lib/portfolio/related";
+import { portfolioExternalHref } from "@/lib/tracking";
 import type { PortfolioDetail } from "@/types/portfolio";
 
 type PortfolioPageTemplateProps = {
@@ -23,8 +21,6 @@ type PortfolioPageTemplateProps = {
 export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): React.JSX.Element {
   const sourceProject = PORTFOLIO_PROJECTS.find((p) => p.slug === project.slug);
   const related = sourceProject ? getRelatedProjects(sourceProject, 3) : [];
-  const nicheLinks = sourceProject ? nicheLinksForProject(sourceProject) : [];
-  const intakeMsg = `Hi BrandForge — I want something like ${project.name}.\n\nNiche: \nReferences: \nDeadline: `;
   const campaign = `portfolio-similar-${project.slug}`;
   const screenshotUrl = resolveProjectScreenshot({
     slug: project.slug,
@@ -85,16 +81,17 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
         </div>
       </header>
 
-      <section className="border-b border-b1 bg-s1 py-10">
-        <div className="content-wrap grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <VisualStatCard value={project.timeline} label="Timeline" />
-          <VisualStatCard value={project.teamSize} label="Team" />
+      <section className="border-b border-b1 bg-s1 py-6">
+        <div className="content-wrap grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          <VisualStatCard value={project.timeline} label="Timeline" compact />
+          <VisualStatCard value={project.teamSize} label="Team" compact />
           <VisualStatCard
             value={project.budgetPublic ?? "Scoped"}
             label="Budget"
             sublabel={project.budgetPublic ? "Public scope" : "Quoted on intake"}
+            compact
           />
-          <VisualStatCard value={project.outcomeMetric} label="Outcome" />
+          <VisualStatCard value={project.outcomeMetric} label="Outcome" compact />
         </div>
       </section>
 
@@ -189,23 +186,6 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
       ) : null}
 
       <section className="py-12">
-        <div className="content-wrap text-center">
-          <p className="text-lg font-bold text-text">Want results like this?</p>
-          <p className="mt-2 text-sm text-t2">DM scope on Discord or Telegram — name this project type for a faster quote.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a href={SITE.discord} target="_blank" rel="noopener noreferrer"
-              className="rounded-md bg-discord px-4 py-2.5 text-xs font-bold text-white transition-opacity hover:opacity-90">
-              Message on Discord
-            </a>
-            <a href={SITE.telegram} target="_blank" rel="noopener noreferrer"
-              className="rounded-md border border-amber/50 px-4 py-2.5 text-xs font-bold text-amber transition-all hover:bg-amber/10 hover:border-amber">
-              Chat on Telegram
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12">
         <div className="content-wrap">
           <h2 className="text-lg font-bold">Outcome</h2>
           {project.highlights && project.highlights.length > 0 ? (
@@ -240,76 +220,18 @@ export function PortfolioPageTemplate({ project }: PortfolioPageTemplateProps): 
         </section>
       ) : null}
 
-      <section className="border-t border-b1 py-10">
-        <div className="content-wrap">
-          <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Related services</h2>
-          <div className="mt-4 flex flex-wrap gap-4">
-            {project.relatedServices.map((s) => (
-              <Link
-                key={s.href}
-                href={s.href}
-                className="font-mono text-[11px] text-accent-bright hover:text-text"
-              >
-                {s.label} →
-              </Link>
-            ))}
-          </div>
-          {nicheLinks.length > 0 ? (
-            <>
-              <h2 className="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-                Perfect for
-              </h2>
-              <div className="mt-4 flex flex-wrap gap-4">
-                {nicheLinks.map((n) => (
-                  <Link
-                    key={n.href}
-                    href={n.href}
-                    className="font-mono text-[11px] capitalize text-accent-bright hover:text-text"
-                  >
-                    {n.label} →
-                  </Link>
-                ))}
-              </div>
-            </>
-          ) : null}
-        </div>
-      </section>
-
       {related.length > 0 ? (
         <section className="border-t border-b1 bg-s1 py-12">
           <div className="content-wrap">
             <h2 className="text-lg font-bold">Related projects</h2>
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               {related.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/portfolio/${p.slug}/`}
-                  className="rounded-md border border-b1 bg-bg p-5 hover:border-accent"
-                >
-                  <p className="font-mono text-[9px] uppercase text-muted">{p.category}</p>
-                  <p className="mt-2 font-bold">{p.name}</p>
-                  <p className="mt-2 text-xs text-text-secondary">{p.description.slice(0, 100)}…</p>
-                </Link>
+                <PortfolioProjectCard key={p.slug} project={p} />
               ))}
             </div>
           </div>
         </section>
       ) : null}
-
-      <section className="border-t border-b1 py-10">
-        <div className="content-wrap flex flex-wrap items-center gap-4">
-          <a
-            href={discordHref(campaign)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded bg-discord px-6 py-3 font-mono text-[11px] font-bold text-white"
-            {...ctaTrackAttrs("discord", campaign)}
-          >
-            Start similar project on Discord
-          </a>
-          <CopyIntakeButton text={intakeMsg} label="Copy intake message" />
-        </div>
-      </section>
 
       <FAQBlock items={project.faqs} title="Questions about this type of project" pageSlug={`/portfolio/${project.slug}/`} />
       <CTASection

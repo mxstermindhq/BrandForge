@@ -3,15 +3,16 @@ type VisualStatCardProps = {
   label: string;
   icon?: React.ReactNode;
   sublabel?: string;
+  compact?: boolean;
 };
 
-export function VisualStatCard({ value, label, icon, sublabel }: VisualStatCardProps): React.JSX.Element {
+export function VisualStatCard({ value, label, icon, sublabel, compact }: VisualStatCardProps): React.JSX.Element {
   return (
-    <article className="rounded-md border border-b1 bg-s1 p-6">
-      {icon ? <div className="mb-3 text-2xl text-accent-bright" aria-hidden>{icon}</div> : null}
-      <p className="font-mono text-[clamp(2rem,5vw,2.75rem)] font-bold leading-none text-text">{value}</p>
-      <p className="mt-2 text-sm font-semibold text-text">{label}</p>
-      {sublabel ? <p className="mt-1 font-mono text-[10px] text-muted">{sublabel}</p> : null}
+    <article className={`border border-b1 bg-s1 ${compact ? "p-3 sm:p-4" : "p-6"}`}>
+      {icon ? <div className="mb-2 text-xl text-accent-bright" aria-hidden>{icon}</div> : null}
+      <p className={`font-mono font-bold leading-none text-text ${compact ? "text-lg sm:text-xl" : "text-[clamp(2rem,5vw,2.75rem)]"}`}>{value}</p>
+      <p className={`font-semibold text-text ${compact ? "mt-1 text-xs" : "mt-2 text-sm"}`}>{label}</p>
+      {sublabel ? <p className={`font-mono text-muted ${compact ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}>{sublabel}</p> : null}
     </article>
   );
 }
