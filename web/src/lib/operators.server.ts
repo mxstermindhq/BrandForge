@@ -46,26 +46,31 @@ export async function getCuratedOperators(): Promise<CuratedOperator[]> {
   const headers = baseHeaders();
   if (!headers) return [];
 
-  const url = `${SUPABASE_URL}/rest/v1/curated_operators?select=*&order=display_order.asc`;
-  const res = await fetch(url, {
-    headers,
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) {
-    console.error("getCuratedOperators: fetch failed", res.status);
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/curated_operators?select=*&order=display_order.asc`;
+    const res = await fetch(url, {
+      headers,
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) {
+      console.error("getCuratedOperators: fetch failed", res.status);
+      return [];
+    }
+    const rows = (await res.json()) as Array<Record<string, unknown>>;
+    const valid: CuratedOperator[] = [];
+    for (const row of rows) {
+      try {
+        valid.push(mapDbRow(row));
+      } catch (err) {
+        console.error("getCuratedOperators: schema error", err);
+      }
+    }
+    return valid;
+  } catch (err) {
+    console.error("getCuratedOperators: fetch error", err);
     return [];
   }
-
-  const rows = (await res.json().catch(() => [])) as Array<Record<string, unknown>>;
-  const valid: CuratedOperator[] = [];
-  for (const row of rows) {
-    try {
-      valid.push(mapDbRow(row));
-    } catch (err) {
-      console.error("getCuratedOperators: schema error", err);
-    }
-  }
-  return valid;
 }
 
 export async function getLandingOperators(): Promise<CuratedOperator[]> {
