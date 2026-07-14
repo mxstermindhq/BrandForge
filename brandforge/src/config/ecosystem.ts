@@ -5,7 +5,7 @@ export const ECOSYSTEM = {
     tagline: "Founder Operating System — monetization, ops workflows, growth stack, and economics.",
     audience:
       "Founders who validated revenue and need an operating system beyond fixed packages — not another bespoke agency engagement.",
-    discord: "https://discord.gg/a8Nz2R6M55",
+    discord: "https://discord.gg/GSKHXkUY85",
     /** MXSTERMIND should link back with ?utm_source=mxstermind&utm_medium=cross_nav */
     crossNavCampaign: "bf-mxm-bridge",
   },

@@ -1,7 +1,7 @@
 /** Typed site configuration — replaces site/js/config.js BF_CONFIG */
 export const SITE = {
   url: "https://brandforge.gg",
-  discord: "https://discord.gg/a8Nz2R6M55",
+  discord: "https://discord.gg/GSKHXkUY85",
   telegram: "https://t.me/Notmxstermind",
   premium: "https://mxstermind.com",
   calendlyUrl: "",

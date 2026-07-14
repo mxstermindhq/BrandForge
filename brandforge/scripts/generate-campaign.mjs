@@ -46,7 +46,7 @@ const days = dayKeys.map((key, i) => ({
       timeEst: i === 0 ? "18:51" : "10:00",
       kind: i === 0 ? "kickoff" : "new-thread",
       title: i === 0 ? `#announcements — ${nameArg} kickoff` : undefined,
-      body: `${offerArg}\n\nNiche: ${nicheArg}\n→ brandforge.gg/packages\n→ discord.gg/a8Nz2R6M55`,
+      body: `${offerArg}\n\nNiche: ${nicheArg}\n→ brandforge.gg/packages\n→ discord.gg/GSKHXkUY85`,
       notes: "Edit copy before posting.",
     },
   ],

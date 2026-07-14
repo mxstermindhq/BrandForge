@@ -1,12 +1,17 @@
 {
   "name": "BrandForge",
   "short_name": "BrandForge",
-  "description": "Design, development, and growth packages.",
+  "description": "Design, development, and growth studio.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060608",
-  "theme_color": "#060608",
+  "background_color": "#0E0B09",
+  "theme_color": "#0E0B09",
   "icons": [
+    {
+      "src": "/img/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
     {
       "src": "/img/favicon-32x32.png",
       "sizes": "32x32",
@@ -15,6 +20,17 @@
     {
       "src": "/img/apple-touch-icon.png",
       "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/android-chrome-384x384.png",
+      "sizes": "384x384",
       "type": "image/png"
     },
     {

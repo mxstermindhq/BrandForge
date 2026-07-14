@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A029"/>
+      <stop offset="40%" stop-color="#B08D3E"/>
+      <stop offset="100%" stop-color="#8A6B2E"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8C860"/>
+      <stop offset="100%" stop-color="#C9A64F"/>
+    </linearGradient>
+  </defs>
+  <!-- Hexagon body -->
+  <polygon points="256,70 420,150 420,362 256,442 92,362 92,150" fill="url(#g)"/>
+  <!-- Anvil top surface -->
+  <polygon points="180,180 332,180 360,240 152,240" fill="url(#g2)"/>
+  <!-- Anvil horn (left) -->
+  <polygon points="152,240 120,270 100,290 120,310 152,310" fill="url(#g)"/>
+  <!-- Spark core -->
+  <circle cx="300" cy="200" r="14" fill="#EDE7DC" opacity="0.4"/>
+  <circle cx="300" cy="200" r="7" fill="#EDE7DC"/>
+  <!-- Base line -->
+  <polygon points="160,360 352,360 370,380 142,380" fill="#8A6B2E"/>
+</svg>

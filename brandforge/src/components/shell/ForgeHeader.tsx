@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SITE } from "@/config/site";
 
@@ -5,8 +6,15 @@ export function ForgeHeader() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 border-b border-b1/60 bg-bg/70 backdrop-blur-xl">
       <nav className="content-wrap flex items-center justify-between h-14 sm:h-16">
-        <Link href="/" className="text-base sm:text-lg font-black tracking-tight text-text">
-          Brand<span className="text-accent">Forge</span>
+        <Link href="/" className="flex items-center shrink-0">
+          <Image
+            src="/img/logo-header.webp"
+            alt="BrandForge"
+            width={180}
+            height={36}
+            className="h-7 sm:h-9 w-auto"
+            priority
+          />
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">
           <a

@@ -16,12 +16,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let listings: MetadataRoute.Sitemap = [];
   let profiles: MetadataRoute.Sitemap = [];
   try {
+    const ac = new AbortController();
+    const to = setTimeout(() => ac.abort(), 5000);
     const base = metadataApiBase();
     const [starterRes, partnerRes, profRes] = await Promise.all([
-      fetch(`${base}/api/marketplace/listings?term=starter`, { next: { revalidate: 3600 } }),
-      fetch(`${base}/api/marketplace/listings?term=partner`, { next: { revalidate: 3600 } }),
-      fetch(`${base}/api/talent`, { next: { revalidate: 3600 } }),
+      fetch(`${base}/api/marketplace/listings?term=starter`, { signal: ac.signal, next: { revalidate: 3600 } }),
+      fetch(`${base}/api/marketplace/listings?term=partner`, { signal: ac.signal, next: { revalidate: 3600 } }),
+      fetch(`${base}/api/talent`, { signal: ac.signal, next: { revalidate: 3600 } }),
     ]);
+    clearTimeout(to);
     const seen = new Set<string>();
     for (const res of [starterRes, partnerRes]) {
       if (!res.ok) continue;

@@ -1,0 +1,155 @@
+{
+  "validatedAt": "2026-07-13T02:39:32.018Z",
+  "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
+  "total": 25,
+  "pass": 25,
+  "fail": 0,
+  "warn": 1,
+  "pages": [
+    {
+      "page": "/404/",
+      "status": "warn",
+      "message": "No JSON-LD found"
+    },
+    {
+      "page": "/404.html",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/admin/",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/offline.html",
+      "status": "skip",
+      "message": "No schema required"
+    },
+    {
+      "page": "/portfolio/ai-voice-receptionist/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/boostingfactory/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/carspotlive/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/cascade-markets/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/cloutscout/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/confidential-engagement/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/crystal-wars/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/directfiber/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/drain-cx/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/dyotravel/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/fluorite-store/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/gazedvalleybeef/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/grindnode/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/jarro-ai/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/lava-pw/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/linkedin-automation/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/passle/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/repsheets/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/sui-blockchain-app/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/valaccs/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/portfolio/whiteskyhosting/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/privacy/",
+      "status": "pass",
+      "blocks": 1
+    },
+    {
+      "page": "/terms/",
+      "status": "pass",
+      "blocks": 1
+    }
+  ]
+}

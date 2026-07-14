@@ -55,6 +55,15 @@ export const metadata: Metadata = {
       "Raw ideas forged into battle-ready brands. Discord and Telegram.",
     images: ["/img/og-image.webp"],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/img/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/img/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/img/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
   robots: { index: true, follow: true },
   other: {
     "ai-content-declaration":
@@ -79,6 +88,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
         <link rel="dns-prefetch" href="https://t.me" />
         <link rel="prefetch" href="/portfolio/" />
         <link rel="preload" href="/img/logo-header.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/img/logo-nav.png" as="image" />
       </head>
       <body className="bg-bg text-text antialiased">
         {children}

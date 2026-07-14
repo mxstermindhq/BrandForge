@@ -71,7 +71,7 @@ export function ForgeCanvas() {
     }
 
     function maxParticles(): number {
-      return isMobile() ? 60 : 150;
+      return isMobile() ? 120 : 400;
     }
 
     function resize() {
@@ -91,13 +91,13 @@ export function ForgeCanvas() {
     function spawnSpark(anvilX: number, anvilY: number) {
       const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.2;
       const speed = 0.4 + Math.random() * 1.6;
-      const maxLife = 120 + Math.random() * 180;
+      const maxLife = 120 + Math.random() * 200;
       st.sparks.push({
         x: anvilX + (Math.random() - 0.5) * 40,
         y: anvilY + (Math.random() - 0.5) * 10,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 1.5 + Math.random() * 2.5,
+        size: 2 + Math.random() * 4,
         alpha: 0,
         life: 0,
         maxLife,
@@ -113,16 +113,16 @@ export function ForgeCanvas() {
           y: y + (Math.random() - 0.5) * 12,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed - 0.5,
-          size: 1 + Math.random() * 3.5,
+          size: 1.5 + Math.random() * 4,
           alpha: 0,
           life: 0,
-          maxLife: 25 + Math.random() * 50,
+          maxLife: 30 + Math.random() * 60,
         });
       }
     }
 
     function scheduleAutoBurst() {
-      const delay = 4000 + Math.random() * 3000;
+      const delay = 3000 + Math.random() * 3000;
       timerIntervalRef.current = window.setTimeout(() => {
         if (pausedRef.current) {
           scheduleAutoBurst();
@@ -130,7 +130,7 @@ export function ForgeCanvas() {
         }
         const anvilX = W * ANVIL_X_RATIO;
         const anvilY = H * ANVIL_Y_RATIO;
-        spawnBurst(anvilX, anvilY, 40 + Math.floor(Math.random() * 20));
+        spawnBurst(anvilX, anvilY, 50 + Math.floor(Math.random() * 50));
         scheduleAutoBurst();
       }, delay);
     }
@@ -162,30 +162,43 @@ export function ForgeCanvas() {
         }
       }
 
-      while (st.sparks.length < cap && st.frameCount % 3 === 0) {
+      while (st.sparks.length < cap && st.frameCount % 2 === 0) {
         spawnSpark(anvilX, anvilY);
+        if (!isMobile()) spawnSpark(anvilX, anvilY);
       }
     }
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
 
+      const cx = W * ANVIL_X_RATIO;
+      const cy = H * ANVIL_Y_RATIO;
+      const ambientRadius = Math.min(W, H) * 0.25;
+      const ambientGrad = ctx.createRadialGradient(cx, cy - 60, 0, cx, cy - 60, ambientRadius);
+      ambientGrad.addColorStop(0, "rgba(176,141,62,0.06)");
+      ambientGrad.addColorStop(1, "rgba(176,141,62,0)");
+      ctx.fillStyle = ambientGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy - 60, ambientRadius, 0, Math.PI * 2);
+      ctx.fill();
+
       for (const s of st.sparks) {
         if (s.alpha < 0.01) continue;
         const progress = s.life / s.maxLife;
         const [r, g, b] = lerpColor(progress);
-        const glow = s.size * 3;
+        const glow = s.size * 5;
         const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, glow);
-        grad.addColorStop(0, `rgba(${r},${g},${b},${s.alpha * 0.5})`);
+        grad.addColorStop(0, `rgba(${r},${g},${b},${s.alpha * 0.85})`);
+        grad.addColorStop(0.2, `rgba(${r},${g},${b},${s.alpha * 0.35})`);
         grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(s.x, s.y, glow, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(${Math.min(r + 20, 255)},${Math.min(g + 20, 255)},${Math.min(b + 20, 255)},${s.alpha})`;
+        ctx.fillStyle = `rgba(${Math.min(r + 55, 255)},${Math.min(g + 55, 255)},${Math.min(b + 55, 255)},${s.alpha})`;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, Math.max(s.size * (1 - progress * 0.4), 0.5), 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, Math.max(s.size * (1 - progress * 0.3), 1), 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -194,13 +207,13 @@ export function ForgeCanvas() {
       ctx.clearRect(0, 0, W, H);
       const cx = W * ANVIL_X_RATIO;
       const cy = H * ANVIL_Y_RATIO;
-      const radius = Math.min(W, H) * 0.3;
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-      grad.addColorStop(0, "rgba(176,141,62,0.08)");
+      const radius = Math.min(W, H) * 0.35;
+      const grad = ctx.createRadialGradient(cx, cy - 60, 0, cx, cy - 60, radius);
+      grad.addColorStop(0, "rgba(176,141,62,0.12)");
       grad.addColorStop(1, "rgba(176,141,62,0)");
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.arc(cx, cy - 60, radius, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -208,7 +221,7 @@ export function ForgeCanvas() {
       if (reducedMotionRef.current) return;
       const rect = parentRef.current?.getBoundingClientRect();
       if (!rect) return;
-      spawnBurst(e.clientX - rect.left, e.clientY - rect.top, 50);
+      spawnBurst(e.clientX - rect.left, e.clientY - rect.top, isMobile() ? 50 : 80);
     }
 
     function tick() {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T02:02:13.669Z",
+  "generatedAt": "2026-07-14T08:59:42.743Z",
   "site": "brandforge.gg",
   "authNote": "Static export — protect /admin/ with Cloudflare Access (recommended) or NEXT_PUBLIC_BF_ADMIN_KEY client gate. Never ship GA credentials in the bundle.",
   "lookerStudioUrl": null,
@@ -145,11 +145,11 @@
     }
   },
   "bundles": {
-    "recordedAt": "2026-07-13T02:02:13.283Z",
+    "recordedAt": "2026-07-14T08:59:41.553Z",
     "routes": {},
     "totalJsKb": 855,
     "totalCssKb": 62,
-    "imgKb": 2519,
+    "imgKb": 2345,
     "homeRoute": {
       "homeKb": 0,
       "prevHomeKb": 0,
@@ -159,15 +159,25 @@
     "flags": []
   },
   "images": {
-    "scannedAt": "2026-07-13T02:02:13.448Z",
-    "totalImages": 4,
-    "totalWeightKb": 2519,
+    "scannedAt": "2026-07-14T08:59:42.086Z",
+    "totalImages": 6,
+    "totalWeightKb": 2345,
     "thresholdKb": 200,
     "oversized": [],
     "legacyFormats": [
       {
+        "path": "/img/android-chrome-192x192.png",
+        "kb": 7,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
+        "path": "/img/android-chrome-384x384.png",
+        "kb": 15,
+        "suggest": "Convert to AVIF + WebP"
+      },
+      {
         "path": "/img/apple-touch-icon.png",
-        "kb": 36,
+        "kb": 7,
         "suggest": "Convert to AVIF + WebP"
       },
       {
@@ -177,19 +187,19 @@
       },
       {
         "path": "/img/favicon-32x32.png",
-        "kb": 2,
+        "kb": 1,
         "suggest": "Convert to AVIF + WebP"
       },
       {
         "path": "/img/logo-nav.png",
-        "kb": 5,
+        "kb": 2,
         "suggest": "Convert to AVIF + WebP"
       }
     ],
     "passed": true
   },
   "schema": {
-    "validatedAt": "2026-07-13T00:37:24.497Z",
+    "validatedAt": "2026-07-13T02:41:38.648Z",
     "directory": "C:\\Users\\user\\Desktop\\TheOne\\brandforge\\out",
     "total": 25,
     "pass": 25,
@@ -739,12 +749,12 @@
   ],
   "contentScorecardNote": "Page-level views/conversions sync from GA4 → audit/ga4-snapshot.json. Sort scorecard by conversion rate in Looker or update snapshot manually.",
   "preDeploy": {
-    "checkedAt": "2026-07-13T00:37:24.526Z",
+    "checkedAt": "2026-07-13T02:41:38.670Z",
     "passed": true,
     "blockers": [],
     "homeMobile": null,
     "bundles": {
-      "recordedAt": "2026-07-13T00:37:24.068Z",
+      "recordedAt": "2026-07-13T02:41:38.337Z",
       "routes": {},
       "totalJsKb": 855,
       "totalCssKb": 62,
@@ -758,7 +768,7 @@
       "flags": []
     },
     "images": {
-      "scannedAt": "2026-07-13T00:37:24.266Z",
+      "scannedAt": "2026-07-13T02:41:38.468Z",
       "totalImages": 4,
       "totalWeightKb": 2519,
       "thresholdKb": 200,

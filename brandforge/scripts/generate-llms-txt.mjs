@@ -17,7 +17,7 @@ const lines = [
   "- mxstermind.com: Founder Operating System — monetization, ops, and growth systems",
   "",
   "## Contact",
-  "- Discord (primary): https://discord.gg/a8Nz2R6M55",
+  "- Discord (primary): https://discord.gg/GSKHXkUY85",
   "- Telegram (secondary): https://t.me/Notmxstermind",
   "",
   "## Pages",

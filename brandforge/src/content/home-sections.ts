@@ -4,51 +4,36 @@ export const HOME_FAQ: readonly FaqItem[] = [
   {
     question: "Do you work with escrow or middleman?",
     answer:
-      "Yes, on all orders. We regularly work with trusted escrow middlemen. Mention it when you DM us and we will arrange it.",
+      "Yes. Once you accept a specialist's quote, you pay a 10% match fee — non-refundable, since it covers finding and vetting the right person for your project — and the project cost itself is held in escrow, personally overseen by BrandForge's founder, not an algorithm or a third-party platform. Funds release in stages tied to real, verifiable progress. The final release only happens once you're satisfied.",
   },
   {
-    question: "What happens after I DM you?",
+    question: "How do I pay — all at once or in parts?",
     answer:
-      "We reply within 24 hours with a fixed quote, timeline, and payment options. After payment, kickoff within 5 working days with weekly progress updates until handoff.",
+      "Whichever works for you. Full payment upfront is simplest and gets things moving fastest. If that's not workable, we can split it in half (50% to start, 50% on completion), or stage it across three payments for larger projects. Same total cost either way — the option is about what's easiest for your cash flow, not about price.",
   },
   {
-    question: "How many revisions are included?",
+    question: "What happens if I'm not happy with the delivered work?",
     answer:
-      "Revisions are scoped per project in the fixed quote. We agree on the number of revision rounds before work starts — no hidden caps.",
+      "The final payment release is entirely your call — it only happens once you confirm you're satisfied. If something's not right, that gets resolved (revisions, adjustments, or escalation to BrandForge directly) before that final release ever fires.",
   },
   {
-    question: "What post-delivery support do I get?",
+    question: "What if the specialist can't finish the project?",
     answer:
-      "Support terms are included in your quote. We agree on post-delivery support scope — export fixes, tweaks, or ongoing retainer — before payment.",
+      "If a specialist fails to deliver on a straightforward project, you get a refund or get rematched with another specialist — your choice. For genuinely high-risk or experimental work, where both sides acknowledged upfront that success isn't guaranteed even with full effort, unreleased escrow funds are refunded and no one is penalized for a good-faith attempt that didn't pan out.",
   },
   {
-    question: "What payment methods do you accept?",
+    question: "Is this like Fiverr or Upwork?",
     answer:
-      "Crypto including USDC, BTC, and LTC. Payment details confirmed over Discord or Telegram before work begins.",
+      "No. There's no bidding board, no anonymous algorithm matching, and no bot deciding disputes. One person — BrandForge's founder — personally matches you, personally holds the escrow, and personally reviews progress before releasing funds. Humans are involved at every step, not a platform taking a cut and staying out of it.",
   },
   {
-    question: "Can I scope a custom project?",
+    question: "Is my money safe?",
     answer:
-      "Yes. Every project gets a fixed quote scoped to what you actually need — no fixed public packages. DM us with your requirements and get a price in 24 hours.",
+      "Every project is escrowed and personally overseen by BrandForge's founder. Funds release in stages tied to real proof of work — not on a timer, not automatically. No black-box platform fees, no anonymous dispute bot. Just one accountable person making sure both sides get what they were promised.",
   },
   {
-    question: "What if I need an MVP or full app?",
+    question: "What happens after I open a ticket?",
     answer:
-      "We ship full products — MVPs, web apps, mobile apps, and platform builds. Send your scope on Discord or Telegram for a fixed quote on the specific build.",
-  },
-  {
-    question: "How long does delivery actually take?",
-    answer:
-      "Simple projects ship in 1–2 weeks; larger builds are quoted with a timeline upfront. Rush timelines available — mention it when you DM us.",
-  },
-  {
-    question: "Is there a bigger option for serious projects?",
-    answer:
-      "We scope each project individually — there's no fixed cap. Send your requirements on Discord or Telegram and we'll quote what fits.",
-  },
-  {
-    question: "What data do you collect?",
-    answer:
-      "Messages you send on Discord or Telegram and anonymous site analytics when enabled. See our Privacy Policy — we do not sell data.",
+      "You'll get a reply directly from BrandForge within minutes or hours, with a fixed quote and timeline from the specialist matched to your project.",
   },
 ];
