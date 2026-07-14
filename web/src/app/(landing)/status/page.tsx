@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function StatusPage() {
   let apiOk = false;
   try {
-    const res = await fetch(`${metadataApiBase()}/api/health`, { next: { revalidate: 30 } });
+    const res = await fetch(`${metadataApiBase()}/api/health`, { signal: AbortSignal.timeout(3000), next: { revalidate: 30 } });
     apiOk = res.ok;
   } catch {
     apiOk = false;
