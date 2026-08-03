@@ -3,7 +3,6 @@ import { Cormorant_Garamond, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/tokens.css";
 import "@/styles/summer-sky.css";
-import { DirectoryAnalytics } from "@/components/analytics/DirectoryAnalytics";
 import { SummerSkyBackground } from "@/components/theme/SummerSkyBackground";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AuthMeProvider } from "@/providers/AuthMeProvider";
@@ -132,7 +131,6 @@ export default function RootLayout({
           <ThemeProvider defaultTheme="light">
             <AuthProvider>
               <AuthMeProvider>
-                <DirectoryAnalytics />
                 {children}
               </AuthMeProvider>
             </AuthProvider>
