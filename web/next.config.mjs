@@ -39,29 +39,9 @@ function envResolved(key) {
 }
 
 /**
- * API proxy (rewrites — used heavily by `next dev`):
- * - On Cloudflare Workers, **`src/middleware.ts`** proxies `/api/*` to the Node API; OpenNext often does not honor external
- *   rewrites here. Keep `API_PROXY_DESTINATION` / `NEXT_PUBLIC_API_URL` in `wrangler.jsonc` `vars` (and build env).
- * - Rewrites below still help local dev and SSR paths that hit the Node server directly.
+ * Legacy /api proxy (dead — the Node API it targeted was removed with the old SaaS app).
+ * Route handlers under src/app/api/ai/ serve directly; nothing proxies /api/* anymore.
  */
-function hasRemotePublicApiUrl() {
-  const raw = String(envResolved("NEXT_PUBLIC_API_URL") || "")
-    .trim()
-    .replace(/\/+$/, "");
-  if (!raw) return false;
-  try {
-    const h = new URL(raw).hostname;
-    return h !== "localhost" && h !== "127.0.0.1" && h !== "[::1]";
-  } catch {
-    return false;
-  }
-}
-
-const backendBase = String(
-  envResolved("API_PROXY_DESTINATION") || envResolved("NEXT_PUBLIC_API_URL") || "http://127.0.0.1:3000",
-).replace(/\/+$/, "");
-
-const apiRewriteRules = [{ source: "/api/:path*", destination: `${backendBase}/api/:path*` }];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -104,8 +84,6 @@ const nextConfig = {
     const legacyApp = [
       "/explore",
       "/feed",
-      "/chat",
-      "/chat/:path*",
       "/messages",
       "/messages/:path*",
       "/inbox",
@@ -159,17 +137,6 @@ const nextConfig = {
       ...legacyApp.map((source) => ({ source, ...home })),
       { source: "/:username/request/:id", destination: "/", permanent: true },
     ];
-  },
-  async rewrites() {
-    const proxyOn =
-      process.env.NEXT_PUBLIC_USE_API_PROXY === "1" ||
-      Boolean(String(envResolved("API_PROXY_DESTINATION") || "").trim()) ||
-      hasRemotePublicApiUrl();
-    if (proxyOn) return apiRewriteRules;
-    if (process.env.NODE_ENV === "development" && process.env.DISABLE_DEV_API_REWRITE !== "1") {
-      return apiRewriteRules;
-    }
-    return [];
   },
   async headers() {
     const security = {
