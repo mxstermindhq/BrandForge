@@ -1,4 +1,4 @@
-import professionalTitles from "../../../data/professional-titles.json";
+import professionalTitles from "../../data/professional-titles.json";
 
 export const PROFESSIONAL_TITLES = professionalTitles as readonly string[];
 

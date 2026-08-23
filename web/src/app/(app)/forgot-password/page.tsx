@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
-import { SignInForm } from "./signin-form";
-import "./signin.css";
+import { ForgotPasswordForm } from "./forgot-password-form";
+import "../signin/signin.css";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -11,14 +11,14 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "Sign in",
-  description: "Sign in to the BrandForge client workspace.",
+  title: "Reset password",
+  description: "Request a password reset link for your BrandForge account.",
 };
 
-export default function SignInPage() {
+export default function ForgotPasswordPage() {
   return (
     <div className={`signin-page ${bricolage.variable}`}>
-      <SignInForm />
+      <ForgotPasswordForm />
     </div>
   );
 }
